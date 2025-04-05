@@ -1,0 +1,459 @@
+.Featured-section{
+    height: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.Feature-Cards{
+    height: auto;
+    width: 80%;
+    padding-bottom: 20px;
+    padding: 8px;
+    padding-left: 26px;
+}
+
+
+
+
+.Feature-Cards .card{
+    height: 420px;
+    width: 300px;
+    background-color: white;
+    border-radius: 16px;
+    border: 2px solid rgba(188, 182, 182, 0.932);
+    margin-bottom: 12px;
+    padding: 8px;
+}
+.Feature-Cards .card img{
+    height: 280px;
+    width: 280px;
+    border-radius: 16px;
+}
+
+
+.Feature-Cards .card img {
+    object-fit: cover; 
+    transition: transform 0.5s ease;
+  }
+  
+  .Feature-Cards .card:hover img {
+    transform: scale(1.1); 
+  }
+
+
+  .Feature-Cards .card {
+    position: relative; /* Ensure the card is the reference for positioning */
+}
+
+.Feature-Cards .card .Cards-Options {
+    height: 280px;
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0; /* Adjust based on your design */
+    left: 0; /* Adjust based on your design */
+    margin: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.Feature-Cards .card:hover .Cards-Options {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+
+.Cards-popUps{
+    height: 28px;
+    width: 260px;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+
+.Cards-Icons{
+    height: 48px;
+    width: 156px;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+.Eye-Icons{
+  height: 48px;
+  width: 48px;
+  display: flex;
+  justify-content: center;
+  /* background-color: aquamarine; */
+  background-color: rgb(247, 146, 146);
+  align-items: center;
+  border-radius: 50%;
+  cursor:pointer;
+}
+.Eye-Icons:hover{
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+}
+
+
+.Heart-Icon{
+    height: 48px;
+    width: 48px;
+    display: flex;
+    justify-content: center;
+    /* background-color: aquamarine; */
+    background-color: rgb(247, 146, 146);
+    align-items: center;
+    border-radius: 50%;
+    cursor:pointer;
+  }
+
+  .Heart-Icon:hover{
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+}
+
+  .Shuffle-Icon{
+    height: 48px;
+    width: 48px;
+    display: flex;
+    /* background-color: aquamarine; */
+    background-color: rgb(247, 146, 146);
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .Shuffle-Icon:hover{
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+}
+
+.tooltip1,.tooltip2,.tooltip3{
+    position: absolute;
+    bottom: 60%; 
+    transform: translateY(-20%);
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    width: 100px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+
+
+  .Eye-Icons:hover .tooltip1 {
+    opacity: 1;
+    visibility: visible;
+}
+
+.Heart-Icon:hover .tooltip2 {
+    opacity: 1;
+    visibility: visible;
+}
+
+.Shuffle-Icon:hover .tooltip3 {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+  .Tag{
+    position: absolute;
+    left: 18%;
+    top: 10%;
+    background-color: orange;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%,-50%);
+    height: 26px;
+    width: 60px;
+    border-radius: 12px;
+  }
+
+  .Feature-Cards .card .card-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: first baseline;
+    height: 104px;
+    gap: 0; 
+    line-height:0;
+}
+
+.card-body p{
+  font-size: 12px;
+}
+
+.card-body h4{
+    font-size: 16px;
+  }
+
+.label-icon{
+    display: flex;
+    flex-direction: row;
+}
+.Addcart-icon{
+    height: 54px;
+    width: 54px;
+    /* background-color: rgb(155, 235, 169); */
+    background-color: rgb(244, 92, 92);
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}  
+
+.Addcart-icon i{
+    font-size: 18px;
+}
+.link-style{
+  all:unset ;
+}
+
+
+
+@media(max-width:480px){
+
+  .Feature-Cards{
+    height: auto;
+    width: 80%;
+    padding-bottom: 20px;
+    padding: 4px;
+    padding-left: 10px;
+}
+
+  .Feature-Cards .card{
+    height: 380px;
+    width: 266px;
+    background-color: white;
+    border-radius: 16px;
+    border: 2px solid rgba(188, 182, 182, 0.932);
+    margin-bottom: 12px;
+    padding: 5px;
+}
+.Feature-Cards .card img{
+    height: 260px;
+    width: 256px;
+    border-radius: 16px;
+}
+
+
+.Feature-Cards .card img {
+    object-fit: cover; 
+    transition: transform 0.5s ease;
+  }
+  
+  .Feature-Cards .card:hover img {
+    transform: scale(1.1); 
+  }
+
+
+  .Feature-Cards .card {
+    position: relative; /* Ensure the card is the reference for positioning */
+}
+
+.Feature-Cards .card .Cards-Options {
+    height: 260px;
+    width: 256px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0; /* Adjust based on your design */
+    left: 0; /* Adjust based on your design */
+    margin: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.Feature-Cards .card:hover .Cards-Options {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+
+.Cards-popUps{
+    height: 28px;
+    width: 260px;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+
+.Cards-Icons{
+    height: 48px;
+    width: 156px;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+.Eye-Icons{
+  height: 48px;
+  width: 48px;
+  display: flex;
+  justify-content: center;
+  /* background-color: aquamarine; */
+  background-color: rgb(247, 146, 146);
+  align-items: center;
+  border-radius: 50%;
+  cursor:pointer;
+}
+.Eye-Icons:hover{
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+}
+
+
+.Heart-Icon{
+    height: 48px;
+    width: 48px;
+    display: flex;
+    justify-content: center;
+    /* background-color: aquamarine; */
+    background-color: rgb(247, 146, 146);
+    align-items: center;
+    border-radius: 50%;
+    cursor:pointer;
+  }
+
+  .Heart-Icon:hover{
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+}
+
+  .Shuffle-Icon{
+    height: 48px;
+    width: 48px;
+    display: flex;
+    /* background-color: aquamarine; */
+    background-color: rgb(247, 146, 146);
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .Shuffle-Icon:hover{
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+}
+
+.tooltip1,.tooltip2,.tooltip3{
+    position: absolute;
+    bottom: 60%; 
+    transform: translateY(-20%);
+    /* background-color:  rgb(11, 112, 53); */
+    background-color: rgb(243, 91, 91);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    width: 100px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+
+
+  .Eye-Icons:hover .tooltip1 {
+    opacity: 1;
+    visibility: visible;
+}
+
+.Heart-Icon:hover .tooltip2 {
+    opacity: 1;
+    visibility: visible;
+}
+
+.Shuffle-Icon:hover .tooltip3 {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+  .Tag{
+    position: absolute;
+    left: 18%;
+    top: 10%;
+    background-color: orange;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%,-50%);
+    height: 20px;
+    width: 54px;
+    border-radius: 12px;
+  }
+
+  .Feature-Cards .card .card-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: first baseline;
+    height: 88px;
+    gap: 0; 
+    line-height:0;
+}
+
+.card-body p{
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.card-body h4{
+    font-size: 16px;
+    margin-left: 8px;
+  }
+
+.label-icon{
+    display: flex;
+    flex-direction: row;
+}
+.Addcart-icon{
+    height: 46px;
+    width: 46px;
+    /* background-color: rgb(155, 235, 169); */
+    background-color: rgb(244, 92, 92);
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}  
+
+.Addcart-icon i{
+    font-size: 16px;
+}
+.link-style{
+  all:unset ;
+}
+
+
+}

@@ -1,0 +1,129 @@
+.Footer-section{
+    height: auto;
+    width: 100%;
+    margin-bottom: 40px;
+}
+.email-section{
+    height: auto;
+    width: 100%;
+    background-color: rgb(152, 152, 189);
+    display: flex;
+    align-items: center;
+    justify-content:center ;
+}
+.email-icon{
+    height: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2px;
+}
+.coupon-msg{
+    height: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2px;
+}
+.subscribe-btn{
+    height: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2px;
+}
+.email-subsection{
+    height: auto;
+    width: 90%;
+}
+.email-subsection img{
+  height: 30px;
+  width: 30px;
+}
+.subscribe-input{
+    height: 40px;
+    width: 380px;
+    border-radius: 6px;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    margin-right: 10px;
+}
+.subscribe-input input{
+    width: 260px;
+    margin-left: 10px;
+    outline: none;
+    border: none;
+
+}
+.subscribe-input button{
+    height: 40px;
+    width: 30%;
+    background-color: black;
+    color: white;
+    font-size: 12px;
+    border-color: black;
+}
+
+
+
+
+.footer-subsection{
+    height: auto;
+    width: 84%;
+    margin-left: 8%;
+    margin-right: 8%;
+}
+.contact{
+    padding-top: 2%;
+    height: 38vh;
+    width: 100%;
+}
+@import url('https://fonts.googleapis.com/css2?family=Playwrite+IN:wght@100..400&display=swap');
+.footer-subsection .contact h1{
+    font-size: 44px;
+} 
+.footer-subsection .contact h5{
+    font-size: 16px;
+}
+.footer-subsection .contact h5 span{
+    font-size: 16px;
+    font-weight: 700;
+}
+.footer-subsection .contact .Media-icons{
+    height: 34px;
+    width: 200px;
+    display: flex;
+    flex-direction: row;
+}
+
+.Address{
+    height: 38vh;
+    width: 100%;
+    padding-top: 3%;
+}
+.Address h4{
+    font-weight: 600;
+    font-size: 20px;
+}
+.Address h5{
+    font-weight: 500;
+    font-size: 16px;
+}
+.Account{
+    height: 38vh;
+    width: 100%;
+    background-color:gray;
+}
+.Payment{
+    height: 38vh;
+    width: 100%;
+    padding-top: 3%;
+}
+.Payment h4{
+    font-weight: 600;
+    font-size: 24px;
+}

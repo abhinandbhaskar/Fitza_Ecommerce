@@ -1,0 +1,10 @@
+@media(max-width:480px){
+    .welcome-container{
+        display: none;
+    }
+}
+@media(max-width:740px){
+    .welcome-container{
+        display: none;
+    }
+}

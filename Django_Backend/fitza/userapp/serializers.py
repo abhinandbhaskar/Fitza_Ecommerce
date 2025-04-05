@@ -1,0 +1,94 @@
+from rest_framework import serializers
+from common.models import CustomUser
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
+from django.contrib.auth import authenticate
+from django_email_verification import send_email
+from django.conf import settings
+
+
+class RegisterSerializer(serializers.Serializer):
+    fullname=serializers.CharField()
+    email=serializers.EmailField()
+    phone=serializers.CharField()
+    password1=serializers.CharField(write_only=True)
+    password2=serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        if CustomUser.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError("Email already exists..")
+        if data["password1"]!=data["password2"]:
+            raise serializers.ValidationError("Passwords do not match.")
+        if len(data["phone"])<10:
+            raise serializers.ValidationError("Phone number must contain 10 digits.") 
+        return data
+
+    def create(self, validated_data):
+        user=CustomUser.objects.create_user(username=validated_data["email"],email=validated_data["email"],phone_number=validated_data["phone"],password=validated_data["password1"])
+        user.first_name=validated_data["fullname"]
+        user.is_active=False
+        print("SET FALSE")
+        user.save()
+        try:
+            send_email(user)
+            print("USER",user)
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to send verification email: {e}")
+        return user
+    
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        user = self.user
+        if not user:
+            raise AuthenticationFailed("User not registered or invalid credentials")
+
+        if not user.is_active:
+            raise AuthenticationFailed("This account is disabled. Please contact support.")
+
+        print("USER",user.id)
+        print("USER",user.username)
+        print("USER",user.email)
+        data["user_id"] = user.id 
+        data["username"] = user.username
+        data["email"] = user.email
+
+        return data
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=["id", 
+            "first_name",
+            "email",
+            "phone_number",
+            "userphoto",
+            "password"]
+    def get_userphoto(self, obj):
+        request = self.context.get('request')  # Get the request context
+        if obj.userphoto:
+            return request.build_absolute_uri(obj.userphoto.url) if request else f"{settings.MEDIA_URL}{obj.userphoto.url}"
+        return None
+
+# class PasswordSerializer(serializers.Serializer):
+#     currentPassword=serializers.CharField()
+#     newPassword=serializers.CharField()
+#     confirmpassword=serializers.CharField()
+#     def validate(self,data):
+#         if CustomUser.objects.filter(password=data['currentPassword'],email=data['email']).exists():
+#             obj=CustomUser.objects.update(password=data['currentPassword'])
+#             obj.save()
+#         else:
+#             raise serializers.ValidationError("Current Password is Incorrect")
+#         return data
+
+
+
+    
+
+        
+
+    

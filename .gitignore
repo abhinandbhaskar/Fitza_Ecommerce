@@ -1,0 +1,20 @@
+# 🔐 Environment
+.env
+
+# 🐍 Django
+__pycache__/
+*.py[cod]
+db.sqlite3
+
+# 📦 React / Node
+node_modules/
+build/
+dist/
+
+# 🛠️ Virtualenv (Python)
+venv/
+
+# 💻 Editor / OS junk
+.vscode/
+.DS_Store
+Thumbs.db

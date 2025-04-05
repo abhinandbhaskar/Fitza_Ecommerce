@@ -1,0 +1,148 @@
+.Offers-section{
+    min-height: 80vh;
+    height: auto;
+    width: 100%;
+    padding-top: 6%;
+}
+.middle-offers{
+    min-height: 70vh;
+    height: auto;
+    width: 86%;
+    position: relative;
+    left: 7%;
+    right: 7%;
+    padding: 1%;
+}
+.offer-banner{
+    height: 52vh;
+    width: 96%;
+    position: relative;
+    padding: 10px;
+
+}
+.offer-banner img{
+    height: 50vh;
+    width: 100%;
+    z-index: 1;
+}
+.offer-Tags{
+    height: 56vh;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: first baseline;
+    padding-left: 6%;
+    padding-top: 6%;
+    
+}
+.offer-Tags h1{
+    margin-top: 10px;
+}
+.Timer-section{
+    height: 12vh;
+    width: 60%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.Timer-section .days{
+    height: 12vh;
+    width: 24%;
+    display: flex;
+    flex-direction: column;
+}
+.Timer-section .hours{
+    height: 12vh;
+    width: 24%;
+    display: flex;
+    flex-direction: column;
+}
+.Timer-section .minutes{
+    height: 12vh;
+    width: 24%;
+    display: flex;
+    flex-direction: column;
+}
+.Timer-section .seconds{
+    height: 12vh;
+    width: 24%;
+    display: flex;
+    flex-direction: column;
+}
+.Timer-section span{
+  margin-top: 10px;
+  font-size: 24px;
+}
+.Timer-section .days div{
+    height: 8vh;
+    width: 100%;
+    background-color:rgb(234, 71, 71);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.Timer-section .hours div{
+    height: 8vh;
+    width: 100%;
+    background-color: rgb(234, 71, 71);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.Timer-section .minutes div{
+    height: 8vh;
+    width: 100%;
+    background-color:  rgb(234, 71, 71);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.Timer-section .seconds div{
+    height: 8vh;
+    width: 100%;
+    background-color: rgb(234, 71, 71);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+.Timer-section p{
+    margin-left:10px;
+    font-size: 14px;
+}
+.offer-Tags h4{
+    color: rgb(236, 21, 57);
+    font-weight: 700;
+}
+.offer-Tags span{
+    color: black;
+    font-weight: 400;
+}
+.offer-Tags h1{
+    font-weight: 500;
+    color: rgb(11, 112, 53);
+}
+
+.Timer-section .seconds p{
+    margin-left:18px;
+    font-size: 14px;
+}
+.offer-shop{
+    height: 46px;
+    width: 140px;
+    background-color: rgb(157, 239, 239);
+    border-radius: 6px;
+    border-color: rgb(11, 112, 53);
+    font-weight: 700;
+}

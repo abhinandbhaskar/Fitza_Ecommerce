@@ -1,0 +1,96 @@
+.deals-section{
+    height: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    
+}
+.deals-section .deals-nav{
+    position: relative;
+    padding-top: 3%;
+    height: 10vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.deals-section .deals-nav h1{
+ margin-left: 10%;
+}
+.deals-nav .dealsnav-btn{
+    margin-right: 10%;
+    display: flex;
+}
+.deals-nav .dealsnav-btn button{
+    margin: 10px;
+    height: 36px;
+    width: 36px;
+    color: rgb(99, 199, 99);
+    border-radius: 50%;
+    font-weight: 900;
+    font-size: 20px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    border: 2px solid rgb(180, 176, 176);
+}
+.deals-section .deals-nav h1{
+    font-family: "Poppins", serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 28px;
+}
+
+.deals-section .deals-nav h1 span{
+    color: rgb(245, 77, 77);
+}
+
+
+.popular-cards{
+    height: auto;
+    width: 80%;
+    padding-bottom: 20px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popular-cards .cards{
+    height: auto;
+    width: 100%;
+    margin-right: 18px;
+    margin-left: 18px;
+    padding: 6px;
+}
+.card{
+    height: 260px;
+    width: 200px;
+    background-color: white;
+    border-radius: 16px;
+    border: 2px solid rgba(188, 182, 182, 0.932);
+}
+.card img{
+    height: 200px;
+    width: 200px;
+    padding: 10px;
+    border-radius: 18px;
+}
+.card-body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-body h5{
+    font-family: "Poppins", serif;
+    font-weight: 500;
+    font-style: normal;
+    font-size: 16px;
+}
+.dim-image{
+    filter: brightness(0.9);
+}
