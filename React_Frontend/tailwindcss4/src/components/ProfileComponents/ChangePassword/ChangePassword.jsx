@@ -74,7 +74,7 @@ const ChangePassword = () => {
             <input
                 type="text"
                 className="block w-10/12 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none"
-                placeholder="Your Full Name"
+                placeholder="Enter your current password"
                 value={currentPassword}
                 onChange={(e)=>setCurrentPassword(e.target.value)}
 
@@ -87,7 +87,7 @@ const ChangePassword = () => {
             <input
                 type="text"
                 className="block w-10/12 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none"
-                placeholder="Mobile Number"
+                placeholder="Enter new password"
                 value={newPassword}
                 onChange={(e)=>setNewPassword(e.target.value)}
             />
@@ -100,7 +100,7 @@ const ChangePassword = () => {
             <input
                 type="text"
                 className="block w-10/12 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none"
-                placeholder="Password"
+                placeholder="Enter confirm password"
                 value={confirmpassword}
                 onChange={(e)=>setConfirmPassword(e.target.value)}
             />

@@ -181,7 +181,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .serializers import PasswordSerializer
+from .serializers import PasswordSerializer,ProfileUpdateSerializer,AddBillingAddessSerializer
 
 
 class PasswordChange(APIView):
@@ -197,3 +197,64 @@ class PasswordChange(APIView):
             serializer.save()
             return Response({"message":"Password changed successfully"},status=status.HTTP_200_OK)
         return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+    
+
+class profileupdate(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=ProfileUpdateSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Profile Updated Successfully.."},status=status.HTTP_200_OK)
+        return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddBillingAddess(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddBillingAddessSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Billing Address Added Successfully.."},status=status.HTTP_200_OK)
+        return Response({"errors": serializer.errors, "data": request.data}, status=status.HTTP_400_BAD_REQUEST)
+
+    
+from userapp.serializers import BillingAddressSerializer,AddShippingAddessSerializer,GetShippingAddressSerializer
+from common.models import UserAddress
+
+class GetBillingAddress(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        address=UserAddress.objects.filter(user=request.user,address_type='billing').first()
+        if address:
+            serializer=BillingAddressSerializer(address)
+            return Response(serializer.data)
+        return Response({"error":"Address not found"},status=status.HTTP_404_NOT_FOUND)
+    
+
+class AddShippingAddess(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddShippingAddessSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Shipping Address Added Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"error":serializer.errors,"data":request.data},status=status.HTTP_400_BAD_REQUEST)
+    
+
+class GetShippingAddress(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        address=UserAddress.objects.filter(user=request.user,address_type='shipping').first()
+        if address:
+            serializer=GetShippingAddressSerializer(address)
+            return Response(serializer.data)
+        return Response({"error":"Address not found"},status=status.HTTP_404_NOT_FOUND)    
+
+class AccountDeactivate(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        user=request.user
+        user.is_active=False
+        user.save()
+        return Response({"message":"Account deactivated successfully."},status=status.HTTP_200_OK)
