@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterAPI, UserLogout
+from .views import RegisterAPI, UserLogout, PasswordChange
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
 from .views import CustomTokenObtainPairView,ProfileView
 
@@ -8,7 +8,7 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('profile/',ProfileView.as_view(),name='profile'),
     path('logout/',UserLogout.as_view(), name='logout'),
-    # path('passwordchange/',passwordchange.as_view(),name='passwordchange'),
+    path('passwordchange/',PasswordChange.as_view(),name='passwordchange'),
 ]
 
 from django.conf import settings

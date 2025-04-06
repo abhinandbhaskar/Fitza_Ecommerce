@@ -1,13 +1,19 @@
 import React, { useState } from 'react'
 import "./ChangePassword";
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 const ChangePassword = () => {
     const[currentPassword,setCurrentPassword]=useState("");
     const[newPassword,setNewPassword]=useState("");
     const[confirmpassword,setConfirmPassword]=useState("");
     const[error,setError]=useState("");
     const[loading,setLoading]=useState(false);
+    const {userId,accessToken,isAuthenticated} = useSelector((state) => state.auth);
+    console.log("Auth State:", userId);
+    console.log("Auth accessToken:", accessToken);
+    console.log("Auth isAuthenticated:", isAuthenticated);
 
+    
     const handleSubmit=async(e)=>{
         e.preventDefault();
         setError("");
@@ -17,25 +23,35 @@ const ChangePassword = () => {
             newPassword:newPassword.trim(),
             confirmpassword:confirmpassword.trim()
         }
-        // try{
-        //     const response=await axios.post("http://127.0.0.1:8000/api/passwordchange/",passwordData,{
-        //         headers:{
-        //             "Content-Type":"application/json"
-        //         }
-        //     })
-        // }
-        // catch(err)
-        // {
-        //     if(err)
-        //     {
-        //         setError(response.data.error);
-        //         console.log(response.data.error);
-        //         console.log(response);
-        //     }
-        // }
-        // finally{
-        //     setLoading(false);
-        // }
+        try{
+            const response=await axios.post("http://127.0.0.1:8000/api/passwordchange/",passwordData,{
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            });
+            if(response)
+            {
+             alert(response.data.message);   
+            }
+        }
+        catch (err) {
+            console.log("XXX", err);
+            if (err.response) {
+                const backendMessage = err.response.data.message;
+        
+                if (backendMessage.non_field_errors) {
+                    setError(backendMessage.non_field_errors[0]); 
+                } else {
+                    setError("Something went wrong.");
+                }
+        
+                console.log(backendMessage.non_field_errors[0]);
+            }
+        }
+        finally{
+            setLoading(false);
+        }
         
 
     }
@@ -48,6 +64,7 @@ const ChangePassword = () => {
         </div>
         <h1 className="text-4xl font-bold">Change Password</h1>
     </div>
+    {error&&(<p className='text-sm text-red-600'>{error}</p>)}
 <form onSubmit={handleSubmit} >
 <div className="h-[100%] w-[100%]  m-2 flex flex-col  items-center">
         <div className="h-full w-[100%] font-bold text-md  m-1 flex flex-col ">

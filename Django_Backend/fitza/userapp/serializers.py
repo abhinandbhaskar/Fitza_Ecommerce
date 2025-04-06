@@ -73,17 +73,31 @@ class ProfileSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.userphoto.url) if request else f"{settings.MEDIA_URL}{obj.userphoto.url}"
         return None
 
-# class PasswordSerializer(serializers.Serializer):
-#     currentPassword=serializers.CharField()
-#     newPassword=serializers.CharField()
-#     confirmpassword=serializers.CharField()
-#     def validate(self,data):
-#         if CustomUser.objects.filter(password=data['currentPassword'],email=data['email']).exists():
-#             obj=CustomUser.objects.update(password=data['currentPassword'])
-#             obj.save()
-#         else:
-#             raise serializers.ValidationError("Current Password is Incorrect")
-#         return data
+from rest_framework import serializers
+from django.contrib.auth.hashers import check_password
+
+class PasswordSerializer(serializers.Serializer):
+    currentPassword=serializers.CharField()
+    newPassword=serializers.CharField()
+    confirmpassword=serializers.CharField()
+
+    def validate(self,data):
+        user=self.context['request'].user
+        if not check_password(data['currentPassword'],user.password):
+            raise serializers.ValidationError("Current Password is incorrect.")
+        
+        if data['newPassword'] != data['confirmpassword']:
+            raise serializers.ValidationError("New Password do not match.")
+        return data
+    
+    def save(self):
+        user=self.context['request'].user
+        user.set_password(self.validated_data['newPassword'])
+        user.save()
+        
+
+
+
 
 
 
