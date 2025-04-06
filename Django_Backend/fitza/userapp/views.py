@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from .serializers import RegisterSerializer
+from .serializers import PasswordSerializer, RegisterSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CustomTokenObtainPairSerializer,ProfileSerializer
@@ -176,12 +176,24 @@ def oauth_redirect_handler(request):
     return response
 
 
-# class passwordchange(APIView):
-#     def post(self,request):
-#         _data=request.data
-#         serializer=PasswordSerializer(data=_data)
-#         if not serializer.is_valid():
-#             return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
-#         serializer.save()
-#         return Response({"message":"Password Changed Successfully"},status=status.HTTP_201_CREATED)
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from .serializers import PasswordSerializer
+
+
+class PasswordChange(APIView):
+    # IsAuthenticated handles token validation before entering the method.
+    permission_classes=[IsAuthenticated]
+    # self : Refers to the class instance
+    # request: Carries the data from the frontend.  
+    def post(self,request):
+        serializer=PasswordSerializer(data=request.data,context={'request':request})
+        # data=request.data: This is the JSON body you sent from React — currentPassword, newPassword, confirmpassword
+        # context={'request': request}: You're passing the full request object as extra context, so that the serializer can access request.user.
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Password changed successfully"},status=status.HTTP_200_OK)
+        return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
