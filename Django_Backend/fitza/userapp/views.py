@@ -258,3 +258,13 @@ class AccountDeactivate(APIView):
         user.is_active=False
         user.save()
         return Response({"message":"Account deactivated successfully."},status=status.HTTP_200_OK)
+
+from userapp.serializers import AddtowalletSerializer
+class AddToWallet(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddtowalletSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Money added successfully"},status=status.HTTP_200_OK)
+        return Response({"errors":serializer.errors,"data":request.data},status=status.HTTP_400_BAD_REQUEST)
