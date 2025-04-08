@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate
 from django_email_verification import send_email
 from django.conf import settings
 
+from userapp.models import Wallet, WalletTransaction
+
 
 class RegisterSerializer(serializers.Serializer):
     fullname=serializers.CharField()
@@ -232,6 +234,33 @@ class GetShippingAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model=UserAddress
         fields='__all__'
+
+class AddtowalletSerializer(serializers.Serializer):
+    money=serializers.FloatField()
+
+    def validate_money(self,value):
+        value=float(value)
+        if value<=0:
+            raise serializers.ValidationError("Amount must be greater than zero.")
+        return value
+
+    def create(self, validated_data):
+        user=self.context['request'].user
+        money=validated_data['money']
+
+        wallet,created=Wallet.objects.get_or_create(user=user,balance=0.00)
+        wallet.balance+=money
+        wallet.save()
+
+        WalletTransaction.objects.create(
+            wallet=wallet,
+            transaction_type='credit',
+            amount=money,
+            description="Amount added to wallet",
+
+        )
+        return wallet
+
 
 
 

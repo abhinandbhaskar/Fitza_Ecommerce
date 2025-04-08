@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterAPI, UserLogout, PasswordChange
+from .views import AddToWallet, RegisterAPI, UserLogout, PasswordChange
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate
@@ -15,7 +15,8 @@ urlpatterns = [
     path('getBillingAddress/',GetBillingAddress.as_view(),name='getBillingAddress'),
     path('AddShippingAddess/',AddShippingAddess.as_view(),name='AddShippingAddess'),
     path('getShippingAddress/',GetShippingAddress.as_view(),name='getShippingAddress'),
-    path('accountDeactivate/',AccountDeactivate.as_view(),name='accountDeactivate')
+    path('accountDeactivate/',AccountDeactivate.as_view(),name='accountDeactivate'),
+    path('add-to-wallet/',AddToWallet.as_view(),name='add-to-wallet')
 ]
 
 from django.conf import settings

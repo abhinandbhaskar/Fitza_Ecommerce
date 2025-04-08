@@ -5,15 +5,9 @@ import axiosInstance from "./utils/axiosInstance";
 import { loginSuccess } from "./redux/authSlice";
 
 // Import pages
-import HomePage from "./pages/HomePage/HomePage";
-import SignUpPage from "./pages/SignUpPage/SignUpPage";
-import LoginPage from "./pages/LoginPage/LoginPage";
-import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import ViewProfile from "./components/ProfileComponents/ViewProfile/ViewProfile";
-import ChangePassword from "./components/ProfileComponents/ChangePassword/ChangePassword";
-import BillingAddress from "./components/ProfileComponents/BillingAddress/BillingAddress";
-import ProductPage from "./pages/ProductPage/ProductPage";
-import HandleRedirect from "./pages/HandleRedirect/HandleRedirect";
+import UserRoutes from "./routes/UserRoutes";
+import AdminRoutes from "./routes/AdminRoutes";
+import SellerRoutes from "./routes/SellerRoutes";
 
 const App = () => {
     const dispatch = useDispatch();
@@ -52,17 +46,9 @@ const App = () => {
 
     return (
         <div>
-            <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/signup" element={<SignUpPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/authredirect" element={<HandleRedirect />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/viewprofile" element={<ViewProfile />} />
-                <Route path="/changepassword" element={<ChangePassword />} />
-                <Route path="/billingaddress" element={<BillingAddress />} />
-                <Route path="/productview" element={<ProductPage />} />
-            </Routes>
+            <UserRoutes/>
+            <AdminRoutes/>
+            <SellerRoutes/>
         </div>
     );
 };
