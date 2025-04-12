@@ -23,7 +23,7 @@ const MyProfile = () => {
             // Get token from Redux store
     
             await axios.post(
-                "http://127.0.0.1:8000/api/logout/",
+                "https://127.0.0.1:8000/api/logout/",
                 {},
                 {
                     withCredentials: true, // Ensure cookies are sent

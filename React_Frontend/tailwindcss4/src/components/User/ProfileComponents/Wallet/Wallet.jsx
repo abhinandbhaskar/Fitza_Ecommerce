@@ -17,7 +17,7 @@ const Wallet = () => {
         console.log("Boo",accessToken);
 
         try{
-            const response=await axios.post("http://127.0.0.1:8000/api/add-to-wallet/", 
+            const response=await axios.post("https://127.0.0.1:8000/api/add-to-wallet/", 
                 moneyData, 
                 {
                   headers: {
@@ -103,7 +103,7 @@ const Wallet = () => {
                         <tbody>
                             <tr class="border-t hover:bg-gray-100">
                                 <td class="px-6 py-4 text-sm text-gray-800">
-                                    <a href="http://">#160</a>
+                                    <a href="https://">#160</a>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-800">Rs. 80,000</td>
                                 <td class="px-6 py-4 text-sm text-gray-800">November 13, 2024</td>
@@ -111,7 +111,7 @@ const Wallet = () => {
                             </tr>
                             <tr class="border-t hover:bg-gray-100">
                                 <td class="px-6 py-4 text-sm text-gray-800">
-                                    <a href="http://">#161</a>
+                                    <a href="https://">#161</a>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-800">Rs. 80,000</td>
                                 <td class="px-6 py-4 text-sm text-gray-800">November 13, 2024</td>
@@ -119,7 +119,7 @@ const Wallet = () => {
                             </tr>
                             <tr class="border-t hover:bg-gray-100">
                                 <td class="px-6 py-4 text-sm text-gray-800">
-                                    <a href="http://">#162</a>
+                                    <a href="https://">#162</a>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-800">Rs. 80,000</td>
                                 <td class="px-6 py-4 text-sm text-gray-800">November 13, 2024</td>

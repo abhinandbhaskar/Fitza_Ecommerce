@@ -46,9 +46,11 @@ const App = () => {
 
     return (
         <div>
-            <UserRoutes/>
-            <AdminRoutes/>
-            <SellerRoutes/>
+            <Routes>
+                <Route path="/*" element={<UserRoutes/>}/>
+                <Route path="/admin/*" element={<AdminRoutes/>}/>
+                <Route path="/seller/*" element={<SellerRoutes/>}/>
+            </Routes>
         </div>
     );
 };

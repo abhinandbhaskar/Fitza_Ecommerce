@@ -18,6 +18,7 @@ class RegisterSerializer(serializers.Serializer):
 
     def validate(self, data):
         if CustomUser.objects.filter(email=data['email']).exists():
+            
             raise serializers.ValidationError("Email already exists..")
         if data["password1"]!=data["password2"]:
             raise serializers.ValidationError("Passwords do not match.")

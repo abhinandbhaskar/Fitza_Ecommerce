@@ -2,7 +2,7 @@ import {logout} from "./authSlice";
 
 export const logoutUser=()=>async (dispatch)=>{
     try{
-        const response=await fetch('http://localhost:8000/clear-session/',{
+        const response=await fetch('https://localhost:8000/clear-session/',{
             method:'POST',
             credentials:'include',
             headers:{
@@ -20,9 +20,9 @@ export const logoutUser=()=>async (dispatch)=>{
     }
     
     finally{
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        console.log("Deyyyyyyyyyyyyyyyyyyyyyyyyyy");
+        // localStorage.removeItem('accessToken');
+        // localStorage.removeItem('refreshToken');
+        // console.log("Deyyyyyyyyyyyyyyyyyyyyyyyyyy");
         dispatch(logout({
             userId : null,
             accessToken : null,

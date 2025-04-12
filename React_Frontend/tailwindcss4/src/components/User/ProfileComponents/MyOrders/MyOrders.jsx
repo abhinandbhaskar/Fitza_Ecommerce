@@ -24,7 +24,7 @@ const MyOrders = () => {
   </thead>
   <tbody>
     <tr class="border-t hover:bg-gray-100">
-      <td class="px-6 py-4 text-sm text-gray-800"><a href="http://">#160</a></td>
+      <td class="px-6 py-4 text-sm text-gray-800"><a href="https://">#160</a></td>
       <td class="px-6 py-4 text-sm text-gray-800">November 13, 2024</td>
       <td class="px-6 py-4 text-sm text-green-600 font-semibold">Completed</td>
       <td class="px-6 py-4 text-sm text-gray-800">Rs. 80,000</td>
@@ -33,7 +33,7 @@ const MyOrders = () => {
       </td>
     </tr>
     <tr class="border-t hover:bg-gray-100">
-      <td class="px-6 py-4 text-sm text-gray-800"><a href="http://">#161</a></td>
+      <td class="px-6 py-4 text-sm text-gray-800"><a href="https://">#161</a></td>
       <td class="px-6 py-4 text-sm text-gray-800">November 13, 2024</td>
       <td class="px-6 py-4 text-sm text-green-600 font-semibold">Completed</td>
       <td class="px-6 py-4 text-sm text-gray-800">Rs. 80,000</td>
@@ -42,7 +42,7 @@ const MyOrders = () => {
       </td>
     </tr>
     <tr class="border-t hover:bg-gray-100">
-      <td class="px-6 py-4 text-sm text-gray-800"><a href="http://">#162</a></td>
+      <td class="px-6 py-4 text-sm text-gray-800"><a href="https://">#162</a></td>
       <td class="px-6 py-4 text-sm text-gray-800">November 13, 2024</td>
       <td class="px-6 py-4 text-sm text-green-600 font-semibold">Completed</td>
       <td class="px-6 py-4 text-sm text-gray-800">Rs. 80,000</td>

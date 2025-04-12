@@ -28,6 +28,8 @@ from userapp.views import CookieTokenRefreshView,oauth_redirect_handler,get_toke
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/',include('userapp.urls')),
+    path('api/admin/',include('adminapp.urls')),
+    path('api/seller/',include('sellerapp.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path("api/token/refresh/", CookieTokenRefreshView.as_view(), name="token_refresh_cookie"),
     path('email/', include(email_urls)),

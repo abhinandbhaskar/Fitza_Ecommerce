@@ -37,7 +37,7 @@ const LoginPage = () => {
         };
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/login/", loginData, {
+            const response = await axios.post("https://127.0.0.1:8000/api/login/", loginData, {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true, // Ensures cookies (refresh token) are handled
             });
@@ -105,7 +105,7 @@ const LoginPage = () => {
                     </button>
                 </form>
 
-                <a className="text-blue-800 font-bold" href="http://127.0.0.1:8000/password-reset/">
+                <a className="text-blue-800 font-bold" href="https://127.0.0.1:8000/password-reset/">
                     Forgot Password?
                 </a>
 

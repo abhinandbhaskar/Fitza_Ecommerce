@@ -4,7 +4,7 @@ import { store } from "../redux/store";
 import { loginSuccess, logout } from "../redux/authSlice";
 
 const api = axios.create({
-    baseURL: "http://127.0.0.1:8000/api",
+    baseURL: "https://127.0.0.1:8000/api",
     withCredentials: true,
 });
 
@@ -23,7 +23,7 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             try {
                 const res = await axios.post(
-                    "http://127.0.0.1:8000/api/token/refresh/",
+                    "https://127.0.0.1:8000/api/token/refresh/",
                     {},
                     { withCredentials: true }
                 );

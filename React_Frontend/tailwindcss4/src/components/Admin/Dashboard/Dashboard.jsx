@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import "./Dashboard.css"
-import SideBar from '../DashboardComponents/SideBar'
-import RightSection from '../DashboardComponents/RightSection'
+import SideBar from '../DashboardComponents/SideBar/SideBar'
+import RightSection from '../DashboardComponents/RightSection/RightSection'
 const Dashboard = () => {
+  const[currentView,setCurrentView]=useState("mainsection");
   return (
     <div className='h-screen w-screen bg-gray-600 flex flex-row'>
-      <SideBar/>
-      <RightSection/>
+      <SideBar setCurrentView={setCurrentView}/>
+      <RightSection currentView={currentView}/>
     </div>
   )
 }

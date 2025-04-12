@@ -17,7 +17,7 @@ const ShippingAddress = () => {
     useEffect(() => {
         const fetchBillingAddress = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/getShippingAddress/", {
+                const response = await fetch("https://127.0.0.1:8000/api/getShippingAddress/", {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
@@ -60,7 +60,7 @@ const ShippingAddress = () => {
         };
         console.log(shippingAddressData);
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/AddShippingAddess/", shippingAddressData, {
+            const response = await axios.post("https://127.0.0.1:8000/api/AddShippingAddess/", shippingAddressData, {
                 headers: {
                     "Content-Length": "application/json",
                     Authorization: `Bearer ${accessToken}`,

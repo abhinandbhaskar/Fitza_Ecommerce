@@ -16,7 +16,7 @@ const DeleteAccount = () => {
     }
     try{
       setLoading(true);
-      const response=await axios.post("http://127.0.0.1:8000/api/accountDeactivate/",{},
+      const response=await axios.post("https://127.0.0.1:8000/api/accountDeactivate/",{},
         {
       headers:{
         Authorization:`Bearer ${accessToken}`,

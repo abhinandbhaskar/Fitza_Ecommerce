@@ -12,7 +12,7 @@ function HandleRedirect() {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    fetch('http://localhost:8000/get-tokens/', {
+    fetch('https://localhost:8000/get-tokens/', {
       credentials: 'include', // Required to send cookies
     })
       .then((response) => {

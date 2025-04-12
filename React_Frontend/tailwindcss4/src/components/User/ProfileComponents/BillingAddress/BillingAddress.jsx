@@ -18,7 +18,7 @@ const BillingAddress = () => {
 
         const fetchBillingAddress=async()=>{
             try{
-                const response=await fetch("http://127.0.0.1:8000/api/getBillingAddress/",{
+                const response=await fetch("https://127.0.0.1:8000/api/getBillingAddress/",{
                     method:"GET",
                     headers:{
                         "Authorization":`Bearer ${accessToken}`,
@@ -65,7 +65,7 @@ const BillingAddress = () => {
         console.log(billingAddressData);
 
         try{
-            const response=await axios.post("http://127.0.0.1:8000/api/AddBillingAddess/",billingAddressData,{
+            const response=await axios.post("https://127.0.0.1:8000/api/AddBillingAddess/",billingAddressData,{
                 headers:{
                     "Content-Length":"application/json",
                     "Authorization":`Bearer ${accessToken}`

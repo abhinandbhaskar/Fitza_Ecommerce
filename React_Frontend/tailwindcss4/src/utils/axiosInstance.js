@@ -3,7 +3,7 @@ import { store } from "../redux/store";
 import { loginSuccess, logout } from "../redux/authSlice";
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000/",
+  baseURL: "https://127.0.0.1:8000/",
   withCredentials: true,
 });
 
@@ -30,7 +30,7 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const { data } = await axios.post(
-          "http://127.0.0.1:8000/api/token/refresh/",
+          "https://127.0.0.1:8000/api/token/refresh/",
           {},
           { withCredentials: true }
         );

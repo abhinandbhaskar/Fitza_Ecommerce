@@ -12,7 +12,7 @@ const ViewProfile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/profile/", {
+                const response = await fetch("https://127.0.0.1:8000/api/profile/", {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
@@ -44,7 +44,7 @@ const ViewProfile = () => {
         }
         console.log(profileInfo);
         try{
-            const response=await axios.post("http://127.0.0.1:8000/api/profileupdate/",profileInfo,{
+            const response=await axios.post("https://127.0.0.1:8000/api/profileupdate/",profileInfo,{
                 headers:{
                     "Content-Type":"application/json",
                     "Authorization":`Bearer ${accessToken}`

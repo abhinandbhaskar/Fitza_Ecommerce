@@ -25,6 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+
+# SECURE_SSL_CERT_PATH = "C:/Users/abhin/OneDrive/Desktop/Fitza_Ecommerce/Django_Backend/fitza/certs/localhost.crt"
+# SECURE_SSL_KEY_PATH = "C:/Users/abhin/OneDrive/Desktop/Fitza_Ecommerce/Django_Backend/fitza/certs/localhost.key"
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -59,6 +64,7 @@ INSTALLED_APPS = [
     'django_email_verification',
     'social_django',
     'rest_framework_simplejwt.token_blacklist',
+    'django_extensions',
 ]
 
 
@@ -80,7 +86,7 @@ EMAIL_USE_TLS = True
 
 # django-email-verification settings
 EMAIL_FROM_ADDRESS = 'noreply@yourdomain.com'
-EMAIL_PAGE_DOMAIN = 'http://127.0.0.1:8000/'  # Replace with your domain
+EMAIL_PAGE_DOMAIN = 'https://127.0.0.1:8000/'  # Replace with your domain
 EMAIL_MAIL_CALLBACK = email_verified_callback
 EMAIL_MAIL_TOKEN_LIFE = timedelta(hours=1).total_seconds()  # Link valid for 1 hour
 EMAIL_MAIL_SUBJECT = 'Confirm your email {{ user.username }}'
@@ -106,30 +112,67 @@ REST_FRAMEWORK = {
 
 }
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Place CORS middleware before SessionMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
+
+# MIDDLEWARE = [
+#     'django.middleware.security.SecurityMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'corsheaders.middleware.CorsMiddleware',
+# ]
+
+# settings.py
+
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 3600  # Enable HTTP Strict Transport Security
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+
+CSRF_COOKIE_SECURE = True
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+SESSION_COOKIE_AGE = 1209600  # Two weeks, in seconds
+
+SESSION_SAVE_EVERY_REQUEST = True  # Extends session expiry on each request
+
+ # Allow cross-site cookies
 
 CORS_ALLOW_ALL_ORIGINS=True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:8000"
-]
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173',
+    "https://127.0.0.1:3000",
+    "https://localhost:3000",  # Add this if you might access React on localhost
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://127.0.0.1:3000",
+    "https://localhost:3000",  # Add this to trust localhost for CSRF
+]
+
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+
+
 CORS_ALLOW_CREDENTIALS = True
+
 
 AUTH_USER_MODEL = 'common.CustomUser'
 SOCIAL_AUTH_USER_MODEL = 'common.CustomUser'
@@ -232,7 +275,7 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://localhost:8000/social/complete/google-oauth2/'
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://localhost:8000/social/complete/google-oauth2/'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 
@@ -265,9 +308,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = False  # Change to True in production (HTTPS)
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SECURE = False  # Change to True in production
+
 
 CORS_ALLOW_HEADERS = [
     "content-type",

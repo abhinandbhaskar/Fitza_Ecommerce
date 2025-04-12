@@ -52,7 +52,7 @@ const SignUpPage = () => {
         }
         console.log("Hello World",registrationData);
         try{
-            const response = await axios.post("http://127.0.0.1:8000/api/register/",registrationData);
+            const response = await axios.post("https://127.0.0.1:8000/api/register/",registrationData);
             console.log("201::",response.data)
             if(response.data)
             {
@@ -165,7 +165,7 @@ const SignUpPage = () => {
                         Continue with Google
                     </a> */}
 <a
-  href="http://localhost:8000/social/login/google-oauth2/"
+  href="https://localhost:8000/social/login/google-oauth2/"
   className="flex items-center justify-center w-[200px] px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 >
   <i className="fa-brands fa-google p-2"></i>
