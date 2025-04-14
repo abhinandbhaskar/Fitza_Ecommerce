@@ -280,3 +280,61 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment {self.transaction_id} for Order {self.order.id}"
+
+
+
+
+from django.db import models
+from django.utils.timezone import now
+from cryptography.fernet import Fernet
+from django.conf import settings
+import os
+
+class SellerBankDetails(models.Model):
+    seller = models.OneToOneField(
+        'Seller',
+        on_delete=models.CASCADE,
+        related_name='bank_details'
+    )
+    account_holder_name = models.CharField(max_length=255)
+    bank_name = models.CharField(max_length=255)
+    account_number = models.BinaryField()  # To store encrypted account numbers
+    ifsc_code = models.CharField(max_length=11)
+    branch_address = models.TextField()
+    created_at = models.DateTimeField(default=now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Override save method to encrypt the account number before saving.
+        """
+        if isinstance(self.account_number, str):
+            cipher = Fernet(settings.BANK_ENCRYPTION_KEY)
+            self.account_number = cipher.encrypt(self.account_number.encode())
+        super().save(*args, **kwargs)
+
+    def decrypt_account_number(self):
+        """
+        Decrypt the account number when needed.
+        """
+        cipher = Fernet(settings.BANK_ENCRYPTION_KEY)
+        return cipher.decrypt(self.account_number).decode()
+
+    def __str__(self):
+        return f"Bank Details for Seller: {self.seller.shop_name}"
+    
+
+
+class PaymentGatewayConfig(models.Model):
+    gateway_name = models.CharField(max_length=50, unique=True)  # e.g., PayPal, Razorpay
+    api_key = models.CharField(max_length=255)
+    api_secret = models.CharField(max_length=255)
+    callback_url = models.URLField()
+    enabled = models.BooleanField(default=True)  # To toggle availability
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.gateway_name} Configuration"
+

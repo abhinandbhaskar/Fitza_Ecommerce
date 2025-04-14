@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from rest_framework.views import APIView
-from sellerapp.serializers import SellerRegisterSerializer,VerifyOtpSerializer
+from sellerapp.serializers import SellerRegisterSerializer,VerifyOtpSerializer,ShopRegisterSerializer,SellerBankRegisterSerializer
 from rest_framework.response import Response
 from rest_framework import status
 import time
@@ -22,6 +22,7 @@ from rest_framework import status
 from datetime import datetime
 import hmac
 from sellerapp.serializers import generate_otp
+
 
 class VerifyOtp(APIView):
     def post(self, request):
@@ -73,6 +74,9 @@ class VerifyOtp(APIView):
         )
 
 
+
+from django.conf import settings
+
 class ResendOtp(APIView):
     def post(self,request):
         email=request.session.get("email")
@@ -81,8 +85,8 @@ class ResendOtp(APIView):
                 "message":"Session expired or email not found. Please try again."
             },status=status.HTTP_400_BAD_REQUEST)
         otp,exp_time=generate_otp()
-        sender_email='abhinandbhaskar43@gmail.com'
-        sender_password='osdn bmfw hrdg hiop'
+        sender_email=settings.EMAIL_HOST_USER
+        sender_password=settings.EMAIL_HOST_PASSWORD
         if not sender_email or not sender_password:
             return Response({
                 "message":"Email server configuration is missing. Please contact support."
@@ -112,8 +116,25 @@ class ResendOtp(APIView):
             "message":"OTP has been resent successfully."
         },status=status.HTTP_200_OK)
 
-class CompleteSellerRegister(APIView):
+class ShopRegister(APIView):
     def post(self,request):
         email=request.session.get("email")
-        serializer=CompleteSellerRegisterSerializer(data=request.data,context={"request":request,"email":email})
+        serializer=ShopRegisterSerializer(data=request.data,context={"request":request,"email":email})
+        if not serializer.is_valid():
+            return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response({"message":"Shop Register Completed.."},status=status.HTTP_201_CREATED)
+    
 
+class SellerBankRegister(APIView):
+    def post(self, request):
+        email = request.session.get("email")
+        if not email:
+            return Response({"message": "Session expired or email not found."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer = SellerBankRegisterSerializer(data=request.data, context={"request": request, "email": email})
+        if not serializer.is_valid():
+            return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response({"message": "Bank Details Added Successfully.."}, status=status.HTTP_201_CREATED)

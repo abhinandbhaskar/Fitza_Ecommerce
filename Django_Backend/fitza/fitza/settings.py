@@ -25,6 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+BANK_ENCRYPTION_KEY = os.getenv("BANK_ENCRYPTION_KEY")
+
 
 # SECURE_SSL_CERT_PATH = "C:/Users/abhin/OneDrive/Desktop/Fitza_Ecommerce/Django_Backend/fitza/certs/localhost.crt"
 # SECURE_SSL_KEY_PATH = "C:/Users/abhin/OneDrive/Desktop/Fitza_Ecommerce/Django_Backend/fitza/certs/localhost.key"

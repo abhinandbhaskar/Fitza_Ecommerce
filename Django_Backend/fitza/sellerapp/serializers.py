@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from common.models import CustomUser
+from common.models import CustomUser,SellerBankDetails,Seller
 import secrets
 import time
 import smtplib
@@ -12,7 +12,7 @@ def generate_otp(length=6, exp_time=60):
     otp = "".join(secrets.choice("0123456789") for i in range(length))
     return otp, exp_time
 
-
+from django.conf import settings
 
 class SellerRegisterSerializer(serializers.Serializer):
     fullname=serializers.CharField()
@@ -36,9 +36,9 @@ class SellerRegisterSerializer(serializers.Serializer):
         user.is_active=False
         user.save()
         otp, exp_time=generate_otp()
-        sender_email='abhinandbhaskar43@gmail.com'
+        sender_email=settings.EMAIL_HOST_USER
         receiver_mail=validated_data["email"]
-        sender_password='osdn bmfw hrdg hiop'
+        sender_password=settings.EMAIL_HOST_PASSWORD
         try:
             with smtplib.SMTP("smtp.gmail.com", 587) as server:
                 server.starttls()
@@ -93,25 +93,15 @@ class VerifyOtpSerializer(serializers.Serializer):
 
 from common.models import Seller
 
-class CompleteSellerRegisterSerializer(serializers.Serializer):
+class ShopRegisterSerializer(serializers.Serializer):
     shopName = serializers.CharField(max_length=255)
     shopAddress = serializers.CharField(max_length=500)
-    shopLogo = serializers.ImageField(required=False) 
-    shopBanner = serializers.ImageField(required=False)  
-    description = serializers.CharField(max_length=1000)
-    businessRegistrationNumber = serializers.CharField(max_length=100)
+    contactNumber = serializers.CharField(max_length=10)
+    shopEmail = serializers.EmailField()
     taxId = serializers.CharField(max_length=100, required=False) 
-    bankAccountNumber = serializers.CharField(max_length=50)
-    ifscCode = serializers.CharField(max_length=11)
-    accountHolderName = serializers.CharField(max_length=255)
-    paymentMethod = serializers.ChoiceField(choices=["Bank Transfer", "PayPal"])
-    termsAgreed = serializers.BooleanField()
+    businessRegistrationNumber = serializers.CharField(max_length=100)
+    description = serializers.CharField(max_length=1000)
 
-    def validate_termsAgreed(self, value):
-        if not value:
-            raise serializers.ValidationError("You must agree to the terms and conditions.")
-        return value
-    
     def validate(self,data):
         request=self.context.get("request")
         email=self.context.get("email")
@@ -128,34 +118,73 @@ class CompleteSellerRegisterSerializer(serializers.Serializer):
         Seller.objects.create(
             user=user,
             shop_name=self.validated_data["shopName"],
-            shop_address=self.validated_data["shop_address"],
-            shopLogo=self.validated_data["shopLogo"],
-            shop_banner=self.validated_data["shop_banner"],
-            description=self.validated_data["description"],
-            business_registration_number=self.validated_data["businessRegistrationNumber"]
-            taxId=self.validated_data["taxId"]
-            
+            shop_address=self.validated_data["shopAddress"],
+            contact_number=self.validated_data["contactNumber"],
+            email=self.validated_data["shopEmail"],
+            tax_id=self.validated_data["taxId"],
+            business_registration_number=self.validated_data["businessRegistrationNumber"],       
+            description=self.validated_data["description"]
+        )
 
 
 
+class SellerBankRegisterSerializer(serializers.Serializer):
+    accountHolderName = serializers.CharField(max_length=255)
+    bankName = serializers.CharField(max_length=255)
+    accountNumber = serializers.CharField(max_length=20) 
+    ifscCode = serializers.CharField(max_length=11)
+    branchAddress = serializers.CharField(max_length=500)
 
+    def validate(self, data):
+        request = self.context.get("request")
+        email = self.context.get("email")
+        if not request:
+            raise serializers.ValidationError("Request object not found in context.")
+        if not email:
+            raise serializers.ValidationError("Session expired or email not found.")
+        return data
 
+    def validate_accountNumber(self, value):
+        if not value.isdigit() or len(value) < 8:
+            raise serializers.ValidationError("Account number must be at least 8 digits and numeric.")
+        return value
 
-            contact_number=self.validated_data["contact_number"],
-            email=email,
-            tax_id=self.validated_data["tax_id"],
-            business_registration_number=self.validated_data["business_registration_number"],
-            shop_logo=self.validated_data["shop_logo"],
-            shop_banner=self.validated_data["shop_banner"],
-            products_sold=self.valida
+    def save(self):
+        email = self.context.get("email")
+        request = self.context.get("request")
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("User with the given email does not exist.")
 
-            
-
+        try:
+            seller = Seller.objects.get(user=user)
+        except Seller.DoesNotExist:
+            raise serializers.ValidationError("Seller profile does not exist.")
+        del request.session["email"]
+        request.session.save()
+        SellerBankDetails.objects.create(
+            seller=seller,
+            account_holder_name=self.validated_data["accountHolderName"],
+            bank_name=self.validated_data["bankName"],
+            account_number=self.validated_data["accountNumber"],
+            ifsc_code=self.validated_data["ifscCode"],
+            branch_address=self.validated_data["branchAddress"]
         )
 
 
         
+
+
+
+
+        
     
+
+
+
+
+
 
     
 

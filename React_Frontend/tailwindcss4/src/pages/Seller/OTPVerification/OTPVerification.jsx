@@ -38,7 +38,7 @@ const OTPVerification = () => {
         const response=await axios.post("https://127.0.0.1:8000/api/seller/verify_otp/",otpData);
         console.log(response);
         console.log(response.data)
-        navigate("/seller/mainsellerregister");
+        navigate("/seller/shopdetailsregister");
     }
     catch(errors){
         console.log(errors)
