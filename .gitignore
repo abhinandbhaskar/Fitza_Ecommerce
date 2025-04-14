@@ -5,6 +5,8 @@
 __pycache__/
 *.py[cod]
 db.sqlite3
+Django_Backend/fitza/backup.json
+
 
 # 📦 React / Node
 node_modules/
