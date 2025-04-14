@@ -20,3 +20,4 @@ venv/
 .vscode/
 .DS_Store
 Thumbs.db
+"Django_Backend/fitza/backup.json" 
