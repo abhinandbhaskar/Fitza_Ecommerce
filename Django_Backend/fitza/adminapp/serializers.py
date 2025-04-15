@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import serializers
-from common.models import CustomUser
+from common.models import CustomUser,Seller
 
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self,attrs):
@@ -25,5 +25,17 @@ class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
 class ViewUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
+        fields='__all__'
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name']
+
+
+class ViewSellerSerializer(serializers.ModelSerializer):
+    user=UserDetailsSerializer(read_only=True)
+    class Meta:
+        model=Seller
         fields='__all__'
 
