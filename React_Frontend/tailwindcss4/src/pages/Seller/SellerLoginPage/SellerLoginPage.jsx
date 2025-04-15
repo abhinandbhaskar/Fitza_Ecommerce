@@ -1,13 +1,68 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-const SellerLoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+import {useSelector,useDispatch} from "react-redux";
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { loginSuccess } from '../../../redux/authSlice';
+import { updateProfile } from '../../../redux/profileSlice';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
-  const handleLogin = (e) => {
+
+const SellerLoginPage = () => {
+  const[username,setUsername]=useState("");
+  const [password, setPassword] = useState("");
+  const[error,setError]=useState("");
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Login data:", { email, password });
-    // Add logic for login API call here
+
+  const loginData={
+    username:username.trim(),
+    password:password.trim()
+  }
+  console.log("Login data:",loginData);
+ try{
+  const response=await axios.post("https://127.0.0.1:8000/api/seller/seller_login/",loginData,
+    {
+      headers:{ "Content-Type":"application/json" },
+      withCredentials: true,
+    }
+  );
+  console.log(response);
+  console.log(response.data);
+          dispatch(
+              loginSuccess({
+                  userId:response.data.user_id,
+                  accessToken:response.data.access,
+                  isAuthenticated:true,
+              })
+          );
+        dispatch(
+            updateProfile({
+                name:response.data.username,
+                email:response.data.email,
+                profilePicture: response.data.photo || null,
+            })
+        );
+        toast.success("Login successful!");
+        setTimeout(()=>{
+            navigate("/seller/sellerdashboard");
+        },3000);
+        }
+        catch(errors)
+        {
+            console.log("Error:",errors);
+            setError(errors);
+            toast.error(errors.response?.data?.message || "Login failed! Please check your username or password.");
+        }
+        finally{
+            console.log("Completed...")
+        }
+
+
   };
 
   return (
@@ -34,8 +89,8 @@ const SellerLoginPage = () => {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 placeholder="Enter your email"
                 required
@@ -77,6 +132,7 @@ const SellerLoginPage = () => {
       <footer className="bg-gray-800 text-white text-center py-4">
         <p>© 2025 Fitza. All rights reserved.</p>
       </footer>
+       <ToastContainer />
     </div>
   );
 };

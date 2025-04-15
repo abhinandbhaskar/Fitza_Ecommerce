@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import time
 import smtplib
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 class SellerRegisterAPI(APIView):
@@ -138,3 +139,36 @@ class SellerBankRegister(APIView):
 
         serializer.save()
         return Response({"message": "Bank Details Added Successfully.."}, status=status.HTTP_201_CREATED)
+
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+from sellerapp.serializers import SellerTokenObtainPairSerializer
+class SellerTokenObtainPairView(TokenObtainPairView):
+    serializer_class=SellerTokenObtainPairSerializer
+
+    def post(self,request,*args,**kwargs):
+        serializer=self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        response=Response(serializer.validated_data,status=status.HTTP_200_OK)
+
+        response.set_cookie(
+            key="refresh_token",
+            value=serializer.validated_data["refresh"],
+            httponly=True,
+            secure=True,
+            samesite=None,
+            path="/",
+             max_age=60 * 60 * 24 * 7
+        )    
+        response.data.pop("refresh",None)
+
+        return response
+    
+
+class SellerLogout(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        response=Response({"message":"Logged out successfully.."},status=status.HTTP_200_OK)
+        response.delete_cookie("refresh_token")
+        response.delete_cookie("access_token")
+        return response

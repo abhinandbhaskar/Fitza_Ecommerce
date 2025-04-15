@@ -172,8 +172,24 @@ class SellerBankRegisterSerializer(serializers.Serializer):
             branch_address=self.validated_data["branchAddress"]
         )
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 
-        
+class SellerTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self,attrs):
+        data=super().validate(attrs)
+        user=self.user
+        if not user:
+            raise AuthenticationFailed("User not registered or invalid credentials")
+        if not user.is_active:
+            raise AuthenticationFailed("This account is disabled. Please contact support.")
+        data["user_id"]=user.id
+        data["username"]=user.email
+        data["email"]=user.email
+        data["photo"] = str(user.userphoto) if hasattr(user, "userphoto") else None
+
+        return data
+    
 
 
 

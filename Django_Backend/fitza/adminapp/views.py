@@ -19,7 +19,7 @@ class AdminTokenObtainPairView(TokenObtainPairView):
             key="refresh_token",
             value=serializer.validated_data["refresh"],
             httponly=True,
-            secure=False,
+            secure=True,
             samesite=None,
             path="/",
              max_age=60 * 60 * 24 * 7

@@ -16,7 +16,7 @@ const Header = () => {
         console.log("FFF",accessToken);
         try {
             await axios.post(
-                "https://127.0.0.1:8000/api/admin/adminlogout/",
+                "https://127.0.0.1:8000/api/seller/seller_logout/",
                 {},
                 {
                     withCredentials: true,
@@ -39,7 +39,7 @@ const Header = () => {
                     profilePicture:null,    
                 })
             )
-            navigate("/admin/adminlogin");
+            navigate("/seller/loginpage");
             
         } catch (errors) {
             console.log("Errors", errors);
