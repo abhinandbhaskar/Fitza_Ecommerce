@@ -35,3 +35,13 @@ class AdminLogout(APIView):
         response.delete_cookie("refresh_token")
         response.delete_cookie("access_token")
         return response
+
+from common.models import CustomUser
+from adminapp.serializers import ViewUsersSerializer
+
+class ViewUsers(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        users=CustomUser.objects.all()
+        serializer=ViewUsersSerializer(users,many=True)
+        return Response(serializer.data)

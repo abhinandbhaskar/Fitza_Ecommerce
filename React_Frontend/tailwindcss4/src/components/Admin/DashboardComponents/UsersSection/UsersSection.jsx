@@ -1,6 +1,46 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect,useState } from "react";
+import { useSelector } from "react-redux";
 
 const UsersSection = () => {
+    const { accessToken }=useSelector((state)=>state.auth);
+    const [users, setUsers]=useState([]);
+    const [loading, setLoading]=useState(true);
+ 
+    const fetchUsers=async()=>{
+        
+        console.log(accessToken);
+        try{
+            const response=await fetch("https://127.0.0.1:8000/api/admin/view_users/",{
+                method:"GET",
+                headers:{
+                    Authorization:`Bearer ${accessToken}`,
+                }
+            })
+            if(response.ok)
+            {
+                const data=await response.json();
+                console.log("Kitti",data);
+                setUsers(data);
+            }
+            else{
+                console.log("Error Occured");
+            }
+        }
+        catch(errors)
+        {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+        finally{
+            console.log("Completed...")
+            setLoading(false);
+        }
+    }
+    useEffect(()=>{
+        console.log("Start...");
+    fetchUsers();
+    },[])
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
@@ -13,6 +53,10 @@ const UsersSection = () => {
             {/* Table Container */}
             <div className="p-6">
                 <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+            {
+                loading ? (
+                    <p className="text-center text-gray-600 py-4">Loading users...</p>
+                ):(
                     <table className="min-w-full border-collapse border border-gray-200">
                     <thead>
                         <tr>
@@ -28,27 +72,33 @@ const UsersSection = () => {
                         </tr>
                     </thead>
                         <tbody>
-                            <tr className="hover:bg-gray-100 transition duration-200">
+                    {
+                        users.length > 0 ?
+                        (
+                            
+                            users.map((users)=>(
+                                <tr key={users.id} className="hover:bg-gray-100 transition duration-200">
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    #111
+                                    {users.id}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    Abhinand Bhaskar
+                                    {users.full_name}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    abhinandbhaskar@gmail.com
+                                    {users.email}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    8848993973
+                                    {users.phone}
                                 </td>
-                                <td className="px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300">
-                                    Active
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    19/05/2025
+                                <td className={`px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300 ${users.is_active?"text-green-600":"text-red-600"}`}>
+
+                                    {users.is_active ? "Active":"Inactive"}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    20/05/2025
+                                    {users.date_joined}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                                    {users.last_login}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                     7
@@ -59,9 +109,23 @@ const UsersSection = () => {
                                     </button>
                                 </td>
                             </tr>
-                            {/* Add more rows as needed */}
+                            ))
+                            
+                        ):(
+                            <tr>
+                            <td
+                                colSpan="9"
+                                className="text-center px-6 py-4 text-sm text-gray-600 border-b border-gray-300"
+                            >
+                                No users found.
+                            </td>
+                        </tr>
+                        )
+                    }
                         </tbody>
                     </table>
+                )
+            }
                 </div>
             </div>
         </div>
