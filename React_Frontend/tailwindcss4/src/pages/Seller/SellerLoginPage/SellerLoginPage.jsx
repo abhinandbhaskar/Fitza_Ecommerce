@@ -120,7 +120,7 @@ const SellerLoginPage = () => {
           <div className="mt-4 text-center text-sm text-gray-500">
             <p>
               Don't have an account?{" "}
-              <a href="/seller/register" className="text-indigo-600 hover:underline">
+              <a href="/seller/sellerregister" className="text-indigo-600 hover:underline">
                 Register here
               </a>
             </p>

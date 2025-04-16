@@ -3,7 +3,7 @@ import dashboardicon from "../../../../assets/dashboard.png";
 
 const SideBar = ({setCurrentView}) => {
   return (
-    <div className="h-auto w-1/5 bg-gray-900 text-white shadow-lg fixed top-20">
+    <div className="h-auto w-1/5 bg-black text-white shadow-lg fixed top-20">
 
       <div className="mt-4">
         <button onClick={()=>setCurrentView("mainsection")} className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">

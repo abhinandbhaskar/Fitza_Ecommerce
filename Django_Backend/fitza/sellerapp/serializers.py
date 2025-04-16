@@ -36,6 +36,7 @@ class SellerRegisterSerializer(serializers.Serializer):
         user.is_active=False
         user.save()
         otp, exp_time=generate_otp()
+        print("OTP",otp)
         sender_email=settings.EMAIL_HOST_USER
         receiver_mail=validated_data["email"]
         sender_password=settings.EMAIL_HOST_PASSWORD

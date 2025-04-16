@@ -62,7 +62,7 @@ class VerifyOtp(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user.is_active = True
+        # user.is_active = True
         user.save()
 
         del request.session["otp"]

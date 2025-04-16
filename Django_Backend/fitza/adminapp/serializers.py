@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import serializers
-from common.models import CustomUser,Seller
+from common.models import CustomUser,Seller,SellerBankDetails
 
 class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self,attrs):
@@ -22,10 +22,7 @@ class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return data
 
-class ViewUsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model=CustomUser
-        fields='__all__'
+
 
 class UserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,6 +32,44 @@ class UserDetailsSerializer(serializers.ModelSerializer):
 
 class ViewSellerSerializer(serializers.ModelSerializer):
     user=UserDetailsSerializer(read_only=True)
+    class Meta:
+        model=Seller
+        fields='__all__'
+
+
+from cryptography.fernet import Fernet
+from django.conf import settings
+from rest_framework import serializers
+
+class BankDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SellerBankDetails
+        fields = ['account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'branch_address']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        try:
+            # Access the encrypted account_number from the instance
+            encrypted_account_number = instance.account_number
+            cipher = Fernet(settings.BANK_ENCRYPTION_KEY)
+            # Decrypt the account number
+            representation['account_number'] = cipher.decrypt(encrypted_account_number).decode()
+        except Exception as e:
+            # Log the error and mask the sensitive data
+            representation['account_number'] = None
+        return representation
+
+
+
+
+class ViewUsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields='__all__'
+
+class ViewSellerDetailsSerializer(serializers.ModelSerializer):
+    bank_details=BankDetailsSerializer(read_only=True)
+    user=ViewUsersSerializer(read_only=True)
     class Meta:
         model=Seller
         fields='__all__'

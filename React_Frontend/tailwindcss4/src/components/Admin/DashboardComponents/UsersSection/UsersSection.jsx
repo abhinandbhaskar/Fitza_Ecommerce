@@ -1,31 +1,88 @@
 import axios from "axios";
 import React, { useEffect,useState } from "react";
 import { useSelector } from "react-redux";
-;
 
 const UsersSection = () => {
     const { accessToken }=useSelector((state)=>state.auth);
     const [users, setUsers]=useState([]);
     const [loading, setLoading]=useState(true);
  
-    const fetchUsers=async()=>{
+    // const fetchUsers=async()=>{
         
-        console.log(accessToken);
+    //     console.log(accessToken);
+    //     try{
+    //         const response=await fetch("https://127.0.0.1:8000/api/admin/view_users/",{
+    //             method:"GET",
+    //             headers:{
+    //                 Authorization:`Bearer ${accessToken}`,
+    //             }
+    //         })
+    //         if(response.ok)
+    //         {
+    //             const data=await response.json();
+    //             console.log("Kitti",data);
+    //             setUsers(data);
+    //         }
+    //         else{
+    //             console.log("Error Occured");
+    //         }
+    //     }
+    //     catch(errors)
+    //     {
+    //         console.log(errors);
+    //         console.log(errors.response.data);
+    //     }
+    //     finally{
+    //         console.log("Completed...")
+    //         setLoading(false);
+    //     }
+    // }
+
+    const fetchUsers = async () => {
+        setLoading(true); // Ensure loading state is properly managed
+        try {
+           
+            const response = await axios.get("https://127.0.0.1:8000/api/admin/view_users/", {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            if (response.status === 200) {
+                console.log("Fetched Users:", response.data);
+                setUsers(response.data);
+            } else {
+                console.log("Error Occurred");
+            }
+        } catch (errors) {
+            console.log(errors);
+            if (errors.response) {
+                console.log(errors.response.data);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(()=>{
+        console.log("Start...");
+    fetchUsers();
+    },[])
+
+    const RemoveUser=async(user_id)=>{
         try{
-            const response=await fetch("https://127.0.0.1:8000/api/admin/view_users/",{
-                method:"GET",
-                headers:{
-                    Authorization:`Bearer ${accessToken}`,
-                }
-            })
-            if(response.ok)
-            {
-                const data=await response.json();
-                console.log("Kitti",data);
-                setUsers(data);
+            console.log("Yes Get Token",accessToken);
+            const response=await axios.post(`https://127.0.0.1:8000/api/admin/remove_users/${user_id}/`,{},{
+                headers: {
+                    "Content-Type":"application/json",
+                    "Authorization": `Bearer ${accessToken}`
+                },
+            });
+            if(response.status===200){
+                console.log("User removed successfully");
+                fetchUsers(); // Refresh the user list
             }
             else{
-                console.log("Error Occured");
+                console.log("Error occurred while removing the user");
             }
         }
         catch(errors)
@@ -34,14 +91,18 @@ const UsersSection = () => {
             console.log(errors.response.data);
         }
         finally{
-            console.log("Completed...")
-            setLoading(false);
+            console.log("Removedd...");
+        }
+      
+    }
+
+    const handleRemove = (user_id)=>{
+        if(window.confirm("Are you sure you want to remove this user?"))
+        {
+            RemoveUser(user_id);
         }
     }
-    useEffect(()=>{
-        console.log("Start...");
-    fetchUsers();
-    },[])
+
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
@@ -69,7 +130,7 @@ const UsersSection = () => {
                             <th>Registration Date</th>
                             <th>Last Login</th>
                             <th>Total Orders</th>
-                            <th>Action</th>
+                            <th>Remove User</th>
                         </tr>
                     </thead>
                         <tbody>
@@ -105,8 +166,8 @@ const UsersSection = () => {
                                     7
                                 </td>
                                 <td className="px-6 py-4 text-sm border-b border-gray-300">
-                                    <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200">
-                                        Remove User
+                                    <button onClick={()=>handleRemove(users.id)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200">
+                                        Remove
                                     </button>
                                 </td>
                             </tr>
