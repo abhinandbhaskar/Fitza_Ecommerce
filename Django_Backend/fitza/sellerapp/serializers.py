@@ -192,6 +192,26 @@ class SellerTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','email','phone_number','password','userphoto']
+
+class SellerShopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Seller
+        fields='__all__'
+
+
+class SellerBankDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=SellerBankDetails
+        fields='__all__'
+
+
+
+
+
 
 
 

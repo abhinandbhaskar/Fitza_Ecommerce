@@ -1,14 +1,20 @@
-import React, { useState } from 'react'
-import SideBar from "../DashboardComponents/SideBar/SideBar"
-import RightSection from "../DashboardComponents/RightSection/RightSection"
-const Dashboard = () => {
-  const[currentView,setCurrentView]=useState("mainsection");
-  return (
-    <div className='h-screen w-screen bg-gray-600 flex flex-row'>
-      <SideBar setCurrentView={setCurrentView}/>
-      <RightSection currentView={currentView}/>
-    </div>
-  )
-}
+import React, { useState } from "react";
+import SideBar from "../DashboardComponents/SideBar/SideBar";
+import RightSection from "../DashboardComponents/RightSection/RightSection";
+import Header from "../Header/Header";
 
-export default Dashboard
+const Dashboard = ({currentView, setCurrentView}) => {
+
+  return (
+<div className="h-auto w-full absolute top-[100px] flex flex-row ">
+      <SideBar setCurrentView={setCurrentView} />
+      <div className="h-auto w-8/10 m-1">
+      <RightSection setCurrentView={setCurrentView} currentView={currentView} />
+     
+      </div>
+    
+</div>
+  );
+};
+
+export default Dashboard;

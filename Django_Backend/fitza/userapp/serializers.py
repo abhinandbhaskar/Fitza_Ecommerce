@@ -55,8 +55,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         print("USER",user.username)
         print("USER",user.email)
         data["user_id"] = user.id 
-        data["username"] = user.username
+        data["username"] = user.first_name
         data["email"] = user.email
+        data["photo"] = str(user.userphoto) if hasattr(user, "userphoto") else None
 
         return data
 
@@ -103,6 +104,7 @@ class ProfileUpdateSerializer(serializers.Serializer):
     fullname=serializers.CharField()
     email=serializers.CharField()
     phone=serializers.CharField()
+    photo=serializers.FileField()
     def validate(self,data):
         user=self.context['request'].user
         if not CustomUser.objects.filter(id=user.id).exists():
@@ -114,6 +116,7 @@ class ProfileUpdateSerializer(serializers.Serializer):
         user.first_name=self.validated_data['fullname']
         user.email=self.validated_data['email']
         user.phone_number=self.validated_data['phone']
+        user.userphoto=self.validated_data['photo']
         user.save()
 
 from common.models import UserAddress

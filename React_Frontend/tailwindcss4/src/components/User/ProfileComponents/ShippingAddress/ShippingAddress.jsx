@@ -13,7 +13,6 @@ const ShippingAddress = () => {
     const [state, setState] = useState("");
     const [mobile, setMobile] = useState("");
     const { accessToken } = useSelector((state) => state.auth);
-
     useEffect(() => {
         const fetchBillingAddress = async () => {
             try {

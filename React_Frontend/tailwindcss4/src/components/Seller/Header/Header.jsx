@@ -7,7 +7,7 @@ import { logout } from "../../../redux/authSlice";
 import {clearProfile} from "../../../redux/profileSlice";
 import { useNavigate } from "react-router-dom";
 
-const Header = () => {
+const Header = ({setCurrentView}) => {
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
     const { accessToken } = useSelector((state) => state.auth);
     const navigate=useNavigate();
@@ -46,8 +46,8 @@ const Header = () => {
         }
     };
     return (
-        <div className="w-full bg-gray-900 flex flex-col md:flex-row fixed">
-            <div className="w-full md:w-1/4 bg-gray-800 border-b md:border-r border-gray-800 flex items-center justify-center p-2">
+        <div className="w-full bg-gray-900 flex flex-col md:flex-row fixed z-10 mb-10">
+            <div className="w-full md:w-[390px] bg-gray-800 border-b md:border-r border-gray-800 flex items-center justify-center p-2">
                 <img src={fitza} className="h-12 w-12" alt="Fitza Logo" />
                 <h1 className="text-xl md:text-2xl text-white font-bold px-2">Fitza Seller</h1>
             </div>
@@ -98,10 +98,13 @@ const Header = () => {
             </div>
 
             <div className="w-full md:w-1/4 flex items-center gap-2 bg-white border-t md:border-t-0 md:border-l border-gray-600 p-4">
+                <div onClick={()=>setCurrentView("profile")} className="flex flex-row bg-white hover:bg-gray-100  p-2 border-1 border-gray-200 shadow-2xl rounded-xl">
                 <img src={profile} className="h-12 w-12 border-2 border-gray-700 rounded-full" alt="Profile" />
                 <div className="flex flex-col text-sm">
-                    <h1 className="font-bold">{name}</h1>
-                    <p className="text-gray-600">{email}</p>
+                    <p className="text-sm text-blue-700 px-2">profile</p>
+                    {/* <h1 className="font-bold w-[12ch] truncate">{name}</h1> */}
+                    <p className="text-gray-600 w-[14ch] truncate px-1">{email}</p>
+                </div>
                 </div>
                 <div className="flex flex-col items-center justify-center ml-6">
                     <div

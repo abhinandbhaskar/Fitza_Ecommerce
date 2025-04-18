@@ -47,8 +47,8 @@ const Header = () => {
         }
     };
     return (
-        <div className="w-full bg-gray-900 flex flex-col md:flex-row fixed">
-            <div className="w-full md:w-1/4 bg-gray-800 border-b md:border-r border-gray-800 flex items-center justify-center p-2">
+        <div className="bgcolor w-full flex flex-col md:flex-row fixed">
+            <div className="w-full md:w-1/4 bgcolor border-b md:border-r border-gray-800 flex items-center justify-center p-2">
                 <img src={fitza} className="h-12 w-12" alt="Fitza Logo" />
                 <h1 className="text-xl md:text-2xl text-white font-bold px-2">Fitza Admin</h1>
             </div>

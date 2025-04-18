@@ -172,3 +172,31 @@ class SellerLogout(APIView):
         response.delete_cookie("refresh_token")
         response.delete_cookie("access_token")
         return response
+
+from sellerapp.serializers import ProfileSerializer,SellerShopSerializer,SellerBankDetailsSerializer
+class SellerProfile(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        print("XXXXXX",user)
+        serializer=ProfileSerializer(user)
+        return Response(serializer.data)
+    
+from common.models import Seller,SellerBankDetails
+class SellerShop(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        print("YYY",user)
+        seller=Seller.objects.get(user_id=user.id)
+        serializer=SellerShopSerializer(seller)
+        return Response(serializer.data)
+    
+class BankDetails(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        seller=Seller.objects.get(user_id=user.id)
+        bank=SellerBankDetails.objects.get(seller_id=seller.id)
+        serializer=SellerBankDetailsSerializer(bank)
+        return Response(serializer.data)

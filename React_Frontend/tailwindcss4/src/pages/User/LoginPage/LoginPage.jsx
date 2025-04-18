@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "../../../redux/authSlice";
+import { updateProfile } from "../../../redux/profileSlice";
 
 const LoginPage = () => {
     const [animate, setAnimate] = useState(false);
@@ -41,21 +42,28 @@ const LoginPage = () => {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true, // Ensures cookies (refresh token) are handled
             });
-            console.log("Is access",response.data.access);
-            console.log("Is access",response.data.user_id);
-            console.log("Is",isAuthenticated);
-            console.log("Data",response.data);
-            console.log("Response",response);
-
+            console.log("Is access", response.data.access);
+            console.log("Is access", response.data.user_id);
+            console.log("Is", isAuthenticated);
+            console.log("Data", response.data);
+            console.log("Response", response);
+            const imageLink = "https://127.0.0.1:8000/media/" + response.data.photo;
             dispatch(
                 loginSuccess({
-                    userId:response.data.user_id,
+                    userId: response.data.user_id,
                     accessToken: response.data.access,
                     isAuthenticated: true,
                 })
             );
-                navigate("/"); 
-             // Redirect to homepage after successful login
+            dispatch(
+                updateProfile({
+                    name: response.data.username,
+                    email: response.data.email,
+                    profilePicture: imageLink,
+                })
+            );
+            navigate("/");
+            // Redirect to homepage after successful login
         } catch (error) {
             if (error.response && error.response.data) {
                 setError(error.response.data.detail || "Login failed. Please try again.");

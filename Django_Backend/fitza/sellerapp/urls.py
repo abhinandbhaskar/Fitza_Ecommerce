@@ -1,7 +1,7 @@
 from django.urls import path
 # from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,CompleteSellerRegister
 from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister
-from sellerapp.views import SellerTokenObtainPairView,SellerLogout
+from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails
 
 
 urlpatterns = [
@@ -11,7 +11,10 @@ urlpatterns = [
     path('shop_register/',ShopRegister.as_view(),name='shop_register'),
     path('bank_seller_register/',SellerBankRegister.as_view(),name='bank_seller_register'),
     path('seller_login/',SellerTokenObtainPairView.as_view(),name='seller_login'),
-    path('seller_logout/',SellerLogout.as_view(),name="seller_logout")
+    path('seller_logout/',SellerLogout.as_view(),name="seller_logout"),
+    path('seller_profile/',SellerProfile.as_view(),name='seller_profile'),
+    path('shop_details/',SellerShop.as_view(),name="shop_details"),
+    path('bank_details/',BankDetails.as_view(),name='bank_details')
 ]
 
 from django.conf import settings
