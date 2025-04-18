@@ -6,6 +6,7 @@ import SellerSection from "../SellerSection/SellerSection";
 import PersonalInfo from "../../SellerProfileComponents/PersonalInfo/PersonalInfo";
 import ShopInfo from "../../SellerProfileComponents/ShopInfo/ShopInfo";
 import BankInfo from "../../SellerProfileComponents/BankInfo/BankInfo";
+import ChangePassword from "../../SellerProfileComponents/ChangePassword/ChangePassword";
 
 const RightSection = ({currentView,setCurrentView}) => {
     return (
@@ -15,6 +16,7 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="profile"&&<PersonalInfo setCurrentView={setCurrentView}/>}
       {currentView==="shopinfo"&&<ShopInfo setCurrentView={setCurrentView}/>}
       {currentView==="bankinfo"&&<BankInfo setCurrentView={setCurrentView}/>}
+      {currentView==="changepassword"&&<ChangePassword setCurrentView={setCurrentView}/>}
       <Footer/>
         </div>
     );

@@ -4,7 +4,11 @@ import {useSelector} from "react-redux"
 
 const BankInfo = ({setCurrentView}) => {
   const {accessToken}=useSelector((state)=>state.auth);
-  const[bankdata,setBankData]=useState([]);
+  const [accholder,setAccholder]=useState("");
+  const [bank,setBank]=useState("");
+  const [accno,setAccno]=useState("");
+  const [ifsc,setIfsc]=useState("");
+  const [branch,setBranch]=useState("");
   const fetchBankData=async()=>{
     try{
       const response=await axios.get("https://127.0.0.1:8000/api/seller/bank_details/",{
@@ -14,7 +18,11 @@ const BankInfo = ({setCurrentView}) => {
         }
       });
       console.log(response.data);
-      setBankData(response.data);
+      setAccholder(response.data.account_holder_name);
+      setBank(response.data.bank_name);
+      setAccno(response.data.account_number);
+      setIfsc(response.data.ifsc_code);
+      setBranch(response.data.branch_address);
     }
     catch(errors)
     {
@@ -25,6 +33,40 @@ const BankInfo = ({setCurrentView}) => {
   useEffect(()=>{
     fetchBankData();
   },[])
+
+  const handleSubmit=async(e)=>{
+    e.preventDefault();
+    const formData=new FormData();
+    formData.append("accholder",accholder);
+    formData.append("bank",bank);
+    formData.append("accno",accno);
+    formData.append("ifsc",ifsc);
+    formData.append("branch",branch);
+
+    formData.forEach((value,key)=>{
+      console.log(key,value);
+    })
+
+    try{
+      const response=await axios.post("https://127.0.0.1:8000/api/seller/bank_update/",formData,{
+        headers:{
+          "Content-Type":"application/json",
+          Authorization:`Bearer ${accessToken}`
+        }
+      });
+      console.log(response);
+      console.log(response.data);
+      alert(response.data.message);
+    }
+    catch(errors)
+    {
+      console.log(errors);
+      console.log(errors.response.data);
+    }
+
+  }
+
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center">
       {/* Breadcrumb */}
@@ -59,7 +101,8 @@ const BankInfo = ({setCurrentView}) => {
               type="text"
               className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter account holder's name"
-              value={bankdata.account_holder_name}
+              value={accholder}
+              onChange={(e)=>setAccholder(e.target.value)}
             />
           </div>
           <div>
@@ -70,7 +113,8 @@ const BankInfo = ({setCurrentView}) => {
               type="text"
               className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter bank name"
-              value={bankdata.bank_name}
+              value={bank}
+              onChange={(e)=>setBank(e.target.value)}
             />
           </div>
           <div>
@@ -81,7 +125,8 @@ const BankInfo = ({setCurrentView}) => {
               type="text"
               className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter account number"
-              value={bankdata.account_number}
+              value={accno}
+              onChange={(e)=>setAccno(e.target.value)}
             />
           </div>
           <div>
@@ -92,7 +137,8 @@ const BankInfo = ({setCurrentView}) => {
               type="text"
               className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter IFSC code"
-              value={bankdata.ifsc_code}
+              value={ifsc}
+              onChange={(e)=>setIfsc(e.target.value)}
             />
           </div>
           <div className="md:col-span-2">
@@ -103,14 +149,15 @@ const BankInfo = ({setCurrentView}) => {
               type="text"
               className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter branch address"
-              value={bankdata.branch_address}
+              value={branch}
+              onChange={(e)=>setBranch(e.target.value)}
             />
           </div>
         </div>
 
         {/* Save Button */}
         <div className="flex justify-end mt-6">
-          <button className="px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600">
+          <button onClick={handleSubmit} className="px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600">
             Save Changes
           </button>
         </div>
@@ -120,4 +167,5 @@ const BankInfo = ({setCurrentView}) => {
 };
 
 export default BankInfo;
+
 

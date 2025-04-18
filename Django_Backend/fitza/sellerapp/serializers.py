@@ -124,7 +124,9 @@ class ShopRegisterSerializer(serializers.Serializer):
             email=self.validated_data["shopEmail"],
             tax_id=self.validated_data["taxId"],
             business_registration_number=self.validated_data["businessRegistrationNumber"],       
-            description=self.validated_data["description"]
+            description=self.validated_data["description"],
+            shop_logo="seller/logo1.jpg",
+            shop_banner="seller/shopbanner.jpg",
         )
 
 
@@ -210,43 +212,91 @@ class SellerBankDetailsSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
-
+class UpdateProfileSerializer(serializers.Serializer):
+    fullname=serializers.CharField()
+    email=serializers.CharField()
+    mobile=serializers.CharField()
+    photo=serializers.FileField(required=False)
+    print("PHOTO",photo)
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("User credentials are invalid")
+        return data
+    
         
-    
+    def save(self):
+        user=self.context["request"].user
+        user.first_name=self.validated_data["fullname"]
+        user.email=self.validated_data["email"]
+        user.phone_number=self.validated_data["mobile"]
+        user.userphoto=self.validated_data["photo"]
+        user.save()
 
+class UpdateShopSerializer(serializers.Serializer):
+        banner=serializers.FileField()
+        logo=serializers.FileField()
+        shopname=serializers.CharField()
+        shopaddress=serializers.CharField()
+        phone=serializers.CharField()
+        email=serializers.CharField()
+        taxid=serializers.CharField()
+        registerno=serializers.CharField()
+        description=serializers.CharField()
+        def validate(self,data):
+            user=self.context["request"].user
+            if not CustomUser.objects.filter(id=user.id).exists():
+                raise serializers.ValidationError("User credentials are invalid")
+            if not Seller.objects.filter(user_id=user.id).exists():
+                raise serializers.ValidationError("You Are Not Able to Update Data")
+            return data
+        def save(self):
+            user=self.context["request"].user
+            seller=Seller.objects.get(user_id=user.id)
+            seller.user=user
+            seller.shop_name=self.validated_data["shopname"]
+            seller.shop_address=self.validated_data["shopaddress"]
+            seller.contact_number=self.validated_data["phone"]
+            seller.email=self.validated_data["email"]
+            seller.tax_id=self.validated_data["taxid"]
+            seller.business_registration_number=self.validated_data["registerno"]
+            seller.shop_logo=self.validated_data["logo"]
+            seller.shop_banner=self.validated_data["banner"]
+            seller.description=self.validated_data["description"]
+            seller.save()
+           
 
+            
+class BankUpdateSerializer(serializers.Serializer):
+    accholder=serializers.CharField()
+    bank=serializers.CharField()
+    accno=serializers.CharField()
+    ifsc=serializers.CharField()
+    branch=serializers.CharField()
 
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("User credentials are invalid.")
 
+        seller = Seller.objects.filter(user=user).first()
+        if not seller:
+            raise serializers.ValidationError("Seller profile not found.")
+        
+        if not SellerBankDetails.objects.filter(seller=seller).exists():
+            raise serializers.ValidationError("You cannot change bank details at this time.")
+        
+        return data
 
+    def save(self):
+        user = self.context["request"].user
+        seller = Seller.objects.get(user=user)  # Fetch the seller instance
+        bank_details = SellerBankDetails.objects.get(seller=seller)  # Fetch the existing bank details
 
-    
-
-    
-    
-    
-    
-
-# from rest_framework import serializers
-
-# class CompleteSellerRegisterSerializer(serializers.Serializer):
-#     shopName = serializers.CharField(max_length=255)
-#     shopAddress = serializers.CharField(max_length=500)
-#     shopLogo = serializers.ImageField(required=False)
-#     shopBanner = serializers.ImageField(required=False)
-#     description = serializers.CharField(max_length=1000)
-#     businessRegistrationNumber = serializers.RegexField(regex="^[A-Z0-9]{8,20}$")
-#     taxId = serializers.RegexField(regex="^[A-Z0-9]{8,20}$", required=False)
-#     bankAccountNumber = serializers.RegexField(regex="^\d{9,18}$")
-#     ifscCode = serializers.RegexField(regex="^[A-Z]{4}0[A-Z0-9]{6}$")
-#     accountHolderName = serializers.CharField(max_length=255)
-#     paymentMethod = serializers.ChoiceField(choices=["Bank Transfer", "PayPal"])
-#     termsAgreed = serializers.BooleanField()
-
-#     def validate_termsAgreed(self, value):
-#         if not value:
-#             raise serializers.ValidationError("You must agree to the terms and conditions.")
-#         return value
+        # Update the bank details
+        bank_details.account_holder_name = self.validated_data["accholder"]
+        bank_details.bank_name = self.validated_data["bank"]
+        bank_details.account_number = self.validated_data["accno"].encode()  # Handle as binary if necessary
+        bank_details.ifsc_code = self.validated_data["ifsc"]
+        bank_details.branch_address = self.validated_data["branch"]
+        bank_details.save()

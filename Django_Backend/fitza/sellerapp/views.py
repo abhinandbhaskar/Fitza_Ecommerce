@@ -200,3 +200,34 @@ class BankDetails(APIView):
         bank=SellerBankDetails.objects.get(seller_id=seller.id)
         serializer=SellerBankDetailsSerializer(bank)
         return Response(serializer.data)
+
+from sellerapp.serializers import UpdateProfileSerializer,UpdateShopSerializer,BankUpdateSerializer
+
+class UpdateProfile(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        data=request.data
+        serializer=UpdateProfileSerializer(data=data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Profile Updated Successfully..."},status=status.HTTP_200_OK)
+        return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+        
+class UpdateShop(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=UpdateShopSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Shop Details Updated Successfully"},status=status.HTTP_200_OK)
+        return Response({"message":"Error Occured"},status=status.HTTP_400_BAD_REQUEST)
+    
+
+class BankUpdate(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=BankUpdateSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Bank Details Updated Successfully"},status=status.HTTP_200_OK)
+        return Response({"message":"Error While Update Bank details"},status=status.HTTP_400_BAD_REQUEST)
