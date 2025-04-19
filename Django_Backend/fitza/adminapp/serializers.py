@@ -139,3 +139,61 @@ class DeleteCategorySerializer(serializers.Serializer):
         category = ProductCategory.objects.get(id=cate_id)
         category.delete()
 
+from common.models import Color,SizeOption
+class AddColorSerializer(serializers.Serializer):
+    color=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("You can't able to add color")
+        if Color.objects.filter(color_name=data["color"]).exists():
+            raise serializers.ValidationError("Color already exists...")
+        return data
+    def save(self):
+        obj=Color.objects.create(color_name=self.validated_data["color"])
+        return obj
+
+    
+class ViewColorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Color
+        fields='__all__'
+
+class DeleteColorSerializer(serializers.Serializer):
+    def validate(self):
+        color_id=self.context["color_id"]
+        if not Color.objects.filter(id=color_id).exists():
+            raise serializers.ValidationError("Color Does not exist")
+    def save(self):
+        color_id=self.context["color_id"]
+        obj=Color.objects.get(id=color_id)
+        obj.delete()
+
+
+class AddSizeSerializer(serializers.Serializer):
+    size=serializers.CharField()
+    order=serializers.CharField()
+    def validate(self,data):
+        if SizeOption.objects.filter(size_name=data["size"]).exists():
+            raise serializers.ValidationError("Size name already exists...")
+        if SizeOption.objects.filter(sort_order=data["order"]).exists():
+            raise serializers.ValidationError("Sort Order Value already used")
+        return data
+    def save(self):
+        obj=SizeOption.objects.create(size_name=self.validated_data["size"],sort_order=self.validated_data["order"] )
+        return obj
+
+class ViewSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=SizeOption
+        fields='__all__'
+
+class SizeDeleteSerializer(serializers.Serializer):
+    def validate(self):
+        size_id=self.context["size_id"]
+        if not SizeOption.objects.filter(id=size_id).exists():
+            raise serializers.ValidationError("Size Does not exist")
+    def save(self):
+        size_id=self.context["size_id"]
+        obj=SizeOption.objects.get(id=size_id)
+        obj.delete()

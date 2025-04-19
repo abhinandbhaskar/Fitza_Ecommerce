@@ -1,7 +1,8 @@
 from django.urls import path
 
 from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller
-from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory
+from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
+from adminapp.views import ViewSize,SizeDelete
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -18,6 +19,12 @@ urlpatterns = [
     path('fetch_update_category/<int:cate_id>/',fetchUpdateCategory.as_view(),name="fetch_update_category"),
     path('update_new_category/<int:cate_id>/',UpdateNewCategory.as_view(),name="update_new_category"),
     path('delete_category/<int:cate_id>/',DeleteCategory.as_view(),name="delete_category"),
+    path('add_color/',AddColor.as_view(),name="add_color"),
+    path('view_colors/',ViewColors.as_view(),name="view_colors"),
+    path('delete_color/<int:color_id>/',DeleteColor.as_view(),name="delete_color"),
+    path('add_size/',AddSize.as_view(),name="add_size"),
+    path('view_size/',ViewSize.as_view(),name="view_size"),
+    path('delete_size/<int:size_id>/',SizeDelete.as_view(),name="delete_size"),
 ]
 
 from django.conf import settings

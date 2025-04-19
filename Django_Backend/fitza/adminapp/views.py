@@ -213,3 +213,70 @@ class DeleteCategory(APIView):
             return Response({"errors":"The Category does not exist."},status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from adminapp.serializers import AddColorSerializer,ViewColorsSerializer,DeleteColorSerializer
+
+class AddColor(APIView):
+    permission_classes={IsAuthenticated}
+    def post(self,request):
+        serializer=AddColorSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Color Added Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":"Error Occured While Adding Color"},status=status.HTTP_400_BAD_REQUEST)
+
+from common.models import Color
+class ViewColors(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Color.objects.all()
+        serializer=ViewColorsSerializer(obj,many=True)
+        return Response(serializer.data)
+
+class DeleteColor(APIView):
+    permission_classes=[IsAuthenticated]
+    def delete(self,request,color_id):
+        try:
+            serializer=DeleteColorSerializer(context={"request":request,"color_id":color_id})
+            serializer.save()
+            return Response({"message":"Color Deleted Successfully..."},status=status.HTTP_200_OK)
+        except Color.DoesNotExist:
+            return Response({"errors":"Color Does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from adminapp.serializers import AddSizeSerializer,ViewSizeSerializer,SizeDeleteSerializer
+class AddSize(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddSizeSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Size Added Successfully.."},status=status.HTTP_201_CREATED)
+        if serializer.errors:
+            return Response({"errors":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"errors":"Error Occured while adding size.."},status=status.HTTP_400_BAD_REQUEST)
+
+from common.models import SizeOption
+
+class ViewSize(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        size=SizeOption.objects.all()
+        serializer=ViewSizeSerializer(size,many=True)
+        return Response(serializer.data)
+
+
+class SizeDelete(APIView):
+    permission_classes=[IsAuthenticated]
+    def delete(self,request,size_id):
+        try:
+            serializer=SizeDeleteSerializer(context={"request":request,"size_id":size_id})
+            serializer.save()
+            return Response({"message":"Size Deleted Successfully..."},status=status.HTTP_200_OK)
+        except SizeOption.DoesNotExist:
+            return Response({"errors":"Size Does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
