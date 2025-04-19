@@ -74,3 +74,68 @@ class ViewSellerDetailsSerializer(serializers.ModelSerializer):
         model=Seller
         fields='__all__'
 
+from common.models import ProductCategory
+class AddCategorySerializer(serializers.Serializer):
+    category=serializers.CharField(max_length=255)
+    description=serializers.CharField(required=False, allow_blank=True)
+    image=serializers.FileField(required=False, allow_null=True)
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("You don't have permission to add a category.")
+        if ProductCategory.objects.filter(category_name=data["category"]).exists():
+            raise serializers.ValidationError("Category already exists.")
+        return data
+    def save(self):
+        try:
+            category=ProductCategory.objects.create(
+                category_name=self.validated_data["category"],
+                category_image=self.validated_data["image"],
+                category_description=self.validated_data["description"],
+            )
+            return category
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to create category: {e}")
+
+
+    
+
+class ViewCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductCategory
+        fields='__all__'
+
+
+
+class UpdateNewCategorySerializer(serializers.Serializer):
+    category = serializers.CharField()
+    description = serializers.CharField()
+    image = serializers.FileField()
+
+    def validate(self, data):
+        cate_id = self.context["cate_id"]
+        if not ProductCategory.objects.filter(id=cate_id).exists():
+            raise serializers.ValidationError({"category": "The category does not exist."})
+        return data
+
+    def save(self):
+        cate_id = self.context["cate_id"]
+        obj = ProductCategory.objects.get(id=cate_id)
+        obj.category_name = self.validated_data["category"]
+        obj.category_description = self.validated_data["description"]
+        obj.category_image = self.validated_data["image"]
+        obj.save()
+
+
+class DeleteCategorySerializer(serializers.Serializer):
+    def validate(self):
+        cate_id = self.context["cate_id"]
+        if not ProductCategory.objects.filter(id=cate_id).exists():
+            raise serializers.ValidationError({"category": "The category does not exist."})
+        return {}
+    
+    def save(self):
+        cate_id = self.context["cate_id"]
+        category = ProductCategory.objects.get(id=cate_id)
+        category.delete()
+

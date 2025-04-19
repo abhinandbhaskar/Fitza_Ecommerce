@@ -142,3 +142,74 @@ class ApproveSeller(APIView):
         seller.save()
         return Response({"message":"Approved Successfully..."},status=status.HTTP_200_OK)
 
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from adminapp.serializers import AddCategorySerializer
+
+class AddCategory(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = AddCategorySerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response({"message": "Category added successfully"}, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({"message": f"Failed to add category: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+from adminapp.serializers import ViewCategorySerializer,UpdateNewCategorySerializer,DeleteCategorySerializer
+from common.models import ProductCategory
+
+class ViewCategory(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        try:
+            categories=ProductCategory.objects.all()
+            serializer=ViewCategorySerializer(categories,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message":f"An Error Occured while fetching Categories {e}"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class fetchUpdateCategory(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,cate_id):
+        try:
+            categories=ProductCategory.objects.filter(id=cate_id)
+            serializer=ViewCategorySerializer(categories,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message":f"An Error Occured while fetching Categories {e}"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+class UpdateNewCategory(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, cate_id):
+        serializer = UpdateNewCategorySerializer(
+            data=request.data, context={"request": request, "cate_id": cate_id}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Category Updated Successfully"}, status=status.HTTP_200_OK)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteCategory(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def delete(self,request,cate_id):
+        try:
+            serializer=DeleteCategorySerializer(context={"request":request,"cate_id":cate_id})
+            serializer.save()
+            return Response({"message":"Category Deleted Successfully..."},status=status.HTTP_200_OK)
+        except ProductCategory.DoesNotExist:
+            return Response({"errors":"The Category does not exist."},status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
