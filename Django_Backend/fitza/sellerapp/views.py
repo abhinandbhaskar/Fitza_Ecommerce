@@ -231,3 +231,52 @@ class BankUpdate(APIView):
             serializer.save()
             return Response({"message":"Bank Details Updated Successfully"},status=status.HTTP_200_OK)
         return Response({"message":"Error While Update Bank details"},status=status.HTTP_400_BAD_REQUEST)
+    
+
+from common.models import ProductCategory,Brand,Color,SizeOption
+from sellerapp.serializers import GetCategorySerializer,GetBrandsSerializer,GetColorSerializer,GetSizeSerializer
+
+class GetCategory(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ProductCategory.objects.all()
+        serializer=GetCategorySerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+
+class GetBrands(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Brand.objects.all()
+        serializer=GetBrandsSerializer(obj,many=True)
+        return Response(serializer.data)
+    
+
+class GetColor(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Color.objects.all()
+        serializer=GetColorSerializer(obj,many=True)
+        return Response(serializer.data)
+    
+
+class GetSize(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=SizeOption.objects.all()
+        serializer=GetSizeSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+from sellerapp.serializers import AddProductsSerializer
+
+class AddProducts(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = AddProductsSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()  # Persist the data
+            return Response({"message": "Products added successfully."}, status=status.HTTP_201_CREATED)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

@@ -300,3 +300,97 @@ class BankUpdateSerializer(serializers.Serializer):
         bank_details.ifsc_code = self.validated_data["ifsc"]
         bank_details.branch_address = self.validated_data["branch"]
         bank_details.save()
+
+
+from common.models import ProductCategory,Brand,Color,SizeOption
+class GetCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductCategory
+        fields=['category_name','id']
+
+
+class GetBrandsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Brand
+        fields=['brand_name','id']
+
+class GetColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Color
+        fields=['color_name','id']
+
+class GetSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=SizeOption
+        fields=['size_name','id']
+
+from rest_framework import serializers
+from common.models import Product, ProductItem, CustomUser, Seller, Brand,ProductCategory
+
+
+class AddProductsSerializer(serializers.Serializer):
+    product = serializers.CharField()
+    description = serializers.CharField()
+    cateid = serializers.IntegerField()  
+    brandid = serializers.IntegerField() 
+    modelheight = serializers.CharField()
+    modelwearing = serializers.CharField()
+    instruction = serializers.CharField()
+    about = serializers.CharField()
+    color = serializers.CharField()
+    size = serializers.CharField()
+    price = serializers.DecimalField(max_digits=10, decimal_places=2) 
+    productcode = serializers.CharField()
+    stock = serializers.IntegerField() 
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Unauthorized user")
+        
+        if not ProductCategory.objects.filter(id=data["cateid"]).exists():
+            raise serializers.ValidationError("Invalid category ID")
+        
+        if not Brand.objects.filter(id=data["brandid"]).exists():
+            raise serializers.ValidationError("Invalid brand ID")
+        
+        if not Color.objects.filter(id=data["color"]).exists():
+            raise serializers.ValidationError("Invalid color ID")
+        
+        if not SizeOption.objects.filter(id=data["size"]).exists():
+            raise serializers.ValidationError("Invalid Size ID")
+        
+        return data
+
+    def save(self):
+        user = self.context["request"].user
+        try:
+            seller = Seller.objects.get(user=user)
+        except Seller.DoesNotExist:
+            raise serializers.ValidationError("Seller not found.")
+
+        categoryobj = ProductCategory.objects.get(id=self.validated_data["cateid"])
+        brandobj = Brand.objects.get(id=self.validated_data["brandid"])
+        sizeobj=SizeOption.objects.get(id=self.validated_data["size"])
+        colorobj=Color.objects.get(id=self.validated_data["color"])
+
+        product = Product.objects.create(
+            category=categoryobj,
+            brand=brandobj,
+            shop=seller,
+            product_name=self.validated_data["product"],
+            product_description=self.validated_data["description"],
+            model_height=self.validated_data["modelheight"],
+            model_wearing=self.validated_data["modelwearing"],
+            care_instructions=self.validated_data["instruction"],
+            about=self.validated_data["about"]
+        )
+
+        ProductItem.objects.create(
+            product=product,
+            color=colorobj,
+            size=sizeobj,
+            original_price=self.validated_data["price"],
+            product_code=self.validated_data["productcode"],
+            quantity_in_stock=self.validated_data["stock"]
+        )

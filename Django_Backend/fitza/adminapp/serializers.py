@@ -139,7 +139,7 @@ class DeleteCategorySerializer(serializers.Serializer):
         category = ProductCategory.objects.get(id=cate_id)
         category.delete()
 
-from common.models import Color,SizeOption
+from common.models import Color,SizeOption,Brand
 class AddColorSerializer(serializers.Serializer):
     color=serializers.CharField()
     def validate(self,data):
@@ -197,3 +197,62 @@ class SizeDeleteSerializer(serializers.Serializer):
         size_id=self.context["size_id"]
         obj=SizeOption.objects.get(id=size_id)
         obj.delete()
+
+
+class AddBrandSerializer(serializers.Serializer):
+    brand=serializers.CharField()
+    description=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("You can't able to add color")
+        if Brand.objects.filter(brand_name=self.initial_data["brand"]).exists():
+            raise serializers.ValidationError("Brandname already added...")
+        return data
+    
+    def save(self):
+        obj=Brand.objects.create(brand_name=self.validated_data["brand"],brand_description=self.validated_data["description"])
+        return obj
+    
+        
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Brand
+        fields='__all__'
+
+
+class UpdateNewBrandSerializer(serializers.Serializer):
+    brand=serializers.CharField()
+    description=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        brand_id1=self.context["brand_id1"]
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Un authorised user")
+        if not Brand.objects.filter(id=brand_id1).exists():
+            raise serializers.ValidationError("You can't update..")
+        return data
+    
+    def save(self):
+        brand_id1=self.context["brand_id1"]
+        obj=Brand.objects.get(id=brand_id1)
+        obj.brand_name=self.validated_data["brand"]
+        obj.brand_description=self.validated_data["description"]
+        obj.save()
+        return obj
+            
+    
+class DeleteBrandSerializer(serializers.Serializer):
+    def validate(self,attrs):
+        user=self.context["request"].user
+        brand_id=self.context["brand_id"]
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthprized User")
+        if not Brand.objects.filter(id=brand_id).exists():
+            raise serializers.ValidationError("Brand already deleted")
+        return attrs
+
+    def save(self):
+        brand_id=self.context["brand_id"]   
+        obj=Brand.objects.get(id=brand_id).delete()
+        return obj

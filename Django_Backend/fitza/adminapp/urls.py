@@ -2,7 +2,7 @@ from django.urls import path
 
 from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
-from adminapp.views import ViewSize,SizeDelete
+from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -25,6 +25,11 @@ urlpatterns = [
     path('add_size/',AddSize.as_view(),name="add_size"),
     path('view_size/',ViewSize.as_view(),name="view_size"),
     path('delete_size/<int:size_id>/',SizeDelete.as_view(),name="delete_size"),
+    path('add_brand/',AddBrand.as_view(),name="add_brand"),
+    path('view_brand/',ViewBrand.as_view(),name="view_brand"),
+    path('view_update_brand/<int:brand_id>/',ViewUpdateBrand.as_view(),name='view_update_brand'),
+    path('update_brand/<int:brand_id1>/',UpdateNewBrand.as_view(),name='update_brand'),
+    path('delete_brand/<int:brand_id>/',DeleteBrand.as_view(),name="delete_brand"),
 ]
 
 from django.conf import settings

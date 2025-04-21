@@ -32,6 +32,7 @@ const LoginPage = () => {
         console.log("DaDa",response.data);
         dispatch(
             loginSuccess({
+                
                 userId:response.data.user_id,
                 accessToken:response.data.access,
                 isAuthenticated:true,

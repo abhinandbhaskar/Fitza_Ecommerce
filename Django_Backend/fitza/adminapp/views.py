@@ -259,7 +259,9 @@ class AddSize(APIView):
             return Response({"errors":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
         return Response({"errors":"Error Occured while adding size.."},status=status.HTTP_400_BAD_REQUEST)
 
-from common.models import SizeOption
+
+
+from common.models import SizeOption,Brand
 
 class ViewSize(APIView):
     permission_classes=[IsAuthenticated]
@@ -278,5 +280,53 @@ class SizeDelete(APIView):
             return Response({"message":"Size Deleted Successfully..."},status=status.HTTP_200_OK)
         except SizeOption.DoesNotExist:
             return Response({"errors":"Size Does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+from adminapp.serializers import AddBrandSerializer,BrandSerializer,UpdateNewBrandSerializer,DeleteBrandSerializer
+
+class AddBrand(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddBrandSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Brand Added Successfully.."},status=status.HTTP_201_CREATED)
+        if serializer.errors:
+            return Response({"errors":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"errors":"Error Occured while adding size.."},status=status.HTTP_400_BAD_REQUEST)
+
+
+class ViewBrand(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Brand.objects.all()
+        serializer=BrandSerializer(obj,many=True)
+        return Response(serializer.data)
+    
+class ViewUpdateBrand(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,brand_id):
+        obj=Brand.objects.get(id=brand_id)
+        serializer=BrandSerializer(obj)
+        return Response(serializer.data)
+    
+class UpdateNewBrand(APIView):
+    permission_classes=[IsAuthenticated]
+    def put(self,request,brand_id1):
+        print("BRRRRR",brand_id1)
+        serializer=UpdateNewBrandSerializer(data=request.data,context={"request":request,"brand_id1":brand_id1})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Brand Updated Successfully.."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)
+
+class DeleteBrand(APIView):
+    permission_classes=[IsAuthenticated]
+    def delete(self,request,brand_id):
+        try:
+            serializer=DeleteBrandSerializer(context={"request":request,"brand_id":brand_id})
+            serializer.save()
+            return Response({"message":"Brand deleted Successfully.."},status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
