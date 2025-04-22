@@ -7,13 +7,16 @@ from datetime import timedelta
 
 #seller
 
-
 class ProductImage(models.Model):
-    product_item=models.ForeignKey(ProductItem,on_delete=models.CASCADE,related_name='images')
-    image_filename=models.ImageField(upload_to='product_images/')
+    product_item = models.ForeignKey(ProductItem, on_delete=models.CASCADE, related_name='images')
+    main_image = models.ImageField(upload_to='product_images/', blank=True, null=True)  # Main image
+    sub_image_1 = models.ImageField(upload_to='product_images/', blank=True, null=True)  # First sub-image
+    sub_image_2 = models.ImageField(upload_to='product_images/', blank=True, null=True)  # Second sub-image
+    sub_image_3 = models.ImageField(upload_to='product_images/', blank=True, null=True)  # Third sub-image
 
     def __str__(self):
-        return f"Image for {self.product_item}"
+        return f"Images for {self.product_item}"
+
     
 
 def default_discount_card_end_date():

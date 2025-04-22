@@ -31,7 +31,7 @@ class SellerRegisterSerializer(serializers.Serializer):
         return data
     
     def create(self, validated_data):
-        user=CustomUser.objects.create_user(username=validated_data["email"],email=validated_data["email"],phone_number=validated_data["phone"],password=validated_data["password1"])
+        user=CustomUser.objects.create_user(username=validated_data["email"],email=validated_data["email"],phone_number=validated_data["phone"],password=validated_data["password1"],user_type="seller")
         user.first_name=validated_data["fullname"]
         user.is_active=False
         user.save()
@@ -186,6 +186,8 @@ class SellerTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise AuthenticationFailed("User not registered or invalid credentials")
         if not user.is_active:
             raise AuthenticationFailed("This account is disabled. Please contact support.")
+        if not user.user_type=="seller":
+            raise AuthenticationFailed("Sellers can only login here..")
         data["user_id"]=user.id
         data["username"]=user.email
         data["email"]=user.email
@@ -326,6 +328,7 @@ class GetSizeSerializer(serializers.ModelSerializer):
 
 from rest_framework import serializers
 from common.models import Product, ProductItem, CustomUser, Seller, Brand,ProductCategory
+from sellerapp.models import ProductImage
 
 
 class AddProductsSerializer(serializers.Serializer):
@@ -342,6 +345,10 @@ class AddProductsSerializer(serializers.Serializer):
     price = serializers.DecimalField(max_digits=10, decimal_places=2) 
     productcode = serializers.CharField()
     stock = serializers.IntegerField() 
+    photo=serializers.FileField()
+    img1=serializers.FileField()
+    img2=serializers.FileField()
+    img3=serializers.FileField()
 
     def validate(self, data):
         user = self.context["request"].user
@@ -386,7 +393,7 @@ class AddProductsSerializer(serializers.Serializer):
             about=self.validated_data["about"]
         )
 
-        ProductItem.objects.create(
+        productitemobj=ProductItem.objects.create(
             product=product,
             color=colorobj,
             size=sizeobj,
@@ -394,3 +401,27 @@ class AddProductsSerializer(serializers.Serializer):
             product_code=self.validated_data["productcode"],
             quantity_in_stock=self.validated_data["stock"]
         )
+
+        ProductImage.objects.create(
+            product_item=productitemobj,
+            main_image=self.validated_data["photo"],
+            sub_image_1=self.validated_data["img1"],
+            sub_image_2=self.validated_data["img2"],
+            sub_image_3=self.validated_data["img3"],
+
+        )
+
+
+class ProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields='__all__'
+
+
+
+class GetAllProductsSerializer(serializers.ModelSerializer):
+    product=ProductsSerializer(read_only=True)
+    class Meta:
+        model=ProductItem
+        fields='__all__'
+

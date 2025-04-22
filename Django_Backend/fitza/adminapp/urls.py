@@ -2,7 +2,7 @@ from django.urls import path
 
 from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
-from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand
+from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -30,6 +30,11 @@ urlpatterns = [
     path('view_update_brand/<int:brand_id>/',ViewUpdateBrand.as_view(),name='view_update_brand'),
     path('update_brand/<int:brand_id1>/',UpdateNewBrand.as_view(),name='update_brand'),
     path('delete_brand/<int:brand_id>/',DeleteBrand.as_view(),name="delete_brand"),
+    path('view_pending_product/',ViewPendingProduct.as_view(),name='view_pending_product'),
+    path('view_all_product/',ViewAllProduct.as_view(),name='view_all_product'),
+    path('approve_product/<int:id>/',ApproveProduct.as_view(),name="approve_product"),
+    path('reject_product/<int:id>/',RejectProduct.as_view(),name="reject_product"),
+    path('view_product/<int:id>/',ViewProduct.as_view(),name="view_product"),
 ]
 
 from django.conf import settings

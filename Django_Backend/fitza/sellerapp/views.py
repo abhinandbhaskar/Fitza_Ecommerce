@@ -269,7 +269,7 @@ class GetSize(APIView):
         return Response(serializer.data)
 
 
-from sellerapp.serializers import AddProductsSerializer
+from sellerapp.serializers import AddProductsSerializer,GetAllProductsSerializer
 
 class AddProducts(APIView):
     permission_classes = [IsAuthenticated]
@@ -280,3 +280,15 @@ class AddProducts(APIView):
             serializer.save()  # Persist the data
             return Response({"message": "Products added successfully."}, status=status.HTTP_201_CREATED)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+from common.models import ProductItem
+
+class GetAllProducts(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ProductItem.objects.all()
+        serializer=GetAllProductsSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+

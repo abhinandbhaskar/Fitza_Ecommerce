@@ -1,6 +1,31 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import {useSelector} from "react-redux";
 
 const ProductsSection = ({setCurrentView}) => {
+  const {accessToken}=useSelector((state)=>state.auth);
+  const[products,setProducts]=useState([]);
+  const AllProducts=async()=>{
+    console.log("Get Start...");
+    try{
+      const reponse=await axios.get("https://127.0.0.1:8000/api/seller/get_all_product/",{
+        headers:{
+          Authorization:`Bearer ${accessToken}`,
+        }
+      });
+      console.log(reponse);
+      console.log(reponse.data);
+      setProducts(reponse.data);
+    }
+    catch(errors)
+    {
+      console.log(errors);
+      console.log(errors.reponse.data);
+    }
+  }
+  useEffect(()=>{
+    AllProducts();
+  },[])
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -40,7 +65,7 @@ const ProductsSection = ({setCurrentView}) => {
       <section className="p-6 bg-white shadow-md rounded-lg mx-6 mt-4">
         <h2 className="text-lg font-semibold text-gray-700 mb-4">Filter Products</h2>
         <div className="flex flex-wrap gap-4">
-          <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          <button onClick={()=>AllProducts()} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
             All
           </button>
           <button className="px-4 py-2 bg-yellow-200 text-yellow-700 rounded-lg hover:bg-yellow-300">
@@ -69,7 +94,9 @@ const ProductsSection = ({setCurrentView}) => {
               </tr>
             </thead>
             <tbody>
-              <tr className="hover:bg-gray-50">
+            {
+              products.map((value,key)=>(
+                <tr className="hover:bg-gray-50">
                 <td className="px-4 py-2 border-t">1</td>
                 <td className="px-4 py-2 border-t">Saree</td>
                 <td className="px-4 py-2 border-t">10</td>
@@ -78,7 +105,10 @@ const ProductsSection = ({setCurrentView}) => {
                   <button className="text-red-500 hover:text-red-600">Delete</button>
                 </td>
               </tr>
-              {/* Add more rows as needed */}
+              ))
+            }
+
+           
             </tbody>
           </table>
         </div>

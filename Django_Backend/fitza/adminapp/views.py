@@ -47,7 +47,7 @@ class ViewUsers(APIView):
         # users = CustomUser.objects.filter(
         #     ~Q(seller_profile__isnull=False) & ~Q(admin_profile__isnull=False)
         # )
-        users = CustomUser.objects.filter(seller_profile__isnull=True, admin_profile__isnull=True)
+        users = CustomUser.objects.filter(seller_profile__isnull=True, admin_profile__isnull=True,user_type='user',is_superuser=False)
         serializer=ViewUsersSerializer(users,many=True)
         return Response(serializer.data)
 
@@ -330,3 +330,58 @@ class DeleteBrand(APIView):
             return Response({"message":"Brand deleted Successfully.."},status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from adminapp.serializers import ViewPendingProductSerializer,IndividualProductsSerializer
+from common.models import ProductItem
+
+class ViewPendingProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ProductItem.objects.filter(status='pending')
+        serializer=ViewPendingProductSerializer(obj,many=True)
+        return Response(serializer.data)
+    
+    
+
+class ViewAllProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ProductItem.objects.filter(status="approved")
+        serializer=ViewPendingProductSerializer(obj,many=True)
+        return Response(serializer.data)
+
+from adminapp.serializers import ApproveProductSerializer,RejectProductSerializer
+class ApproveProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        obj=ProductItem.objects.get(id=id)
+        obj.status="approved"
+        obj.save()
+        serializer=ApproveProductSerializer(data=request.data,context={"request":request,"id":id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Product Approved Successfully..."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error Occured While Approve product"},status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class RejectProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        obj=ProductItem.objects.get(id=id)
+        obj.status="rejected"
+        obj.save()
+        serializer=RejectProductSerializer(data=request.data,context={"request":request,"id":id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Product Rejected.."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error Occured While Reject product"},status=status.HTTP_400_BAD_REQUEST)
+
+
+class ViewProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,id):
+        obj=ProductItem.objects.filter(id=id)
+        serializer=IndividualProductsSerializer(obj,many=True)
+        return Response(serializer.data)
+

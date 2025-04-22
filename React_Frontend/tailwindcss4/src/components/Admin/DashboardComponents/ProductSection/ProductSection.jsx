@@ -6,6 +6,7 @@ import Categories from "./ProductSectionComponents/Categories/Categories";
 import ProductsInsights from "./ProductSectionComponents/ProductsInsights/ProductsInsights";
 import ProductAttributes from "./ProductSectionComponents/ProductAttributes/ProductAttributes";
 
+
 const ProductSection = () => {
     const [currentView,setCurrentView]=useState("mainsection");
   // Sample data for the chart

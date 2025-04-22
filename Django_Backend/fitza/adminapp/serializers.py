@@ -13,6 +13,8 @@ class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise AuthenticationFailed("This account is disabled. Please contact support.")
         if not user.is_staff:
             raise AuthenticationFailed("Access denied. Only admins can log in here.")
+        if not user.user_type=="admin":
+            raise AuthenticationFailed("Only admins can log in here..")
    
         data["user_id"]=user.id
         data["username"]=user.username
@@ -256,3 +258,109 @@ class DeleteBrandSerializer(serializers.Serializer):
         brand_id=self.context["brand_id"]   
         obj=Brand.objects.get(id=brand_id).delete()
         return obj
+
+
+from sellerapp.models import ProductImage
+from common.models import ProductItem
+from common.models import Product
+
+# Serializer for ProductImage
+class ViewProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['main_image', 'sub_image_1', 'sub_image_2', 'sub_image_3']
+
+# Serializer for Product
+class ViewProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+
+
+
+# Serializer for ProductItem
+
+class ViewPendingProductSerializer(serializers.ModelSerializer):
+    product = ViewProductsSerializer(read_only=True)  # Product relationship
+    images = ViewProductImageSerializer(many=True, read_only=True)  # Automatically maps to `images` related_name
+
+    class Meta:
+        model = ProductItem
+        fields = [
+            'id', 'product', 'color', 'size', 'original_price', 'sale_price', 
+            'product_code', 'quantity_in_stock', 'status', 'rejection_reason', 'images'
+        ]
+
+from common.models import Seller
+
+class ShopSellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = '__all__'
+
+class IndividualProductsSerializer(serializers.ModelSerializer):
+    product = ViewProductsSerializer(read_only=True) 
+    images = ViewProductImageSerializer(many=True, read_only=True) 
+    brand=serializers.SerializerMethodField()
+    size=ViewSizeSerializer(read_only=True)
+    color=ViewColorsSerializer(read_only=True)
+    category=serializers.SerializerMethodField() 
+    shop=serializers.SerializerMethodField() 
+
+    class Meta:
+        model = ProductItem
+        fields = [
+            'id', 'product','color','shop', 'size', 'original_price', 'sale_price', 'product_code',
+            'quantity_in_stock', 'rejection_reason', 'images', 'brand', 'category'
+        ]
+
+
+    def get_brand(self, obj):
+        if obj.product and obj.product.brand:
+            return BrandSerializer(obj.product.brand).data
+        return None
+
+    def get_category(self, obj):
+        if obj.product and obj.product.category:
+            return ViewCategorySerializer(obj.product.category).data
+        return None
+
+    def get_shop(self, obj):
+        if obj.product and obj.product.shop:
+            return ShopSellerSerializer(obj.product.shop).data
+        return None
+
+
+class ApproveProductSerializer(serializers.Serializer):
+    saleprice=serializers.CharField()
+    code=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not user.is_staff:
+            raise serializers.ValidationError("You are not authorized to perform this action.")
+        return data
+    def save(self):
+        id=self.context["id"]
+        obj1=ProductItem.objects.get(id=id)
+        obj1.sale_price=self.validated_data["saleprice"]
+        obj1.product_code=self.validated_data["code"]
+        obj1.save()
+
+
+
+class RejectProductSerializer(serializers.Serializer):
+    reason=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not user.is_staff:
+            raise serializers.ValidationError("You are not authorized to perform this action.")
+        return data
+    def save(self):
+        id=self.context["id"]
+        obj1=ProductItem.objects.get(id=id)
+        obj1.rejection_reason=self.validated_data["reason"]
+        obj1.save()
+
+
+        

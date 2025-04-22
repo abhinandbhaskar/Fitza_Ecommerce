@@ -6,8 +6,13 @@ from datetime import timedelta
 
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
-
 class CustomUser(AbstractUser):
+    USER_TYPES = [
+        ('user', 'User'),
+        ('seller', 'Seller'),
+        ('admin', 'Admin'),
+    ]
+
     # Custom fields
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     userphoto = models.ImageField(
@@ -16,6 +21,7 @@ class CustomUser(AbstractUser):
         null=True,
         default="user_photos/default.jpg"  # Path to the default photo
     )
+    user_type = models.CharField(max_length=10, choices=USER_TYPES, default='user')  # User type field
 
     # Explicitly set related_name to avoid clashes
     groups = models.ManyToManyField(
@@ -33,6 +39,13 @@ class CustomUser(AbstractUser):
         verbose_name = "User"
         verbose_name_plural = "Users"
 
+    def is_seller(self):
+        """Check if the user is a seller."""
+        return self.user_type == 'seller'
+
+    def is_admin(self):
+        """Check if the user is an admin."""
+        return self.user_type == 'admin'
 
 
 class UserAddress(models.Model):
@@ -144,17 +157,32 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
 
+
 class ProductItem(models.Model):
-    product=models.ForeignKey(Product,on_delete=models.CASCADE,related_name='items')
-    color=models.ForeignKey(Color,on_delete=models.SET_NULL,null=True,blank=True,related_name='items')
-    size=models.ForeignKey(SizeOption,on_delete=models.CASCADE,related_name='product_items')
-    original_price=models.DecimalField(max_digits=10,decimal_places=2)
-    sale_price=models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
-    product_code=models.CharField(max_length=100,unique=True)
-    quantity_in_stock=models.PositiveIntegerField()
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='items')
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True, related_name='items')
+    size = models.ForeignKey(SizeOption, on_delete=models.CASCADE, related_name='product_items')
+    original_price = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    product_code = models.CharField(max_length=100, unique=True)
+    quantity_in_stock = models.PositiveIntegerField()
+    
+    # New fields for approval/rejection workflow
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    rejection_reason = models.TextField(blank=True, null=True)  # Optional, for rejection reasons
 
     def __str__(self):
-        return f"{self.product.product_name} - {self.color.color_name} - {self.size.size_name}"
+        details = f"{self.product.product_name} - "
+        if self.color:
+            details += f"{self.color.color_name} - "
+        details += f"{self.size.size_name}"
+        return details
 
 
 

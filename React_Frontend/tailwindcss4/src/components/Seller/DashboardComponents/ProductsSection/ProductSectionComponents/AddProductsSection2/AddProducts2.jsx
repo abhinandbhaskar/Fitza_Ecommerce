@@ -1,10 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
+// import {updateProducts} from "../../../../../../redux/ProductsSlice";
+import {updateProducts} from "../../../../../../redux/ProductsSlice";
 const AddProducts2 = ({setCurrentView}) => {
+    const { products,description,cateid,brandid,modelheight,modelwearing,instruction,about} = useSelector((state) => state.product?.product || {});
+  
   // get 
     const {accessToken} = useSelector((state)=>state.auth);
-    const { products,description,cateid,brandid,modelheight,modelwearing,instruction,about} = useSelector((state) => state.product?.product || {});
+    const dispatch=useDispatch();
     const [color,setColor]=useState([]);
     const[size,setSize]=useState([]);
     // post
@@ -53,47 +57,28 @@ const AddProducts2 = ({setCurrentView}) => {
     fetchSize();
     },[])
 
-    const handleAddproduct2=async()=>{
-      
-      const productsData={
-        "product":products,
-        "description":description,
-        "cateid":cateid,
-        "brandid":brandid,
-        "modelheight":modelheight,
-        "modelwearing":modelwearing,
-        "instruction":instruction,
-        "about":about,
-        "color":colorid,
-        "size":sizeid,
-        "price":price,
-        "productcode":productcode,
-        "stock":stock
-      }
-      console.log(productsData);
-
-      try{
-        const response=await axios.post("https://127.0.0.1:8000/api/seller/add_product/",productsData,{
-          headers:{
-            "Content-Type":"application/json",
-            Authorization:`Bearer ${accessToken}`,
+    const handleAddproduct2=async()=>{      
+          try {
+            dispatch(updateProducts({
+              products: products,
+              description: description,
+              cateid: cateid,
+              brandid: brandid,
+              modelheight: modelheight,
+              modelwearing: modelwearing,
+              instruction: instruction,
+              about: about,
+              colorid:colorid,
+              sizeid:sizeid,
+              price:price,
+              productcode:productcode,
+              stock:stock,
+            }));
+            console.log("Product data updated successfully");
+          } catch (error) {
+            console.error("Error updating product data:", error);
           }
-        });
-        console.log(response);
-        console.log(response.data);
-        alert(response.data.message);
-
-        setTimeout(()=>{
-          setCurrentView("add3");
-        },3000)
-      }
-      catch(errors)
-      {
-        console.log(errors);
-        console.log(errors.response.data);
-      }
-
-
+      setCurrentView("add3");
     }
 
   return (
@@ -199,7 +184,7 @@ const AddProducts2 = ({setCurrentView}) => {
             <div className="col-span-1 md:col-span-2 flex justify-end">
               <button
                 type="button"
-                onClick={handleAddproduct2}
+                onClick={()=>handleAddproduct2()}
                 className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 Continue &gt;

@@ -27,7 +27,7 @@ class RegisterSerializer(serializers.Serializer):
         return data
     # Most commonly, we override create() when we want to save the currently logged-in user (or any extra info not directly coming from the request.data) into the model.
     def create(self, validated_data):
-        user=CustomUser.objects.create_user(username=validated_data["email"],email=validated_data["email"],phone_number=validated_data["phone"],password=validated_data["password1"])
+        user=CustomUser.objects.create_user(username=validated_data["email"],email=validated_data["email"],phone_number=validated_data["phone"],password=validated_data["password1"],user_type='user')
         user.first_name=validated_data["fullname"]
         user.is_active=False
         print("SET FALSE")
@@ -50,6 +50,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if not user.is_active:
             raise AuthenticationFailed("This account is disabled. Please contact support.")
+        
+        if not user.user_type=="user":
+            raise AuthenticationFailed("User can only login here..")
 
         print("USER",user.id)
         print("USER",user.username)
