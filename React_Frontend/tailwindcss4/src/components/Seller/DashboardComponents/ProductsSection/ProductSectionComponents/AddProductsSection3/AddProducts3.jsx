@@ -7,7 +7,7 @@ const AddProducts3 = () => {
   const[img2,setImage2]=useState("");
   const[img3,setImage3]=useState("");
   const {accessToken} = useSelector((state)=>state.auth);
-  const { products,description,cateid,brandid,modelheight,modelwearing,instruction,about,colorid,sizeid,price,productcode,stock} = useSelector((state) => state.product?.product || {});
+  const { products,description,cateid,brandid,modelheight,modelwearing,instruction,about,colorid,sizeid,price,stock} = useSelector((state) => state.product?.product || {});
 
   const handleAddProduct3=async()=>{
 
@@ -23,14 +23,13 @@ const AddProducts3 = () => {
       "color":colorid,
       "size":sizeid,
       "price":price,
-      "productcode":productcode,
       "stock":stock,
       "photo":img,
       "img1":img1,
       "img2":img2,
       "img3":img3,
     }
-    console.log("FULLLLLLLLLLLLLLLLL",productsData);
+    console.log(productsData);
 
 
     try{

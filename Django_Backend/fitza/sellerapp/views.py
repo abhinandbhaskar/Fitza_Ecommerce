@@ -285,9 +285,27 @@ from common.models import ProductItem
 
 class GetAllProducts(APIView):
     permission_classes=[IsAuthenticated]
-    def get(self,request):
-        obj=ProductItem.objects.all()
-        serializer=GetAllProductsSerializer(obj,many=True)
+    def get(self,request,id):
+        user=request.user
+        try:
+            seller=Seller.objects.get(user=user)
+        except Seller.DoesNotExist:
+            return Response({"error":"You are not authorized to access products."},status=status.HTTP_403_FORBIDDEN)
+        if id==1:
+            statusvalue=None
+        elif id==2:
+            statusvalue="pending"
+        elif id==3:
+            statusvalue="rejected"
+        elif id==4:
+            statusvalue="approved"
+        
+        # Build query dynamically
+        filters = {"product__shop": seller}
+        if statusvalue is not None:  
+            filters["status"] = statusvalue
+        product_items = ProductItem.objects.filter(**filters)
+        serializer=GetAllProductsSerializer(product_items,many=True)
         return Response(serializer.data)
 
 

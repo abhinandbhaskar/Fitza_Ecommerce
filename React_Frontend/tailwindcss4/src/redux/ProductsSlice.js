@@ -13,7 +13,6 @@ const initialState = {
         colorid:null,
         sizeid:null,
         price:"",
-        productcode:"",
         stock:"",
     },
 };
@@ -34,7 +33,6 @@ const ProductsSlice=createSlice({
             state.product.colorid=action.payload.colorid;
             state.product.sizeid=action.payload.sizeid;
             state.product.price=action.payload.price;
-            state.product.productcode=action.payload.productcode;
             state.product.stock=action.payload.stock;
         },
         clearProducts:(state)=>{
@@ -49,7 +47,6 @@ const ProductsSlice=createSlice({
             state.product.colorid=null;
             state.product.sizeid=null;
             state.product.price="";
-            state.product.productcode="";
             state.product.stock="";
         }
     }

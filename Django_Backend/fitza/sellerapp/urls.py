@@ -24,7 +24,7 @@ urlpatterns = [
     path('get_color/',GetColor.as_view(),name="get_color"),
     path('get_size/',GetSize.as_view(),name="get_size"),
     path('add_product/',AddProducts.as_view(),name="add_product"),
-    path('get_all_product/',GetAllProducts.as_view(),name="get_all_product"),
+    path('get_all_product/<int:id>/',GetAllProducts.as_view(),name="get_all_product"),
 ]
 
 from django.conf import settings

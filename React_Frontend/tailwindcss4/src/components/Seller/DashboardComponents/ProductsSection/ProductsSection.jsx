@@ -5,10 +5,10 @@ import {useSelector} from "react-redux";
 const ProductsSection = ({setCurrentView}) => {
   const {accessToken}=useSelector((state)=>state.auth);
   const[products,setProducts]=useState([]);
-  const AllProducts=async()=>{
+  const AllProducts=async(id)=>{
     console.log("Get Start...");
     try{
-      const reponse=await axios.get("https://127.0.0.1:8000/api/seller/get_all_product/",{
+      const reponse=await axios.get(`https://127.0.0.1:8000/api/seller/get_all_product/${id}/`,{
         headers:{
           Authorization:`Bearer ${accessToken}`,
         }
@@ -24,8 +24,25 @@ const ProductsSection = ({setCurrentView}) => {
     }
   }
   useEffect(()=>{
-    AllProducts();
+    const id=1;
+    AllProducts(id);
   },[])
+  const OurAllProducts=()=>{
+    const id=1;
+    AllProducts(id);
+  }
+  const ProgressProducts=()=>{
+    const id=2;
+    AllProducts(id);
+  }
+  const RejectedProducts=()=>{
+    const id=3;
+    AllProducts(id);
+  }
+  const ApproveProducts=()=>{
+    const id=4;
+    AllProducts(id); 
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -65,16 +82,16 @@ const ProductsSection = ({setCurrentView}) => {
       <section className="p-6 bg-white shadow-md rounded-lg mx-6 mt-4">
         <h2 className="text-lg font-semibold text-gray-700 mb-4">Filter Products</h2>
         <div className="flex flex-wrap gap-4">
-          <button onClick={()=>AllProducts()} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+          <button onClick={()=>OurAllProducts()} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
             All
           </button>
-          <button className="px-4 py-2 bg-yellow-200 text-yellow-700 rounded-lg hover:bg-yellow-300">
+          <button onClick={()=>ProgressProducts()} className="px-4 py-2 bg-yellow-200 text-yellow-700 rounded-lg hover:bg-yellow-300">
             QC in Progress
           </button>
-          <button className="px-4 py-2 bg-red-200 text-red-700 rounded-lg hover:bg-red-300">
+          <button onClick={()=>RejectedProducts()} className="px-4 py-2 bg-red-200 text-red-700 rounded-lg hover:bg-red-300">
             QC Rejected
           </button>
-          <button className="px-4 py-2 bg-green-200 text-green-700 rounded-lg hover:bg-green-300">
+          <button onClick={()=>ApproveProducts()} className="px-4 py-2 bg-green-200 text-green-700 rounded-lg hover:bg-green-300">
             QC Approved
           </button>
         </div>

@@ -330,7 +330,7 @@ from rest_framework import serializers
 from common.models import Product, ProductItem, CustomUser, Seller, Brand,ProductCategory
 from sellerapp.models import ProductImage
 
-
+import uuid
 class AddProductsSerializer(serializers.Serializer):
     product = serializers.CharField()
     description = serializers.CharField()
@@ -343,7 +343,6 @@ class AddProductsSerializer(serializers.Serializer):
     color = serializers.CharField()
     size = serializers.CharField()
     price = serializers.DecimalField(max_digits=10, decimal_places=2) 
-    productcode = serializers.CharField()
     stock = serializers.IntegerField() 
     photo=serializers.FileField()
     img1=serializers.FileField()
@@ -398,8 +397,8 @@ class AddProductsSerializer(serializers.Serializer):
             color=colorobj,
             size=sizeobj,
             original_price=self.validated_data["price"],
-            product_code=self.validated_data["productcode"],
-            quantity_in_stock=self.validated_data["stock"]
+            quantity_in_stock=self.validated_data["stock"],
+            product_code=str(uuid.uuid4()) 
         )
 
         ProductImage.objects.create(

@@ -15,7 +15,6 @@ const AddProducts2 = ({setCurrentView}) => {
     const[colorid,setColorid]=useState("");
     const[sizeid,setSizeid]=useState("");
     const[price,setPrice]=useState("");
-    const[productcode,setProductcode]=useState("");
     const[stock,setStock]=useState("");
   
     const fetchColor=async()=>{
@@ -71,7 +70,6 @@ const AddProducts2 = ({setCurrentView}) => {
               colorid:colorid,
               sizeid:sizeid,
               price:price,
-              productcode:productcode,
               stock:stock,
             }));
             console.log("Product data updated successfully");
@@ -143,28 +141,6 @@ const AddProducts2 = ({setCurrentView}) => {
                 placeholder="Enter original price"
                 value={price}
                 onChange={(e)=>setPrice(e.target.value)}
-              />
-            </div>
-
-            {/* Sale Price */}
-            {/* <div className="flex flex-col">
-              <label className="text-gray-700 font-medium mb-2">Sale Price</label>
-              <input
-                type="number"
-                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter sale price"
-              />
-            </div> */}
-
-            {/* Product Code */}
-            <div className="flex flex-col">
-              <label className="text-gray-700 font-medium mb-2">Product Code</label>
-              <input
-                type="text"
-                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter product code"
-                value={productcode}
-                onChange={(e)=>setProductcode(e.target.value)}
               />
             </div>
 
