@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-const AddProducts3 = () => {
+const AddProducts3 = ({setCurrentView}) => {
   const[img,setImage]=useState("");
   const[img1,setImage1]=useState("");
   const[img2,setImage2]=useState("");
@@ -42,6 +42,9 @@ const AddProducts3 = () => {
       console.log(response);
       console.log(response.data);
       alert(response.data.message);
+      setTimeout(()=>{
+        setCurrentView("add1");
+      },3000)
     }
     catch(errors)
     {
@@ -73,35 +76,37 @@ const AddProducts3 = () => {
               Upload Main Image
             </label>
             <div className="relative inline-block">
-                            <input
-                                type="file"
-                                id="fileInput"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                      setImage(file); // Set the selected file for submission
-                                    }
-                                }}
-                            />
-                            <label
-                                htmlFor="fileInput"
-                                className="bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-center w-[120px] m-2 p-1 rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer"
-                            >
-                                <img
-                                    className="h-[40px] w-[40px] rounded-full border-2 border-white"
-                                    src={
-                                        img instanceof File
-                                            ? URL.createObjectURL(img) // Preview the selected file temporarily
-                                            : img // Show existing profile photo URL
-                                    }
-                                    alt="Profile Picture"
-                                />
-                                <div className="ml-3 flex items-center justify-center bg-white text-amber-700 rounded-full h-[40px] w-[40px] shadow-md hover:bg-amber-300 transition-colors duration-300">
-                                    <i className="fa-solid fa-camera"></i>
-                                </div>
-                            </label>
-            </div>
+  <input
+    type="file"
+    id="fileInput"
+    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+    onChange={(e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setImage(file); // Set the selected file for submission
+      }
+    }}
+  />
+  <label
+    htmlFor="fileInput"
+    className="bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-center w-[180px] m-2 p-3 rounded-lg shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer"
+  >
+    <img
+      className="h-[120px] w-[120px] rounded-lg border-2 border-white"
+      src={
+        img instanceof File
+          ? URL.createObjectURL(img) // Preview the selected file temporarily
+          : img // Show existing profile photo URL
+      }
+      alt="Profile Picture"
+    />
+    <div className="ml-3 flex items-center justify-center bg-white text-amber-700 rounded-lg h-[60px] w-[60px] shadow-md hover:bg-amber-300 transition-colors duration-300">
+      <i className="fa-solid fa-camera"></i>
+    </div>
+  </label>
+</div>
+
+
             <p className="text-sm text-gray-500">Main image is the primary display image for the product.</p>
           </div>
         </section>

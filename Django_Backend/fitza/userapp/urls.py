@@ -2,7 +2,7 @@ from django.urls import path
 from .views import AddToWallet, RegisterAPI, UserLogout, PasswordChange
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
-from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate
+from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -16,7 +16,9 @@ urlpatterns = [
     path('AddShippingAddess/',AddShippingAddess.as_view(),name='AddShippingAddess'),
     path('getShippingAddress/',GetShippingAddress.as_view(),name='getShippingAddress'),
     path('accountDeactivate/',AccountDeactivate.as_view(),name='accountDeactivate'),
-    path('add-to-wallet/',AddToWallet.as_view(),name='add-to-wallet')
+    path('add-to-wallet/',AddToWallet.as_view(),name='add-to-wallet'),
+    path('new_arrivals/',ViewNewArrivals.as_view(),name='new_arrivals'),
+    path('top_collections/<str:topfilter>/',ViewTopCollections.as_view(),name="top_collections"),
 ]
 
 from django.conf import settings

@@ -132,6 +132,9 @@ const BrandOptions = () => {
 
   return (
     <div className="h-screen w-full bg-gray-100 p-4 flex flex-col md:flex-row gap-4">
+      <div>
+        <button onClick={()=>setView("add")} className='bg-blue-500 px-2 py-1 rounded-md'>Add brand</button>
+      </div>
       {/* Table Section */}
       <div className="bg-white shadow-md rounded-lg p-4 flex-1">
         <h2 className="text-xl font-semibold mb-4">Brand Options</h2>

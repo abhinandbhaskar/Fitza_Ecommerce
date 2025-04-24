@@ -268,7 +268,27 @@ class AddtowalletSerializer(serializers.Serializer):
         )
         return wallet
 
+from sellerapp.models import ProductImage
 
+class ViewProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['main_image']
+
+from common.models import Product
+class ProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields='__all__'
+
+from common.models import ProductItem
+class ProductViewSerializer(serializers.ModelSerializer):
+    images = ViewProductImageSerializer(many=True, read_only=True) 
+    product=ProductsSerializer(read_only=True)
+    class Meta:
+        model=ProductItem
+        fields='__all__'
+        
 
 
 

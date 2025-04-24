@@ -143,7 +143,7 @@ const AddProducts1 = ({setCurrentView}) => {
               <option>Select a category</option>
               {
                 catename.map((cate,key)=>(
-                  <option key={cate.id} value={cate.id}>{cate.category_name}</option>
+                  <option key={cate.id} value={cate.id}>{cate.category_name} <span className="text-red-500 text-sm pl-10"> {cate.category_description}</span></option>
                 ))
               }
       

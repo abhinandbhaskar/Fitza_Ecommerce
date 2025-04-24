@@ -124,9 +124,9 @@ const PendingApprovals = () => {
                   <th className="border border-gray-200 px-4 py-2">ID</th>
                   <th className="border border-gray-200 px-4 py-2">Image</th>
                   <th className="border border-gray-200 px-4 py-2">Product</th>
+                  <th className="border border-gray-200 px-4 py-2">Product price</th>
+                  <th className="border border-gray-200 px-4 py-2">Quantity</th>
                   <th className="border border-gray-200 px-4 py-2">Product Info</th>
-                  <th className="border border-gray-200 px-4 py-2">Action</th>
-                  <th className="border border-gray-200 px-4 py-2">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -153,18 +153,14 @@ const PendingApprovals = () => {
                       {product.product.product_name}
                     </td>
                     <td className="border border-gray-200 px-4 py-2">
+                      {product.product.product_name}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2">
+                      {product.product.product_name}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-2">
                     <button onClick={()=>ViewProduct(product.id)} className="px-3 py-1 text-white bg-blue-500 rounded-lg shadow hover:bg-blue-600">
                         View
-                      </button>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      <button className="px-3 py-1 text-white bg-yellow-500 rounded-lg shadow hover:bg-yellow-600">
-                        Approve
-                      </button>
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      <button className="px-3 py-1 text-white bg-red-500 rounded-lg shadow hover:bg-red-600">
-                        Reject
                       </button>
                     </td>
                   </tr>
@@ -245,7 +241,8 @@ const PendingApprovals = () => {
   {[
     { label: "Product Name", placeholder: "Pant", value: products?.product?.product_name || "" },
     { label: "Product Description", placeholder: "", value: products?.product?.product_description || "" },
-    { label: "Category", placeholder: "", value: products.category?.category_name || "" },
+    { label: "Category", placeholder: "", value: products.category?.category_name  || "" },
+    { label: "Sub category", placeholder: "", value: products.category?.category_description  || "" },
     { label: "Brand", placeholder: "", value: products.brand?.brand_name || "" },
     { label: "Shop", placeholder: "", value: products.shop?.shop_name || "" },
     { label: "Model Height", placeholder: "", value: products.product?.model_height || "" },

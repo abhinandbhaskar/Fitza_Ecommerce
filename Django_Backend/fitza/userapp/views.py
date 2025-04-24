@@ -268,3 +268,34 @@ class AddToWallet(APIView):
             serializer.save()
             return Response({"message":"Money added successfully"},status=status.HTTP_200_OK)
         return Response({"errors":serializer.errors,"data":request.data},status=status.HTTP_400_BAD_REQUEST)
+    
+
+from common.models import ProductItem
+from userapp.serializers import ProductViewSerializer
+
+class ViewNewArrivals(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ProductItem.objects.filter(status="approved")
+        serializer=ProductViewSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+class ViewTopCollections(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,topfilter):
+        print("FILTEERRRR",topfilter)
+        if topfilter=="all":
+            cate_status=None
+        elif topfilter=="men":
+            cate_status="Men's Wear"
+        elif topfilter=="women":
+            cate_status="Women's Wear"
+        elif topfilter=="kids":
+            cate_status="Kid's Wear"
+        filters={"status":"approved"}
+        if cate_status is not None:
+            filters={"product__category__category_name":cate_status}
+        obj=ProductItem.objects.filter(**filters)
+        serializer=ProductViewSerializer(obj,many=True)
+        return Response(serializer.data)

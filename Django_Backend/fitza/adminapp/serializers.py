@@ -85,8 +85,8 @@ class AddCategorySerializer(serializers.Serializer):
         user=self.context["request"].user
         if not CustomUser.objects.filter(id=user.id).exists():
             raise serializers.ValidationError("You don't have permission to add a category.")
-        if ProductCategory.objects.filter(category_name=data["category"]).exists():
-            raise serializers.ValidationError("Category already exists.")
+        if ProductCategory.objects.filter(category_description=data["description"]).exists():
+            raise serializers.ValidationError("Sub Category already exists.")
         return data
     def save(self):
         try:

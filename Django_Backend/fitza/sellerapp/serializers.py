@@ -308,7 +308,7 @@ from common.models import ProductCategory,Brand,Color,SizeOption
 class GetCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model=ProductCategory
-        fields=['category_name','id']
+        fields=['category_name','id','category_description']
 
 
 class GetBrandsSerializer(serializers.ModelSerializer):
@@ -417,8 +417,14 @@ class ProductsSerializer(serializers.ModelSerializer):
         fields='__all__'
 
 
+class ViewProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['main_image', 'sub_image_1', 'sub_image_2', 'sub_image_3']
+
 
 class GetAllProductsSerializer(serializers.ModelSerializer):
+    images = ViewProductImageSerializer(many=True, read_only=True) 
     product=ProductsSerializer(read_only=True)
     class Meta:
         model=ProductItem

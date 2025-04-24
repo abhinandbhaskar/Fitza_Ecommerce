@@ -309,4 +309,21 @@ class GetAllProducts(APIView):
         return Response(serializer.data)
 
 
+class ViewStock(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        try:
+            seller=Seller.objects.get(user=user)
+        except Seller.DoesNotExist:
+            return Response({"error":"You are not authorized to access products."},status=status.HTTP_403_FORBIDDEN)
+        total_products = ProductItem.objects.filter(product__shop=seller)
+        pending = ProductItem.objects.filter(product__shop=seller,status="pending")
+        approve = ProductItem.objects.filter(product__shop=seller,status="approved")
+        reject = ProductItem.objects.filter(product__shop=seller,status="rejected")
+        serializer={"total_products":len(total_products),"pending":len(pending),"approve":len(approve),"reject":len(reject)}
+        return Response(serializer)
+        
+
+
 
