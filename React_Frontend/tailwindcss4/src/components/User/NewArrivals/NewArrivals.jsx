@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./NewArrivals.css";
 import {useSelector} from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const NewArrivals = () => {
     const [startIndex, setStartIndex] = useState(0);
     const itemsPerPage = 4;
     const {accessToken}=useSelector((state)=>state.auth);
     const [products,setProducts]=useState([]);
+    const navigate=useNavigate();
 
     const handleNext = () => {
         if (startIndex + itemsPerPage < products.length) {
@@ -43,6 +45,12 @@ const NewArrivals = () => {
     useEffect(()=>{
         fetchNewArrivals();
     },[])
+
+    const AddToCart=(id)=>{
+        console.log("Yo Yo",id);
+        navigate(`/productview/${id}`);
+
+    }
 
     return (
         <div className="collection-container h-auto width-screen">
@@ -101,7 +109,7 @@ const NewArrivals = () => {
                                                 <strike> ${product.original_price}</strike>
                                             </span>
                                         </h5>
-                                        <button className="Addcart-icon">
+                                        <button onClick={()=>AddToCart(product.id)} className="Addcart-icon">
                                             <i className="fa-solid fa-cart-arrow-down"></i>
                                         </button>
                                     </div>

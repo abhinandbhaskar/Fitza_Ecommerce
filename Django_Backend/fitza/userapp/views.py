@@ -271,7 +271,7 @@ class AddToWallet(APIView):
     
 
 from common.models import ProductItem
-from userapp.serializers import ProductViewSerializer
+from userapp.serializers import ProductViewSerializer,SellProductsSerializer
 
 class ViewNewArrivals(APIView):
     permission_classes=[IsAuthenticated]
@@ -295,7 +295,14 @@ class ViewTopCollections(APIView):
             cate_status="Kid's Wear"
         filters={"status":"approved"}
         if cate_status is not None:
-            filters={"product__category__category_name":cate_status}
+            filters={"product__category__category_name":cate_status,"status":"approved"}
         obj=ProductItem.objects.filter(**filters)
         serializer=ProductViewSerializer(obj,many=True)
+        return Response(serializer.data)
+
+class ViewSellProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,id):
+        obj=ProductItem.objects.filter(id=id)
+        serializer=SellProductsSerializer(obj,many=True)
         return Response(serializer.data)

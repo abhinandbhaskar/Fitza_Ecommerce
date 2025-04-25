@@ -289,7 +289,79 @@ class ProductViewSerializer(serializers.ModelSerializer):
         model=ProductItem
         fields='__all__'
         
+# jj
 
+
+class ViewProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+class ViewProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['main_image', 'sub_image_1', 'sub_image_2', 'sub_image_3']
+
+from common.models import SizeOption,Color,Brand,Seller,ProductCategory
+
+class ViewSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=SizeOption
+        fields='__all__'
+
+class ViewColorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Color
+        fields='__all__'
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Brand
+        fields='__all__'
+
+class ViewCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductCategory
+        fields='__all__'
+
+
+
+class ShopSellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = '__all__'
+
+class SellProductsSerializer(serializers.ModelSerializer):
+    product = ViewProductsSerializer(read_only=True) 
+    images = ViewProductImageSerializer(many=True, read_only=True) 
+    brand=serializers.SerializerMethodField()
+    size=ViewSizeSerializer(read_only=True)
+    color=ViewColorsSerializer(read_only=True)
+    category=serializers.SerializerMethodField() 
+    shop=serializers.SerializerMethodField() 
+
+    class Meta:
+        model = ProductItem
+        fields = [
+            'id', 'product','color','shop', 'size', 'original_price', 'sale_price', 'product_code',
+            'quantity_in_stock', 'rejection_reason', 'images', 'brand', 'category'
+        ]
+
+
+    def get_brand(self, obj):
+        if obj.product and obj.product.brand:
+            return BrandSerializer(obj.product.brand).data
+        return None
+
+    def get_category(self, obj):
+        if obj.product and obj.product.category:
+            return ViewCategorySerializer(obj.product.category).data
+        return None
+
+    def get_shop(self, obj):
+        if obj.product and obj.product.shop:
+            return ShopSellerSerializer(obj.product.shop).data
+        return None
 
 
 

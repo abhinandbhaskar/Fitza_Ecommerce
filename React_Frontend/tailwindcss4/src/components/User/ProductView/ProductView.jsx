@@ -6,71 +6,56 @@ import user2 from "../../../Assets/img/avatar-2.jpg";
 import user3 from "../../../Assets/img/avatar-3.jpg";
 import heart from "../../../Assets/img/icon-heart.svg";
 
-function ProductPage() {
+function ProductPage({product}) {
   const [addInfoToggle, setAddInfoToggle] = useState("addInfo");
   let element;
 
-const AdditionalInfo = () => {
+const AdditionalInfo = ({product}) => {
   return (
     <div className="p-4 border border-gray-400 rounded-lg overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[600px]">
         <tbody>
           <tr>
-            <th className="border-b border-gray-400 py-2 px-4">Stand Up</th>
-            <td className="border-b border-gray-400 py-2 px-4">35hahahhhhshsahaahah</td>
+            <th className="border-b border-gray-400 py-2 px-4">Product Category</th>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.category?.category_name||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Folded (w/o wheels)</td>
-            <td className="border-b border-gray-400 py-2 px-4">Plain Strola Shirts</td>
+            <td className="border-b border-gray-400 py-2 px-4">Model height</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.product?.model_height||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Folded (w/o wheels)</td>
-            <td className="border-b border-gray-400 py-2 px-4">$35</td>
+            <td className="border-b border-gray-400 py-2 px-4">Model wearing</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.product?.model_wearing||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Door Pass/Through</td>
-            <td className="border-b border-gray-400 py-2 px-4">Lorem ipsum dolor</td>
+            <td className="border-b border-gray-400 py-2 px-4">Care Instructions</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.product?.care_instructions||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Frame</td>
-            <td className="border-b border-gray-400 py-2 px-4">OOO</td>
+            <td className="border-b border-gray-400 py-2 px-4">About product</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.product?.about||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Weight (w/o wheels)</td>
-            <td className="border-b border-gray-400 py-2 px-4">Out of stock</td>
+            <td className="border-b border-gray-400 py-2 px-4">Product Code</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.product_code||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Weight Capacity</td>
-            <td className="border-b border-gray-400 py-2 px-4">150 gram</td>
+            <td className="border-b border-gray-400 py-2 px-4">Shop</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.shop?.shop_name||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Width</td>
-            <td className="border-b border-gray-400 py-2 px-4">N/A</td>
+            <td className="border-b border-gray-400 py-2 px-4">Shop rating</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.shop?.rating||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Handle height (ground to handle)</td>
-            <td className="border-b border-gray-400 py-2 px-4">opop</td>
+            <td className="border-b border-gray-400 py-2 px-4">About shop</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.shop?.description||""}</td>
           </tr>
           <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Wheels</td>
-            <td className="border-b border-gray-400 py-2 px-4">opop</td>
+            <td className="border-b border-gray-400 py-2 px-4">Brand {product?.brand?.brand_name||""} about product</td>
+            <td className="border-b border-gray-400 py-2 px-4">{product?.brand?.brand_description||""}</td>
           </tr>
-          <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Seat back height</td>
-            <td className="border-b border-gray-400 py-2 px-4">opop</td>
-          </tr>
-          <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Head room (inside canopy)</td>
-            <td className="border-b border-gray-400 py-2 px-4">opop</td>
-          </tr>
-          <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Color</td>
-            <td className="border-b border-gray-400 py-2 px-4">opop</td>
-          </tr>
-          <tr>
-            <td className="border-b border-gray-400 py-2 px-4">Size</td>
-            <td className="border-b border-gray-400 py-2 px-4">opop</td>
-          </tr>
+      
         </tbody>
       </table>
     </div>
@@ -120,7 +105,7 @@ const AdditionalInfo = () => {
   };
 
   if (addInfoToggle === "addInfo") {
-    element = <AdditionalInfo />;
+    element = <AdditionalInfo product={product} />;
   } else if (addInfoToggle === "AddReview") {
     element = <AddReview />;
   }
@@ -129,28 +114,25 @@ const AdditionalInfo = () => {
     <div className="min-h-screen p-8 bg-gray-100">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <img src={Product1} alt="Product" className="w-full rounded-lg" />
+          <img src={product.images && product.images.length > 0 && `https://127.0.0.1:8000${product.images[0].main_image}`} alt="Product" className="w-full rounded-lg" />
           <div className="flex space-x-4 mt-4">
-            <img src={Product2} alt="Product" className="w-24 h-24 rounded-lg" />
-            <img src={Product1} alt="Product" className="w-24 h-24 rounded-lg" />
-            <img src={Product2} alt="Product" className="w-24 h-24 rounded-lg" />
+            <img src={product.images && product.images.length > 0 && `https://127.0.0.1:8000${product.images[0].sub_image_1}`} alt="Product" className="w-24 h-24 rounded-lg" />
+            <img src={product.images && product.images.length > 0 && `https://127.0.0.1:8000${product.images[0].sub_image_2}`} alt="Product" className="w-24 h-24 rounded-lg" />
+            <img src={product.images && product.images.length > 0 && `https://127.0.0.1:8000${product.images[0].sub_image_3}`} alt="Product" className="w-24 h-24 rounded-lg" />
           </div>
         </div>
 
         <div>
-          <h2 className="text-3xl font-bold">Henley Shirt</h2>
+          <h2 className="text-3xl font-bold">{product?.product?.product_name || ""}</h2>
           <h5 className="text-lg mt-2">
-            Brands: <span className="text-green-600">asldas</span>
+            Brand: <span className="text-green-600 font-bold">{product?.brand?.brand_name||""}</span>
           </h5>
           <hr className="my-4" />
           <h3 className="text-xl font-semibold">
-            <span className="text-green-600">$116</span> <strike>$200.00</strike> 25% Off
+            <span className="text-green-600 text-2xl">₹ {product?.original_price||""}</span> <strike>$200.00</strike> 25% Off
           </h3>
           <p className="mt-4 text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio natus
-            perferendis dolorum neque vel, blanditiis quae modi sunt adipisci
-            labore! Quod eius beatae sapiente possimus, id tempora nostrum
-            adipisci architecto.
+           {product?.product?.product_description||""}
           </p>
           <ul className="mt-4 space-y-2">
             <li>1 Year AL Jazeera Brand Warranty</li>
@@ -184,19 +166,19 @@ const AdditionalInfo = () => {
               <tbody>
                 <tr>
                   <th className="border border-gray-300 px-4 py-2">Brand</th>
-                  <td className="border border-gray-300 px-4 py-2">AL Jazeera</td>
+                  <td className="border border-gray-300 px-4 py-2">{product?.brand?.brand_name||""}</td>
                 </tr>
                 <tr>
                   <th className="border border-gray-300 px-4 py-2">Material</th>
-                  <td className="border border-gray-300 px-4 py-2">Cotton</td>
+                  <td className="border border-gray-300 px-4 py-2">{product?.product?.about||""}</td>
                 </tr>
                 <tr>
                   <th className="border border-gray-300 px-4 py-2">Color</th>
-                  <td className="border border-gray-300 px-4 py-2">Blue</td>
+                  <td className="border border-gray-300 px-4 py-2">{product?.color?.color_name}</td>
                 </tr>
                 <tr>
                   <th className="border border-gray-300 px-4 py-2">Availability</th>
-                  <td className="border border-gray-300 px-4 py-2">In Stock</td>
+                  <td className="border border-gray-300 px-4 py-2">{product?.quantity_in_stock||""} items In Stock</td>
                 </tr>
               </tbody>
             </table>
@@ -230,7 +212,7 @@ const AdditionalInfo = () => {
           </div>
   
           {/* Conditional rendering */}
-          {addInfoToggle === "addInfo" ? <AdditionalInfo /> : <AddReview />}
+          {addInfoToggle === "addInfo" ? <AdditionalInfo product={product} /> : <AddReview />}
         </div>
       </div>
     </div>

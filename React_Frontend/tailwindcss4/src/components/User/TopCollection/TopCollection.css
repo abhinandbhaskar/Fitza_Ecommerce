@@ -221,10 +221,18 @@
     align-items: center;
     border-radius: 50%;
 }  
-
+.Addcart-icon:hover{
+  background-color: rgb(246, 43, 43);
+  border-width: 1px;
+  border-color: rgb(39, 35, 35);
+}
 .Addcart-icon i{
     font-size: 18px;
 }
+.Addcart-icon i:hover{
+  color: white;
+}
+
 .link-style{
   all:unset ;
 }

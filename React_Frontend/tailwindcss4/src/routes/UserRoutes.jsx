@@ -22,7 +22,7 @@ const UserRoutes = () => {
           <Route path="/viewprofile" element={<ViewProfile />} />
           <Route path="/changepassword" element={<ChangePassword />} />
           <Route path="/billingaddress" element={<BillingAddress />} />
-          <Route path="/productview" element={<ProductPage />} />
+          <Route path="/productview/:id" element={<ProductPage />} />
       </Routes>  
     </>
   )

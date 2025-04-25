@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./TopCollection.css"
 import {useSelector} from "react-redux"
+import { useNavigate } from "react-router-dom";
 
 import productImg1 from "../../../assets/img/product-1-1.jpg";
 import productImg2 from "../../../assets/img/product-2-2.jpg";
@@ -16,6 +17,7 @@ import { Link } from "react-router-dom";
 const TopCollection = () => {
     const {accessToken}=useSelector((state)=>state.auth);
     const[products,setProducts]=useState([]);
+    const navigate=useNavigate();
 
     const fetchTopCollections=async(topfilter)=>{
         try{
@@ -34,6 +36,11 @@ const TopCollection = () => {
             console.log(errors);
             console.log(errors.response.data);
         }
+    }
+    const AddToCart=(id)=>{
+        console.log("Yo Yo",id);
+        navigate(`/productview/${id}`);
+
     }
 
     const Allfetch=()=>{
@@ -109,7 +116,7 @@ useEffect(()=>{
                                                 <strike> ${product.original_price}</strike>
                                             </span>
                                         </h5>
-                                        <button className="Addcart-icon">
+                                        <button onClick={()=>AddToCart(product.id)} className="Addcart-icon">
                                             <i className="fa-solid fa-cart-arrow-down"></i>
                                         </button>
                                     </div>
