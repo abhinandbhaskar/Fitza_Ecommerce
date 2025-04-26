@@ -324,6 +324,14 @@ class ViewStock(APIView):
         serializer={"total_products":len(total_products),"pending":len(pending),"approve":len(approve),"reject":len(reject)}
         return Response(serializer)
         
+from sellerapp.serializers import RatingReviewSerializer        
+from userapp.models import RatingsReview
+class ViewUserReviews(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=RatingsReview.objects.all()
+        serializer=RatingReviewSerializer(obj,many=True)
+        return Response(serializer.data)
 
 
 

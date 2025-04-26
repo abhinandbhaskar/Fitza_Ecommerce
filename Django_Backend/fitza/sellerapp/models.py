@@ -5,7 +5,7 @@ from django.utils.timezone import now
 from datetime import timedelta
 # Create your models here.
 
-#seller
+#seller..
 
 class ProductImage(models.Model):
     product_item = models.ForeignKey(ProductItem, on_delete=models.CASCADE, related_name='images')

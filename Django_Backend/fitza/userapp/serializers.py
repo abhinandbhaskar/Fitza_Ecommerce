@@ -363,10 +363,34 @@ class SellProductsSerializer(serializers.ModelSerializer):
             return ShopSellerSerializer(obj.product.shop).data
         return None
 
-
-
-
+from userapp.models import RatingsReview
+class AddReviewRatingSerializer(serializers.Serializer):
+    id=serializers.CharField()
+    rating=serializers.CharField()
+    description=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized user")
+        return data
     
+    def save(self):
+        user=self.context["request"].user
+        pro_id=Product.objects.get(id=self.validated_data["id"])
+        obj=RatingsReview.objects.create(user=user,product=pro_id,rating=self.validated_data["rating"],review_content=self.validated_data["description"])
+        return obj
+
+class UserProSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','userphoto']
+
+from userapp.models import RatingsReview
+class RatingReviewSerializer(serializers.ModelSerializer):
+    user=UserProSerializer(read_only=True)
+    class Meta:
+        model=RatingsReview
+        fields='__all__'
 
         
 

@@ -363,4 +363,23 @@ class RejectProductSerializer(serializers.Serializer):
         obj1.save()
 
 
-        
+from userapp.models import RatingsReview
+
+class ViewUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name']
+
+class RatingReviewSerializer(serializers.ModelSerializer):
+    user = ViewUserSerializer(read_only=True)
+    shop_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RatingsReview
+        fields = '__all__'
+
+    def get_shop_name(self, obj):
+        # Check if the product exists and has a related shop (Seller)ll
+        if obj.product and obj.product.shop:
+            return obj.product.shop.shop_name
+        return None

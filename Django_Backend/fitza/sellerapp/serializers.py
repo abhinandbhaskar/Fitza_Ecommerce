@@ -429,4 +429,39 @@ class GetAllProductsSerializer(serializers.ModelSerializer):
     class Meta:
         model=ProductItem
         fields='__all__'
+    
+class UserProSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name']
 
+from common.models import Product
+class ProductDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields='__all__'
+
+
+from userapp.models import RatingsReview
+class RatingReviewSerializer(serializers.ModelSerializer):
+    user=UserProSerializer(read_only=True)
+    product_name=serializers.SerializerMethodField()
+    main_image=serializers.SerializerMethodField()
+    class Meta:
+        model=RatingsReview
+        fields='__all__'
+    def get_product_name(self,obj):
+        if obj.product and obj.product.product_name:
+            return obj.product.product_name
+        return None
+   
+    def get_main_image(self, obj):
+            if obj.product:
+                product_items = ProductItem.objects.filter(product=obj.product)
+                if product_items.exists():
+                    first_product_item = product_items.first()
+                    product_images = ProductImage.objects.filter(product_item=first_product_item)
+                    if product_images.exists():
+                        main_image = product_images.first().main_image
+                        return main_image.url if main_image else None
+            return None

@@ -3,6 +3,7 @@ from .views import AddToWallet, RegisterAPI, UserLogout, PasswordChange
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct
+from userapp.views import AddReviewRating,ViewRating
 
 
 urlpatterns = [
@@ -21,6 +22,8 @@ urlpatterns = [
     path('new_arrivals/',ViewNewArrivals.as_view(),name='new_arrivals'),
     path('top_collections/<str:topfilter>/',ViewTopCollections.as_view(),name="top_collections"),
     path('view_sell_product/<int:id>/',ViewSellProduct.as_view(),name="view_sell_product"),
+    path('add_review_rating/',AddReviewRating.as_view(),name='add_review_rating'),
+    path('view_rating/<int:product_id>/',ViewRating.as_view(),name="view_rating"),
 ]
 
 from django.conf import settings

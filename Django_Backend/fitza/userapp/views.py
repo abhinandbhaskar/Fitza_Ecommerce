@@ -306,3 +306,22 @@ class ViewSellProduct(APIView):
         obj=ProductItem.objects.filter(id=id)
         serializer=SellProductsSerializer(obj,many=True)
         return Response(serializer.data)
+
+from userapp.serializers import AddReviewRatingSerializer,RatingReviewSerializer
+
+class AddReviewRating(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddReviewRatingSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Review & Rating Added Successfully..."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)
+
+from userapp.models import RatingsReview
+class ViewRating(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,product_id):
+        obj=RatingsReview.objects.filter(product=product_id)
+        serializer=RatingReviewSerializer(obj,many=True)
+        return Response(serializer.data)

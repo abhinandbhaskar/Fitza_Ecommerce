@@ -2,7 +2,8 @@ from django.urls import path
 
 from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
-from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct
+from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview
+from adminapp.views import ApproveReview,RejectReview
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -35,6 +36,9 @@ urlpatterns = [
     path('approve_product/<int:id>/',ApproveProduct.as_view(),name="approve_product"),
     path('reject_product/<int:id>/',RejectProduct.as_view(),name="reject_product"),
     path('view_product/<int:id>/',ViewProduct.as_view(),name="view_product"),
+    path('view_review_ratings/<str:filterreview>/',ViewRatingReview.as_view(),name="view_review_ratings"),
+    path('approve_review/<int:id>/',ApproveReview.as_view(),name="approve_review"),
+    path('reject_review/<int:id>/',RejectReview.as_view(),name="reject_review"),
 ]
 
 from django.conf import settings

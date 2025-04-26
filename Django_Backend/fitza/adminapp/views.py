@@ -384,4 +384,52 @@ class ViewProduct(APIView):
         obj=ProductItem.objects.filter(id=id)
         serializer=IndividualProductsSerializer(obj,many=True)
         return Response(serializer.data)
+    
 
+from userapp.models import RatingsReview  
+from adminapp.serializers import RatingReviewSerializer  
+class ViewRatingReview(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,filterreview):
+        print("MMM",filterreview)
+        if filterreview=="All":
+            obj=RatingsReview.objects.all()
+        elif filterreview=="approved":
+            status="approved"
+            obj=RatingsReview.objects.filter(status=status)
+        elif filterreview=="rejected":
+            status="rejected"
+            obj=RatingsReview.objects.filter(status=status)
+        serializer=RatingReviewSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+from userapp.models import RatingsReview  
+
+
+class ApproveReview(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        try:
+            obj=RatingsReview.objects.get(id=id)
+            obj.status="approved"
+            obj.save()
+            return Response({"message":"Approved..."},status=status.HTTP_200_OK)
+        except RatingsReview.DoesNotExist:
+            return Response({"error": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RejectReview(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        try:
+            obj=RatingsReview.objects.get(id=id)
+            obj.status="rejected"
+            obj.save()
+            return Response({"message":"Rejected..."},status=status.HTTP_200_OK)
+        except RatingsReview.DoesNotExist:
+            return Response({"error": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
