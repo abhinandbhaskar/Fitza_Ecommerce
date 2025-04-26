@@ -4,16 +4,6 @@ import "./TopCollection.css"
 import {useSelector} from "react-redux"
 import { useNavigate } from "react-router-dom";
 
-import productImg1 from "../../../assets/img/product-1-1.jpg";
-import productImg2 from "../../../assets/img/product-2-2.jpg";
-import productImg3 from "../../../assets/img/product-3-2.jpg";
-import productImg4 from "../../../assets/img/product-2-2.jpg";
-import productImg5 from "../../../assets/img/product-5-1.jpg";
-import productImg6 from "../../../assets/img/product-11-2.jpg";
-import productImg7 from "../../../assets/img/product-6-1.jpg";
-import productImg8 from "../../../assets/img/product-4-2.jpg";
-import { Link } from "react-router-dom";
-
 const TopCollection = () => {
     const {accessToken}=useSelector((state)=>state.auth);
     const[products,setProducts]=useState([]);
@@ -42,6 +32,34 @@ const TopCollection = () => {
         navigate(`/productview/${id}`);
 
     }
+
+
+    const AddToWishlist=async(id)=>{
+    
+
+    try{
+        
+            const response=await axios.post(`https://127.0.0.1:8000/api/add_wishlist/${id}/`,{},{
+                headers:{
+                    Authorization:`Bearer ${accessToken}`,
+                },
+                withCredentials:true,
+            });
+            console.log(response);
+            console.log("Wishlist Res",response.data);
+            
+          
+        }
+        catch(errors)
+        {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+
+
+    }
+
+
 
     const Allfetch=()=>{
         const topfilter="all";
@@ -91,11 +109,11 @@ useEffect(()=>{
                                  className="card-img-top" alt={product.title} />
                                 <div className="Cards-Options">
                                     <div className="Cards-Icons">
-                                        <div className="Eye-Icons">
+                                        <div onClick={()=>AddToCart(product.id)}  className="Eye-Icons">
                                             <i className="fa-regular fa-eye"></i>
                                             <div className="tooltip1">Quick View</div>
                                         </div>
-                                        <div className="Heart-Icon">
+                                        <div onClick={()=>AddToWishlist(product.id)} className="Heart-Icon">
                                             <i className="fa-regular fa-heart"></i>
                                             <div className="tooltip2">Add To Wishlist</div>
                                         </div>

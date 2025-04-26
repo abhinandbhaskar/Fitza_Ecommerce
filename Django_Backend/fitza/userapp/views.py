@@ -325,3 +325,56 @@ class ViewRating(APIView):
         obj=RatingsReview.objects.filter(product=product_id)
         serializer=RatingReviewSerializer(obj,many=True)
         return Response(serializer.data)
+    
+from userapp.models import Wishlist
+from common.models import Product
+class AddToWishlist(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        try:
+            user=request.user
+            product=Product.objects.get(id=id)
+            wishlist,created = Wishlist.objects.get_or_create(user=user)
+            wishlist.products.add(product)
+            return Response({"message": "Product added to wishlist."}, status=status.HTTP_201_CREATED)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+from userapp.models import Wishlist
+from userapp.serializers import WishlistSerializer
+class GetWishlist(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        obj = Wishlist.objects.filter(user=user).prefetch_related('products')  # Optimize query with prefetch
+        serializer = WishlistSerializer(obj, many=True)
+        return Response(serializer.data)
+
+
+class RemoveWishlist(APIView):
+    def post(self,request,id):
+        user=request.user
+
+        try:
+            wishlist=Wishlist.objects.get(user=user)
+
+            product=Product.objects.get(id=id)
+
+            wishlist.products.remove(product)
+            return Response({"message": "Product removed from wishlist"}, status=status.HTTP_200_OK)
+
+        except Wishlist.DoesNotExist:
+            return Response({"error": "Wishlist not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+

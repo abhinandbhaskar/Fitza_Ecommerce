@@ -9,6 +9,7 @@ import ChangePassword from "../components/User/ProfileComponents/ChangePassword/
 import BillingAddress from "../components/User/ProfileComponents/BillingAddress/BillingAddress";
 import ProductPage from "../pages/User/ProductPage/ProductPage";
 import HandleRedirect from "../pages/User/HandleRedirect/HandleRedirect";
+import WishlistPage from "../pages/User/WishlistPage/WishlistPage";
 
 const UserRoutes = () => {
   return (
@@ -23,6 +24,7 @@ const UserRoutes = () => {
           <Route path="/changepassword" element={<ChangePassword />} />
           <Route path="/billingaddress" element={<BillingAddress />} />
           <Route path="/productview/:id" element={<ProductPage />} />
+          <Route path="/wishlistview" element={<WishlistPage/>}/>
       </Routes>  
     </>
   )

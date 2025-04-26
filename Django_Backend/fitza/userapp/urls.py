@@ -3,7 +3,7 @@ from .views import AddToWallet, RegisterAPI, UserLogout, PasswordChange
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct
-from userapp.views import AddReviewRating,ViewRating
+from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist
 
 
 urlpatterns = [
@@ -24,6 +24,9 @@ urlpatterns = [
     path('view_sell_product/<int:id>/',ViewSellProduct.as_view(),name="view_sell_product"),
     path('add_review_rating/',AddReviewRating.as_view(),name='add_review_rating'),
     path('view_rating/<int:product_id>/',ViewRating.as_view(),name="view_rating"),
+    path('add_wishlist/<int:id>/',AddToWishlist.as_view(),name="add_wishlist"),
+    path('get_wishlist/',GetWishlist.as_view(),name="get_wishlist"),
+    path('remove_wishlist/<int:id>/',RemoveWishlist.as_view(),name='remove_wishlist'),
 ]
 
 from django.conf import settings

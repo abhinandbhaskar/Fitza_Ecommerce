@@ -392,6 +392,34 @@ class RatingReviewSerializer(serializers.ModelSerializer):
         model=RatingsReview
         fields='__all__'
 
-        
 
-    
+
+from common.models import Product
+from userapp.models import Wishlist
+from sellerapp.models import ProductImage
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['main_image', 'sub_image_1', 'sub_image_2', 'sub_image_3']
+
+class ProductItemSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True)  # Corrected here
+
+    class Meta:
+        model = ProductItem
+        fields = ['id', 'original_price', 'sale_price', 'product_code', 'images']
+
+class WishlistProductsSerializer(serializers.ModelSerializer):
+    items = ProductItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
+        fields = ['id', 'product_name', 'product_description', 'items']
+
+class WishlistSerializer(serializers.ModelSerializer):
+    products = WishlistProductsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'created_at', 'products']

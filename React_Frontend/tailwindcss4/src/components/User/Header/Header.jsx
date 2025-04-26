@@ -51,7 +51,8 @@ const Header = () => {
 
                 <div className="flex justify-center items-center space-x-4 mt-4 md:mt-0 md:space-x-6">
                     <Link to={isAuthenticated?"/profile":"/login"}><i className="fa-regular fa-user text-red-400 text-xl md:text-3xl"></i></Link>
-                    <i className="fa-regular fa-heart text-red-400 text-xl md:text-3xl"></i>
+                   <Link to="/wishlistview"><i className="fa-regular fa-heart text-red-400 text-xl md:text-3xl"></i> </Link>
+                   
                     <i className="fa-solid fa-bag-shopping text-red-400 text-xl md:text-3xl"></i>
                 </div>
             </div>

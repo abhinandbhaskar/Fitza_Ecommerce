@@ -84,7 +84,7 @@ const NewArrivals = () => {
                                  className="card-img-top" alt={product.title} />
                                 <div className="Cards-Options">
                                     <div className="Cards-Icons">
-                                        <div className="Eye-Icons">
+                                        <div onClick={()=>AddToCart(product.id)}  className="Eye-Icons">
                                             <i className="fa-regular fa-eye"></i>
                                             <div className="tooltip1">Quick View</div>
                                         </div>
