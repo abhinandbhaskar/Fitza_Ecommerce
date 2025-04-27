@@ -1,3 +1,48 @@
 .fa-brands{
     font-size: 20px;
 }
+
+.product-results {
+    max-width: 90%; /* Adjusted for wider display */
+    border: 1px solid #e2e8f0; /* Light gray */
+    border-radius: 8px;
+    overflow-y: auto;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    position: absolute;
+    top: 100px;
+    left: 464px;
+}
+
+.product-results ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.product-results li {
+    padding: 8px 12px;
+    transition: background-color 0.2s ease;
+}
+
+.product-results li:hover {
+    background-color: #fef2f2; /* Light red */
+}
+
+@media (max-width: 768px) {
+    .product-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-width: 100%; /* Ensure full width on smaller screens */
+    }
+
+    .product-results ul {
+        padding: 0;
+    }
+
+    .product-results li {
+        font-size: 0.875rem; /* Smaller font size */
+    }
+}

@@ -11,6 +11,12 @@ const Header = () => {
     const { isAuthenticated, accessToken } = useSelector((state) => state.auth);
     const [cate1, setCate1] = useState([]);
     const [subcate, setSubCate] = useState([]);
+    const [search,setSearch]=useState("");
+    const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    
+
+
 
     const navigate=useNavigate();
 
@@ -40,6 +46,10 @@ const Header = () => {
         } catch (error) {
             console.error("Category Fetch Error:", error);
         }
+        
+    };
+
+    const getAllProducts=async()=>{
 
         try {
             const response = await axios.get(
@@ -51,16 +61,35 @@ const Header = () => {
                 }
             );
             setSubCate(response.data);
+            console.log("FIRSTTTTTT",response.data);
+            setProducts(response.data);
         } catch (error) {
             console.error("Sub-category Fetch Error:", error);
         }
-    };
+
+    }
+
+const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearch(query);
+    const filtered = products.filter((product) =>
+        product.product_name.toLowerCase().includes(query)
+    );
+    setFilteredProducts(filtered);
+};
+
+
+    useEffect(()=>{
+        getAllProducts();
+    },[])
 
     useEffect(() => {
         if (activeDropdown) {
             fetchDropDownData(activeDropdown);
         }
     }, [activeDropdown]);
+
+
 
     const ViewProduct=async(pro_name)=>{
         console.log("Pro..",pro_name);
@@ -94,14 +123,39 @@ const Header = () => {
                         />
                     </a>
                 </div>
+   
                 <div className="flex items-center w-full md:w-[460px] lg:w-[600px] py-2 rounded-md border border-red-300 bg-white shadow-sm mt-4 md:mt-0">
-                    <input
-                        type="text"
-                        placeholder="Search products..."
-                        className="form-control flex-grow px-4 py-2 outline-none text-gray-600 text-sm md:text-base"
-                    />
-                    <i className="fa fa-search text-gray-400 mx-3 text-sm md:text-base"></i>
-                </div>
+    <input
+        type="text"
+        placeholder="Search products..."
+        className="form-control flex-grow px-4 py-2 outline-none text-gray-600 text-sm md:text-base"
+        value={search}
+        onChange={handleSearch}
+    />
+    <i className="fa fa-search text-gray-400 mx-3 text-sm md:text-base"></i>
+</div>
+
+{/* Conditionally render product results */}
+{search && (
+    <div className="product-results mt-4 max-h-[200px] overflow-y-auto bg-white shadow-md rounded-lg p-2 w-full md:w-[600px]">
+        {filteredProducts.length > 0 ? (
+            <ul className="space-y-2">
+                {filteredProducts.map((product, index) => (
+                    <li
+                        key={index}
+                        onClick={() => ViewProduct(product.product_name)}
+                        className="hover:text-red-400 transition cursor-pointer text-sm md:text-base"
+                    >
+                        {product.product_name}
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            <p className="text-gray-500 text-sm md:text-base">No products found for "{search}".</p>
+        )}
+    </div>
+)}
+
 
                 <div className="flex justify-center items-center space-x-4 mt-4 md:mt-0 md:space-x-6">
                     <Link to={isAuthenticated ? "/profile" : "/login"}>
