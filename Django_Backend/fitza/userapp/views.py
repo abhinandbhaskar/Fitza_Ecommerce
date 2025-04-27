@@ -375,6 +375,33 @@ class RemoveWishlist(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+from userapp.serializers import ProductDataSerializer
 
+class fetchDropDownData(APIView):
+    def get(self,request):
+        obj=Product.objects.all()
+        serializer=ProductDataSerializer(obj,many=True)
+        return Response(serializer.data)
 
+from userapp.serializers import DropCategorySerializer
+
+from common.models import ProductCategory
+class DropDownCategory(APIView):
+    def get(self,request,cate_status):
+        obj=ProductCategory.objects.filter(category_name=cate_status)
+        serializer=DropCategorySerializer(obj,many=True)
+        return Response(serializer.data)
+
+# from userapp.serializers import CategoryProductSerializer
+
+class FetchCategoryProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,pro_name):
+        obj=ProductItem.objects.filter(product__product_name=pro_name)
+        serializer=ProductViewSerializer(obj,many=True)
+        return Response(serializer.data)
+
+# Women's Wear
+# Men's Wear
+# Kid's Wear
 

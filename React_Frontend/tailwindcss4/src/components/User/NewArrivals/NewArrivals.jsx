@@ -52,6 +52,35 @@ const NewArrivals = () => {
 
     }
 
+
+    
+    const AddToWishlist=async(id)=>{
+    
+
+        try{
+            
+                const response=await axios.post(`https://127.0.0.1:8000/api/add_wishlist/${id}/`,{},{
+                    headers:{
+                        Authorization:`Bearer ${accessToken}`,
+                    },
+                    withCredentials:true,
+                });
+                console.log(response);
+                console.log("Wishlist Res",response.data);
+                
+              
+            }
+            catch(errors)
+            {
+                console.log(errors);
+                console.log(errors.response.data);
+            }
+    
+    
+        }
+    
+    
+
     return (
         <div className="collection-container h-auto width-screen">
             <div className="deals-nav py-16">
@@ -88,7 +117,7 @@ const NewArrivals = () => {
                                             <i className="fa-regular fa-eye"></i>
                                             <div className="tooltip1">Quick View</div>
                                         </div>
-                                        <div className="Heart-Icon">
+                                        <div  onClick={()=>AddToWishlist(product.id)}  className="Heart-Icon">
                                             <i className="fa-regular fa-heart"></i>
                                             <div className="tooltip2">Add To Wishlist</div>
                                         </div>

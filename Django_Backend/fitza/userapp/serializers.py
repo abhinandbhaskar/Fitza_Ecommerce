@@ -423,3 +423,22 @@ class WishlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wishlist
         fields = ['id', 'created_at', 'products']
+
+from common.models import ProductCategory
+class CategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductCategory
+        fields=['category_name','category_description']
+
+class ProductDataSerializer(serializers.ModelSerializer):
+    category=CategoriesSerializer(read_only=True)
+    class Meta:
+        model=Product
+        fields=['id','product_name','category']
+
+
+from common.models import ProductCategory
+class DropCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductCategory
+        fields='__all__'

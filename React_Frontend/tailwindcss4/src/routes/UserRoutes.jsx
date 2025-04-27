@@ -10,6 +10,7 @@ import BillingAddress from "../components/User/ProfileComponents/BillingAddress/
 import ProductPage from "../pages/User/ProductPage/ProductPage";
 import HandleRedirect from "../pages/User/HandleRedirect/HandleRedirect";
 import WishlistPage from "../pages/User/WishlistPage/WishlistPage";
+import CategoryProducts from "../pages/User/CategoryProducts/CategoryProducts";
 
 const UserRoutes = () => {
   return (
@@ -25,6 +26,7 @@ const UserRoutes = () => {
           <Route path="/billingaddress" element={<BillingAddress />} />
           <Route path="/productview/:id" element={<ProductPage />} />
           <Route path="/wishlistview" element={<WishlistPage/>}/>
+          <Route path="/categoryproduct/:pro_name" element={<CategoryProducts/>} />
       </Routes>  
     </>
   )

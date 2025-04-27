@@ -72,7 +72,7 @@ const WishlistPage = () => {
     return (
         <>
             <Header />
-            <div className="collection-container h-auto width-screen">
+            <div className="collection-container h-auto min-h-[400px] width-screen">
                 <div className="py-10 text-center">
                     <h3 className="text-2xl font-semibold text-gray-800">My Wishlist</h3>
                 <p className="text-gray-600">{items} item(s)</p>

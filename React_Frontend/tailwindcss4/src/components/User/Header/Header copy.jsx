@@ -3,68 +3,78 @@ import "./Header.css";
 import Logo from "../../../assets/Logo/Fitza_logo.png";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Header = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
-    const { isAuthenticated, accessToken } = useSelector((state) => state.auth);
-    const [cate1, setCate1] = useState([]);
-    const [subcate, setSubCate] = useState([]);
+    const { isAuthenticated,accessToken } = useSelector((state) => state.auth);
 
-    const navigate=useNavigate();
+    const handleMouseEnter = (dropdown) => setActiveDropdown(dropdown);
+    const handleMouseLeave = () => setActiveDropdown(null);
+    const [cate1,setCate1]=useState([]);
+    const [subcate,setSubCate]=useState([]);
+
 
     const dropdownOptions = {
         "Men's Wear": cate1,
         "Women's Wear": cate1,
         "Kid's Wear": cate1,
+
     };
+   
+    const fetchDropDownData=async(cate_status)=>{
 
-    const handleMouseEnter = (dropdown) => setActiveDropdown(dropdown);
-    const handleMouseLeave = () => setActiveDropdown(null);
+        console.log("Based",cate_status);
 
-    const fetchDropDownData = async (cate_status) => {
-        try {
-            const response = await axios.get(
-                `https://127.0.0.1:8000/api/drop_down_category/${cate_status}/`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-            const categoryDescriptions = response.data.map(
-                (item) => item.category_description
-            );
-            setCate1(categoryDescriptions);
-        } catch (error) {
-            console.error("Category Fetch Error:", error);
+        try{
+            const response=await axios.get(`https://127.0.0.1:8000/api/drop_down_category/${cate_status}/`,{
+                headers:{
+                    Authorization:`Bearer ${accessToken}`,
+                },
+            });
+            const n=response.data.length
+            const Arr=[]
+            for(let i=0;i<n;i++)
+            {
+                Arr.push(response.data[i].category_description);
+            }
+            setCate1(Arr);
+        }catch(errors)
+        {
+            console.log(errors);
+            console.log(errors.response.data);
         }
 
-        try {
-            const response = await axios.get(
-                "https://127.0.0.1:8000/api/fetch_drop_data/",
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+
+
+        try{
+            const response=await axios.get("https://127.0.0.1:8000/api/fetch_drop_data/",{
+                headers:{
+                    Authorization:`Bearer ${accessToken}`,
+                },
+            });
+            console.log("DropPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPp",response.data);
             setSubCate(response.data);
-        } catch (error) {
-            console.error("Sub-category Fetch Error:", error);
+        }catch(errors)
+        {
+            console.log(errors);
+            console.log(errors.response.data);
         }
-    };
 
-    useEffect(() => {
-        if (activeDropdown) {
-            fetchDropDownData(activeDropdown);
-        }
-    }, [activeDropdown]);
+    }
 
-    const ViewProduct=async(pro_name)=>{
-        console.log("Pro..",pro_name);
-        navigate(`/categoryproduct/${pro_name}`)
+    useEffect(()=>{
+        if(activeDropdown !== null)
+            {
+                fetchDropDownData(activeDropdown);
+            }
+    },[activeDropdown]);
+
+    const Checkk=async()=>{
+        console.log("Start filter:::",subcate);
+        const filteredData=subcate.filter(product => product.category.category_description ==="Casual Dresses" && product.category.category_name ==="Women's Wear" );
+        console.log(filteredData);
+        // const filteredProducts = products.filter(product => product.product_name === 'Baggy Pants');
 
     }
 
@@ -115,7 +125,7 @@ const Header = () => {
             </div>
 
             <div className="header-bottom h-auto w-full flex justify-center mb-2">
-
+                <button onClick={()=>Checkk()} className="bg-red-600 text-white px-3 py-2 hover:bg-red-500">fetch</button>
                 <div className="w-full max-w-screen-lg flex flex-wrap justify-center items-center space-x-2">
                     <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
                         HOME
@@ -127,15 +137,18 @@ const Header = () => {
                             onMouseLeave={handleMouseLeave}
                             className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200"
                         >
-                            {key.replace("Wear", "").toUpperCase()}
+                            {key==="Men's Wear"?"MEN":""}
+                            {key==="Women's Wear"?"WOMEN":""}
+                            {key==="Kid's Wear"?"KIDS":""}
                         </button>
                     ))}
                     <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
-                        OFFERS
+                    OFFERS
                     </Link>
                     <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
-                        COMPARE
+                    COMPARE
                     </Link>
+
                 </div>
             </div>
 
@@ -143,27 +156,19 @@ const Header = () => {
                 <div
                     onMouseEnter={() => handleMouseEnter(activeDropdown)}
                     onMouseLeave={handleMouseLeave}
-                    className="absolute w-[90%] max-w-screen-lg bg-white shadow-lg top-[180px] left-1/2 transform -translate-x-1/2 rounded-md grid grid-cols-2 md:grid-cols-4 gap-4 p-4 z-50 transition-transform"
+                    className="absolute w-[90%] max-w-screen-lg bg-yellow-500 shadow-lg top-[180px] left-1/2 transform -translate-x-1/2 rounded-md grid grid-cols-2 md:grid-cols-4 gap-4 p-4 z-50 transition-transform"
                 >
-                    {dropdownOptions[activeDropdown]?.map((option, index) => {
-                        const filteredData = subcate.filter(
-                            (product) =>
-                                product.category.category_description === option &&
-                                product.category.category_name === activeDropdown
-                        );
-                        return (
-                            <div key={index} className="flex flex-col">
-                                <h1 className="font-semibold text-red-500 mb-2">{option}</h1>
-                                {filteredData.slice(0,8).map((value, subIndex) => (
-                                    <ul key={subIndex} className="space-y-1">
-                                        <li onClick={()=>ViewProduct(value.product_name)} className="hover:text-red-400 transition">
-                                            {value.product_name || "Sub-item 1"}
-                                        </li>
-                                    </ul>
-                                ))}
-                            </div>
-                        );
-                    })}
+                    {dropdownOptions[activeDropdown].map((option, index) => (
+                        <div key={index} className="flex flex-col">
+                            <h1 className="font-semibold text-red-500 mb-2">{option}</h1>
+                            <ul className="space-y-1">
+                                <li className="hover:text-red-400 transition">Sub-item 1</li>
+                                <li className="hover:text-red-400 transition">Sub-item 2</li>
+                                <li className="hover:text-red-400 transition">Sub-item 3</li>
+                                <li className="hover:text-red-400 transition">Sub-item 4</li>
+                            </ul>
+                        </div>
+                    ))}
                 </div>
             )}
         </header>
