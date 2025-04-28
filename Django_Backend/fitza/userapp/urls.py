@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
-
+from userapp.views import GetBanners
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -30,6 +30,7 @@ urlpatterns = [
     path('fetch_drop_data/',fetchDropDownData.as_view(),name="fetch_drop_data"),
     path('drop_down_category/<str:cate_status>/',DropDownCategory.as_view(),name="drop_down_category"),
     path('fetch_cate_products/<str:pro_name>/',FetchCategoryProduct.as_view(),name="fetch_cate_products"),
+    path('getbanners/',GetBanners.as_view(),name="getbanners"),
 ]
 
 from django.conf import settings

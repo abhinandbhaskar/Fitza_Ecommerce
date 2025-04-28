@@ -401,7 +401,13 @@ class FetchCategoryProduct(APIView):
         serializer=ProductViewSerializer(obj,many=True)
         return Response(serializer.data)
 
-# Women's Wear
-# Men's Wear
-# Kid's Wear
+
+from userapp.serializers import BannerShowSerializer
+from sellerapp.models import Banner
+class GetBanners(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Banner.objects.filter(is_active=True)
+        serializer=BannerShowSerializer(obj,many=True)
+        return Response(serializer.data)
 

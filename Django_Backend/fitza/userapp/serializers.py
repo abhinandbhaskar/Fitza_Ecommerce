@@ -440,8 +440,15 @@ class ProductDataSerializer(serializers.ModelSerializer):
 
 
 
+
 from common.models import ProductCategory
 class DropCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model=ProductCategory
+        fields='__all__'
+
+from sellerapp.models import Banner
+class BannerShowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Banner
         fields='__all__'

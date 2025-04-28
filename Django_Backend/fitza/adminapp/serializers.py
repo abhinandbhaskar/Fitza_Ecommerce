@@ -396,7 +396,10 @@ class AddBannerSerializer(serializers.Serializer):
         user=self.context["request"].user
         if not CustomUser.objects.filter(id=user.id).exists():
             raise serializers.ValidationError("UnAuthprized User")
+        if Banner.objects.count() >= 3:
+            raise serializers.ValidationError("You can only add up to 3 banners.")
         return data
+       
 
     def save(self):
         obj=Banner.objects.create(
