@@ -9,13 +9,7 @@ import TopRelease from '../../../components/User/TopRelease/TopRelease'
 import Footer from '../../../components/User/Footer/Footer'
 import api from '../../../utils/api'
 const HomePage = () => {
-  // const[data,setData]=useState(null);
-  // useEffect(()=>{
-  //   api.get("/user/")
-  //   .then((res)=>setData(res.data))
-  //   .catch((err)=>console.error("Error fetching data",err));
-  // },[]);
-  // console.log(data);
+   const[topdata,setTopData]=useState([])
   return (
     <div>
       <Header></Header>
@@ -23,8 +17,8 @@ const HomePage = () => {
       <DealsOftheDay/>
       <TopCollection/>
      <OffersSection/>
-     <NewArrivals/>
-     <TopRelease/>
+     <NewArrivals setTopData={setTopData}/>
+     <TopRelease topdata={topdata}/>
      <Footer/>
     </div>
   )

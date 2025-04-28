@@ -433,3 +433,79 @@ class RejectReview(APIView):
             return Response({"error": "Review not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from adminapp.serializers import AddBannerSerializer
+
+class AddBanner(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddBannerSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Banner Added Successfully"},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+
+from adminapp.serializers import GetBannersSerializer,UpdateBannerSerializer
+from sellerapp.models import Banner
+class GetBanners(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Banner.objects.all()
+        serializer=GetBannersSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+class DeleteBanner(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        try:
+            banner=Banner.objects.get(id=id)
+        except Banner.DoesNotExist:
+            return Response({"error": "Banner with the provided ID does not exist."},status=status.HTTP_404_NOT_FOUND)
+        banner.delete()
+        return Response({"message":"Banner Deleted Successfully..."},status=status.HTTP_204_NO_CONTENT)
+
+
+
+class EditBannerData(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,id):
+        obj=Banner.objects.get(id=id)
+        serializer=GetBannersSerializer(obj)
+        return Response(serializer.data)
+    
+class UpdateBanner(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        serializer=UpdateBannerSerializer(data=request.data,context={"request":request,"id":id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Banner Updated Successfully"},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+
+class ActivateBanner(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        try:
+            banner=Banner.objects.get(id=id)
+        except Banner.DoesNotExist:
+            return Response({"error": "Banner with the provided ID does not exist."},status=status.HTTP_404_NOT_FOUND)
+        banner.is_active=True
+        banner.save()
+        return Response({"message":"Banner Activated Successfully..."},status=status.HTTP_204_NO_CONTENT)
+
+
+class DeactivateBanner(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        try:
+            banner=Banner.objects.get(id=id)
+        except Banner.DoesNotExist:
+            return Response({"error": "Banner with the provided ID does not exist."},status=status.HTTP_404_NOT_FOUND)
+        banner.is_active=False
+        banner.save()
+        return Response({"message":"Banner Deactivated..."},status=status.HTTP_204_NO_CONTENT)
+

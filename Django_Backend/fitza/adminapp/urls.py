@@ -3,7 +3,7 @@ from django.urls import path
 from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
 from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview
-from adminapp.views import ApproveReview,RejectReview
+from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -39,6 +39,13 @@ urlpatterns = [
     path('view_review_ratings/<str:filterreview>/',ViewRatingReview.as_view(),name="view_review_ratings"),
     path('approve_review/<int:id>/',ApproveReview.as_view(),name="approve_review"),
     path('reject_review/<int:id>/',RejectReview.as_view(),name="reject_review"),
+    path('add_banner/',AddBanner.as_view(),name="add_banner"),
+    path('get_banners/',GetBanners.as_view(),name="get_banners"),
+    path('delete_banner/<int:id>/',DeleteBanner.as_view(),name="delete_banner"),
+    path('edit_banner_data/<int:id>/',EditBannerData.as_view(),name="edit_banner_data"),
+    path('update_banner/<int:id>/',UpdateBanner.as_view(),name="update_banner"),
+    path('activate_banner/<int:id>/',ActivateBanner.as_view(),name="activate_banner"),
+    path('deactivate_banner/<int:id>/',DeactivateBanner.as_view(),name="deactivate_banner"),
 ]
 
 from django.conf import settings

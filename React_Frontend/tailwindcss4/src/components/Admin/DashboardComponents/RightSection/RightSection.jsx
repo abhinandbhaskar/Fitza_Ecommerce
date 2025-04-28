@@ -9,6 +9,7 @@ import RevenueSection from "../RevenueSection/RevenueSection";
 import MessageSection from "../MessageSection/MessageSection";
 import ComplaintSection from "../ComplaintSection/ComplaintSection";
 import ReviewSection from "../ReviewSection/ReviewSection";
+import BannerSection from "../BannerSection/BannerSection";
 
 const RightSection = ({currentView}) => {
     return (
@@ -22,6 +23,7 @@ const RightSection = ({currentView}) => {
       {currentView==="messages"&&<MessageSection/>}
       {currentView==="complaints"&&<ComplaintSection/>}
       {currentView==="reviews"&&<ReviewSection/>}
+      {currentView==="banner"&&<BannerSection/>}
       <Footer/>
         </div>
     );

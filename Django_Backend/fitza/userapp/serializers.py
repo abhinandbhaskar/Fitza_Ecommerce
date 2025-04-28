@@ -437,6 +437,9 @@ class ProductDataSerializer(serializers.ModelSerializer):
         fields=['id','product_name','category']
 
 
+
+
+
 from common.models import ProductCategory
 class DropCategorySerializer(serializers.ModelSerializer):
     class Meta:

@@ -383,3 +383,65 @@ class RatingReviewSerializer(serializers.ModelSerializer):
         if obj.product and obj.product.shop:
             return obj.product.shop.shop_name
         return None
+    
+from sellerapp.models import Banner
+class AddBannerSerializer(serializers.Serializer):
+    image=serializers.FileField()
+    title=serializers.CharField()
+    description=serializers.CharField()
+    offer=serializers.CharField()
+    startdate=serializers.CharField()
+    endDate=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthprized User")
+        return data
+
+    def save(self):
+        obj=Banner.objects.create(
+            title=self.validated_data["title"],
+            description=self.validated_data["description"],
+            offer_details=self.validated_data["offer"],
+            image=self.validated_data["image"],
+            start_date=self.validated_data["startdate"],
+            end_date=self.validated_data["endDate"],
+            is_active=False,
+        )
+        return obj
+
+from sellerapp.models import Banner
+class GetBannersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Banner
+        fields='__all__'
+
+
+class UpdateBannerSerializer(serializers.Serializer):
+    image=serializers.FileField()
+    title=serializers.CharField()
+    description=serializers.CharField()
+    offer=serializers.CharField()
+    startdate=serializers.CharField()
+    endDate=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        id=self.context["id"]
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthprized User")
+        if not Banner.objects.filter(id=id).exists():
+            raise serializers.ValidationError("Banner Does not exists..")
+        return data
+    
+
+    def save(self):
+        obj=Banner.objects.get(id=self.context["id"])
+        obj.title=self.validated_data["title"]
+        obj.description=self.validated_data["description"]
+        obj.offer_details=self.validated_data["offer"]
+        obj.image=self.validated_data["image"]
+        obj.start_date=self.validated_data["startdate"]
+        obj.end_date=self.validated_data["endDate"]
+        obj.is_active=False
+        obj.save()
+        return obj

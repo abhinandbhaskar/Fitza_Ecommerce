@@ -4,13 +4,14 @@ import "./NewArrivals.css";
 import {useSelector} from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-const NewArrivals = () => {
+const NewArrivals = ({setTopData}) => {
     const [startIndex, setStartIndex] = useState(0);
     const itemsPerPage = 4;
     const {accessToken}=useSelector((state)=>state.auth);
     const [products,setProducts]=useState([]);
-    const navigate=useNavigate();
 
+    const navigate=useNavigate();
+    console.log("OOXZ",products);
     const handleNext = () => {
         if (startIndex + itemsPerPage < products.length) {
             setStartIndex(startIndex + 1);
@@ -34,6 +35,7 @@ const NewArrivals = () => {
             console.log(response);
             console.log("New Arrivals",response.data);
             setProducts(response.data);
+            setTopData(response.data);
         }
         catch(errors)
         {
