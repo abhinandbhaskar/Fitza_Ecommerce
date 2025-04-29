@@ -6,7 +6,7 @@ const UsersSection = () => {
             {/* Header */}
             <div className="w-full bg-white shadow-md py-4 px-6">
                 <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
-                    Dashboard &gt; <span className="text-indigo-600">Users</span>
+                    Dashboard&gt; <span className="text-indigo-600">Users</span>
                 </h1>
             </div>
 

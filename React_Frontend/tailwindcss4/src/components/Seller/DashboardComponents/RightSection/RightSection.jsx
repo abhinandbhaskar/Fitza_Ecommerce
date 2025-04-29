@@ -11,6 +11,8 @@ import AddProducts1 from "../ProductsSection/ProductSectionComponents/AddProduct
 import AddProducts2 from "../ProductsSection/ProductSectionComponents/AddProductsSection2/AddProducts2";
 import AddProducts3 from "../ProductsSection/ProductSectionComponents/AddProductsSection3/AddProducts3";
 import ReviewSection from "../ReviewSection/ReviewSection";
+import ComplaintSection from "../ComplaintSection/ComplaintSection";
+import FollowUpPage from "../ComplaintSection/FollowUpPage/FollowUpPage ";
 
 
 const RightSection = ({currentView,setCurrentView}) => {
@@ -19,6 +21,9 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="mainsection"&&<MainSection/>}
       {currentView==="users"&&<UsersSection/>}
       {currentView==="ratings" && <ReviewSection/> }
+      {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView}/> }
+      {currentView==="followup" && <FollowUpPage/>}
+    
 
 
       {currentView==="products"&& <ProductsSection setCurrentView={setCurrentView} />}

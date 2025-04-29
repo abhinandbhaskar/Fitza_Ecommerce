@@ -411,3 +411,15 @@ class GetBanners(APIView):
         serializer=BannerShowSerializer(obj,many=True)
         return Response(serializer.data)
 
+from userapp.serializers import AddToCartSerializer
+
+class AddToCart(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        print("WORKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
+        serializer=AddToCartSerializer(data=request.data,context={"request":request,"id":id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Product added to cart."},status=status.HTTP_201_CREATED)
+        return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
+

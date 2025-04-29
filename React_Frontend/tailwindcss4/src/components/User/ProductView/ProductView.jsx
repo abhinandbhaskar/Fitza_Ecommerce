@@ -3,9 +3,44 @@ import React, { useState } from "react";
 import AdditionalInfo from "../../User/ProductView/ProductViewSections/AdditionalInfo";
 import AddReview from "../../User/ProductView/ProductViewSections/AddReview";
 import { useSelector } from "react-redux";
+import axios from "axios";
 function ProductPage({ product }) {
     const [addInfoToggle, setAddInfoToggle] = useState("addInfo");
     const {accessToken}=useSelector((state)=>state.auth);
+
+    const [size,setSize]=useState("M");
+    const [qnty,setQnty]=useState(1);
+
+
+
+    const AddToCartNow = async (id) => {
+        console.log("CCCC",id);
+
+        const inputData = {
+            "size": size.trim(),
+            "qnty": parseInt(qnty),
+        };
+
+    
+        try {
+            const response = await axios.post(`https://127.0.0.1:8000/api/add_to_cart/${id}/`, inputData, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            console.log(response);
+            console.log(response.data);
+    
+            if (response.status === 201) {
+                alert(response.data.message);
+            }
+        } catch (err) {
+            console.error("Error:", err.response?.data || err.message);
+        }
+    };
+    
+
     return (
         <div className="min-h-screen p-8 bg-gray-100">
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -67,16 +102,16 @@ function ProductPage({ product }) {
                         <li>Cash on Delivery available</li>
                     </ul>
                     <div className="flex space-x-4 mt-6">
-                        <div className="px-4 py-2 border rounded-lg">M</div>
-                        <div className="px-4 py-2 border rounded-lg">L</div>
-                        <div className="px-4 py-2 border rounded-lg">XL</div>
-                        <div className="px-4 py-2 border rounded-lg">XXL</div>
+                        <button value="M" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">M</button>
+                        <button value="L" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">L</button>
+                        <button value="XL" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">XL</button>
+                        <button value="XXL" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">XXL</button>
                     </div>
 
                     <div className="mt-6 flex items-center space-x-4">
-                        <input type="number" className="border rounded-lg p-2 w-24" placeholder="1" />
-                        <button className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-                            Add to Cart
+                        <input type="number" value={qnty} onChange={(e)=>setQnty(e.target.value)} className="border rounded-lg p-2 w-24" placeholder="1" />
+                        <button onClick={()=>AddToCartNow(product?.id)} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                            Add to CartSS
                         </button>
                         <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                             Buy Now

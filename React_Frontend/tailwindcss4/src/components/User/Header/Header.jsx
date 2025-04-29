@@ -164,7 +164,11 @@ const handleSearch = (e) => {
                     <Link to="/wishlistview">
                         <i className="fa-regular fa-heart text-red-400 text-xl md:text-3xl"></i>
                     </Link>
+                    
+                    <Link to="/cartpage">
                     <i className="fa-solid fa-bag-shopping text-red-400 text-xl md:text-3xl"></i>
+                    </Link>
+                    
                 </div>
             </div>
 

@@ -46,7 +46,7 @@ const SideBar = ({setCurrentView}) => {
           <span className="flex-1">Messages</span>
           <span className="text-gray-400">&gt;</span>
         </button>
-        <button className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
+        <button onClick={()=>setCurrentView("complaints")}  className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
         <img src={Complaints} className="h-10 w-10 mr-4" alt="" />
           <span className="flex-1">Complaints</span>
           <span className="text-gray-400">&gt;</span>
@@ -61,11 +61,11 @@ const SideBar = ({setCurrentView}) => {
           <span className="flex-1">Refund & Returns</span>
           <span className="text-gray-400">&gt;</span>
         </button>
-        <button className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
+        {/* <button className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
         <img src={promotions} className="h-10 w-10 mr-4" alt="" />
           <span className="flex-1">Banner & Promotions</span>
           <span className="text-gray-400">&gt;</span>
-        </button>
+        </button> */}
         <button className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
         <img src={offers} className="h-10 w-10 mr-4" alt="" />
           <span className="flex-1">Discounts & Offers</span>

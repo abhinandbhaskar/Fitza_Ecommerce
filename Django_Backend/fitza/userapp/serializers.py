@@ -452,3 +452,36 @@ class BannerShowSerializer(serializers.ModelSerializer):
     class Meta:
         model=Banner
         fields='__all__'
+
+from userapp.models import ShoppingCart,ShoppingCartItem
+
+class AddToCartSerializer(serializers.Serializer):
+    size = serializers.CharField()
+    qnty = serializers.IntegerField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not user.is_authenticated:
+            raise serializers.ValidationError("Unauthorized user.")
+        product_id = self.context.get("id")
+        if not ProductItem.objects.filter(id=product_id).exists():
+            raise serializers.ValidationError("Invalid product ID.")
+        return data
+
+    def save(self, **kwargs):
+        user = self.context["request"].user
+        product_id = self.context["id"]
+
+        shopping_cart, created = ShoppingCart.objects.get_or_create(user=user)
+
+        product = ProductItem.objects.get(id=product_id)
+
+        cart_item, created = ShoppingCartItem.objects.get_or_create(
+            shopping_cart=shopping_cart,
+            product_item=product,
+            defaults={"quantity": self.validated_data["qnty"]}
+        )
+
+        if not created:
+            cart_item.quantity += self.validated_data["qnty"]
+            cart_item.save()
