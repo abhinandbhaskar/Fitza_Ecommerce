@@ -448,3 +448,62 @@ class UpdateBannerSerializer(serializers.Serializer):
         obj.is_active=False
         obj.save()
         return obj
+
+from common.models import Coupon
+class AddCouponSerializer(serializers.Serializer):
+    code=serializers.CharField()
+    discountType=serializers.CharField()
+    discountValue=serializers.IntegerField()
+    minimumOrderAmount=serializers.IntegerField()
+    startDate=serializers.CharField()
+    endDate=serializers.CharField()
+    usageLimit=serializers.CharField()
+    def validate(self, data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    def save(self):
+        Coupon.objects.get_or_create(
+            code=self.validated_data["code"],
+            discount_type=self.validated_data["discountType"],
+            discount_value=self.validated_data["discountValue"],
+            minimum_order_amount=self.validated_data["minimumOrderAmount"],
+            start_date=self.validated_data["startDate"],
+            end_date=self.validated_data["endDate"],
+            usage_limit=self.validated_data["usageLimit"],
+        )
+        
+
+class GetCouponsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Coupon
+        fields='__all__'
+
+
+class EditCouponSerializer(serializers.Serializer):
+    code=serializers.CharField()
+    discountType=serializers.CharField()
+    discountValue=serializers.IntegerField()
+    minimumOrderAmount=serializers.IntegerField()
+    startDate=serializers.CharField()
+    endDate=serializers.CharField()
+    usageLimit=serializers.CharField()
+    def validate(self, data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    def save(self):
+        id=self.context["id"]
+        obj=Coupon.objects.get(id=id)
+        obj.code=self.validated_data["code"]
+        obj.discount_type=self.validated_data["discountType"]
+        obj.discount_value=self.validated_data["discountValue"]
+        obj.minimum_order_amount=self.validated_data["minimumOrderAmount"]
+        obj.start_date=self.validated_data["startDate"]
+        obj.end_date=self.validated_data["endDate"]
+        obj.usage_limit=self.validated_data["usageLimit"]
+        obj.save()
+        
+        

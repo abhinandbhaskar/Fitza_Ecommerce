@@ -10,8 +10,13 @@ import MessageSection from "../MessageSection/MessageSection";
 import ComplaintSection from "../ComplaintSection/ComplaintSection";
 import ReviewSection from "../ReviewSection/ReviewSection";
 import BannerSection from "../BannerSection/BannerSection";
+import DiscountsOffers from "../DiscountsOffers/DiscountsOffers";
+import CouponsSection from "../DiscountsOffers/DiscountComponents/CouponsSection";
+import DiscountCardSection from "../DiscountsOffers/DiscountComponents/DiscountCardSection";
+import FreeshippingSection from "../DiscountsOffers/DiscountComponents/FreeshippingSection";
+import ProductsOfferSection from "../DiscountsOffers/DiscountComponents/ProductsOfferSection";
 
-const RightSection = ({currentView}) => {
+const RightSection = ({currentView,setCurrentView}) => {
     return (
         <div className="h-screen w-8/10 bg-white p-4 overflow-y-auto relative ml-77 mt-20">
       {currentView==="mainsection"&&<MainSection/>}
@@ -24,6 +29,11 @@ const RightSection = ({currentView}) => {
       {currentView==="complaints"&&<ComplaintSection/>}
       {currentView==="reviews"&&<ReviewSection/>}
       {currentView==="banner"&&<BannerSection/>}
+      {currentView==="discounts"&&<DiscountsOffers setCurrentView={setCurrentView}/>}
+      {currentView==="coupon" && <CouponsSection/>}
+      {currentView==="discountcard" && <DiscountCardSection/>}
+      {currentView==="freeship"&&<FreeshippingSection/>}
+      {currentView==="productoffer"&&<ProductsOfferSection/>}
       <Footer/>
         </div>
     );

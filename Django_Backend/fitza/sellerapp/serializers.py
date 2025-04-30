@@ -327,6 +327,7 @@ class GetSizeSerializer(serializers.ModelSerializer):
         fields=['size_name','id']
 
 from rest_framework import serializers
+import json
 from common.models import Product, ProductItem, CustomUser, Seller, Brand,ProductCategory
 from sellerapp.models import ProductImage
 
@@ -340,10 +341,7 @@ class AddProductsSerializer(serializers.Serializer):
     modelwearing = serializers.CharField()
     instruction = serializers.CharField()
     about = serializers.CharField()
-    color = serializers.CharField()
-    size = serializers.CharField()
-    price = serializers.DecimalField(max_digits=10, decimal_places=2) 
-    stock = serializers.IntegerField() 
+    attributes = serializers.CharField()
     photo=serializers.FileField()
     img1=serializers.FileField()
     img2=serializers.FileField()
@@ -360,12 +358,23 @@ class AddProductsSerializer(serializers.Serializer):
         if not Brand.objects.filter(id=data["brandid"]).exists():
             raise serializers.ValidationError("Invalid brand ID")
         
-        if not Color.objects.filter(id=data["color"]).exists():
-            raise serializers.ValidationError("Invalid color ID")
+        try:
+            attributes = json.loads(data["attributes"])
+            if not isinstance(attributes, list) or len(attributes) == 0:
+                raise serializers.ValidationError("Attributes must be a non-empty JSON list")
+            for attr in attributes:
+                if "colorid" not in attr or "sizeid" not in attr or "price" not in attr or "stock" not in attr:
+                    raise serializers.ValidationError("Each attribute must include colorid, sizeid, price, and stock")
+                
+                if not Color.objects.filter(id=attr["colorid"]).exists():
+                    raise serializers.ValidationError(f"Invalid color ID: {attr['colorid']}")
+                if not SizeOption.objects.filter(id=attr["sizeid"]).exists():
+                    raise serializers.ValidationError(f"Invalid size ID: {attr['sizeid']}")
+
+        except json.JSONDecodeError:
+            raise serializers.ValidationError("Invalid JSON format for attributes")
         
-        if not SizeOption.objects.filter(id=data["size"]).exists():
-            raise serializers.ValidationError("Invalid Size ID")
-        
+        data["parsed_attributes"]=attributes  
         return data
 
     def save(self):
@@ -374,15 +383,18 @@ class AddProductsSerializer(serializers.Serializer):
             seller = Seller.objects.get(user=user)
         except Seller.DoesNotExist:
             raise serializers.ValidationError("Seller not found.")
-
-        categoryobj = ProductCategory.objects.get(id=self.validated_data["cateid"])
-        brandobj = Brand.objects.get(id=self.validated_data["brandid"])
-        sizeobj=SizeOption.objects.get(id=self.validated_data["size"])
-        colorobj=Color.objects.get(id=self.validated_data["color"])
+        
+        try:
+            category = ProductCategory.objects.get(id=self.validated_data["cateid"])
+            brand = Brand.objects.get(id=self.validated_data["brandid"])
+        except ProductCategory.DoesNotExist:
+            raise serializers.ValidationError("Category not found.")
+        except Brand.DoesNotExist:
+            raise serializers.ValidationError("Brand not found.")
 
         product = Product.objects.create(
-            category=categoryobj,
-            brand=brandobj,
+            category=category,
+            brand=brand,
             shop=seller,
             product_name=self.validated_data["product"],
             product_description=self.validated_data["description"],
@@ -392,23 +404,31 @@ class AddProductsSerializer(serializers.Serializer):
             about=self.validated_data["about"]
         )
 
-        productitemobj=ProductItem.objects.create(
-            product=product,
-            color=colorobj,
-            size=sizeobj,
-            original_price=self.validated_data["price"],
-            quantity_in_stock=self.validated_data["stock"],
-            product_code=str(uuid.uuid4()) 
-        )
+        attributes = self.validated_data["parsed_attributes"]
+        print("ATTRIBUTES",attributes)
+        for attr in attributes:
+            color=Color.objects.get(id=attr["colorid"])
+            size = SizeOption.objects.get(id=attr["sizeid"])
+            print("ATR",attr)
 
-        ProductImage.objects.create(
-            product_item=productitemobj,
-            main_image=self.validated_data["photo"],
-            sub_image_1=self.validated_data["img1"],
-            sub_image_2=self.validated_data["img2"],
-            sub_image_3=self.validated_data["img3"],
+            product_item=ProductItem.objects.create(
+                product=product,
+                color=color,
+                size=size,
+                original_price=attr["price"],
+                quantity_in_stock=attr["stock"],
+                product_code=str(uuid.uuid4()) 
+            )
 
-        )
+            ProductImage.objects.create(
+                product_item=product_item,
+                main_image=self.validated_data["photo"],
+                sub_image_1=self.validated_data["img1"],
+                sub_image_2=self.validated_data["img2"],
+                sub_image_3=self.validated_data["img3"],
+
+            )
+        return product
 
 
 class ProductsSerializer(serializers.ModelSerializer):

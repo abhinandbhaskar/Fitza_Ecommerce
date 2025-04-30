@@ -485,3 +485,110 @@ class AddToCartSerializer(serializers.Serializer):
         if not created:
             cart_item.quantity += self.validated_data["qnty"]
             cart_item.save()
+
+
+
+
+
+
+from rest_framework import serializers
+from userapp.models import ShoppingCartItem
+from common.models import ProductItem
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['main_image']
+
+class ProductItemSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True)  # Use `many=True` to handle multiple related images
+    product = ViewProductsSerializer(read_only=True) 
+    color = ViewColorsSerializer(read_only=True)
+    size = ViewSizeSerializer(read_only=True)
+    class Meta:
+        model = ProductItem
+        fields = ['id', 'product','sale_price', 'color','size', 'images']  # Include `images` to access related ProductImage data
+
+
+class GetCartDataSerializer(serializers.ModelSerializer):
+    product_item = ProductItemSerializer()  # Include nested serializer for product item details
+
+    class Meta:
+        model = ShoppingCartItem
+        fields = ['id', 'product_item', 'quantity']
+
+
+# mission
+
+
+
+
+class AddToCartSIzeSerializer(serializers.Serializer):
+    size = serializers.CharField()
+    # qnty = serializers.IntegerField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not user.is_authenticated:
+            raise serializers.ValidationError("Unauthorized user.")
+        product_id = self.context.get("id")
+        if not ProductItem.objects.filter(id=product_id).exists():
+            raise serializers.ValidationError("Invalid product ID.")
+        return data
+
+    def save(self, **kwargs):
+        user = self.context["request"].user
+        product_id = self.context["id"]
+
+        shopping_cart, created = ShoppingCart.objects.get_or_create(user=user)
+
+        product = ProductItem.objects.get(id=product_id)
+
+        cart_item, created = ShoppingCartItem.objects.get_or_create(
+            shopping_cart=shopping_cart,
+            product_item=product,
+            # defaults={"quantity": self.validated_data["qnty"]}
+        )
+
+        # if not created:
+        #     cart_item.quantity += self.validated_data["qnty"]
+        #     cart_item.save()
+
+
+
+
+
+
+
+class AddToCartQntySerializer(serializers.Serializer):
+    # size = serializers.CharField()
+    qnty = serializers.IntegerField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not user.is_authenticated:
+            raise serializers.ValidationError("Unauthorized user.")
+        product_id = self.context.get("id")
+        if not ProductItem.objects.filter(id=product_id).exists():
+            raise serializers.ValidationError("Invalid product ID.")
+        return data
+
+    def save(self, **kwargs):
+        user = self.context["request"].user
+        product_id = self.context["id"]
+
+        shopping_cart, created = ShoppingCart.objects.get_or_create(user=user)
+
+        product = ProductItem.objects.get(id=product_id)
+
+        cart_item, created = ShoppingCartItem.objects.get_or_create(
+            shopping_cart=shopping_cart,
+            product_item=product,
+            defaults={"quantity": self.validated_data["qnty"]}
+        )
+
+        if not created:
+            cart_item.quantity += self.validated_data["qnty"]
+            cart_item.save()
+
+

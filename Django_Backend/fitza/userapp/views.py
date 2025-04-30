@@ -411,7 +411,7 @@ class GetBanners(APIView):
         serializer=BannerShowSerializer(obj,many=True)
         return Response(serializer.data)
 
-from userapp.serializers import AddToCartSerializer
+from userapp.serializers import AddToCartSerializer,GetCartDataSerializer
 
 class AddToCart(APIView):
     permission_classes=[IsAuthenticated]
@@ -423,3 +423,53 @@ class AddToCart(APIView):
             return Response({"message":"Product added to cart."},status=status.HTTP_201_CREATED)
         return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
 
+from userapp.models import ShoppingCartItem
+class GetCartData(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=self.request.user
+        obj=ShoppingCartItem.objects.filter(shopping_cart__user=user)
+        serializer=GetCartDataSerializer(obj,many=True)
+        return Response(serializer.data)
+    
+
+from common.models import CustomUser
+from userapp.models import ProductItem
+from userapp.models import ShoppingCart,ShoppingCartItem
+
+class RemoveCartProduct(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        user=request.user
+        user=CustomUser.objects.get(id=user.id)
+        product_item=ProductItem.objects.get(id=id)
+        shopping_cart=ShoppingCart.objects.get(user=user)
+        cart_item=ShoppingCartItem.objects.get(shopping_cart=shopping_cart,product_item=product_item)
+        cart_item.delete()
+        return Response({"message":"Cart Product Removed..."})
+    
+
+
+# mission
+
+from userapp.serializers import AddToCartSIzeSerializer,AddToCartQntySerializer
+
+class CartProductSize(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        serializer=AddToCartSIzeSerializer(data=request.data,context={"request":request,"id":id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Size added to cart."},status=status.HTTP_201_CREATED)
+        return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class CartProductQuantity(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        serializer=AddToCartQntySerializer(data=request.data,context={"request":request,"id":id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Quantity added to cart."},status=status.HTTP_201_CREATED)
+        return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)

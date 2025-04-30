@@ -509,3 +509,51 @@ class DeactivateBanner(APIView):
         banner.save()
         return Response({"message":"Banner Deactivated..."},status=status.HTTP_204_NO_CONTENT)
 
+from adminapp.serializers import AddCouponSerializer,GetCouponsSerializer,EditCouponSerializer
+from common.models import Coupon
+class AddCoupon(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddCouponSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Coupon Added Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
+
+class GetCoupons(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Coupon.objects.all()
+        serializer=GetCouponsSerializer(obj,many=True)
+        return Response(serializer.data)
+
+class DeleteCoupon(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        user=request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"message":"UnAuthorized User..."},status=status.HTTP_404_NOT_FOUND)
+        if not Coupon.objects.filter(id=id).exists():
+            return Response({"message":"Coupon does not exists..."})
+        coupondata=Coupon.objects.get(id=id)
+        coupondata.delete()
+        return Response({"message":"Coupon deleted successfully..."},status=status.HTTP_200_OK)
+
+
+class GetEditCoupon(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,id):
+        obj=Coupon.objects.filter(id=id)
+        serializer=GetCouponsSerializer(obj,many=True)
+        return Response(serializer.data)
+    
+
+class EditCoupon(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        serializer=EditCouponSerializer(data=request.data,context={"request":request,"id":id})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Coupon Edited Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
+

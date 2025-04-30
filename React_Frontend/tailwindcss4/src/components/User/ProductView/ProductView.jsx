@@ -111,7 +111,7 @@ function ProductPage({ product }) {
                     <div className="mt-6 flex items-center space-x-4">
                         <input type="number" value={qnty} onChange={(e)=>setQnty(e.target.value)} className="border rounded-lg p-2 w-24" placeholder="1" />
                         <button onClick={()=>AddToCartNow(product?.id)} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
-                            Add to CartSS
+                            Add to Cart
                         </button>
                         <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                             Buy Now

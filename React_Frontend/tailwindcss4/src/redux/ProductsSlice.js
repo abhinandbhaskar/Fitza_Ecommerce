@@ -10,10 +10,7 @@ const initialState = {
         modelwearing: "",
         instruction: "",
         about: "",
-        colorid:null,
-        sizeid:null,
-        price:"",
-        stock:"",
+        attributes: [],
     },
 };
 
@@ -30,11 +27,15 @@ const ProductsSlice=createSlice({
             state.product.modelwearing=action.payload.modelwearing;
             state.product.instruction=action.payload.instruction;
             state.product.about=action.payload.about;
-            state.product.colorid=action.payload.colorid;
-            state.product.sizeid=action.payload.sizeid;
-            state.product.price=action.payload.price;
-            state.product.stock=action.payload.stock;
         },
+        addProductAttribute: (state, action) => {
+            state.product.attributes.push({
+              colorid: action.payload.colorid,
+              sizeid: action.payload.sizeid,
+              price: action.payload.price,
+              stock: action.payload.stock,
+            });
+          },
         clearProducts:(state)=>{
             state.product.products="";
             state.product.description="";
@@ -44,12 +45,9 @@ const ProductsSlice=createSlice({
             state.product.modelwearing="";
             state.product.instruction="";
             state.product.about="";
-            state.product.colorid=null;
-            state.product.sizeid=null;
-            state.product.price="";
-            state.product.stock="";
+            state.product.attributes=[];
         }
     }
 });
-export const { updateProducts, clearProducts } = ProductsSlice.actions;
+export const { updateProducts, clearProducts,addProductAttribute } = ProductsSlice.actions;
 export default ProductsSlice.reducer;

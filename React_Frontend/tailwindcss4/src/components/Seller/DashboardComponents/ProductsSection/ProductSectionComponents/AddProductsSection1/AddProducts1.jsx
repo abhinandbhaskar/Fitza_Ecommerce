@@ -93,14 +93,14 @@ const AddProducts1 = ({setCurrentView}) => {
         </h1>
       </header>
 
-      {/* Add Product Form */}
+ 
       <section className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg">
         <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">
           Product Details
         </h2>
 
         <form className="space-y-6">
-          {/* Product Name */}
+         
           <div>
             <label htmlFor="productName" className="block text-gray-600 font-medium mb-1">
               Product Name
@@ -115,7 +115,7 @@ const AddProducts1 = ({setCurrentView}) => {
             />
           </div>
 
-          {/* Product Description */}
+     
           <div>
             <label htmlFor="productDescription" className="block text-gray-600 font-medium mb-1">
               Product Description
@@ -130,7 +130,7 @@ const AddProducts1 = ({setCurrentView}) => {
             ></textarea>
           </div>
 
-          {/* Category */}
+       
           <div>
             <label htmlFor="category" className="block text-gray-600 font-medium mb-1">
               Category
@@ -150,7 +150,7 @@ const AddProducts1 = ({setCurrentView}) => {
             </select>
           </div>
 
-          {/* Brand */}
+         {/* brand */}
           <div>
             <label htmlFor="brand" className="block text-gray-600 font-medium mb-1">
               Brand
@@ -170,7 +170,7 @@ const AddProducts1 = ({setCurrentView}) => {
             </select>
           </div>
 
-          {/* Model Details */}
+          {/* Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="modelHeight" className="block text-gray-600 font-medium mb-1">

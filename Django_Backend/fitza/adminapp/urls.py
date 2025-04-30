@@ -3,7 +3,7 @@ from django.urls import path
 from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
 from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview
-from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner
+from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -46,6 +46,11 @@ urlpatterns = [
     path('update_banner/<int:id>/',UpdateBanner.as_view(),name="update_banner"),
     path('activate_banner/<int:id>/',ActivateBanner.as_view(),name="activate_banner"),
     path('deactivate_banner/<int:id>/',DeactivateBanner.as_view(),name="deactivate_banner"),
+    path('add_coupon/',AddCoupon.as_view(),name="add_coupon"),
+    path('get_coupons/',GetCoupons.as_view(),name="get_coupons"),
+    path('delete_coupon/<int:id>/',DeleteCoupon.as_view(),name="delete_coupon"),
+    path('get_edit_coupon/<int:id>/',GetEditCoupon.as_view(),name="get_edit_coupon"),
+    path('edit_coupon_data/<int:id>/',EditCoupon.as_view(),name="edit_coupon_data"),
 ]
 
 from django.conf import settings

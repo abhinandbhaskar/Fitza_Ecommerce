@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
-from userapp.views import GetBanners,AddToCart
+from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -32,6 +32,10 @@ urlpatterns = [
     path('fetch_cate_products/<str:pro_name>/',FetchCategoryProduct.as_view(),name="fetch_cate_products"),
     path('getbanners/',GetBanners.as_view(),name="getbanners"),
     path('add_to_cart/<int:id>/',AddToCart.as_view(),name="add_to_cart"),
+    path('get_cart_data/',GetCartData.as_view(),name="get_cart_data"),
+    path('remove_cart_product/<int:id>/',RemoveCartProduct.as_view(),name="remove_cart_product"),
+    path('cart_size/<int:id>/',CartProductSize.as_view(),name="cart_size"),
+    path('cart_quantity/<int:id>/',CartProductQuantity.as_view(),name="cart_quantity"),
 ]
 
 from django.conf import settings

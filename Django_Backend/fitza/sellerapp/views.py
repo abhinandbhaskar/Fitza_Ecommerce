@@ -277,9 +277,13 @@ class AddProducts(APIView):
     def post(self, request):
         serializer = AddProductsSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save()  # Persist the data
-            return Response({"message": "Products added successfully."}, status=status.HTTP_201_CREATED)
-        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                serializer.save()
+                return Response({"message": "Product added successfully."}, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 from common.models import ProductItem
 
