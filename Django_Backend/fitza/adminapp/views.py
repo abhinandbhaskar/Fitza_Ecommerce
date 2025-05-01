@@ -557,3 +557,76 @@ class EditCoupon(APIView):
             return Response({"message":"Coupon Edited Successfully..."},status=status.HTTP_201_CREATED)
         return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
 
+from adminapp.serializers import AddDiscountCardSerializer,GetDiscountCardSerializer,EditDiscountCardSerializer
+
+class AddDiscountCard(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddDiscountCardSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Discount Card Added Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
+
+
+from sellerapp.models import DiscountCard  
+class GetDiscountCards(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=DiscountCard.objects.all().order_by('-id')
+        serializer=GetDiscountCardSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+class ActiveDeactive(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id, newStatus):
+        if not DiscountCard.objects.filter(id=id).exists():
+            return Response({"message": "Discount Card does not exist."})
+
+        obj = DiscountCard.objects.get(id=id)
+        print("Status:", newStatus)
+
+        # Determine the active status based on the input
+        if newStatus.lower() == "false":
+            active_status = False
+        elif newStatus.lower() == "true":
+            active_status = True
+        else:
+            return Response({"message": "Invalid status provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        obj.is_active = active_status
+        obj.save()
+
+        return Response({"message": "Status changed successfully."}, status=status.HTTP_200_OK)
+
+
+class DeleteDiscountCard(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        user=request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"message":"UnAuthorized User..."},status=status.HTTP_404_NOT_FOUND)
+        if not DiscountCard.objects.filter(id=id).exists():
+            return Response({"message":"DiscountCard does not exists..."})
+        coupondata=DiscountCard.objects.get(id=id)
+        coupondata.delete()
+        return Response({"message":"DiscountCard deleted successfully..."},status=status.HTTP_200_OK)
+
+
+class GetEditDiscountCard(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,id):
+        obj=DiscountCard.objects.filter(id=id)
+        serializer=GetDiscountCardSerializer(obj,many=True)
+        return Response(serializer.data)
+
+class EditDiscountData(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,editCardId):
+        serializer=EditDiscountCardSerializer(data=request.data,context={"request":request,"id":editCardId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"DiscountCard Edited Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)

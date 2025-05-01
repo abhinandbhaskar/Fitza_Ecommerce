@@ -505,5 +505,52 @@ class EditCouponSerializer(serializers.Serializer):
         obj.end_date=self.validated_data["endDate"]
         obj.usage_limit=self.validated_data["usageLimit"]
         obj.save()
-        
-        
+
+
+from sellerapp.models import DiscountCard   
+class AddDiscountCardSerializer(serializers.Serializer):
+    cardName=serializers.CharField()
+    discountPercentage=serializers.IntegerField()
+    startDate=serializers.CharField()
+    endDate=serializers.CharField()
+    isActive=serializers.BooleanField()
+
+    def validate(self, data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    def save(self):
+        DiscountCard.objects.get_or_create(
+        card_name=self.validated_data["cardName"],
+        discount_percentage=self.validated_data["discountPercentage"],
+        start_date=self.validated_data["startDate"],
+        end_date=self.validated_data["endDate"], 
+        is_active=self.validated_data["isActive"],
+        )
+
+from sellerapp.models import DiscountCard  
+class GetDiscountCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=DiscountCard
+        fields='__all__'
+
+
+class EditDiscountCardSerializer(serializers.Serializer):
+    cardName=serializers.CharField()
+    discountPercentage=serializers.IntegerField()
+    startDate=serializers.CharField()
+    endDate=serializers.CharField()
+    def validate(self, data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    def save(self):
+        id=self.context["id"]
+        obj=DiscountCard.objects.get(id=id)
+        obj.card_name=self.validated_data["cardName"]
+        obj.discount_percentage=self.validated_data["discountPercentage"]
+        obj.start_date=self.validated_data["startDate"]
+        obj.end_date=self.validated_data["endDate"]
+        obj.save()
