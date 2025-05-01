@@ -508,6 +508,7 @@ class EditCouponSerializer(serializers.Serializer):
 
 
 from sellerapp.models import DiscountCard   
+
 class AddDiscountCardSerializer(serializers.Serializer):
     cardName=serializers.CharField()
     discountPercentage=serializers.IntegerField()
@@ -554,3 +555,54 @@ class EditDiscountCardSerializer(serializers.Serializer):
         obj.start_date=self.validated_data["startDate"]
         obj.end_date=self.validated_data["endDate"]
         obj.save()
+
+
+from sellerapp.models import FreeShippingOffer
+
+class AddFreeShippingSerializer(serializers.Serializer):
+    id=serializers.IntegerField()
+    minOrderAmount=serializers.IntegerField()
+    description=serializers.CharField()
+    startDate=serializers.CharField()
+    endDate=serializers.CharField()
+    isActive=serializers.BooleanField()
+    def validate(self, data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    def save(self):
+        FreeShippingOffer.objects.get_or_create(
+        min_order_amount=self.validated_data["minOrderAmount"],
+        description=self.validated_data["description"],
+        start_date=self.validated_data["startDate"],
+        end_date=self.validated_data["endDate"],
+        is_active=self.validated_data["isActive"],
+        )
+
+
+class GetFreeShipDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FreeShippingOffer
+        fields='__all__'
+    
+class EditShippingOfferSerializer(serializers.Serializer):
+    id=serializers.IntegerField()
+    minOrderAmount=serializers.IntegerField()
+    description=serializers.CharField()
+    startDate=serializers.CharField()
+    endDate=serializers.CharField()
+    def validate(self, data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    def save(self):
+        id=self.context["id"]
+        obj=FreeShippingOffer.objects.get(id=id)
+        obj.min_order_amount=self.validated_data["minOrderAmount"]
+        obj.description=self.validated_data["description"]
+        obj.start_date=self.validated_data["startDate"]
+        obj.end_date=self.validated_data["endDate"]
+        obj.save()
+  

@@ -4,8 +4,8 @@ from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSe
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
 from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview
 from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon
-from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData
-
+from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData,AddFreeShippingOffer,GetFreeshipOffers,ShipOfferActiveDeactive,DeleteFreeShippingOffer,GetEditFreeShipOffer
+from adminapp.views import EditShippingOfferData
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -53,12 +53,23 @@ urlpatterns = [
     path('delete_coupon/<int:id>/',DeleteCoupon.as_view(),name="delete_coupon"),
     path('get_edit_coupon/<int:id>/',GetEditCoupon.as_view(),name="get_edit_coupon"),
     path('edit_coupon_data/<int:id>/',EditCoupon.as_view(),name="edit_coupon_data"),
+
     path("add_discount_card/",AddDiscountCard.as_view(),name="add_discount_card"),
     path("get_discount_cards/",GetDiscountCards.as_view(),name="get_discount_cards"),
     path('active_deactive/<int:id>/<str:newStatus>/', ActiveDeactive.as_view(), name='active_deactive'),
     path('delete_discount_card/<int:id>/',DeleteDiscountCard.as_view(),name="delete_discount_card"),
     path('get_edit_discount_card/<int:id>/',GetEditDiscountCard.as_view(),name="get_edit_discount_card"),
     path('edit_discount_card/<int:editCardId>/',EditDiscountData.as_view(),name="edit_discount_card"),
+
+
+    path("add_freeshipping_offer/",AddFreeShippingOffer.as_view(),name="add_freeshipping_offer"),
+
+    path("get_freeshipping_offer/",GetFreeshipOffers.as_view(),name="get_freeshipping_offer"),
+    path('shipoffer_active_deactive/<int:id>/<str:newStatus>/', ShipOfferActiveDeactive.as_view(), name='shipoffer_active_deactive'),
+    path('delete_freeshipping_offer/<int:id>/',DeleteFreeShippingOffer.as_view(),name="delete_freeshipping_offer"),
+    path('get_edit_freeshipoffer/<int:id>/',GetEditFreeShipOffer.as_view(),name="get_edit_freeshipoffer"),
+    path('edit_shipping_offer/<int:editOfferId>/',EditShippingOfferData.as_view(),name="edit_shipping_offer"),
+ 
 
 ]
 

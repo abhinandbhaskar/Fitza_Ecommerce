@@ -630,3 +630,82 @@ class EditDiscountData(APIView):
             serializer.save()
             return Response({"message":"DiscountCard Edited Successfully..."},status=status.HTTP_201_CREATED)
         return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
+
+
+from adminapp.serializers import AddFreeShippingSerializer,GetFreeShipDataSerializer
+
+class AddFreeShippingOffer(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddFreeShippingSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Free Shipping Offer Added Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
+
+
+from sellerapp.models import FreeShippingOffer
+class GetFreeshipOffers(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=FreeShippingOffer.objects.all().order_by('-id')
+        serializer=GetFreeShipDataSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+
+class ShipOfferActiveDeactive(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id, newStatus):
+        if not FreeShippingOffer.objects.filter(id=id).exists():
+            return Response({"message": "FreeShippingOffer Card does not exist."})
+
+        obj = FreeShippingOffer.objects.get(id=id)
+        print("Status:", newStatus)
+
+        # Determine the active status based on the input
+        if newStatus.lower() == "false":
+            active_status = False
+        elif newStatus.lower() == "true":
+            active_status = True
+        else:
+            return Response({"message": "Invalid status provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        obj.is_active = active_status
+        obj.save()
+
+        return Response({"message": "Status changed successfully."}, status=status.HTTP_200_OK)
+
+
+class DeleteFreeShippingOffer(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        user=request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"message":"UnAuthorized User..."},status=status.HTTP_404_NOT_FOUND)
+        if not FreeShippingOffer.objects.filter(id=id).exists():
+            return Response({"message":"FreeShippingOffer does not exists..."})
+        freeship=FreeShippingOffer.objects.get(id=id)
+        freeship.delete()
+        return Response({"message":"FreeShippingOffer deleted successfully..."},status=status.HTTP_200_OK)
+
+
+
+class GetEditFreeShipOffer(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,id):
+        obj=FreeShippingOffer.objects.filter(id=id)
+        serializer=GetFreeShipDataSerializer(obj,many=True)
+        return Response(serializer.data)  
+    
+from adminapp.serializers import EditShippingOfferSerializer
+
+class EditShippingOfferData(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,editOfferId):
+        serializer=EditShippingOfferSerializer(data=request.data,context={"request":request,"id":editOfferId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"FreeShippingOffer Edited Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
