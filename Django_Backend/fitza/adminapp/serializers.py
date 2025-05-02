@@ -605,4 +605,105 @@ class EditShippingOfferSerializer(serializers.Serializer):
         obj.start_date=self.validated_data["startDate"]
         obj.end_date=self.validated_data["endDate"]
         obj.save()
-  
+
+
+class ProductSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields=['id','product_name']
+
+from sellerapp.models import ProductOffer
+from common.models import Product
+
+class AddProductOfferSerializer(serializers.Serializer):
+    id=serializers.IntegerField()
+    pid=serializers.IntegerField()
+    productName=serializers.CharField()
+    offerTitle=serializers.CharField()
+    offerDescription=serializers.CharField()
+    discountPercentage=serializers.IntegerField()
+    startDate = serializers.DateField()
+    endDate = serializers.DateField()
+    isActive=serializers.BooleanField()
+
+    def validate(self, data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    def save(self):
+        try:
+            product = Product.objects.get(id=self.validated_data["pid"], product_name=self.validated_data["productName"])
+        except Product.DoesNotExist:
+            raise serializers.ValidationError("Product not found.")
+
+        ProductOffer.objects.get_or_create(
+            product=product,
+            offer_title=self.validated_data["offerTitle"],
+            offer_description=self.validated_data["offerDescription"],
+            discount_percentage=self.validated_data["discountPercentage"],
+            start_date=self.validated_data["startDate"],
+            end_date=self.validated_data["endDate"],
+            is_active=self.validated_data["isActive"],
+        )
+
+class ProductNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields=['id','product_name']
+
+
+from sellerapp.models import ProductOffer
+class GetProductsAllOffersSerializer(serializers.ModelSerializer):
+    product = ProductNameSerializer()
+
+    class Meta:
+        model=ProductOffer
+        fields=['id','offer_title','offer_description','discount_percentage','start_date','end_date','is_active','product']
+
+
+from rest_framework import serializers
+from django.shortcuts import get_object_or_404
+from datetime import datetime
+# from .models import Product, ProductOffer, CustomUser  # Adjust imports as needed
+
+class EditProductOfferSerializer(serializers.Serializer):
+    pid = serializers.IntegerField()
+    productname = serializers.CharField(max_length=255)
+    offer_title = serializers.CharField(max_length=255)
+    offer_description = serializers.CharField(max_length=1000)
+    discount_percentage = serializers.FloatField()
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Unauthorized User...")
+
+        # Validate that start_date is before end_date
+        if data["start_date"] >= data["end_date"]:
+            raise serializers.ValidationError("Start date must be before end date.")
+        
+        # Validate discount percentage range
+        if not (0 <= data["discount_percentage"] <= 100):
+            raise serializers.ValidationError("Discount percentage must be between 0 and 100.")
+
+        return data
+
+    def save(self):
+        id = self.context["id"]
+        validated_data = self.validated_data
+
+        # Fetch product and offer safely
+        product = get_object_or_404(Product, id=validated_data["pid"], product_name=validated_data["productname"])
+        product_offer = get_object_or_404(ProductOffer, id=id)
+
+        # Update offer details
+        product_offer.product = product
+        product_offer.offer_title = validated_data["offer_title"]
+        product_offer.offer_description = validated_data["offer_description"]
+        product_offer.discount_percentage = validated_data["discount_percentage"]
+        product_offer.start_date = validated_data["start_date"]
+        product_offer.end_date = validated_data["end_date"]
+        product_offer.save()

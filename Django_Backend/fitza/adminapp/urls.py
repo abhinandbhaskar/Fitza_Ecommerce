@@ -5,7 +5,7 @@ from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategor
 from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview
 from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon
 from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData,AddFreeShippingOffer,GetFreeshipOffers,ShipOfferActiveDeactive,DeleteFreeShippingOffer,GetEditFreeShipOffer
-from adminapp.views import EditShippingOfferData
+from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -69,7 +69,21 @@ urlpatterns = [
     path('delete_freeshipping_offer/<int:id>/',DeleteFreeShippingOffer.as_view(),name="delete_freeshipping_offer"),
     path('get_edit_freeshipoffer/<int:id>/',GetEditFreeShipOffer.as_view(),name="get_edit_freeshipoffer"),
     path('edit_shipping_offer/<int:editOfferId>/',EditShippingOfferData.as_view(),name="edit_shipping_offer"),
- 
+    path('get_select_all_products/',GetSelectAllProducts.as_view(),name="get_select_all_products"),
+
+    path("add_product_offer/",AddProductOffer.as_view(),name="add_product_offer"),
+
+    path("get_Productsall_offers/",GetProductsAllOffers.as_view(),name="get_Productsall_offers"),
+    
+    path('delete_product_offer/<int:offerId>/',DeleteProductOffer.as_view(),name="delete_product_offer"),
+
+    path('offer_active_deactive/<int:id>/<str:newStatus>/', ProductOfferActiveDeactive.as_view(), name='offer_active_deactive'),
+    path('get_editproduct_offer/<int:offerid>/',GetEditProductOffer.as_view(),name="get_editproduct_offer"),
+    
+    path('edit_product_offer/<int:editingOfferId>/',EditProductOffers.as_view(),name="edit_product_offer"),
+
+    
+
 
 ]
 

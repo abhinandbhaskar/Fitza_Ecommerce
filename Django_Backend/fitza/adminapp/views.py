@@ -699,7 +699,7 @@ class GetEditFreeShipOffer(APIView):
         serializer=GetFreeShipDataSerializer(obj,many=True)
         return Response(serializer.data)  
     
-from adminapp.serializers import EditShippingOfferSerializer
+from adminapp.serializers import EditShippingOfferSerializer,AddProductOfferSerializer
 
 class EditShippingOfferData(APIView):
     permission_classes=[IsAuthenticated]
@@ -708,4 +708,89 @@ class EditShippingOfferData(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({"message":"FreeShippingOffer Edited Successfully..."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
+
+from adminapp.serializers import ProductSelectSerializer
+from common.models import Product
+class GetSelectAllProducts(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Product.objects.all()
+        serializer=ProductSelectSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+class AddProductOffer(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        print("Request Data:", request.data)  # Debug incoming data
+        serializer = AddProductOfferSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            print("Saved successfully.")
+            return Response({"message": "ProductOffer Added Successfully..."}, status=status.HTTP_201_CREATED)
+        print("Serializer Errors:", serializer.errors)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+from sellerapp.models import ProductOffer
+from adminapp.serializers import GetProductsAllOffersSerializer,EditProductOfferSerializer
+
+class GetProductsAllOffers(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ProductOffer.objects.all().order_by('-id')
+        serializer=GetProductsAllOffersSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+class DeleteProductOffer(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,offerId):
+        user=request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"message":"UnAuthorized User..."},status=status.HTTP_404_NOT_FOUND)
+        if not ProductOffer.objects.filter(id=offerId).exists():
+            return Response({"message":"ProductOffer does not exists..."})
+        freeship=ProductOffer.objects.get(id=offerId)
+        freeship.delete()
+        return Response({"message":"ProductOffer deleted successfully..."},status=status.HTTP_200_OK)
+
+class ProductOfferActiveDeactive(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id, newStatus):
+        if not ProductOffer.objects.filter(id=id).exists():
+            return Response({"message": "ProductOffer does not exist."})
+
+        obj = ProductOffer.objects.get(id=id)
+        print("Status:", newStatus)
+
+        # Determine the active status based on the input
+        if newStatus.lower() == "false":
+            active_status = False
+        elif newStatus.lower() == "true":
+            active_status = True
+        else:
+            return Response({"message": "Invalid status provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        obj.is_active = active_status
+        obj.save()
+
+        return Response({"message": "Status changed successfully."}, status=status.HTTP_200_OK)
+
+
+class GetEditProductOffer(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,offerid):
+        obj=ProductOffer.objects.filter(id=offerid)
+        serializer=GetProductsAllOffersSerializer(obj,many=True)
+        return Response(serializer.data)  
+
+class EditProductOffers(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,editingOfferId):
+        serializer=EditProductOfferSerializer(data=request.data,context={"request":request,"id":editingOfferId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Product Offer Edited Successfully..."},status=status.HTTP_201_CREATED)
         return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
