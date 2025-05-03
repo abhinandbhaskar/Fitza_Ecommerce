@@ -4,7 +4,9 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
-from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity
+from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode
+
+from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -35,7 +37,13 @@ urlpatterns = [
     path('get_cart_data/',GetCartData.as_view(),name="get_cart_data"),
     path('remove_cart_product/<int:id>/',RemoveCartProduct.as_view(),name="remove_cart_product"),
     path('cart_size/<int:id>/',CartProductSize.as_view(),name="cart_size"),
+    
     path('cart_quantity/<int:id>/',CartProductQuantity.as_view(),name="cart_quantity"),
+    path('apply_coupon_code/',ApplyCouponCode.as_view(),name="apply_coupon_code"),
+
+    path('create-razorpay-order/', CreateRazorpayOrder.as_view(), name='create_razorpay_order'),
+    path('order-payment/', OrderPayment.as_view(), name='order_payment'),
+    path('razorpay/callback/', RazorpayCallback.as_view(), name='razorpay_callback'),
 ]
 
 from django.conf import settings

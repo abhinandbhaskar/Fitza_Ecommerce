@@ -13,8 +13,10 @@ const ShippingAddress = () => {
     const [state, setState] = useState("");
     const [mobile, setMobile] = useState("");
     const { accessToken } = useSelector((state) => state.auth);
+
+
     useEffect(() => {
-        const fetchBillingAddress = async () => {
+        const fetchShippingAddress = async () => {
             try {
                 const response = await fetch("https://127.0.0.1:8000/api/getShippingAddress/", {
                     method: "GET",
@@ -41,7 +43,7 @@ const ShippingAddress = () => {
                 console.log("Yes");
             }
         };
-        fetchBillingAddress();
+        fetchShippingAddress();
     }, []);
 
     const handleSubmit = async (e) => {

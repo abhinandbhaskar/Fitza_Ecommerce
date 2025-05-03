@@ -92,6 +92,7 @@ const ProductsOfferSection = () => {
           alert(response.data.message);
           console.log(response);
           console.log(response.data);
+          fetchProductsOffer();
         } catch (errors) {
           console.error(errors.response || errors);
         }

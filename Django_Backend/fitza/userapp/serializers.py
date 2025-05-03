@@ -556,39 +556,58 @@ class AddToCartSIzeSerializer(serializers.Serializer):
 
 
 
+class AddToCartQntySerializer(serializers.ModelSerializer):
+    qnty = serializers.IntegerField(write_only=True)
 
+    class Meta:
+        model = ShoppingCartItem
+        fields = ['qnty']
 
-
-
-class AddToCartQntySerializer(serializers.Serializer):
-    # size = serializers.CharField()
-    qnty = serializers.IntegerField()
-
-    def validate(self, data):
-        user = self.context["request"].user
-        if not user.is_authenticated:
-            raise serializers.ValidationError("Unauthorized user.")
-        product_id = self.context.get("id")
-        if not ProductItem.objects.filter(id=product_id).exists():
-            raise serializers.ValidationError("Invalid product ID.")
-        return data
-
-    def save(self, **kwargs):
+    def create(self, validated_data):
+        # Extracting user and product information from the context
         user = self.context["request"].user
         product_id = self.context["id"]
 
-        shopping_cart, created = ShoppingCart.objects.get_or_create(user=user)
-
+        # Fetching or creating the shopping cart for the user
+        shopping_cart, _ = ShoppingCart.objects.get_or_create(user=user)
         product = ProductItem.objects.get(id=product_id)
 
+        # Checking if the item already exists in the cart
         cart_item, created = ShoppingCartItem.objects.get_or_create(
             shopping_cart=shopping_cart,
-            product_item=product,
-            defaults={"quantity": self.validated_data["qnty"]}
+            product_item=product
         )
 
-        if not created:
-            cart_item.quantity += self.validated_data["qnty"]
-            cart_item.save()
+        # Updating the quantity
+        cart_item.quantity = validated_data["qnty"]
+        cart_item.save()
+
+        return cart_item
 
 
+
+from common.models import Coupon
+
+class CouponValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Coupon
+        fields=["discount_value","minimum_order_amount","code","discount_type"]
+
+class ApplyCouponCodeSerializer(serializers.Serializer):
+    couponcode=serializers.CharField()
+
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User..")
+        couponcode=data["couponcode"]
+        if not Coupon.objects.filter(code=couponcode).exists():
+            raise serializers.ValidationError("Incorrect Coupon code...")
+        
+        coupon=Coupon.objects.get(code=couponcode)
+        
+        data["coupon"] = coupon
+        return data
+  
+
+        

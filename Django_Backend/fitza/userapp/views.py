@@ -428,7 +428,7 @@ class GetCartData(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
         user=self.request.user
-        obj=ShoppingCartItem.objects.filter(shopping_cart__user=user)
+        obj=ShoppingCartItem.objects.filter(shopping_cart__user=user).order_by('-id')
         serializer=GetCartDataSerializer(obj,many=True)
         return Response(serializer.data)
     
@@ -467,9 +467,123 @@ class CartProductSize(APIView):
 
 class CartProductQuantity(APIView):
     permission_classes=[IsAuthenticated]
-    def post(self,request,id):
-        serializer=AddToCartQntySerializer(data=request.data,context={"request":request,"id":id})
+    def post(self, request, id):
+            # Instantiate the serializer with the request data and context
+            serializer = AddToCartQntySerializer(data=request.data, context={"request": request, "id": id})
+
+            if serializer.is_valid():
+                # Save the validated data to trigger the create logic
+                serializer.save()
+                return Response({"message": "Cart updated successfully!"}, status=status.HTTP_200_OK)
+
+            # Return errors if validation fails
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from userapp.serializers import ApplyCouponCodeSerializer,CouponValueSerializer
+
+class ApplyCouponCode(APIView):
+    def post(self,request):
+        serializer=ApplyCouponCodeSerializer(data=request.data,context={"request":request})
         if serializer.is_valid():
-            serializer.save()
-            return Response({"message":"Quantity added to cart."},status=status.HTTP_201_CREATED)
-        return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
+            coupon = serializer.validated_data["coupon"]
+            coupon_data = CouponValueSerializer(coupon).data
+            return Response({"message":"Coupon Applied Successfully..","coupon":coupon_data},status=status.HTTP_200_OK)
+        return Response({"errors":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+#razor pay
+
+import razorpay
+
+from django.conf import settings
+# client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_SECRET_KEY))
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.conf import settings
+import razorpay
+from common.models import ShopOrder  # Use your ShopOrder model
+
+class CreateRazorpayOrder(APIView):
+    def post(self, request, *args, **kwargs):
+        # Get the amount from the request data
+        amount = float(request.data.get('amount')) * 100  # Convert to paise (1 INR = 100 paise)
+
+        # print("RAZORPAY_KEY_ID in views:", settings.RAZORPAY_KEY_ID)
+        # print("RAZORPAY_SECRET_KEY in views:", settings.RAZORPAY_SECRET_KEY)
+
+        # client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_SECRET_KEY))
+        client = razorpay.Client(auth=('rzp_test_i9OIDqpDUXsLFj','NDb2BIjzVZ8dyqjBAV1r1TnM'))
+
+        # Create the Razorpay order
+        order_data = {
+            'amount': amount,
+            'currency': 'INR',
+            'payment_capture': '1',  # Automatically capture payment
+        }
+        order = client.order.create(data=order_data)
+
+        # Return the order ID to the frontend
+        return Response({"order_id": order['id']}, status=status.HTTP_201_CREATED)
+
+class OrderPayment(APIView):
+    def post(self, request, *args, **kwargs):
+        user = request.user  # Assuming the user is authenticated
+        amount = request.data.get("amount")
+
+        # Initialize Razorpay client with your API keys
+        # client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        client = razorpay.Client(auth=('rzp_test_i9OIDqpDUXsLFj','NDb2BIjzVZ8dyqjBAV1r1TnM'))
+
+
+        # Create the Razorpay order
+        razorpay_order = client.order.create(
+            {"amount": int(amount) * 100, "currency": "INR", "payment_capture": "1"}
+        )
+
+        # Save order details in your ShopOrder model
+        order = ShopOrder.objects.create(
+            user=user,
+            order_total=amount,
+            final_total=amount,  # Adjust based on discounts or calculations
+        )
+        order.save()
+
+        # Return the necessary data as a JSON response
+        return Response({
+            "callback_url": "http://127.0.0.1:8000/razorpay/callback/",
+            "razorpay_key": settings.RAZORPAY_KEY_ID,
+            "order_id": razorpay_order["id"],
+        }, status=status.HTTP_201_CREATED)
+
+class RazorpayCallback(APIView):
+    def get(self, request, *args, **kwargs):
+        # Fetch the Razorpay payment details using payment ID from the query params
+        payment_id = request.GET.get('payment_id')
+        order_id = request.GET.get('order_id')
+
+        # Initialize Razorpay client
+        # client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        client = razorpay.Client(auth=('rzp_test_i9OIDqpDUXsLFj','NDb2BIjzVZ8dyqjBAV1r1TnM'))
+
+
+        # Verify payment signature (this is for security and payment verification)
+        payment = client.payment.fetch(payment_id)
+
+        if payment['status'] == 'captured':
+            # Payment was successful, update the order status in your DB
+            order = ShopOrder.objects.get(id=order_id)  # Adjust query if needed
+            order.payment_method = "Online Payment"  # Example placeholder
+            order.order_status = "Paid"  # Assuming you map statuses to OrderStatus objects
+            order.save()
+
+            # Return success message
+            return Response({"message": "Payment successful!"}, status=status.HTTP_200_OK)
+        else:
+            # Payment failed, handle the failure case
+            return Response({"message": "Payment failed!"}, status=status.HTTP_400_BAD_REQUEST)

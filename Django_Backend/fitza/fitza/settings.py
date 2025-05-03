@@ -155,6 +155,18 @@ SESSION_COOKIE_AGE = 1209600  # Two weeks, in seconds
 
 SESSION_SAVE_EVERY_REQUEST = True  # Extends session expiry on each request
 
+# razorpay
+
+import os
+
+# Razorpay API Configuration
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_SECRET_KEY = os.getenv("RAZORPAY_SECRET_KEY")
+
+# print("RAZORPAY_KEY_ID:", RAZORPAY_KEY_ID)
+# print("RAZORPAY_SECRET_KEY:", RAZORPAY_SECRET_KEY)
+
+
  # Allow cross-site cookies
 
 CORS_ALLOW_ALL_ORIGINS=True

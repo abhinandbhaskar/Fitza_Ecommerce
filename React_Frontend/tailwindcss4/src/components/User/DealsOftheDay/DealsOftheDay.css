@@ -68,15 +68,15 @@
     padding: 6px;
 }
 .card{
-    height: 260px;
-    width: 200px;
+    height: 230px;
+    width: 180px;
     background-color: white;
     border-radius: 16px;
     border: 2px solid rgba(188, 182, 182, 0.932);
 }
 .card img{
-    height: 200px;
-    width: 200px;
+    height: 190px;
+    width: 190px;
     padding: 10px;
     border-radius: 18px;
 }
