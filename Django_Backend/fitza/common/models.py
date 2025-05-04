@@ -359,7 +359,6 @@ class PaymentGatewayConfig(models.Model):
     api_secret = models.CharField(max_length=255)
     callback_url = models.URLField()
     enabled = models.BooleanField(default=True)  # To toggle availability
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

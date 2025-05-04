@@ -188,7 +188,7 @@ const handleSearch = (e) => {
                             {key.replace("Wear", "").toUpperCase()}
                         </button>
                     ))}
-                    <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
+                    <Link to="/offerproduct" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
                         OFFERS
                     </Link>
                     <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">

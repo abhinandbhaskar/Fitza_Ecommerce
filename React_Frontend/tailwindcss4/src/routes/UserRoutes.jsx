@@ -12,6 +12,7 @@ import HandleRedirect from "../pages/User/HandleRedirect/HandleRedirect";
 import WishlistPage from "../pages/User/WishlistPage/WishlistPage";
 import CategoryProducts from "../pages/User/CategoryProducts/CategoryProducts";
 import CartPage from "../pages/User/CartPage/CartPage";
+import OfferSection from "../pages/User/OfferSection/OfferSection";
 
 const UserRoutes = () => {
   return (
@@ -29,6 +30,7 @@ const UserRoutes = () => {
           <Route path="/wishlistview" element={<WishlistPage/>}/>
           <Route path="/categoryproduct/:pro_name" element={<CategoryProducts/>} />
           <Route path="/cartpage" element={<CartPage/>} />
+          <Route path="/offerproduct" element={<OfferSection/>} />
       </Routes>  
     </>
   )

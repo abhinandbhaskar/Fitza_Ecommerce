@@ -6,7 +6,7 @@ from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
 from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode
 
-from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback
+from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -44,6 +44,9 @@ urlpatterns = [
     path('create-razorpay-order/', CreateRazorpayOrder.as_view(), name='create_razorpay_order'),
     path('order-payment/', OrderPayment.as_view(), name='order_payment'),
     path('razorpay/callback/', RazorpayCallback.as_view(), name='razorpay_callback'),
+
+    path('offer_products/',OfferProducts.as_view(),name="offer_products"),
+    path('initial_order/',AddInitialOrder.as_view(),name="initial_order"),
 ]
 
 from django.conf import settings

@@ -16,7 +16,7 @@ const PaymentSection = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        amount: 200, // The amount you want to pass from the state or input
+        amount: 2, // The amount you want to pass from the state or input
       }),
     });
 
@@ -48,9 +48,6 @@ const PaymentSection = () => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",window.Razorpay); // Should log the Razorpay constructor
-  // }, []); // Run only once after the component mounts
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row gap-8 p-6 lg:px-[200px] lg:p-10">

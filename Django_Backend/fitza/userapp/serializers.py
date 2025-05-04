@@ -610,4 +610,94 @@ class ApplyCouponCodeSerializer(serializers.Serializer):
         return data
   
 
-        
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['main_image']
+
+class ProductItemSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True)  # Use `many=True` to handle multiple related images 
+
+    class Meta:
+        model = ProductItem
+        fields = ['id','images'] 
+
+class ProductsDetailsSerializer(serializers.ModelSerializer):
+    items=ProductItemSerializer(many=True)
+    class Meta:
+        model=Product
+        fields='__all__'
+
+from sellerapp.models import ProductOffer
+class OfferProductsSerializer(serializers.ModelSerializer):
+    product=ProductsDetailsSerializer(read_only=True)
+
+    class Meta:
+        model=ProductOffer
+        fields=['id','offer_title','offer_description','discount_percentage','start_date','end_date','product']
+
+from common.models import OrderStatus,ShopOrder
+from userapp.models import OrderLine
+
+class AddInitialOrderSerializer(serializers.Serializer):
+    order_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    final_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    discount_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0.00)
+    free_shipping_applied = serializers.BooleanField(default=False)
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not user.is_authenticated:
+            raise serializers.ValidationError("Unauthorized User.")
+        return data
+
+    def save(self):
+        user = self.context["request"].user
+        try:
+            # Ensure the "Pending Payment" status exists
+            pending_status, created = OrderStatus.objects.get_or_create(status="Pending Payment")
+            if created:
+                print("Created 'Pending Payment' status")
+
+            # Create the order
+            order = ShopOrder.objects.create(
+                user=user,
+                order_status=pending_status,
+                order_total=self.validated_data["order_total"],
+                discount_amount=self.validated_data.get("discount_amount", 0.00),
+                final_total=self.validated_data["final_total"],
+                free_shipping_applied=self.validated_data.get("free_shipping_applied", False),
+            )
+
+            # Fetch the user's shopping cart
+            shopping_cart = ShoppingCart.objects.get(user=user)
+
+            # Fetch all items in the shopping cart
+            cart_items = shopping_cart.cart_items.all()
+
+            # Initialize a total variable for validation
+            calculated_order_total = 0
+
+            # Loop through the cart items and create corresponding order lines
+            for cart_item in cart_items:
+                # Create order line for each cart item
+                OrderLine.objects.create(
+                    order=order,
+                    product_item=cart_item.product_item,
+                    quantity=cart_item.quantity,
+                    price=cart_item.product_item.sale_price or cart_item.product_item.original_price
+                )
+                # Add to calculated order total
+                calculated_order_total += cart_item.quantity * (cart_item.product_item.sale_price or cart_item.product_item.original_price)
+
+            # Ensure the calculated total matches the provided order total
+            if calculated_order_total != order.order_total:
+                raise serializers.ValidationError("Calculated order total does not match provided order total.")
+
+            return order
+
+        except OrderStatus.DoesNotExist:
+            raise serializers.ValidationError("Order status 'Pending Payment' is not configured.")
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to create order: {str(e)}")

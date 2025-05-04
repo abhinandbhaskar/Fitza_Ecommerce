@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+
+import {updateShopOrder} from "../../../../redux/ShopOrderSlice";
+
 const CartSection = ({ setCartView }) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [cartdata, setCartData] = useState([]);
@@ -15,6 +19,8 @@ const CartSection = ({ setCartView }) => {
     const [couponMinOrder, setCouponMinOrder] = useState(0);
     const [discountValue, setDiscountValue] = useState(0);
     const [coupontype, setCouponType] = useState("");
+
+    const dispatch = useDispatch();
 
     const fetchData = async () => {
         try {
@@ -165,6 +171,33 @@ const CartSection = ({ setCartView }) => {
             alert(errors.response.data.errors.non_field_errors[0]);
         }
     };
+
+    const HandleCheckOut=async()=>{
+        setCartView("address")
+
+        const discount=20;
+        const shipsts=false;
+        const orderData={
+            "order_total":totalPrice,
+            "final_total":orderTotal, 
+            "discount_amount":discount,
+            "free_shipping_applied":shipsts,
+        }
+
+        try{
+            const response=await axios.post("https://127.0.0.1:8000/api/initial_order/",orderData,{
+                headers:{
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            });
+            console.log(response);
+            console.log(response.data);
+        }catch(errors)
+        {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+    }
 
     return (
         <div>
@@ -317,9 +350,9 @@ const CartSection = ({ setCartView }) => {
                             <span>₹ {orderTotal}</span>
                         </div>
 
-                        {/* Checkout Button */}
+                        {/* Checkout Button */} 
                         <button
-                            onClick={() => setCartView("address")}
+                            onClick={() =>HandleCheckOut()}
                             className="w-full bg-blue-600 text-white py-2 rounded-md shadow-md hover:bg-blue-700 transition"
                         >
                             Proceed to Checkout

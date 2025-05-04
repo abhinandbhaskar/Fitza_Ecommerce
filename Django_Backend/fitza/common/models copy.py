@@ -38,3 +38,49 @@
 #         return f"OrderLine - {self.product_item.name} (Order ID : {self.order.id})"
     
 
+
+# class Payment(models.Model):
+#     PAYMENT_STATUS_CHOICES = [
+#     ('pending', 'Pending'),
+#     ('completed', 'Completed'),
+#     ('failed', 'Failed'),
+#     ('refunded', 'Refunded'),
+#     ('disputed', 'Disputed'),
+#     ]
+#     PAYOUT_STATUS_CHOICES = [
+#     ('pending', 'Pending'),
+#     ('completed', 'Completed'),
+#     ('failed', 'Failed'),
+#     ]
+#     order = models.ForeignKey(ShopOrder, on_delete=models.CASCADE, related_name='payments')
+#     payment_method = models.CharField(max_length=50)
+#     status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
+#     transaction_id = models.CharField(max_length=100)
+#     amount = models.DecimalField(max_digits=10, decimal_places=2)
+#     payment_date = models.DateTimeField(auto_now_add=True)  # Tracks when the payment was made
+#     gateway_response = models.JSONField(null=True, blank=True)  # Stores the raw response from the payment gateway
+#     currency = models.CharField(max_length=10, default='USD')  # Tracks the currency of the payment
+#     platform_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     seller_payout = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+#     payout_status = models.CharField(max_length=50, choices=PAYOUT_STATUS_CHOICES, default='pending')
+#     payout_date = models.DateTimeField(null=True, blank=True)  # When the payout was processed
+
+#     def __str__(self):
+#         return f"Payment {self.transaction_id} for Order {self.order.id}"
+
+
+
+# class Shipping(models.Model):
+#     SHIPPING_STATUS_CHOICES=[
+#     ('pending', 'Pending'),
+#     ('shipped', 'Shipped'),
+#     ('delivered', 'Delivered'),
+#     ('failed', 'Failed')]
+#     order = models.OneToOneField(ShopOrder, on_delete=models.CASCADE, related_name='shipping')
+#     shipping_address = models.ForeignKey(UserAddress, on_delete=models.CASCADE)
+#     tracking_id = models.CharField(max_length=255, null=True, blank=True)  
+#     status = models.CharField(
+#         max_length=50, 
+#         choices=SHIPPING_STATUS_CHOICES
+#     )
+
