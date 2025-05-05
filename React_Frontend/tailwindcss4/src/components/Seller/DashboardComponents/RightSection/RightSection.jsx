@@ -13,6 +13,7 @@ import AddProducts3 from "../ProductsSection/ProductSectionComponents/AddProduct
 import ReviewSection from "../ReviewSection/ReviewSection";
 import ComplaintSection from "../ComplaintSection/ComplaintSection";
 import FollowUpPage from "../ComplaintSection/FollowUpPage/FollowUpPage ";
+import QandaSection from "../QandaSection/QandaSection";
 
 
 const RightSection = ({currentView,setCurrentView}) => {
@@ -23,6 +24,7 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="ratings" && <ReviewSection/> }
       {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView}/> }
       {currentView==="followup" && <FollowUpPage/>}
+      {currentView==="qanda" && <QandaSection/>}
     
 
 

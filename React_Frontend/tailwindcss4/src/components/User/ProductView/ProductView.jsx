@@ -4,6 +4,7 @@ import AdditionalInfo from "../../User/ProductView/ProductViewSections/Additiona
 import AddReview from "../../User/ProductView/ProductViewSections/AddReview";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import QandAsection from "./ProductViewSections/QandAsection";
 function ProductPage({ product }) {
     const [addInfoToggle, setAddInfoToggle] = useState("addInfo");
     const {accessToken}=useSelector((state)=>state.auth);
@@ -165,11 +166,23 @@ function ProductPage({ product }) {
                         >
                             Add Review
                         </button>
+
+                        <button
+                            className={`px-4 py-2 rounded-lg ${
+                                addInfoToggle === "QandA" ? "bg-green-600 text-white" : "bg-gray-200"
+                            }`}
+                            onClick={() => setAddInfoToggle("QandA")}
+                        >
+                            Q&A
+                        </button>
+
+
                     </div>
 
                     {/* Conditional rendering */}
                     {addInfoToggle === "addInfo" && <AdditionalInfo product={product} />}
                     {addInfoToggle === "AddReview" && <AddReview product={product} />}
+                    {addInfoToggle === "QandA" && <QandAsection product={product} />}
                 </div>
             </div>
         </div>

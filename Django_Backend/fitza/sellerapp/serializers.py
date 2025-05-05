@@ -485,3 +485,41 @@ class RatingReviewSerializer(serializers.ModelSerializer):
                         main_image = product_images.first().main_image
                         return main_image.url if main_image else None
             return None
+
+class ProductQuestionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields='__all__'
+
+from userapp.models import Question
+class ViewUserQuestionsSerializer(serializers.ModelSerializer):
+    product=ProductQuestionsSerializer(read_only=True)
+
+    class Meta:
+        model=Question
+        fields='__all__'
+
+from userapp.models import Answer,Question
+class UserAnswerSerializer(serializers.Serializer):
+    qid = serializers.IntegerField()
+    answer = serializers.CharField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            print("Validation failed: Unauthorized user.")
+            raise serializers.ValidationError({"user": "Unauthorized user."})
+        return data
+
+    def save(self):
+        user = self.context["request"].user
+        try:
+            questionobj = Question.objects.get(id=self.validated_data["qid"])
+        except Question.DoesNotExist:
+            raise serializers.ValidationError({"qid": "Invalid question ID."})
+
+        Answer.objects.create(
+            question=questionobj,
+            answered_by=user,
+            answer_text=self.validated_data["answer"]
+        )

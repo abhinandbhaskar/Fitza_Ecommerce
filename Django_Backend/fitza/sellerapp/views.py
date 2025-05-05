@@ -337,5 +337,26 @@ class ViewUserReviews(APIView):
         serializer=RatingReviewSerializer(obj,many=True)
         return Response(serializer.data)
 
+from sellerapp.serializers import ViewUserQuestionsSerializer
+from userapp.models import Question
+class ViewUserQuestions(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Question.objects.all()
+        serilizer=ViewUserQuestionsSerializer(obj,many=True)
+        return Response(serilizer.data)
 
 
+from sellerapp.serializers import UserAnswerSerializer
+class UserAnswer(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        serializer = UserAnswerSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response({"message": "Replayed successfully."}, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

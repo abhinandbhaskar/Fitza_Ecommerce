@@ -775,3 +775,32 @@ class PaymentSerializer(serializers.Serializer):
         except Exception as e:
             print("Error occurred while saving:", str(e))
             raise serializers.ValidationError({"detail": str(e)})
+
+
+from userapp.models import Question
+class AskQuestionSerializer(serializers.Serializer):
+    pid = serializers.IntegerField()  
+    question = serializers.CharField(max_length=500)
+    def validate(self,data):
+        user = self.context["request"].user
+        if not user.is_authenticated:
+            raise serializers.ValidationError("Unauthorized User.")
+      
+        try:
+            product = Product.objects.get(id=data["pid"])
+        except Product.DoesNotExist:
+            raise serializers.ValidationError("product not found.")
+        
+        data["product"]=product
+        return data
+    
+    
+    def save(self):
+        user = self.context["request"].user
+        product = self.validated_data["product"]
+        question=Question.objects.create(
+            user=user,
+            product=product,
+            question_text=self.validated_data["question"],
+        )
+        return question
