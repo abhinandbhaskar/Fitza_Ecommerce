@@ -566,7 +566,8 @@ class OrderPayment(APIView):
         callback=razorpay_config.callback_url
 
         return Response({
-            "callback_url": "https://127.0.0.1:8000/razorpay/callback/",
+            # "callback_url": "https://127.0.0.1:8000/razorpay/callback/",
+            "callback_url": "http://127.0.0.1:8000/razorpay/callback/",
             # "callback_url": callback,
             "razorpay_key": settings.RAZORPAY_KEY_ID,
             "order_id": razorpay_order["id"],
@@ -603,7 +604,80 @@ class AddInitialOrder(APIView):
     def post(self,request):
         serializer=AddInitialOrderSerializer(data=request.data,context={"request":request})
         if serializer.is_valid():
-            serializer.save()
-            return Response({"message":"Initial Order added successfully..."},status=status.HTTP_200_OK)
+            order = serializer.save()
+            return Response({"message":"Initial Order added successfully...", "order_id": order.id},status=status.HTTP_200_OK)
         return Response({"errors":"Error Occured "},status=status.HTTP_400_BAD_REQUEST)
     
+
+from common.models import Shipping,Payment,UserAddress
+
+from userapp.serializers import PaymentSerializer
+
+class SavePaymentDetails(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, cartId):
+        print("Received Data:", request.data)
+        print("CARTIDAAAAAAAAD",cartId)
+        serializer=PaymentSerializer(data=request.data,context={"request":request,"cartId":cartId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Payment and shipping details saved successfully."},status=status.HTTP_201_CREATED)
+        return Response({"errors":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+
+
+
+        # try:
+        #     # Validate Payment Data
+        #     payment_serializer = PaymentSerializer(data=request.data)
+        #     if not payment_serializer.is_valid():
+        #         print("XXXXXXXXX",payment_serializer.errors)
+        #         return Response(payment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        #     # Get the validated data
+        #     validated_data = payment_serializer.validated_data
+            
+        #     # Get the order
+        #     try:
+        #         order = ShopOrder.objects.get(id=cartId)
+        #     except ShopOrder.DoesNotExist:
+        #         return Response({"error": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
+            
+        #     # Get User Address
+        #     try:
+        #         addressobj = UserAddress.objects.get(user=user)
+        #     except UserAddress.DoesNotExist:
+        #         return Response({"error": "User address not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        #     # Create Payment Object
+        #     payment = Payment.objects.create(
+        #         order=order,
+        #         payment_method=validated_data['payment_method'],
+        #         status=validated_data['status'],
+        #         transaction_id=validated_data['transaction_id'],
+        #         amount=validated_data['amount'],
+        #         gateway_response=validated_data['gateway_response'],
+        #         currency=validated_data['currency'],
+        #         platform_fee=validated_data.get('platform_fee', 0.00),
+        #         seller_payout=validated_data.get('seller_payout', 0.00),
+        #     )
+
+        #     # Create Shipping Object
+        #     shipping = Shipping.objects.create(
+        #         order=order,
+        #         shipping_address=addressobj,
+        #         status="pending",
+        #         tracking_id=validated_data.get('tracking_id', "DEFAULT_TRACKING_ID"),
+        #     )
+
+        #     # Update Order Details
+        #     order.payment_method = payment
+        #     order.shipping_address = shipping.shipping_address
+        #     order.save()
+
+        #     return Response(
+        #         {"message": "Payment and shipping details saved successfully."},
+        #         status=status.HTTP_201_CREATED
+        #     )
+
+        # except Exception as e:
+        #     return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

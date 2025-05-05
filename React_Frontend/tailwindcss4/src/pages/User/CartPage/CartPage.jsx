@@ -7,6 +7,7 @@ import PaymentSection from "../../../components/User/CartComponents/PaymentSecti
 
 const CartPage = () => {
     const[cartView,setCartView]=useState("cart");
+    const[cartId,setCartId]=useState(null);
 
 
   return (
@@ -37,7 +38,7 @@ const CartPage = () => {
           </div>
         </div>
         {cartView==="cart" && (
-            <CartSection setCartView={setCartView}/>
+            <CartSection setCartView={setCartView} setCartId={setCartId}/>
         )}
 
         {
@@ -47,7 +48,7 @@ const CartPage = () => {
         }
                 {
             cartView==="payment"&&(
-                <PaymentSection/>
+                <PaymentSection cartId={cartId} setCartId={setCartId}/>
             )
         }
 

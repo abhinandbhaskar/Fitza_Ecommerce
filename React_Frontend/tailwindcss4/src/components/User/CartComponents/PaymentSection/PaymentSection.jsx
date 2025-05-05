@@ -1,10 +1,43 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
-const PaymentSection = () => {
+const PaymentSection = ({cartId,setCartId}) => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [orderId, setOrderId] = useState(null);
   const{accessToken}=useSelector((state)=>state.auth);
+
+  const savePaymentDetails = async (paymentDetails) => {
+    console.log("PAYMENT DETAILSSSSSSSSSSSSSSSSS", paymentDetails);
+    try {
+      const response = await fetch(`https://127.0.0.1:8000/api/save-payment-details/${cartId}/`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`, // Ensure accessToken is valid
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentDetails),
+      });
+  
+      console.log("Response Status:", response.status); // Log HTTP status code
+  
+      // Check response status
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Payment details saved successfully:", data);
+        setCartId(null); // Reset cartId if payment is successful
+        // Handle further actions like updating the UI or triggering a shipping API
+      } else {
+        console.error("Failed to save payment details. Response status:", response.status);
+        const errorData = await response.json(); // Extract error details
+        console.error("Response Error Data:", errorData);
+      }
+    } catch (error) {
+      console.error("Error saving payment details:", error.message);
+      if (error.response) {
+        console.error("Response Data:", error.response.data); // Log server-side error details
+      }
+    }
+  };
   
 
   // Function to handle Razorpay order creation
@@ -16,7 +49,7 @@ const PaymentSection = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        amount: 2, // The amount you want to pass from the state or input
+        amount: 200, // The amount you want to pass from the state or input
       }),
     });
 
@@ -34,7 +67,19 @@ const PaymentSection = () => {
         description: "Payment for Order",
         handler: function (response) {
           console.log("Payment successful", response);
-          // Handle successful payment here (save payment details, etc.)
+         
+          const paymentDetails = {
+            transaction_id: response.razorpay_payment_id,
+            order_id: response.razorpay_order_id,
+            status: "completed", // Assuming the payment is successful
+            amount: 200.00, // The amount paid
+            currency: "INR",
+            gateway_response: response, // Store the full response from Razorpay
+          };
+        
+          // Call the API to store payment details
+          savePaymentDetails(paymentDetails);  
+          
         },
         prefill: {
           name: "Customer Name",

@@ -701,3 +701,77 @@ class AddInitialOrderSerializer(serializers.Serializer):
             raise serializers.ValidationError("Order status 'Pending Payment' is not configured.")
         except Exception as e:
             raise serializers.ValidationError(f"Failed to create order: {str(e)}")
+
+
+from rest_framework import serializers
+from common.models import Payment, Shipping, UserAddress
+
+
+class PaymentSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=Payment.PAYMENT_STATUS_CHOICES)
+    transaction_id = serializers.CharField(max_length=100)
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    gateway_response = serializers.JSONField()
+    currency = serializers.CharField(max_length=10, default='USD')
+    payment_method = serializers.CharField(max_length=50, default='razorpay')
+    platform_fee = serializers.DecimalField(max_digits=10, decimal_places=2, default=0.00, required=False)
+    seller_payout = serializers.DecimalField(max_digits=10, decimal_places=2, default=0.00, required=False)
+    tracking_id = serializers.CharField(max_length=255, required=False)
+
+    def validate(self, data):
+        cart_id = self.context.get("cartId", None)
+        print("Cart ID in validation:", cart_id)
+        if not cart_id:
+            raise serializers.ValidationError({"cartId": "Cart ID not provided."})
+
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            print("Validation failed: Unauthorized user.")
+            raise serializers.ValidationError({"user": "Unauthorized user."})
+
+        if not ShopOrder.objects.filter(id=cart_id).exists():
+            print("Validation failed: Shop order does not exist.")
+            raise serializers.ValidationError({"cartId": "The specified shop order does not exist."})
+
+        if not UserAddress.objects.filter(user=user).exists():
+            print("Validation failed: User address not found.")
+            raise serializers.ValidationError({"address": "User address not found."})
+
+        print("Validation passed successfully.")
+        return data
+
+    def save(self):
+        try:
+            print("Saving payment details...")
+            user = self.context["request"].user
+            order = ShopOrder.objects.get(id=self.context["cartId"])
+            addressobj = UserAddress.objects.get(user=user,address_type='shipping')
+            
+            payment = Payment.objects.create(
+                order=order,
+                payment_method=self.validated_data['payment_method'],
+                status=self.validated_data['status'],
+                transaction_id=self.validated_data['transaction_id'],
+                amount=self.validated_data['amount'],
+                gateway_response=self.validated_data['gateway_response'],
+                currency=self.validated_data['currency'],
+                platform_fee=self.validated_data.get('platform_fee', 0.00),
+                seller_payout=self.validated_data.get('seller_payout', 0.00),
+            )
+            
+            print("Payment saved successfully.")
+
+            shipping = Shipping.objects.create(
+                order=order,
+                shipping_address=addressobj,
+                status="pending",
+                tracking_id=self.validated_data.get('tracking_id', "DEFAULT_TRACKING_ID"),
+            )
+            
+            print("Shipping created successfully.")
+            order.payment_method = payment
+            order.shipping_address = shipping
+            order.save()
+        except Exception as e:
+            print("Error occurred while saving:", str(e))
+            raise serializers.ValidationError({"detail": str(e)})

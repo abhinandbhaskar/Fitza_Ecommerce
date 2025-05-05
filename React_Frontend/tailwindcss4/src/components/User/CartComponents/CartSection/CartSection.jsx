@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 
 import {updateShopOrder} from "../../../../redux/ShopOrderSlice";
 
-const CartSection = ({ setCartView }) => {
+const CartSection = ({ setCartView,setCartId }) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [cartdata, setCartData] = useState([]);
     const [size, setSize] = useState("");
@@ -192,6 +192,9 @@ const CartSection = ({ setCartView }) => {
             });
             console.log(response);
             console.log(response.data);
+            const orderId = response.data.order_id;
+            console.log("ORGERID",orderId);
+            setCartId(orderId);
         }catch(errors)
         {
             console.log(errors);

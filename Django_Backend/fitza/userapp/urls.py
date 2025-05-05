@@ -6,7 +6,7 @@ from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
 from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode
 
-from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder
+from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -47,6 +47,7 @@ urlpatterns = [
 
     path('offer_products/',OfferProducts.as_view(),name="offer_products"),
     path('initial_order/',AddInitialOrder.as_view(),name="initial_order"),
+    path('save-payment-details/<int:cartId>/',SavePaymentDetails.as_view(),name="save-payment-details"),
 ]
 
 from django.conf import settings

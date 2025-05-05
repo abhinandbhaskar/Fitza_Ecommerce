@@ -39,6 +39,9 @@
     
 
 
+
+
+
 # class Payment(models.Model):
 #     PAYMENT_STATUS_CHOICES = [
 #     ('pending', 'Pending'),
@@ -84,3 +87,13 @@
 #         choices=SHIPPING_STATUS_CHOICES
 #     )
 
+
+
+# PAYMENT DETAILSSSSSSSSSSSSSSSSS 
+
+# amount: 200
+# currency: "INR"
+# gateway_response: {razorpay_payment_id: 'pay_QR6IJ9z8WcXrX6', razorpay_order_id: 'order_QR6HAEMgayUWWv', razorpay_signature: '50fc83b8b352ec877d83d5e8a97a9ceb9fab5a3c3c588562b429a20db95d8e21'}
+# order_id: "order_QR6HAEMgayUWWv"
+# status: "completed"
+# transaction_id: "pay_QR6IJ9z8WcXrX6"
