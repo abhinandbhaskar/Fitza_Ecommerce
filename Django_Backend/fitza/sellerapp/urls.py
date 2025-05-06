@@ -2,7 +2,7 @@ from django.urls import path
 # from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,CompleteSellerRegister
 from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister
 from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate
-from sellerapp.views import GetCategory,GetBrands,GetColor,GetSize,AddProducts,GetAllProducts,ViewStock,ViewUserReviews,ViewUserQuestions,UserAnswer
+from sellerapp.views import GetCategory,GetBrands,GetColor,GetSize,AddProducts,GetAllProducts,ViewStock,ViewUserReviews,ViewUserQuestions,UserAnswer,ViewAnsweredQues
 
 
 urlpatterns = [
@@ -29,6 +29,7 @@ urlpatterns = [
     path('view_user_reviews/',ViewUserReviews.as_view(),name="view_user_reviews"),
     path('user_view_questions/',ViewUserQuestions.as_view(),name="user_view_questions"),
     path('user_answer/',UserAnswer.as_view(),name="user_answer"),
+    path('user_view_ansquestions/',ViewAnsweredQues.as_view(),name="user_view_ansquestions"),
 ]
 
 from django.conf import settings

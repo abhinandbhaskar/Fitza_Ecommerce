@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 const QandaSection = () => {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Unanswered");
   const [showProductModal, setShowProductModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,8 +12,33 @@ const QandaSection = () => {
 
   const [questions, setQuestions] = useState([]);
   const [answer, setAnswer] = useState("");
+  const[productDetails,setProductDetails]=useState([]);
+
+  
+  const fetchAnsweredQuestions = async () => {
+    setFilter("Answered")
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        "https://127.0.0.1:8000/api/seller/user_view_ansquestions/",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      setQuestions(response.data);
+    } catch (err) {
+      console.error("Error fetching questions:", err);
+      setError("Failed to fetch questions.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const fetchQuestions = async () => {
+    setFilter("Unanswered")
     setLoading(true);
     try {
       const response = await axios.get(
@@ -43,7 +68,9 @@ const QandaSection = () => {
   };
 
   const handleViewProduct = (id) => {
+    ViewProduct(id);
     console.log("Viewing Product ID:", id);
+
     setShowProductModal(true);
   };
 
@@ -79,6 +106,7 @@ const QandaSection = () => {
       );
       setAnswer(""); // Clear the answer field
       setError(null); // Clear any existing errors
+      fetchAnsweredQuestions();
     } catch (err) {
       console.error("Error submitting answer:", err);
       setError("Failed to submit the answer.");
@@ -87,11 +115,33 @@ const QandaSection = () => {
   
 
   const filteredQuestions = questions.filter((q) => {
-    if (filter === "All") return true;
-    if (filter === "Unanswered") return !q.isAnswered;
-    if (filter === "Answered") return q.isAnswered;
+    if (filter === "Unanswered") return true;
+    if (filter === "Answered") return !q.isAnswered;
     return true;
   });
+
+
+
+      const ViewProduct=async(id)=>{
+      
+        console.log("R",id);
+    
+        try{
+          const response=await axios.get(`https://127.0.0.1:8000/api/admin/view_product/${id}/`,{
+            headers:{
+              Authorization:`Bearer ${accessToken}`,
+            }
+          });
+          console.log("ii",response.data[0])
+          setProductDetails(response.data[0])
+        }catch(errors)
+        {
+          console.log(errors);
+          console.log(errors.response.data);
+        }
+    
+      }
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,25 +155,31 @@ const QandaSection = () => {
         <div className="flex-1 p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Questions & Answers</h1>
-            <input
-              type="text"
-              placeholder="Search questions..."
-              className="border rounded-lg px-4 py-2 focus:outline-blue-500"
-            />
+         
           </div>
 
           <div className="flex space-x-4 mb-6">
-            {["All", "Unanswered", "Answered"].map((type) => (
+         
               <button
-                key={type}
+                key=""
                 className={`py-2 px-4 rounded-lg ${
-                  filter === type ? "bg-blue-500 text-white" : "bg-gray-200"
+                  filter === "Unanswered" ? "bg-blue-500 text-white" : "bg-gray-200"
                 }`}
-                onClick={() => setFilter(type)}
+                onClick={() => fetchQuestions()}
               >
-                {type}
+                Unanswered
               </button>
-            ))}
+
+              <button
+              key=""
+              className={`py-2 px-4 rounded-lg ${
+                filter === "Answered" ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => fetchAnsweredQuestions()}
+              >
+              Answered
+              </button>
+       
           </div>
 
           <div className="flex space-x-6">
@@ -141,6 +197,17 @@ const QandaSection = () => {
                     >
                       <h3 className="font-bold text-sm">{q.product.product_name}</h3>
                       <p className="text-gray-600 text-sm">{q.question_text}</p>
+
+                      <span
+                      className={`text-xs font-semibold py-1 px-2 rounded-lg mt-2 inline-block ${
+                         filter === "Answered"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {filter === "Answered"?"Answered":"Unanswered"}
+                    </span>
+
                     </li>
                   ))}
                 </ul>
@@ -183,19 +250,95 @@ const QandaSection = () => {
       </div>
 
       {showProductModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-            <h2 className="text-xl font-bold mb-4">Product Details</h2>
-            <p className="text-gray-600">Details about the selected product go here.</p>
-            <button
-              className="mt-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600"
-              onClick={closeModal}
-            >
-              Close
-            </button>
+  <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl overflow-auto max-h-screen">
+      <h2 className="text-xl font-bold mb-4">Product Details</h2>
+      
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center py-8">
+        {/* Header */}
+        <div className="w-full bg-white shadow-md py-6 px-8 rounded-lg">
+          <h1 className="text-2xl font-semibold text-gray-800">
+            <span className="text-indigo-600">Product Details</span>
+          </h1>
+        </div>
+
+        {/* Product Details */}
+        <div className="w-full bg-white shadow-md rounded-lg mt-6 p-6 space-y-6">
+          {/* Main Image */}
+          <div className="flex flex-col items-center w-full">
+            <h2 className="text-lg font-semibold text-gray-700">Main Image</h2>
+            <img
+              src={
+                productDetails.images &&
+                productDetails.images.length > 0 &&
+                `https://127.0.0.1:8000${productDetails.images[0].main_image}`
+              }
+              alt="Main Product"
+              className="w-48 h-48 object-cover border border-gray-200 rounded-lg mt-4"
+            />
+          </div>
+
+          {/* Sub Images */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-700">Sub Images</h3>
+            <div className="flex space-x-4 mt-4">
+              {[1, 2, 3].map((i) => (
+                <img
+                  key={i}
+                  src={
+                    productDetails.images &&
+                    productDetails.images.length > 0 &&
+                    `https://127.0.0.1:8000${productDetails.images[0][`sub_image_${i}`]}`
+                  }
+                  alt={`Sub Image ${i}`}
+                  className="w-24 h-24 object-cover border border-gray-200 rounded-lg"
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Product Information */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { label: "Product Name", value: productDetails?.product?.product_name || "" },
+              { label: "Product Description", value: productDetails?.product?.product_description || "" },
+              { label: "Category", value: productDetails.category?.category_name || "" },
+              { label: "Brand", value: productDetails.brand?.brand_name || "" },
+              { label: "Shop", value: productDetails.shop?.shop_name || "" },
+              { label: "Model Height", value: productDetails.product?.model_height || "" },
+              { label: "Model Wearing", value: productDetails.product?.model_wearing || "" },
+              { label: "Care Instruction", value: productDetails.product?.care_instructions || "" },
+              { label: "About", value: productDetails.product?.about || "" },
+              { label: "Color", value: productDetails.color?.color_name || "" },
+              { label: "Size", value: productDetails.size?.size_name || "" },
+              { label: "Quantity in Stock", value: productDetails?.quantity_in_stock || "" },
+              { label: "Original Price", value: productDetails?.original_price || "" },
+            ].map((field, index) => (
+              <div key={index} className="flex flex-col">
+                <label className="text-sm font-medium text-gray-600 mb-1">{field.label}</label>
+                <input
+                  type="text"
+                  value={field.value}
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  readOnly
+                />
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
+
+      <button
+        className="mt-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600"
+        onClick={closeModal}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };

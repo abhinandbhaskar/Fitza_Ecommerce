@@ -7,6 +7,7 @@ const QandAsection = ({ product }) => {
     const [questions, setQuestions] = useState([]); // Initialize as an empty array
     const [newQuestion, setNewQuestion] = useState("");
 
+
     const handleQuestionChange = (e) => setNewQuestion(e.target.value);
 
     const handleAskQuestion = async () => {
@@ -32,8 +33,10 @@ const QandAsection = ({ product }) => {
     };
 
     const fetchQandA = async () => {
+        const pid=product?.product?.id;
+        console.log("P",pid);
         try {
-            const response = await axios.get("https://127.0.0.1:8000/api/get_question_answer/", {
+            const response = await axios.get(`https://127.0.0.1:8000/api/get_question_answer/${pid}/`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },

@@ -342,7 +342,7 @@ from userapp.models import Question
 class ViewUserQuestions(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=Question.objects.all()
+        obj=Question.objects.filter(answer__isnull=True)
         serilizer=ViewUserQuestionsSerializer(obj,many=True)
         return Response(serilizer.data)
 
@@ -360,3 +360,11 @@ class UserAnswer(APIView):
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class ViewAnsweredQues(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Question.objects.filter(answer__isnull=False)
+        serilizer=ViewUserQuestionsSerializer(obj,many=True)
+        return Response(serilizer.data)

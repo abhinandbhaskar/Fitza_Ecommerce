@@ -640,9 +640,11 @@ from userapp.models import Answer,Question
 class GetQandAUser(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request,pid):
+        productobj=Product.objects.get(id=pid)
+        print("Pross",productobj)
         user = request.user
-        questions = Question.objects.filter(user=user).select_related('answer', 'product')
+        questions = Question.objects.filter(user=user,product=productobj).select_related('answer', 'product')
         
         data = []
         for question in questions:

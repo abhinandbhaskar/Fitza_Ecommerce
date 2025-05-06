@@ -49,7 +49,7 @@ urlpatterns = [
     path('initial_order/',AddInitialOrder.as_view(),name="initial_order"),
     path('save-payment-details/<int:cartId>/',SavePaymentDetails.as_view(),name="save-payment-details"),
     path('ask_question/',AskQuestion.as_view(),name="ask_question"),
-    path('get_question_answer/',GetQandAUser.as_view(),name="get_question_answer"),
+    path('get_question_answer/<int:pid>/',GetQandAUser.as_view(),name="get_question_answer"),
 ]
 
 from django.conf import settings
