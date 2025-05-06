@@ -523,3 +523,21 @@ class UserAnswerSerializer(serializers.Serializer):
             answered_by=user,
             answer_text=self.validated_data["answer"]
         )
+
+from adminapp.models import Complaint
+class AddSellerComplaintSerializer(serializers.Serializer):
+    title=serializers.CharField()
+    description=serializers.CharField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not user.is_authenticated:
+            raise serializers.ValidationError("User Not Authenticated..")
+        return data
+    def save(self):
+        user=self.context["request"].user
+        Complaint.objects.create(seller=user,title=self.validated_data["title"],description=self.validated_data["description"])
+
+class ViewSellerComplaintsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Complaint
+        fields='__all__'

@@ -141,6 +141,18 @@ class ProductCategory(models.Model):
     
 
 
+class SubCategory(models.Model):
+    category = models.ForeignKey(
+        ProductCategory, 
+        on_delete=models.CASCADE, 
+        related_name='subcategories'
+    )
+    subcategory_name = models.CharField(max_length=255)
+    subcategory_description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.subcategory_name} (under {self.category.category_name})"
+
 
 
 class Product(models.Model):
@@ -153,6 +165,8 @@ class Product(models.Model):
     model_wearing=models.CharField(max_length=50,blank=True,null=True)
     care_instructions=models.TextField(blank=True,null=True)
     about=models.TextField(blank=True,null=True)
+    weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0.00, help_text="Product weight in kg")
+
 
     def __str__(self):
         return self.product_name
@@ -257,6 +271,8 @@ class ShopOrder(models.Model):
     final_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Final price after discount
     order_date = models.DateTimeField(auto_now_add=True)
     free_shipping_applied = models.BooleanField(default=False)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,null=True, blank=True)  # New Field
+    order_notes = models.TextField(null=True, blank=True)  # New Field
 
     def __str__(self):
         return f"Order - {self.id} by {self.user.username}"
@@ -275,6 +291,8 @@ class Shipping(models.Model):
         max_length=50, 
         choices=SHIPPING_STATUS_CHOICES
     )
+    estimated_delivery_date = models.DateField(null=True, blank=True) 
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,null=True, blank=True)  # New Field
 
 
 

@@ -368,3 +368,25 @@ class ViewAnsweredQues(APIView):
         obj=Question.objects.filter(answer__isnull=False)
         serilizer=ViewUserQuestionsSerializer(obj,many=True)
         return Response(serilizer.data)
+
+
+from sellerapp.serializers import AddSellerComplaintSerializer
+
+class AddSellerComplaint(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddSellerComplaintSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Complaint Added.."},status=status.HTTP_201_CREATED)
+        return Response({"error":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+    
+from adminapp.models import Complaint
+from sellerapp.serializers import ViewSellerComplaintsSerializer
+class ViewSellerComplaints(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        obj=Complaint.objects.filter(seller=user).order_by('id')
+        serializer=ViewSellerComplaintsSerializer(obj,many=True)
+        return Response(serializer.data)

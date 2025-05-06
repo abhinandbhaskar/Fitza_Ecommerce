@@ -17,13 +17,14 @@ import QandaSection from "../QandaSection/QandaSection";
 
 
 const RightSection = ({currentView,setCurrentView}) => {
+    const [yourcomplaint,setYourComplaint]=useState("");
     return (
         <div className="h-screen w-full bg-gray-800 p-4 overflow-y-auto">
       {currentView==="mainsection"&&<MainSection/>}
       {currentView==="users"&&<UsersSection/>}
       {currentView==="ratings" && <ReviewSection/> }
-      {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView}/> }
-      {currentView==="followup" && <FollowUpPage/>}
+      {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView} setYourComplaint={setYourComplaint}/> }
+      {currentView==="followup" && <FollowUpPage yourcomplaint={yourcomplaint}/>}
       {currentView==="qanda" && <QandaSection/>}
     
 

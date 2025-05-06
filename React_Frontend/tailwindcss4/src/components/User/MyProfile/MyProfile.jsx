@@ -11,6 +11,7 @@ import DeleteAccount from "../ProfileComponents/DeleteAccount/DeleteAccount";
 import { useDispatch,useSelector } from "react-redux";
 import { logoutUser } from "../../../redux/authActions";
 import {clearProfile} from "../../../redux/profileSlice";
+import OrderDetails from "../ProfileComponents/MyOrders/MyOrderComponents/OrderDetails";
 const MyProfile = () => {
     const [currentView,setCurrentView]=useState("profile");
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
@@ -80,7 +81,8 @@ const MyProfile = () => {
                 { currentView === "password" && <ChangePassword/>}
                 { currentView === "billing" && <BillingAddress/>}
                 { currentView === "shipping" && <ShippingAddress/>}
-                { currentView === "myorders" && <MyOrders/>}
+                { currentView === "myorders" && <MyOrders setCurrentView={setCurrentView}/>}
+                {currentView==="orderdetails" && <OrderDetails/>}
                 { currentView === "wallet" && <Wallet/>}
                 { currentView === "delete" && <DeleteAccount/>}
            

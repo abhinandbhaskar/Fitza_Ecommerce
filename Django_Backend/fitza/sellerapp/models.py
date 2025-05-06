@@ -67,6 +67,12 @@ class Notification(models.Model):
         ('seller', 'Seller Notification'),
     ]
 
+    NOTIFICATION_PRIORITY_CHOICES = [
+        ('high', 'High'),
+        ('medium', 'Medium'),
+        ('low', 'Low'),
+    ]
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notifications')  # Receiver
     sender = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')  # Sender
     message = models.TextField()
@@ -74,6 +80,17 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     redirect_url = models.URLField(null=True, blank=True)
+
+    expires_at = models.DateTimeField(null=True, blank=True, help_text="The time at which the notification will expire.")
+    priority = models.CharField(
+        max_length=10, 
+        choices=NOTIFICATION_PRIORITY_CHOICES,  # Use the internal choices
+        default='medium',
+        null=True,  # Allows the field to be null
+        blank=True,  # Allows the field to be blank
+        help_text="The priority level of the notification."
+    )
+
 
     def __str__(self):
         return f"Notification to {self.user.username} - {self.type.capitalize()}"

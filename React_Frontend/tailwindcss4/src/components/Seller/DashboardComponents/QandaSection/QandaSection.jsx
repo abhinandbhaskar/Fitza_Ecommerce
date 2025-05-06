@@ -338,7 +338,6 @@ const QandaSection = () => {
   </div>
 )}
 
-
     </div>
   );
 };

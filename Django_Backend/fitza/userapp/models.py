@@ -36,6 +36,7 @@ class OrderLine(models.Model):
     product_item = models.ForeignKey(ProductItem, on_delete=models.CASCADE, related_name='order_lines')
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2) 
+    seller = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='order_lines', null=True, blank=True) 
 
     def __str__(self):
         return f"OrderLine - {self.product_item.name} (Order ID : {self.order.id})"
@@ -99,6 +100,13 @@ class Bill(models.Model):
     ('pending', 'Pending'),
     ('failed', 'Failed'),
     ]
+
+    REFUND_STATUS_CHOICES = [
+        ('not_refunded', 'Not Refunded'),
+        ('refunded', 'Refunded'),
+        ('partial_refund', 'Partial Refund'),
+    ]
+
     order = models.OneToOneField(ShopOrder, on_delete=models.CASCADE, related_name='bill')
     bill_date = models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # Total after tax and discount
@@ -120,6 +128,22 @@ class Bill(models.Model):
     invoice_number = models.CharField(max_length=20, unique=True)  # Unique invoice number
     notes = models.TextField(null=True, blank=True)  # Additional notes or remarks
 
+    currency = models.CharField(max_length=3, default='USD', null=True, blank=True, help_text="The currency used for the payment.")
+    refund_status = models.CharField(
+        max_length=20,
+        choices=REFUND_STATUS_CHOICES,
+        default='not_refunded',
+        null=True, 
+        blank=True, 
+        help_text="The status of any refund associated with this bill."
+    )
+    created_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='bills_created')
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='bills_updated')
+    
+    # Foreign Key to Payment model
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True, blank=True, related_name='bills')
+
+
     def __str__(self):
         return f"Invoice {self.invoice_number} for Order {self.order.id}"
 
@@ -131,6 +155,13 @@ class ReturnRefund(models.Model):
     ('approved', 'Approved'),
     ('rejected', 'Rejected'),
     ('completed', 'Completed'),
+    ]
+
+    REFUND_METHOD_CHOICES = [
+        ('credit_card', 'Credit Card'),
+        ('paypal', 'PayPal'),
+        ('bank_transfer', 'Bank Transfer'),
+        ('cash_on_delivery', 'Cash on Delivery'),
     ]
 
     order = models.ForeignKey(ShopOrder, on_delete=models.CASCADE, related_name='returns')
@@ -145,6 +176,19 @@ class ReturnRefund(models.Model):
     is_escalated = models.BooleanField(default=False)
     requested_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     supporting_files = models.FileField(upload_to='refunds/', null=True, blank=True)
+
+    approved_refund_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="The approved refund amount (if different from requested).")
+    refund_method = models.CharField(
+        max_length=20,
+        choices=REFUND_METHOD_CHOICES,
+        null=True,
+        blank=True,
+        help_text="The method used to process the refund."
+    )
+    escalation_reason = models.TextField(null=True, blank=True, help_text="Reason for escalation, if any.")
+    resolved_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='returns_resolved')
+    return_date = models.DateTimeField(null=True, blank=True, help_text="Date when the product was returned.")
+    resolution_notes = models.TextField(null=True, blank=True, help_text="Additional notes regarding the resolution of the return/refund.")
 
     def __str__(self):
         return f"Return/Refund for Order {self.order.id} - Status: {self.status}"

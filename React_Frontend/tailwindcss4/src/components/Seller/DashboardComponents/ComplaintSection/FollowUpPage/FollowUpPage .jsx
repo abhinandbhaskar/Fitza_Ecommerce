@@ -1,6 +1,7 @@
 import React from 'react';
 
-const FollowUpPage = () => {
+const FollowUpPage = ({yourcomplaint}) => {
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -15,11 +16,11 @@ const FollowUpPage = () => {
         <div className="bg-white shadow-md rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Complaint Details</h2>
           <ul className="space-y-2 text-gray-700">
-            <li><strong>ID:</strong> 123</li>
-            <li><strong>Title:</strong> Example Complaint</li>
-            <li><strong>Description:</strong> This is a detailed description of the complaint.</li>
-            <li><strong>Date Filed:</strong> 2025-04-29</li>
-            <li><strong>Status:</strong> Pending</li>
+            <li><strong>ID:</strong>{yourcomplaint.id}</li>
+            <li><strong>Title:</strong>{yourcomplaint.title}</li>
+            <li><strong>Description:</strong>{yourcomplaint.description}</li>
+            <li><strong>Date Filed:</strong>{yourcomplaint.updated_at}</li>
+            <li><strong>Status:</strong>{yourcomplaint.response?"replayed":"pending"}</li>
           </ul>
         </div>
 
