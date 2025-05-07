@@ -740,3 +740,71 @@ class DealsOfdayAllProducts(serializers.ModelSerializer):
         fields=['end_date','product']
 
 
+
+from adminapp.models import Complaint,ComplaintMessage
+
+class UserNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','user_type']
+
+class ComplaintMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ComplaintMessage
+        fields=['complaint','sender','message','timestamp']
+
+class ViewAllComplaintsSerializer(serializers.ModelSerializer):
+    messages=ComplaintMessageSerializer(read_only=True,many=True)
+    seller=UserNameSerializer(read_only=True)
+
+    class Meta:
+        model=Complaint
+        fields=['id','seller','title','description','response','created_at','updated_at','resolved','messages']
+
+
+
+class ResolveComplaintSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    status = serializers.BooleanField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not Complaint.objects.filter(id=data["id"]).exists():
+            raise serializers.ValidationError({"id": "Complaint ID does not exist."})
+        return data
+
+    def save(self):
+        complaint = Complaint.objects.get(id=self.validated_data["id"])
+        complaint.resolved = self.validated_data["status"]
+        complaint.save()
+
+class AdminReplySerializer(serializers.Serializer):
+    cid = serializers.IntegerField()
+    newMessage = serializers.CharField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Unauthorized User...")
+        
+        complaint_id=data.get("cid")
+        complaint=Complaint.objects.filter(id=complaint_id).first()
+        if not complaint:
+            raise serializers.ValidationError("Complaint not found.")
+        self.complaint=complaint
+        return data
+
+    def save(self):
+        user=self.context["request"].user
+        complaint=self.complaint
+        if not complaint.response:
+            complaint.response=self.validated_data["newMessage"]
+            complaint.save()
+        else:
+            ComplaintMessage.objects.create(
+                complaint=complaint,
+                sender=user,
+                message=self.validated_data["newMessage"]
+            )
+            
+      

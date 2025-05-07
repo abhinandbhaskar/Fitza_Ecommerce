@@ -30,6 +30,7 @@ const ComplaintSection = ({ setCurrentView,setYourComplaint}) => {
         }
     };
 
+    
     const fetchComplaints = async () => {
         try {
             const response = await axios.get("https://127.0.0.1:8000/api/seller/view_seller_complaints/", {

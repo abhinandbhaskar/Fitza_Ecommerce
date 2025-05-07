@@ -541,3 +541,44 @@ class ViewSellerComplaintsSerializer(serializers.ModelSerializer):
     class Meta:
         model=Complaint
         fields='__all__'
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','user_type']
+
+from adminapp.models import ComplaintMessage
+class ViewUserComplaintSerializer(serializers.ModelSerializer):
+    sender=UserSerializer(read_only=True)
+
+    class Meta:
+        model = ComplaintMessage
+        fields = ['id', 'complaint', 'sender', 'message', 'timestamp']
+
+class SellerReplySerializer(serializers.Serializer):
+    cid = serializers.IntegerField()
+    newMessage = serializers.CharField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Unauthorized User...")
+        
+        complaint_id=data.get("cid")
+        complaint=Complaint.objects.filter(id=complaint_id).first()
+        if not complaint:
+            raise serializers.ValidationError("Complaint not found.")
+        self.complaint=complaint
+        return data
+
+    def save(self):
+        user=self.context["request"].user
+        complaint=self.complaint
+        ComplaintMessage.objects.create(
+                complaint=complaint,
+                sender=user,
+                message=self.validated_data["newMessage"]
+            )
+            
+      
+ 

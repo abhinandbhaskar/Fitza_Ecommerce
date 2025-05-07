@@ -803,3 +803,37 @@ class GetDealsOfDay(APIView):
         obj=ProductOffer.objects.all().order_by('-id')[:6]
         serializer=DealsOfdayAllProducts(obj,many=True)
         return Response(serializer.data)
+    
+
+from adminapp.models import Complaint
+from adminapp.serializers import ViewAllComplaintsSerializer   
+class ViewAllComplaints(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=Complaint.objects.all().order_by('id')
+        serializer=ViewAllComplaintsSerializer(obj,many=True)
+        return Response(serializer.data)
+
+from adminapp.serializers import ResolveComplaintSerializer
+
+class ResolveComplaint(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ResolveComplaintSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "message": "Complaint resolved successfully."}, status=status.HTTP_200_OK)
+        return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+from adminapp.serializers import AdminReplySerializer
+class AdminReply(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self, request):
+        serializer = AdminReplySerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "message": "replayed successfully."}, status=status.HTTP_200_OK)
+        return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    

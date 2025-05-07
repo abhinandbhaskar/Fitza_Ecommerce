@@ -390,3 +390,30 @@ class ViewSellerComplaints(APIView):
         obj=Complaint.objects.filter(seller=user).order_by('id')
         serializer=ViewSellerComplaintsSerializer(obj,many=True)
         return Response(serializer.data)
+
+from rest_framework.exceptions import NotFound
+from adminapp.models import ComplaintMessage
+from sellerapp.serializers import ViewUserComplaintSerializer
+class ViewUserComplaint(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, cid):
+        try:
+            complaint = Complaint.objects.get(id=cid)
+        except Complaint.DoesNotExist:
+            raise NotFound("Complaint not found.")
+
+        messages = ComplaintMessage.objects.filter(complaint=complaint).order_by("timestamp")
+        serializer = ViewUserComplaintSerializer(messages, many=True)
+        return Response(serializer.data)
+
+from sellerapp.serializers import SellerReplySerializer
+class SellerReplyComplaint(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self, request):
+        serializer = SellerReplySerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status": "success", "message": "replayed successfully."}, status=status.HTTP_200_OK)
+        return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
