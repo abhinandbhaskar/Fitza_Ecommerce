@@ -6,7 +6,7 @@ from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
 from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode
 
-from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser
+from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -50,6 +50,9 @@ urlpatterns = [
     path('save-payment-details/<int:cartId>/',SavePaymentDetails.as_view(),name="save-payment-details"),
     path('ask_question/',AskQuestion.as_view(),name="ask_question"),
     path('get_question_answer/<int:pid>/',GetQandAUser.as_view(),name="get_question_answer"),
+    path('get_orders/',GetUserOrders.as_view(),name="get_orders"),
+    path('add_shop_feedback/<int:ssid>/', AddShopFeedBack.as_view(), name="add_shop_feedback"),
+
 ]
 
 from django.conf import settings

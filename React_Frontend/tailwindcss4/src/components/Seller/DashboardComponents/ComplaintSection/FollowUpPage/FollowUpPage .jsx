@@ -46,6 +46,7 @@ const FollowUpPage = ({ yourcomplaint }) => {
                 });
     
                 console.log("API Response:", response.data);
+                setNewMessage("");
                 fetchMessages();
 
             } catch (error) {
@@ -85,18 +86,33 @@ const FollowUpPage = ({ yourcomplaint }) => {
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Follow-Up Messages</h2>
           <div className="space-y-4">
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.sender.user_type === "admin" ? "justify-start" : "justify-end"}`}
-              >
+
               
-                <div className={`${msg.sender.user_type === "admin" ? "bg-gray-100" : "bg-indigo-100"} p-4 rounded-lg max-w-md`}>
-                  <p className="text-gray-700">
-                    <strong>{msg.sender.user_type === "admin" ? "Admin" : "You"} <span className="text-sm ">({new Date(msg.timestamp).toLocaleDateString()})</span> :</strong>{" "}
-                    {msg.message}
-                  </p>
-                </div>
-              </div>
+                          
+<div
+key={msg.id}
+className={`flex ${msg.sender.user_type === "admin" ? "justify-start" : "justify-end"}`}
+>
+<div
+    className={`max-w-[80%] p-3 rounded-lg ${
+        msg.sender.user_type === "admin"
+            ? "bg-indigo-100 text-indigo-900"
+            : "bg-gray-200 text-gray-800"
+    }`}
+>
+    <p className="font-medium text-sm">{msg.sender.user_type==="admin"?"Admin": `(${msg.sender.user_type}) `+ msg.sender.first_name}</p>
+    <p className="my-1">{msg.message}</p>
+    <p className="text-xs text-gray-500 text-right">
+        {new Date(msg.timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+        })}
+    </p>
+</div>
+</div>
+
+
+  
             ))}
           </div>
 

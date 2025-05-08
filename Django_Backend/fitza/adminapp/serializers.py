@@ -749,13 +749,14 @@ class UserNameSerializer(serializers.ModelSerializer):
         fields=['first_name','user_type']
 
 class ComplaintMessageSerializer(serializers.ModelSerializer):
+    sender=UserNameSerializer(read_only=True)
+
     class Meta:
         model=ComplaintMessage
         fields=['complaint','sender','message','timestamp']
 
 class ViewAllComplaintsSerializer(serializers.ModelSerializer):
     messages=ComplaintMessageSerializer(read_only=True,many=True)
-    seller=UserNameSerializer(read_only=True)
 
     class Meta:
         model=Complaint

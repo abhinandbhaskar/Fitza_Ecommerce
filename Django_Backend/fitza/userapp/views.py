@@ -660,3 +660,26 @@ class GetQandAUser(APIView):
             })
         
         return Response(data)
+
+from userapp.serializers import GetUserOrdersSerializer
+class GetUserOrders(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        obj = ShopOrder.objects.filter(user=user)  # Filter orders for the logged-in user
+        serializer = GetUserOrdersSerializer(obj, many=True)
+        return Response(serializer.data)
+
+
+from userapp.serializers import AddUserFeedBackSerializer
+
+class AddShopFeedBack(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,ssid):
+        serializer=AddUserFeedBackSerializer(data=request.data,context={"request":request,"sid":ssid})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Feedback Added Successfully..."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)
+

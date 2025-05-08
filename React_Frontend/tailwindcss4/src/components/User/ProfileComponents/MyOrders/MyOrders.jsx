@@ -1,9 +1,50 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useSelector} from "react-redux";
 import "./MyOrders.css";
 
-const MyOrders = ({setCurrentView}) => {
+const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [activeFilter, setActiveFilter] = useState("All");
   const handleFilterClick = (filter) => setActiveFilter(filter);
+  const { accessToken } = useSelector((state) => state.auth);
+  const [orderinfo,setOrderInfo]=useState([]);
+  const [details,setDetails]=useState("");
+
+ 
+
+  const fetchOrders = async () => {
+
+    try {
+        const response = await fetch("https://127.0.0.1:8000/api/get_orders/", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setOrderInfo(data);
+           
+
+
+        } 
+    } catch (err) {
+        console.log("error",err);
+        console.log("error",err.response.data);
+    } 
+};
+
+  useEffect(()=>{
+    fetchOrders();
+  },[])
+
+
+  const handleViewDetails=(order)=>{
+    setMyOrderView("details");
+    console.log("Chumma",order);
+    setDetails(order);
+  }
 
   return (
     <div className="h-full w-full p-6 flex flex-col bg-gray-50">
@@ -13,6 +54,11 @@ const MyOrders = ({setCurrentView}) => {
         <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
       </div>
 
+
+
+{
+  myorderview==="myorder" && (
+    <>
       {/* Search and Filters */}
       <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
         {/* Search Bar */}
@@ -54,28 +100,30 @@ const MyOrders = ({setCurrentView}) => {
             </tr>
           </thead>
           <tbody>
-            {[1, 2, 3].map((order) => (
-              <tr key={order} className="border-t hover:bg-gray-100">
+
+            {
+              orderinfo.map((order,key)=>(
+                <tr key={key} className="border-t hover:bg-gray-100">
                 <td className="px-6 py-4 text-sm text-gray-800">
-                  <a href={`/order/${order}`} className="text-blue-500 hover:underline">
-                    #160{order}
+                  <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
+                    #160{order.id}
                   </a>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
                   <img
-                    src="https://via.placeholder.com/40"
+                    src={"https://127.0.0.1:8000/"+order.order_lines[0].product_item.product.items[0].images[0].main_image}
                     alt="Product"
                     className="w-10 h-10 rounded"
                   />
-                  <span>Product Name {order}</span>
+                  <span>Product Name {order.order_lines[0].product_item.product.product_name}</span>
                 </td>
                 <td className="px-6 py-4 text-sm font-semibold">
-                  <span className="text-green-600">Delivered</span>
+                  <span className="text-green-600">{order.order_status.status}</span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-800">Rs. {order * 10000}</td>
-                <td className="px-6 py-4 text-sm text-gray-800">Rs. {order * 10000}</td>
+                <td className="px-6 py-4 text-sm text-gray-800">{order.order_date}</td>
+                <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.order_total}</td>
                 <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
-                  <button onClick={()=>setCurrentView("orderdetails")} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
+                  <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
                     View
                   </button>
                   <button className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md">
@@ -83,10 +131,155 @@ const MyOrders = ({setCurrentView}) => {
                   </button>
                 </td>
               </tr>
-            ))}
+              ))
+            }
+       
           </tbody>
         </table>
       </div>
+
+</>
+
+  )
+}
+
+{
+  myorderview==="details" && (
+    
+    <>
+
+    {/* Breadcrumb */}
+    <div className="py-2 text-gray-600 text-sm">
+<span>My Orders &gt; </span>
+<span className="font-semibold text-blue-600">Order Details</span>
+</div>
+{/* Order Summary */}
+<div className="bg-white rounded-lg shadow-md p-4 my-4">
+<h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
+<div className="mt-2 text-gray-600">
+  <p>
+    <span className="font-semibold">Order ID:</span> {details.id}
+  </p>
+  <p>
+    <span className="font-semibold">Payment Method:</span> {details.order_status.status}
+  </p>
+  <p>
+    <span className="font-semibold">Order Date:</span> {details.order_date}
+  </p>
+  <p>
+    <span className="font-semibold">Estimated Delivery:</span> {details.shipping_address.estimated_delivery_date}
+  </p>
+</div>
+</div>
+
+{/* Product Details */}
+<div className="bg-white rounded-lg shadow-md p-4 my-4 ">
+<h2 className="text-xl font-semibold text-gray-800">Product Details</h2>
+
+{
+  details.order_lines.map((product,key)=>(
+<div
+  className="flex items-center justify-between p-2 mt-2 border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white md:flex-row flex-col gap-4 px-4"
+  onClick={() => {setCurrentView({ view: "productdetail", data: product });}}
+>
+  {/* Product Image */}
+  <img
+    src={"https://127.0.0.1:8000/" + product.product_item.product.items[0].images[0].main_image}
+    alt="Product"
+    className="w-16 h-16 object-cover rounded-lg"
+  />
+
+  {/* Product Info */}
+  <div className="flex-1 text-sm md:text-base">
+    <h3 className="font-semibold truncate">{product.product_item.product.product_name}</h3>
+    <p className="text-gray-600 truncate">{product.product_item.product.product_description}</p>
+    <p>
+      <span className="font-semibold">Price:</span> ${product.price}
+    </p>
+    <p>
+      <span className="font-semibold">Quantity:</span> {product.quantity}
+    </p>
+  </div>
+
+  {/* Action Icon */}
+  <div className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl transition-colors">
+   <span className="px-8 font-bold text-2xl"> &gt; </span>
+  </div>
+</div>
+
+  ))
+}
+
+
+</div>
+
+{/* Order Tracking */}
+<div className="bg-white rounded-lg shadow-md p-4 my-4">
+<h2 className="text-xl font-semibold text-gray-800">Order Tracking</h2>
+<table className="w-full mt-4 text-left border-collapse">
+  <thead className="bg-gray-100">
+    <tr>
+      <th className="p-2 border">Order ID</th>
+      <th className="p-2 border">Order Date</th>
+      <th className="p-2 border">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td className="p-2 border">127273382</td>
+      <td className="p-2 border">12/03/2024</td>
+      <td className="p-2 border text-yellow-600 font-semibold">Pending</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+{/* Shipping Address */}
+<div className="bg-white rounded-lg shadow-md p-4 my-4">
+<h2 className="text-xl font-semibold text-gray-800">Shipping Address</h2>
+<p className="mt-2 text-gray-600">ABC Building, 123 Street, City, Country</p>
+</div>
+
+{/* Return and Refund */}
+<div className="bg-white rounded-lg shadow-md p-4 my-4">
+<h2 className="text-xl font-semibold text-gray-800">Return & Refund</h2>
+<button className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+  Initiate Return
+</button>
+</div>
+
+{/* Price Details */}
+<div className="bg-white rounded-lg shadow-md p-4 my-4">
+<h2 className="text-xl font-semibold text-gray-800">Price Details</h2>
+<div className="mt-2 text-gray-600">
+  <p>
+    <span className="font-semibold">Item Total:</span> $50
+  </p>
+  <p>
+    <span className="font-semibold">Shipping Charges:</span> $5
+  </p>
+  <p className="font-semibold mt-2">
+    <span className="text-gray-800">Grand Total:</span> $55
+  </p>
+</div>
+</div>
+
+{/* Download Invoice */}
+<div className="text-right mt-4">
+<button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+  Download Invoice
+</button>
+</div>
+
+
+</>
+
+  )
+}
+
+
+
+
     </div>
   );
 };

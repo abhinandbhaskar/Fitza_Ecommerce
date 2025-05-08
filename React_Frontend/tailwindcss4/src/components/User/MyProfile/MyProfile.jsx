@@ -11,13 +11,16 @@ import DeleteAccount from "../ProfileComponents/DeleteAccount/DeleteAccount";
 import { useDispatch,useSelector } from "react-redux";
 import { logoutUser } from "../../../redux/authActions";
 import {clearProfile} from "../../../redux/profileSlice";
-import OrderDetails from "../ProfileComponents/MyOrders/MyOrderComponents/OrderDetails";
+import ProductsDetailView from "../ProfileComponents/MyOrders/MyOrderComponents/ProductsDetailView";
+import SellerFeedBack from "../ProfileComponents/MyOrders/MyOrderComponents/SellerFeedBack";
 const MyProfile = () => {
     const [currentView,setCurrentView]=useState("profile");
+    const [myorderview,setMyOrderView]=useState("myorder");
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
     console.log("NAME",name);
     console.log("EMail",email);
     console.log("PROOO",profilePicture);
+
 
     // const [photo,setPhoto]=useState("");
     console.log(currentView);
@@ -53,6 +56,11 @@ const MyProfile = () => {
             console.error("Logout failed:", error);
         }
     };
+
+    const handleMyOrders=async()=>{
+        setCurrentView("myorders");
+        setMyOrderView("myorder");
+    }
     
     
 
@@ -69,7 +77,7 @@ const MyProfile = () => {
                     <button onClick={()=>setCurrentView("password")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-key  pr-5"></i><span className="text-lg hover:text-white">Change Password</span></button>
                     <button onClick={()=>setCurrentView("billing")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-address-card  pr-5"></i><span className="text-lg hover:text-white">Billing Address</span></button>
                     <button onClick={()=>setCurrentView("shipping")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-truck  pr-5"></i><span className="text-lg hover:text-white">Shipping Address</span></button>
-                    <button onClick={()=>setCurrentView("myorders")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-cart-shopping  pr-5"></i><span className="text-lg hover:text-white">My Orders</span></button>
+                    <button onClick={()=>handleMyOrders()} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-cart-shopping  pr-5"></i><span className="text-lg hover:text-white">My Orders</span></button>
                     <button onClick={()=>setCurrentView("wallet")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-wallet  pr-5"></i><span className="text-lg hover:text-white">Wallet</span></button>
                     <button onClick={()=>setCurrentView("delete")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-trash  pr-5"></i><span className="text-lg hover:text-white">Delete Account</span></button>
                     <button onClick={handleLogout} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400 hover:bg-blue-800 hover:text-xl hover:text-white"><i class="fa-solid fa-right-from-bracket  pr-5"></i><span className="text-lg">SignOut</span></button>
@@ -81,10 +89,11 @@ const MyProfile = () => {
                 { currentView === "password" && <ChangePassword/>}
                 { currentView === "billing" && <BillingAddress/>}
                 { currentView === "shipping" && <ShippingAddress/>}
-                { currentView === "myorders" && <MyOrders setCurrentView={setCurrentView}/>}
-                {currentView==="orderdetails" && <OrderDetails/>}
+                { currentView === "myorders" && <MyOrders setCurrentView={setCurrentView} myorderview={myorderview} setMyOrderView={setMyOrderView} />}
+                { currentView.view === "productdetail" && <ProductsDetailView currentView={currentView} setCurrentView={setCurrentView} />}
                 { currentView === "wallet" && <Wallet/>}
                 { currentView === "delete" && <DeleteAccount/>}
+                { currentView.view1 ==="sellerfeedback" && <SellerFeedBack currentView={currentView} />}
            
             </div>
         </div>

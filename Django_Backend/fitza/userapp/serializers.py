@@ -804,3 +804,84 @@ class AskQuestionSerializer(serializers.Serializer):
             question_text=self.validated_data["question"],
         )
         return question
+
+class ShopSellerDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ['id','shop_name','shop_logo','description','email']
+
+class ProductsFullDetailsSerializer(serializers.ModelSerializer):
+    items=ProductItemSerializer(many=True)
+    shop=ShopSellerDetailsSerializer(read_only=True)
+
+    class Meta:
+        model=Product
+        fields='__all__'
+
+
+
+
+class ProductItemssSerializer(serializers.ModelSerializer):
+    product=ProductsFullDetailsSerializer(read_only=True)
+
+    class Meta:
+        model = ProductItem
+        fields = ['id','product','sale_price']
+
+
+class OrderLineSerializer(serializers.ModelSerializer):
+    product_item = ProductItemssSerializer(read_only=True)
+
+    class Meta:
+        model = OrderLine
+        fields = ['id', 'product_item', 'quantity', 'price']
+
+class OrderStatusgetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=OrderStatus
+        fields='__all__'
+
+
+class ShippingDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Shipping
+        fields='__all__'
+
+class GetUserOrdersSerializer(serializers.ModelSerializer):
+    order_lines = OrderLineSerializer(many=True, read_only=True)  # Include related order lines
+    order_status=OrderStatusgetSerializer(read_only=True)
+    shipping_address=ShippingDetailsSerializer(read_only=True)
+
+    class Meta:
+        model = ShopOrder
+        fields = [
+            'id', 'user', 'payment_method', 'shipping_address', 'order_status',
+            'order_total', 'discount_amount', 'applied_coupon', 'final_total',
+            'order_date', 'free_shipping_applied', 'order_lines' ,'order_status', # Include order_lines field
+        ]
+
+
+
+from userapp.models import Feedback
+
+class AddUserFeedBackSerializer(serializers.Serializer):
+    rating = serializers.IntegerField()
+    feedback = serializers.CharField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Unauthorized user")
+        return data
+
+    def save(self):
+        user = self.context["request"].user
+        sid = self.context.get("sid")
+        sellerobj = Seller.objects.get(id=sid)
+        Feedback.objects.create(
+            user=user,
+            seller=sellerobj,
+            rating=self.validated_data["rating"],
+            comment=self.validated_data["feedback"]
+        )
+        
