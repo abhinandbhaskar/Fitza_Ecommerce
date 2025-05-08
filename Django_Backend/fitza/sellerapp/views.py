@@ -417,3 +417,23 @@ class SellerReplyComplaint(APIView):
             return Response({"status": "success", "message": "replayed successfully."}, status=status.HTTP_200_OK)
         return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
+
+from sellerapp.serializers import ViewAllUserFeedbacksSerializer,AddSellerFeedBackSerializer
+from userapp.models import Feedback
+class ViewAllUserFeedbacks(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        sellerobj=Seller.objects.get(user=user)
+        obj=Feedback.objects.filter(seller=sellerobj,platform=False)
+        serializer=ViewAllUserFeedbacksSerializer(obj,many=True)
+        return Response(serializer.data)
+    
+class AddSellerFeedBacks(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request):
+        serializer=AddSellerFeedBackSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Feedback Added Successfully..."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)

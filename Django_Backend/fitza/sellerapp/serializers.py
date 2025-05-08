@@ -579,6 +579,40 @@ class SellerReplySerializer(serializers.Serializer):
                 sender=user,
                 message=self.validated_data["newMessage"]
             )
-            
-      
- 
+
+
+class ViewUsersNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['id','first_name','email']
+
+
+from userapp.models import Feedback
+class ViewAllUserFeedbacksSerializer(serializers.ModelSerializer):
+    user=ViewUsersNameSerializer(read_only=True)
+
+    class Meta:
+        model=Feedback
+        fields='__all__'
+    
+from userapp.models import Feedback
+class AddSellerFeedBackSerializer(serializers.Serializer):
+    rating = serializers.IntegerField()
+    feedback = serializers.CharField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Unauthorized user")
+        return data
+
+    def save(self):
+        user = self.context["request"].user
+        sellerobj = Seller.objects.get(user=user)
+        Feedback.objects.create(
+            user=user,
+            seller=sellerobj,
+            rating=self.validated_data["rating"],
+            comment=self.validated_data["feedback"],
+            platform=True
+        )

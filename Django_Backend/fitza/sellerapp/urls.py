@@ -3,7 +3,7 @@ from django.urls import path
 from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister
 from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate
 from sellerapp.views import GetCategory,GetBrands,GetColor,GetSize,AddProducts,GetAllProducts,ViewStock,ViewUserReviews,ViewUserQuestions,UserAnswer,ViewAnsweredQues,AddSellerComplaint,ViewSellerComplaints
-from sellerapp.views import ViewUserComplaint,SellerReplyComplaint
+from sellerapp.views import ViewUserComplaint,SellerReplyComplaint,ViewAllUserFeedbacks,AddSellerFeedBacks
 
 urlpatterns = [
     path('register/',SellerRegisterAPI.as_view(),name='register'),
@@ -34,6 +34,8 @@ urlpatterns = [
     path('view_seller_complaints/',ViewSellerComplaints.as_view(),name="view_seller_complaints"),
     path('view_user_complaints/<int:cid>/',ViewUserComplaint.as_view(),name="view_user_complaints"),
     path('seller_reply_complaint/',SellerReplyComplaint.as_view(),name="seller_reply_complaint"),
+    path('view_user_feedbacks/',ViewAllUserFeedbacks.as_view(),name="view_user_feedbacks"),
+    path('add_seller_feedback/',AddSellerFeedBacks.as_view(),name="add_seller_feedback"),
 ]
 
 from django.conf import settings
