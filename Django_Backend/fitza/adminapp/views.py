@@ -836,4 +836,18 @@ class AdminReply(APIView):
             serializer.save()
             return Response({"status": "success", "message": "replayed successfully."}, status=status.HTTP_200_OK)
         return Response({"status": "error", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+from userapp.models import Feedback
+from adminapp.serializers import ViewSellerFeedbacksSerializer
+class SellerFeedBacks(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,id):
+        print("OOO",id)
+        if id==0:
+            platformstatus=True
+        else:
+            platformstatus=False
+        print("NK",platformstatus)
+        obj=Feedback.objects.filter(platform=platformstatus)
+        serializer=ViewSellerFeedbacksSerializer(obj,many=True)
+        return Response(serializer.data)

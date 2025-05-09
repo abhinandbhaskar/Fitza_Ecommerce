@@ -808,4 +808,14 @@ class AdminReplySerializer(serializers.Serializer):
                 message=self.validated_data["newMessage"]
             )
             
-      
+class ViewUsersNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['id','first_name','email']
+from userapp.models import Feedback
+class ViewSellerFeedbacksSerializer(serializers.ModelSerializer):
+    user=ViewUsersNameSerializer(read_only=True)
+
+    class Meta:
+        model=Feedback
+        fields='__all__'
