@@ -38,11 +38,11 @@ const SideBar = ({setCurrentView}) => {
           <span className="flex-1">Revenue</span>
           <span className="text-gray-400">&gt;</span>
         </button>
-        <button onClick={()=>setCurrentView("messages")} className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
+        {/* <button onClick={()=>setCurrentView("messages")} className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
           <i className="fa-solid fa-message mr-4"></i>
           <span className="flex-1">Messages</span>
           <span className="text-gray-400">&gt;</span>
-        </button>
+        </button> */}
         <button onClick={()=>setCurrentView("complaints")} className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
           <i className="fa-solid fa-rectangle-list mr-4"></i>
           <span className="flex-1">Complaints</span>

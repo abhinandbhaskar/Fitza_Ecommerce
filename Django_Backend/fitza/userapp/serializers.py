@@ -640,6 +640,8 @@ class OfferProductsSerializer(serializers.ModelSerializer):
 from common.models import OrderStatus,ShopOrder
 from userapp.models import OrderLine
 
+
+
 class AddInitialOrderSerializer(serializers.Serializer):
     order_total = serializers.DecimalField(max_digits=10, decimal_places=2)
     final_total = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -681,12 +683,16 @@ class AddInitialOrderSerializer(serializers.Serializer):
 
             # Loop through the cart items and create corresponding order lines
             for cart_item in cart_items:
+                product_item = cart_item.product_item
+                seller = product_item.product.shop.user
+
                 # Create order line for each cart item
                 OrderLine.objects.create(
                     order=order,
                     product_item=cart_item.product_item,
                     quantity=cart_item.quantity,
-                    price=cart_item.product_item.sale_price or cart_item.product_item.original_price
+                    price=cart_item.product_item.sale_price or cart_item.product_item.original_price,
+                    seller=seller 
                 )
                 # Add to calculated order total
                 calculated_order_total += cart_item.quantity * (cart_item.product_item.sale_price or cart_item.product_item.original_price)

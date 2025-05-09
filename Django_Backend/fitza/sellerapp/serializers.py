@@ -616,3 +616,26 @@ class AddSellerFeedBackSerializer(serializers.Serializer):
             comment=self.validated_data["feedback"],
             platform=True
         )
+
+
+
+from common.models import ShopOrder
+class ViewUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['id','first_name','email','phone_number']
+
+class ViewShopOrderSerializer(serializers.ModelSerializer):
+    user=ViewUserSerializer(read_only=True)
+
+    class Meta:
+        model=ShopOrder
+        fields=['id','user','order_date']
+
+from userapp.models import OrderLine
+class ViewOrderedUsersSerializer(serializers.ModelSerializer):
+    order=ViewShopOrderSerializer(read_only=True)
+
+    class Meta:
+        model=OrderLine
+        fields=['id','order',]

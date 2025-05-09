@@ -437,3 +437,48 @@ class AddSellerFeedBacks(APIView):
             serializer.save()
             return Response({"message":"Feedback Added Successfully..."},status=status.HTTP_200_OK)
         return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)
+
+from sellerapp.serializers import ViewOrderedUsersSerializer
+from userapp.models import OrderLine
+from common.models import CustomUser
+
+from collections import Counter
+from datetime import datetime
+
+class ViewOrderedUsers(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        seller = CustomUser.objects.get(id=user.id)
+        obj = OrderLine.objects.filter(seller=seller)
+        serializer = ViewOrderedUsersSerializer(obj, many=True)
+        
+        user_data = {}
+        for entry in serializer.data:
+            user_info = entry['order']['user']
+            email = user_info['email']
+            if email not in user_data:
+                user_data[email] = {
+                    "user_id": user_info['id'],
+                    "full_name": user_info['first_name'],
+                    "email": email,
+                    "phone": user_info['phone_number'],
+                    "order_dates": [],
+                }
+            user_data[email]["order_dates"].append(entry['order']['order_date'])
+
+        user_details = []
+        for data in user_data.values():
+            user_details.append({
+                "UserID": data["user_id"],
+                "FullName": data["full_name"],
+                "Email": data["email"],
+                "Phone": data["phone"],
+                "OrderDate": max(data["order_dates"]),  
+                "TotalOrders": len(data["order_dates"])
+            })
+
+        print("CCCCCCC",user_details)
+
+        return Response(user_details)
