@@ -819,3 +819,66 @@ class ViewSellerFeedbacksSerializer(serializers.ModelSerializer):
     class Meta:
         model=Feedback
         fields='__all__'
+
+class ProductSerializers2(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields=['id','product_name']
+
+
+class ProductItemSerializer(serializers.ModelSerializer):
+    product=ProductSerializers2(read_only=True)
+
+    class Meta:
+        model=ProductItem
+        fields=['id','product']
+
+from userapp.models import OrderLine
+class OrderLineDetailsSerializer(serializers.ModelSerializer):
+    seller=ViewUsersNameSerializer(read_only=True)
+    product_item=ProductItemSerializer(read_only=True)
+
+    class Meta:
+        model=OrderLine
+        fields='__all__'
+
+from common.models import Payment
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Payment
+        fields='__all__'
+
+
+
+from common.models import ShopOrder
+class ViewUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['id','first_name','email','phone_number']
+
+from common.models import OrderStatus
+class OrderStatusViewSerializer1(serializers.ModelSerializer):
+    class Meta:
+        model=OrderStatus
+        fields=['id','status']
+
+
+        
+
+class AppliedCouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Coupon
+        fields=['id','code']
+
+from userapp.models import OrderLine
+class ViewPendingOrdersSerializer(serializers.ModelSerializer):
+    user=ViewUserSerializer(read_only=True)
+    payment_method=PaymentMethodSerializer(read_only=True)
+    order_lines=OrderLineDetailsSerializer(read_only=True,many=True)
+    order_status=OrderStatusViewSerializer1(read_only=True)
+    applied_coupon=AppliedCouponSerializer(read_only=True)
+
+    class Meta:
+        model=ShopOrder
+        fields=['id','user','payment_method','order_lines','order_status','order_date','order_total','discount_amount','applied_coupon','final_total','free_shipping_applied']
+

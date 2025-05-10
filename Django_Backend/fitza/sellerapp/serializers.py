@@ -638,4 +638,4 @@ class ViewOrderedUsersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=OrderLine
-        fields=['id','order',]
+        fields=['id','order']

@@ -657,8 +657,7 @@ class AddInitialOrderSerializer(serializers.Serializer):
     def save(self):
         user = self.context["request"].user
         try:
-            # Ensure the "Pending Payment" status exists
-            pending_status, created = OrderStatus.objects.get_or_create(status="Pending Payment")
+            pending_status, created = OrderStatus.objects.get_or_create(status="Pending")
             if created:
                 print("Created 'Pending Payment' status")
 

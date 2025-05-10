@@ -33,6 +33,7 @@
 #     product_item = models.ForeignKey(ProductItem, on_delete=models.CASCADE, related_name='order_lines')
 #     quantity = models.PositiveIntegerField(default=1)
 #     price = models.DecimalField(max_digits=10, decimal_places=2) 
+#     seller = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='order_lines', null=True, blank=True) 
 
 #     def __str__(self):
 #         return f"OrderLine - {self.product_item.name} (Order ID : {self.order.id})"

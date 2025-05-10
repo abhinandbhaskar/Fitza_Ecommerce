@@ -851,3 +851,75 @@ class SellerFeedBacks(APIView):
         obj=Feedback.objects.filter(platform=platformstatus)
         serializer=ViewSellerFeedbacksSerializer(obj,many=True)
         return Response(serializer.data)
+
+
+from adminapp.serializers import ViewPendingOrdersSerializer
+from userapp.models import OrderLine
+from common.models import ShopOrder
+class ViewPendingOrders(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request,status):
+        print("STATUS",status)
+        user = request.user
+        obj = ShopOrder.objects.filter(order_status__status=status).order_by('id')
+        serializer=ViewPendingOrdersSerializer(obj,many=True)
+        pdata = ShopOrder.objects.filter(order_status__status="pending")
+        odata = ShopOrder.objects.filter(order_status__status="processing")
+        cdata = ShopOrder.objects.filter(order_status__status="completed")
+        print(len(obj))
+        tempdata={
+            "pending":len(pdata),
+            "ongoing":len(odata),
+            "completed":len(cdata),
+        }
+        print(tempdata)
+
+        response_data={
+            "orders":serializer.data,
+            "statuscounts":tempdata,
+        }
+        return Response(response_data)
+
+
+from common.models import OrderStatus
+class UpdateOrderStatus(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, oid, uid):
+        try:
+            user_instance = CustomUser.objects.get(id=uid)
+            order = ShopOrder.objects.get(id=oid, user=user_instance)
+            processing_status, created = OrderStatus.objects.get_or_create(status="processing")
+            order.order_status = processing_status
+            order.save()
+
+            return Response({
+                "message": "Order status updated successfully.",
+                "status_created": created  # Indicates if the status was newly created
+            }, status=200)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=404)
+        except ShopOrder.DoesNotExist:
+            return Response({"error": "Order not found."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+from common.models import Payment
+class VerifyPaymentAdmin(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pid, sid):
+        try:
+            shoporder_instance = ShopOrder.objects.get(id=sid)
+            payment = Payment.objects.get(id=pid, order=shoporder_instance)
+            payment.payout_status = "Completed"
+            payment.save()
+
+            return Response({"message": "Payment Verified successfully."},status=200)
+        except ShopOrder.DoesNotExist:
+            return Response({"error": "ShopOrder not found."}, status=404)
+        except Payment.DoesNotExist:
+            return Response({"error": "Payment not found."}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
