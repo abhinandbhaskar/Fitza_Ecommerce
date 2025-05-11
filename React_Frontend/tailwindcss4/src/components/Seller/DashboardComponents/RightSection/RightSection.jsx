@@ -15,6 +15,9 @@ import ComplaintSection from "../ComplaintSection/ComplaintSection";
 import FollowUpPage from "../ComplaintSection/FollowUpPage/FollowUpPage ";
 import QandaSection from "../QandaSection/QandaSection";
 import FeedBackSection from "../FeedBackSection/FeedBackSection";
+import OrdersSection from "../OrdersSection/OrdersSection";
+import ReturnRefundSection from "../ReturnRefundSection/ReturnRefundSection";
+import RevenueSection from "../RevenueSection/RevenueSection";
 
 
 const RightSection = ({currentView,setCurrentView}) => {
@@ -28,6 +31,9 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="followup" && <FollowUpPage yourcomplaint={yourcomplaint}/>}
       {currentView==="qanda" && <QandaSection/>}
       {currentView==="feedback" && <FeedBackSection/>}
+      {currentView==="orders" && <OrdersSection/>}
+      {currentView==="returnrefund" && <ReturnRefundSection/>}
+      {currentView==="revenue" && <RevenueSection/>}
     
 
 

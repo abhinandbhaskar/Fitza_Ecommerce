@@ -3,7 +3,7 @@ from django.urls import path
 from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister
 from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate
 from sellerapp.views import GetCategory,GetBrands,GetColor,GetSize,AddProducts,GetAllProducts,ViewStock,ViewUserReviews,ViewUserQuestions,UserAnswer,ViewAnsweredQues,AddSellerComplaint,ViewSellerComplaints
-from sellerapp.views import ViewUserComplaint,SellerReplyComplaint,ViewAllUserFeedbacks,AddSellerFeedBacks,ViewOrderedUsers
+from sellerapp.views import ViewUserComplaint,SellerReplyComplaint,ViewAllUserFeedbacks,AddSellerFeedBacks,ViewOrderedUsers,SellerViewOrders,UpdateOrderShipping
 
 urlpatterns = [
     path('register/',SellerRegisterAPI.as_view(),name='register'),
@@ -37,6 +37,8 @@ urlpatterns = [
     path('view_user_feedbacks/',ViewAllUserFeedbacks.as_view(),name="view_user_feedbacks"),
     path('add_seller_feedback/',AddSellerFeedBacks.as_view(),name="add_seller_feedback"),
     path('view_ordered_users/',ViewOrderedUsers.as_view(),name="view_ordered_users"),
+    path('seller_view_orders/',SellerViewOrders.as_view(),name="seller_view_orders"),
+    path('update_order_shipping/',UpdateOrderShipping.as_view(),name="update_order_shipping"),
 ]
 
 from django.conf import settings

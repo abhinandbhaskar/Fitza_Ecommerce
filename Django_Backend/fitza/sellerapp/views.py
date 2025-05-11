@@ -482,3 +482,27 @@ class ViewOrderedUsers(APIView):
         print("CCCCCCC",user_details)
 
         return Response(user_details)
+
+
+from sellerapp.serializers import OrderLineMainSerializer
+from common.models import ShopOrder
+from userapp.models import OrderLine
+class SellerViewOrders(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        seller = CustomUser.objects.get(id=user.id)
+        obj = OrderLine.objects.filter(seller=seller,order__order_status__status="processing")
+        serializer=OrderLineMainSerializer(obj,many=True)
+        return Response(serializer.data)
+
+from sellerapp.serializers import UpdateOrderShippingSerializer
+class UpdateOrderShipping(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        serializer = UpdateOrderShippingSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "updated successfully"}, status=status.HTTP_200_OK)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

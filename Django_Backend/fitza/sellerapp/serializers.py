@@ -623,7 +623,7 @@ from common.models import ShopOrder
 class ViewUserSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=['id','first_name','email','phone_number']
+        fields='__all__'
 
 class ViewShopOrderSerializer(serializers.ModelSerializer):
     user=ViewUserSerializer(read_only=True)
@@ -639,3 +639,114 @@ class ViewOrderedUsersSerializer(serializers.ModelSerializer):
     class Meta:
         model=OrderLine
         fields=['id','order']
+
+#Order
+
+
+from common.models import OrderStatus
+class OrderStatusViewSerializer1(serializers.ModelSerializer):
+    class Meta:
+        model=OrderStatus
+        fields=['id','status']
+
+from common.models import Payment
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Payment
+        fields='__all__'
+
+from common.models import UserAddress
+class SellerShipAndBillAddress(serializers.ModelSerializer):
+    class Meta:
+        model=UserAddress
+        fields='__all__'
+
+from common.models import Shipping
+class ShippingAddressSerializer(serializers.ModelSerializer):
+    shipping_address=SellerShipAndBillAddress(read_only=True)
+
+    class Meta:
+        model=Shipping
+        fields='__all__'
+
+from common.models import ShopOrder
+class ShopOrdersssSerializer(serializers.ModelSerializer):
+    user=ViewUserSerializer(read_only=True)
+    order_status=OrderStatusViewSerializer1(read_only=True)
+    payment_method=PaymentMethodSerializer(read_only=True)
+    shipping_address=ShippingAddressSerializer(read_only=True)
+
+    class Meta:
+        model=ShopOrder
+        fields='__all__'
+
+
+class ProductSerializers2(serializers.ModelSerializer):
+    class Meta:
+        model=Product
+        fields=['id','product_name']
+
+class ProductItemSerializer(serializers.ModelSerializer):
+    product=ProductSerializers2(read_only=True)
+
+    class Meta:
+        model=ProductItem
+        fields=['id','product','sale_price','original_price']
+    
+class SellerSerializerss(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['id','first_name','email']
+
+
+from userapp.models import OrderLine
+class OrderLineMainSerializer(serializers.ModelSerializer):
+    product_item=ProductItemSerializer(read_only=True)
+    order=ShopOrdersssSerializer(read_only=True)
+    seller=SellerSerializerss(read_only=True)
+
+    class Meta:
+        model=OrderLine
+        fields='__all__'
+
+class UpdateOrderShippingSerializer(serializers.Serializer):
+    orderStatus=serializers.CharField()
+    shippingStatus=serializers.CharField()
+    sid=serializers.IntegerField()
+    oid=serializers.IntegerField()
+    uid=serializers.IntegerField()
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("Unauthorized user")
+
+        if not CustomUser.objects.filter(id=data["uid"]).exists():
+            raise serializers.ValidationError({"error": "User not found."})
+
+        if not ShopOrder.objects.filter(id=data["oid"], user_id=data["uid"]).exists():
+            raise serializers.ValidationError({"error": "Shop Order not found"})
+
+        if not Shipping.objects.filter(id=data["sid"]).exists():
+            raise serializers.ValidationError({"error": "Shipping not found"})
+        return data
+
+    def save(self):
+        sid = self.validated_data["sid"]
+        oid = self.validated_data["oid"]
+        uid = self.validated_data["uid"]
+        order_status = self.validated_data["orderStatus"]
+        shipping_status = self.validated_data["shippingStatus"]
+
+        user_instance = CustomUser.objects.get(id=uid)
+        order = ShopOrder.objects.get(id=oid, user=user_instance)
+        processing_status, created = OrderStatus.objects.get_or_create(status=order_status)
+
+        order.order_status = processing_status
+        order.save()
+
+        shipping = Shipping.objects.get(order=order, id=sid)
+        shipping.status = shipping_status
+        shipping.save()
+
+
+
