@@ -493,9 +493,16 @@ class SellerViewOrders(APIView):
     def get(self, request):
         user = request.user
         seller = CustomUser.objects.get(id=user.id)
-        obj = OrderLine.objects.filter(seller=seller,order__order_status__status="processing")
+        processing = OrderLine.objects.filter(seller=seller,order__order_status__status="processing")
+        confirm = OrderLine.objects.filter(seller=seller,order__order_status__status="confirm")
+        readyfordispatch = OrderLine.objects.filter(seller=seller,order__order_status__status="ready-for-dispatch")
+        cancelled = OrderLine.objects.filter(seller=seller,order__order_status__status="cancelled")
+        delivered = OrderLine.objects.filter(seller=seller,order__order_status__status="delivered")
+        obj = OrderLine.objects.filter(seller=seller)
         serializer=OrderLineMainSerializer(obj,many=True)
-        return Response(serializer.data)
+        ordercount={"processing":len(processing),"confirm":len(confirm),"readyfordispatch":len(readyfordispatch),"cancelled":len(cancelled),"delivered":len(delivered)}
+        fetchdata={"orders":serializer.data,"counts":ordercount}
+        return Response(fetchdata)
 
 from sellerapp.serializers import UpdateOrderShippingSerializer
 class UpdateOrderShipping(APIView):

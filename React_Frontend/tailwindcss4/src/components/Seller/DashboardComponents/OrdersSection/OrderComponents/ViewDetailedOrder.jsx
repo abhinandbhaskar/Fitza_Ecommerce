@@ -127,11 +127,11 @@ const ViewDetailedOrder = ({ currentView }) => {
                     <tbody>
                        
                             <tr key="" className="border-b">
-                                <td className="p-2">{orderData?.product_item?.product?.product_name}</td>
+                                <td className="p-2">{orderData?.product_item?.product?.product_name || "Not Available"}</td>
                                 <td className="p-2 flex flex-col"> <span>{orderData?.seller?.first_name || "N/A"}</span> <span>{orderData?.seller?.email  || "N/A"}</span></td>
-                                <td className="p-2">{orderData?.quantity}</td>
-                                <td className="p-2">${orderData?.price}</td>
-                                <td className="p-2">${orderData?.price*orderData?.quantity}</td>
+                                <td className="p-2">{orderData?.quantity || "Not Available"}</td>
+                                <td className="p-2">${orderData?.price || "Not Available"}</td>
+                                <td className="p-2">${orderData?.price*orderData?.quantity || "Not Available"}</td>
                             </tr>
                        
                     </tbody>
@@ -142,13 +142,13 @@ const ViewDetailedOrder = ({ currentView }) => {
             <div className="mt-5 bg-gray-100 p-4 rounded-lg shadow-md">
                 <h2 className="font-semibold text-xl">Payment Information</h2>
                 <p>
-                    <strong>Payment Status : </strong> {orderData?.order?.payment_method?.status}
+                    <strong>Payment Status : </strong> {orderData?.order?.payment_method?.status || "Not Available"}
                 </p>
                 <p>
-                    <strong>Payment Date : </strong> {orderData?.order?.payment_method?.payment_date}
+                    <strong>Payment Date : </strong> {orderData?.order?.payment_method?.payment_date || "Not Available"}
                 </p>
                 <p>
-                    <strong>Amount Earned : </strong> $ {orderData?.price*orderData?.quantity}
+                    <strong>Amount Earned : </strong> $ {orderData?.price*orderData?.quantity || "Not Available"}
                 </p>
             
             </div>
