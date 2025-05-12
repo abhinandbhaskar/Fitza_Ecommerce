@@ -613,16 +613,26 @@ from common.models import Shipping,Payment,UserAddress
 
 from userapp.serializers import PaymentSerializer
 
+
 class SavePaymentDetails(APIView):
     permission_classes = [IsAuthenticated]
+    
     def post(self, request, cartId):
         print("Received Data:", request.data)
-        print("CARTIDAAAAAAAAD",cartId)
-        serializer=PaymentSerializer(data=request.data,context={"request":request,"cartId":cartId})
+        print("CARTIDAAAAAAAAD", cartId)
+        serializer = PaymentSerializer(data=request.data, context={"request": request, "cartId": cartId})
+        
         if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Payment and shipping details saved successfully."},status=status.HTTP_201_CREATED)
-        return Response({"errors":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+            payment = serializer.save()  # Save and get the payment object
+            return Response({
+                "message": "Payment and shipping details saved successfully.",
+                "payment_id": payment.id  # Include the payment ID in the response
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 from userapp.serializers import AskQuestionSerializer
 class AskQuestion(APIView):
@@ -683,3 +693,43 @@ class AddShopFeedBack(APIView):
             return Response({"message":"Feedback Added Successfully..."},status=status.HTTP_200_OK)
         return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)
 
+# views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from userapp.models import Bill
+from common.models import Payment
+
+class BillGenerator(APIView):
+    def post(self, request):
+        payment_id = request.data.get("payment_id")
+        if not payment_id:
+            return Response({"error": "Payment ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            payment_instance = Payment.objects.get(id=payment_id)
+            if payment_instance.status != 'completed':
+                return Response({"error": "Bill can only be generated for completed payments."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            shop_order = payment_instance.order
+            if hasattr(shop_order, 'bill'):
+                return Response({"error": "Bill already exists for this order."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            bill = Bill.objects.create(
+                order=shop_order,
+                total_amount=shop_order.final_total,
+                tax=shop_order.tax_amount,
+                discount=shop_order.discount_amount,
+                billing_address=shop_order.user.addresses.filter(address_type='billing').first(),
+                payment_status='paid',
+                invoice_number=f"INV-{payment_instance.transaction_id}",
+                payment=payment_instance,
+                created_by=shop_order.user,
+            )
+            
+            return Response({"message": "Bill generated successfully.", "bill_id": bill.id}, status=status.HTTP_201_CREATED)
+        
+        except Payment.DoesNotExist:
+            return Response({"error": "Invalid Payment ID."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

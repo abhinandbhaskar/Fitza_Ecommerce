@@ -25,6 +25,10 @@ const PaymentSection = ({cartId,setCartId}) => {
         const data = await response.json();
         console.log("Payment details saved successfully:", data);
         setCartId(null); // Reset cartId if payment is successful
+        console.log("POPOPOPPIIIDD",data.payment_id);
+        await generateBill(data.payment_id);
+
+
         // Handle further actions like updating the UI or triggering a shipping API
       } else {
         console.error("Failed to save payment details. Response status:", response.status);
@@ -38,6 +42,27 @@ const PaymentSection = ({cartId,setCartId}) => {
       }
     }
   };
+
+
+
+    const generateBill = async (paymentId) => {
+    try {
+      const response = await fetch("https://127.0.0.1:8000/api/generate-bill/", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ payment_id: paymentId }),
+      });
+
+      const data = await response.json();
+      console.log("Bill generated:", data);
+    } catch (error) {
+      console.error("Error generating bill:", error);
+    }
+  };
+
   
 
   // Function to handle Razorpay order creation
