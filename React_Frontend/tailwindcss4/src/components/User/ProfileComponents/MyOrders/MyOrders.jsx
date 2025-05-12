@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector} from "react-redux";
 import "./MyOrders.css";
+import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
 
 const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -10,6 +11,39 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [orderinfo,setOrderInfo]=useState([]);
   const [details,setDetails]=useState("");
 
+
+  const fetchBill = async (orderId) => {
+  try {
+    const response = await axios.get(`https://127.0.0.1:8000/api/get_bill/${orderId}/`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      responseType: 'blob',  // Set the response type to blob to handle PDF file
+    });
+    
+    if (response.status === 200) {
+      // Create a Blob from the PDF response
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a link to trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Invoice-${orderId}.pdf`;  // Set the file name
+      link.click();  // Trigger the download
+    }
+  } catch (error) {
+    console.error("Error fetching bill:", error);
+  }
+};
+
+
+
+
+  const handleDownloadInvoice=(oid)=>{
+    console.log("))))",oid);
+    fetchBill(oid);
+  }
  
 
   const fetchOrders = async () => {
@@ -243,7 +277,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 {/* Return and Refund */}
 <div className="bg-white rounded-lg shadow-md p-4 my-4">
 <h2 className="text-xl font-semibold text-gray-800">Return & Refund</h2>
-<button className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+<button onClick={()=>setMyOrderView("returnrefund")} className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
   Initiate Return
 </button>
 </div>
@@ -266,14 +300,23 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 
 {/* Download Invoice */}
 <div className="text-right mt-4">
-<button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-  Download Invoice
-</button>
+ <button
+    onClick={() => handleDownloadInvoice(details.id)} // Pass the order ID
+    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+  >
+    Download Invoice
+  </button>
 </div>
 
 
 </>
 
+  )
+}
+
+{
+  myorderview==="returnrefund" && (
+    <AddReturnRefund/>
   )
 }
 

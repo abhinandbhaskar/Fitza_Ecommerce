@@ -58,7 +58,7 @@ const SideBar = ({setCurrentView}) => {
           <span className="flex-1">FeedBacks</span>
           <span className="text-gray-400">&gt;</span>
         </button>
-        <button  className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
+        <button onClick={()=>setCurrentView("returnrefund")}  className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
           <i className="fa-solid fa-right-left mr-4"></i>
           <span className="flex-1">Refund & Returns</span>
           <span className="text-gray-400">&gt;</span>

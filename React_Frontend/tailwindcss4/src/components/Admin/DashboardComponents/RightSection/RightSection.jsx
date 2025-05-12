@@ -16,6 +16,7 @@ import DiscountCardSection from "../DiscountsOffers/DiscountComponents/DiscountC
 import FreeshippingSection from "../DiscountsOffers/DiscountComponents/FreeshippingSection";
 import ProductsOfferSection from "../DiscountsOffers/DiscountComponents/ProductsOfferSection";
 import FeedBackSection from "../FeedBackSection/FeedBackSection";
+import ReturnRefundSection from "../ReturnRefundSection/ReturnRefundSection";
 
 const RightSection = ({currentView,setCurrentView}) => {
     return (
@@ -36,6 +37,7 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="freeship"&&<FreeshippingSection/>}
       {currentView==="productoffer"&&<ProductsOfferSection/>}
       {currentView==="feedback"&&<FeedBackSection/>}
+      {currentView==="returnrefund"&&<ReturnRefundSection/>}
 
       <Footer/>
         </div>

@@ -733,3 +733,76 @@ class BillGenerator(APIView):
             return Response({"error": "Invalid Payment ID."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.http import HttpResponse
+from userapp.models import Bill, ShopOrder
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+
+
+class GetBillAPIView(APIView):
+    """
+    API View to generate and return a PDF invoice for a specific order.
+    """
+
+    def get(self, request, order_id):
+        try:
+            # Fetch the ShopOrder and Bill objects
+            order = ShopOrder.objects.get(id=order_id)
+            bill = Bill.objects.get(order=order)
+
+            # Create a BytesIO buffer for the PDF
+            buffer = BytesIO()
+            pdf = canvas.Canvas(buffer, pagesize=letter)
+
+            # Set metadata
+            pdf.setTitle(f"Invoice {bill.invoice_number}")
+
+            # Add header
+            pdf.setFont("Helvetica-Bold", 16)
+            pdf.drawString(100, 750, f"Invoice: {bill.invoice_number}")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawString(100, 730, f"Order ID: {bill.order.id}")
+            pdf.drawString(100, 710, f"Date: {bill.bill_date.strftime('%Y-%m-%d')}")
+            pdf.drawString(100, 690, f"Billing Address: {bill.billing_address}")
+
+            # Add line items
+            pdf.line(50, 680, 550, 680)  # Divider
+            pdf.drawString(50, 660, "Description")
+            pdf.drawString(400, 660, "Amount")
+            pdf.line(50, 650, 550, 650)  # Divider
+
+            # Example line items
+            pdf.drawString(50, 630, "Total Amount")
+            pdf.drawString(400, 630, f"{bill.currency} {bill.total_amount}")
+            pdf.drawString(50, 610, "Tax")
+            pdf.drawString(400, 610, f"{bill.currency} {bill.tax}")
+            pdf.drawString(50, 590, "Discount")
+            pdf.drawString(400, 590, f"{bill.currency} {bill.discount}")
+            pdf.drawString(50, 570, "Payment Status")
+            pdf.drawString(400, 570, bill.payment_status.title())
+            pdf.drawString(50, 550, "Refund Status")
+            pdf.drawString(400, 550, bill.refund_status.title())
+
+            # Add footer
+            pdf.line(50, 530, 550, 530)  # Divider
+            pdf.drawString(50, 510, "Notes:")
+            pdf.drawString(100, 490, bill.notes or "No additional notes.")
+
+            # Save the PDF
+            pdf.save()
+            buffer.seek(0)
+
+            # Return the PDF as a response
+            response = HttpResponse(buffer, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="Invoice-{bill.invoice_number}.pdf"'
+            return response
+
+        except ShopOrder.DoesNotExist:
+            return Response({"error": "Order not found."}, status=404)
+        except Bill.DoesNotExist:
+            return Response({"error": "Bill not found."}, status=404)
