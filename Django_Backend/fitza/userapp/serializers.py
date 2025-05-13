@@ -912,3 +912,31 @@ class AddUserFeedBackSerializer(serializers.Serializer):
             comment=self.validated_data["feedback"]
         )
         
+from userapp.models import ReturnRefund
+class SendReturnRefundSerializer(serializers.Serializer):
+    reason=serializers.CharField()
+    refundAmount=serializers.IntegerField()
+    refundMethod=serializers.CharField()
+    isPartialRefund=serializers.BooleanField()
+    comments=serializers.CharField()
+    supportingFiles=serializers.FileField()
+    def validate(self,data):
+        user=self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("UnAuthorized User...")
+        return data
+    
+    def save(self):
+        orderId=self.context["orderId"]
+        order=ShopOrder.objects.get(id=orderId)
+        ReturnRefund.objects.create(order=order,
+                                    reason=self.validated_data["reason"],
+                                    status="pending",
+                                    refund_amount=self.validated_data["refundAmount"],
+                                    comments=self.validated_data["comments"],
+                                    is_partial_refund=self.validated_data["isPartialRefund"],
+                                    supporting_files=self.validated_data["supportingFiles"]
+                                    )
+
+
+        

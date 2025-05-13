@@ -806,3 +806,14 @@ class GetBillAPIView(APIView):
             return Response({"error": "Order not found."}, status=404)
         except Bill.DoesNotExist:
             return Response({"error": "Bill not found."}, status=404)
+
+
+from userapp.serializers import SendReturnRefundSerializer
+class SendReturnRefund(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,orderId):
+        serializer=SendReturnRefundSerializer(data=request.data,context={"request":request,"orderId":orderId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Refund Return Added Successfully..."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)

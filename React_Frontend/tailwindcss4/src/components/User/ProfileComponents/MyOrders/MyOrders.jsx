@@ -10,6 +10,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [orderinfo,setOrderInfo]=useState([]);
   const [details,setDetails]=useState("");
+  const [orderId,setOrderId]=useState(null);
 
 
   const fetchBill = async (orderId) => {
@@ -57,7 +58,6 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
         });
         if (response.ok) {
             const data = await response.json();
-            console.log(data);
             setOrderInfo(data);
            
 
@@ -77,6 +77,8 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const handleViewDetails=(order)=>{
     setMyOrderView("details");
     console.log("Chumma",order);
+    setOrderId(order.id);
+    console.log("OPOPsssss",order.id);
     setDetails(order);
   }
 
@@ -316,7 +318,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 
 {
   myorderview==="returnrefund" && (
-    <AddReturnRefund/>
+    <AddReturnRefund orderId={orderId}/>
   )
 }
 
