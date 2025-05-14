@@ -3,6 +3,7 @@ import axios from "axios";
 import { useSelector} from "react-redux";
 import "./MyOrders.css";
 import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
+import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
 
 const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [activeFilter, setActiveFilter] = useState("All");
@@ -11,6 +12,13 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [orderinfo,setOrderInfo]=useState([]);
   const [details,setDetails]=useState("");
   const [orderId,setOrderId]=useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+    // Safe data access helper
+  const safeGet = (obj, path, defaultValue = "Not Available") => {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj) || defaultValue;
+  };
 
 
   const fetchBill = async (orderId) => {
@@ -35,6 +43,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
     }
   } catch (error) {
     console.error("Error fetching bill:", error);
+    setError("Failed to download invoice");
   }
 };
 
@@ -48,39 +57,40 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
  
 
   const fetchOrders = async () => {
-
     try {
-        const response = await fetch("https://127.0.0.1:8000/api/get_orders/", {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        if (response.ok) {
-            const data = await response.json();
-            setOrderInfo(data);
-           
-
-
-        } 
+      setLoading(true);
+      const response = await axios.get("https://127.0.0.1:8000/api/get_orders/", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      setOrderInfo(response.data || []);
     } catch (err) {
-        console.log("error",err);
-        console.log("error",err.response.data);
-    } 
-};
+      console.error("Error fetching orders:", err);
+      setError("Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(()=>{
     fetchOrders();
   },[])
 
 
-  const handleViewDetails=(order)=>{
+  const handleViewDetails = (order) => {
+    if (!order) return;
     setMyOrderView("details");
-    console.log("Chumma",order);
     setOrderId(order.id);
-    console.log("OPOPsssss",order.id);
     setDetails(order);
+  };
+
+  if (loading && myorderview === "myorder") {
+    return <div className="p-6 text-center">Loading orders...</div>;
   }
+
+  if (error) {
+    return <div className="p-6 text-red-500">{error}</div>;
+  }
+
 
   return (
     <div className="h-full w-full p-6 flex flex-col bg-gray-50">
@@ -180,7 +190,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 }
 
 {
-  myorderview==="details" && (
+  myorderview==="details" && details && (
     
     <>
 
@@ -194,23 +204,23 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 <h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
 <div className="mt-2 text-gray-600">
   <p>
-    <span className="font-semibold">Order ID:</span> {details.id}
+    <span className="font-semibold">Order ID:</span> {details.id || "Not Available.."}
   </p>
   <p>
-    <span className="font-semibold">Payment Method:</span> {details.order_status.status}
+    <span className="font-semibold">Payment Method:</span> {details.order_status.status || "Not Available.."}
   </p>
   <p>
-    <span className="font-semibold">Order Date:</span> {details.order_date}
+    <span className="font-semibold">Order Date:</span> {details.order_date || "Not Available.."}
   </p>
   <p>
-    <span className="font-semibold">Estimated Delivery:</span> {details.shipping_address.estimated_delivery_date}
+    <span className="font-semibold">Estimated Delivery:</span> {details.shipping_address.estimated_delivery_date || "Not Available.."}
   </p>
 </div>
 </div>
 
 {/* Product Details */}
 <div className="bg-white rounded-lg shadow-md p-4 my-4 ">
-<h2 className="text-xl font-semibold text-gray-800">Product Details</h2>
+<h2 className="text-xl font-semibold text-gray-800">Products Details</h2>
 
 {
   details.order_lines.map((product,key)=>(
@@ -220,20 +230,20 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 >
   {/* Product Image */}
   <img
-    src={"https://127.0.0.1:8000/" + product.product_item.product.items[0].images[0].main_image}
+    src={"https://127.0.0.1:8000/" + product.product_item.product.items[0].images[0].main_image || "Not Available.."}
     alt="Product"
     className="w-16 h-16 object-cover rounded-lg"
   />
 
   {/* Product Info */}
   <div className="flex-1 text-sm md:text-base">
-    <h3 className="font-semibold truncate">{product.product_item.product.product_name}</h3>
-    <p className="text-gray-600 truncate">{product.product_item.product.product_description}</p>
+    <h3 className="font-semibold truncate">{product.product_item.product.product_name || "Not Available.."}</h3>
+    <p className="text-gray-600 truncate">{product.product_item.product.product_description || "Not Available.."}</p>
     <p>
-      <span className="font-semibold">Price:</span> ${product.price}
+      <span className="font-semibold">Price:</span> ${product.price || "Not Available.."}
     </p>
     <p>
-      <span className="font-semibold">Quantity:</span> {product.quantity}
+      <span className="font-semibold">Quantity:</span> {product.quantity || "Not Available.."}
     </p>
   </div>
 
@@ -282,6 +292,9 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 <button onClick={()=>setMyOrderView("returnrefund")} className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
   Initiate Return
 </button>
+<button onClick={()=>setMyOrderView("returnrefundstatus")} className="mt-2 ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-red-700">
+  Return Refund Status
+</button>
 </div>
 
 {/* Price Details */}
@@ -322,6 +335,12 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   )
 }
 
+
+{
+  myorderview==="returnrefundstatus" && (
+    <ReturnRefundStatus orderId={orderId}/>
+  )
+}
 
 
 

@@ -513,3 +513,12 @@ class UpdateOrderShipping(APIView):
             serializer.save()
             return Response({"message": "updated successfully"}, status=status.HTTP_200_OK)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+from userapp.models import ReturnRefund
+from sellerapp.serializers import GetAllReturnRefundSerializer
+class GetAllReturnRefund(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ReturnRefund.objects.all()
+        serializer=GetAllReturnRefundSerializer(obj,many=True)
+        return Response(serializer.data)

@@ -923,3 +923,13 @@ class VerifyPaymentAdmin(APIView):
             return Response({"error": "Payment not found."}, status=404)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+
+from adminapp.serializers import FetchAllReturnRefundSerializer
+from userapp.models import ReturnRefund
+class FetchAllReturnRefund(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ReturnRefund.objects.all()
+        serializer=FetchAllReturnRefundSerializer(obj,many=True)
+        return Response(serializer.data)

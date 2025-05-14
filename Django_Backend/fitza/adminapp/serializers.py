@@ -882,3 +882,9 @@ class ViewPendingOrdersSerializer(serializers.ModelSerializer):
         model=ShopOrder
         fields=['id','user','payment_method','order_lines','order_status','order_date','order_total','discount_amount','applied_coupon','final_total','free_shipping_applied']
 
+
+from userapp.models import ReturnRefund
+class FetchAllReturnRefundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ReturnRefund
+        fields='__all__'

@@ -817,3 +817,17 @@ class SendReturnRefund(APIView):
             serializer.save()
             return Response({"message":"Refund Return Added Successfully..."},status=status.HTTP_200_OK)
         return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)
+    
+from userapp.models import ReturnRefund
+from userapp.serializers import GetReturnRefundStatusSerializer
+class GetReturnRefundStatus(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,orderId):
+        order=ShopOrder.objects.get(id=orderId)
+        obj=ReturnRefund.objects.get(order=order)
+        serializer=GetReturnRefundStatusSerializer(obj)
+        return Response(serializer.data)
+
+
+
+

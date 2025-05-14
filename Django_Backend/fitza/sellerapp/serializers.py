@@ -749,4 +749,9 @@ class UpdateOrderShippingSerializer(serializers.Serializer):
         shipping.save()
 
 
-
+from userapp.models import ReturnRefund
+class GetAllReturnRefundSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model=ReturnRefund
+        fields='__all__'

@@ -7,7 +7,7 @@ from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,R
 from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode
 
 from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack
-from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund
+from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -56,6 +56,8 @@ urlpatterns = [
     path('generate-bill/',BillGenerator.as_view(),name="generate-bill"),
     path('get_bill/<int:order_id>/', GetBillAPIView.as_view(), name='get_bill'),
     path('send_return_refund/<int:orderId>/',SendReturnRefund.as_view(),name="send_return_refund"),
+    path('get_returnrefund_status/<int:orderId>/',GetReturnRefundStatus.as_view(),name="get_returnrefund_status"),
+
 
 ]
 

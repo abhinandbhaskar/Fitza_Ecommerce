@@ -928,8 +928,10 @@ class SendReturnRefundSerializer(serializers.Serializer):
     
     def save(self):
         orderId=self.context["orderId"]
+        user=self.context["request"].user
         order=ShopOrder.objects.get(id=orderId)
         ReturnRefund.objects.create(order=order,
+                                    requested_by=user,
                                     reason=self.validated_data["reason"],
                                     status="pending",
                                     refund_amount=self.validated_data["refundAmount"],
@@ -937,6 +939,13 @@ class SendReturnRefundSerializer(serializers.Serializer):
                                     is_partial_refund=self.validated_data["isPartialRefund"],
                                     supporting_files=self.validated_data["supportingFiles"]
                                     )
+
+from userapp.models import ReturnRefund
+class GetReturnRefundStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ReturnRefund
+        fields='__all__'
+
 
 
         
