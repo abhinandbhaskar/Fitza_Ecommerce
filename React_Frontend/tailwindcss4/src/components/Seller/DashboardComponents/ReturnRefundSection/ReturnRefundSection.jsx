@@ -172,10 +172,10 @@ const ReturnRefundSection = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {returnRefund.map((item) => (
+                                        { (activeTab==="all"?returnRefund:returnRefund.filter((item)=>item.status===activeTab)).map((item) => (
                                             <tr key={item.id} className="hover:bg-gray-50">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {item.id}
+                                                 {item.id}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     <div className="text-gray-400">
