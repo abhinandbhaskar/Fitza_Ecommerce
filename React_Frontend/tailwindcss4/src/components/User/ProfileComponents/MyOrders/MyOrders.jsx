@@ -12,11 +12,8 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [orderinfo,setOrderInfo]=useState([]);
   const [details,setDetails]=useState("");
   const [orderId,setOrderId]=useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-    // Safe data access helper
-  const safeGet = (obj, path, defaultValue = "Not Available") => {
+    const safeGet = (obj, path, defaultValue = "Not Available") => {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj) || defaultValue;
   };
 
@@ -43,7 +40,6 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
     }
   } catch (error) {
     console.error("Error fetching bill:", error);
-    setError("Failed to download invoice");
   }
 };
 
@@ -57,40 +53,39 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
  
 
   const fetchOrders = async () => {
+
     try {
-      setLoading(true);
-      const response = await axios.get("https://127.0.0.1:8000/api/get_orders/", {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      setOrderInfo(response.data || []);
+        const response = await fetch("https://127.0.0.1:8000/api/get_orders/", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        if (response.ok) {
+            const data = await response.json();
+            setOrderInfo(data);
+           
+
+
+        } 
     } catch (err) {
-      console.error("Error fetching orders:", err);
-      setError("Failed to load orders");
-    } finally {
-      setLoading(false);
-    }
-  };
+        console.log("error",err);
+        console.log("error",err.response.data);
+    } 
+};
 
   useEffect(()=>{
     fetchOrders();
   },[])
 
 
-  const handleViewDetails = (order) => {
-    if (!order) return;
+  const handleViewDetails=(order)=>{
     setMyOrderView("details");
+    console.log("Chumma",order);
     setOrderId(order.id);
+    console.log("OPOPsssss",order.id);
     setDetails(order);
-  };
-
-  if (loading && myorderview === "myorder") {
-    return <div className="p-6 text-center">Loading orders...</div>;
   }
-
-  if (error) {
-    return <div className="p-6 text-red-500">{error}</div>;
-  }
-
 
   return (
     <div className="h-full w-full p-6 flex flex-col bg-gray-50">
@@ -200,23 +195,15 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 <span className="font-semibold text-blue-600">Order Details</span>
 </div>
 {/* Order Summary */}
-<div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
-<div className="mt-2 text-gray-600">
-  <p>
-    <span className="font-semibold">Order ID:</span> {details.id || "Not Available.."}
-  </p>
-  <p>
-    <span className="font-semibold">Payment Method:</span> {details.order_status.status || "Not Available.."}
-  </p>
-  <p>
-    <span className="font-semibold">Order Date:</span> {details.order_date || "Not Available.."}
-  </p>
-  <p>
-    <span className="font-semibold">Estimated Delivery:</span> {details.shipping_address.estimated_delivery_date || "Not Available.."}
-  </p>
-</div>
-</div>
+          <div className="bg-white rounded-lg shadow-md p-4 my-4">
+            <h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
+            <div className="mt-2 text-gray-600">
+              <p><span className="font-semibold">Order ID:</span> {details.id}</p>
+              <p><span className="font-semibold">Payment Method:</span> {safeGet(details, 'order_status.status')}</p>
+              <p><span className="font-semibold">Order Date:</span> {safeGet(details, 'order_date')}</p>
+              <p><span className="font-semibold">Estimated Delivery:</span> {safeGet(details, 'shipping_address.estimated_delivery_date')}</p>
+            </div>
+          </div>
 
 {/* Product Details */}
 <div className="bg-white rounded-lg shadow-md p-4 my-4 ">

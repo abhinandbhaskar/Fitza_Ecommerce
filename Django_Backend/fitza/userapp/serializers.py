@@ -764,10 +764,6 @@ class PaymentSerializer(serializers.Serializer):
             order = ShopOrder.objects.get(id=self.context["cartId"])
             addressobj = UserAddress.objects.get(user=user, address_type='shipping')
             
-            # If you intend to limit the lengths:
-            # transaction_id = self.validated_data['transaction_id'][:20]  # Ensure it fits the DB limit (100)
-            # tracking_id = self.validated_data.get('tracking_id', "DEFAULT_TRACKING_ID")[:20]  # Updated for consistency
-
             transaction_id = "KJonkjssjaoioij"  # Ensure it fits the DB limit (100)
             tracking_id = "kajas90oioina"  # Updated for consistency
 

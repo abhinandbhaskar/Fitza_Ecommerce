@@ -4,26 +4,9 @@ import { useSelector } from "react-redux";
 
 const ReturnRefundSection = () => {
     const { accessToken } = useSelector((state) => state.auth);
-    const [returnRefund,setreturnRefund]=useState([]);
+    const [returnRefund, setreturnRefund] = useState([]);
 
-    
-    const [returns, setReturns] = useState([
-        {
-            id: 1,
-            order_id: "ORD-1001",
-            customer_name: "John Doe",
-            email: "john@example.com",
-            reason: "Product damaged",
-            status: "pending",
-            refund_amount: 49.99,
-            requested_date: "2023-11-15",
-            supporting_files: "/sample.pdf",
-            is_partial_refund: false,
-            return_date: null,
-            resolution_notes: "",
-        },
-        // Add more mock data as needed
-    ]);
+    const [returns, setReturns] = useState([]);
 
     const [selectedReturn, setSelectedReturn] = useState(null);
     const [notes, setNotes] = useState("");
@@ -36,57 +19,85 @@ const ReturnRefundSection = () => {
         return returnItem.status === activeTab;
     });
 
-    const handleMarkReturned = (id) => {
-        setReturns(returns.map((item) => (item.id === id ? { ...item, return_date: new Date().toISOString() } : item)));
-        setSelectedReturn(null); // Close detail view
-    };
 
-    const handleEscalate = (id) => {
-        setReturns(
-            returns.map((item) =>
-                item.id === id
-                    ? {
-                          ...item,
-                          is_escalated: true,
-                          escalation_reason,
-                          status: "escalated",
-                      }
-                    : item
-            )
-        );
-        setSelectedReturn(null);
+
+    const handleEscalate = async(returnId) => {
+            console.log("id",returnId);
+            const escalationData={
+                "escalationReason":escalationReason,
+            }
+            console.log("escalationReason",escalationData);
+
+            
+        try{
+            const response = await axios.post(`https://127.0.0.1:8000/api/seller/hanle_escalation/${returnId}/`,escalationData,{
+            headers:{
+                Authorization:`Bearer ${accessToken}`,
+            }
+        });
+            console.log(response.data);
+        }catch(errors)
+        {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+
+
+
+
     };
 
     const handleSaveNotes = (id) => {
         setReturns(returns.map((item) => (item.id === id ? { ...item, resolution_notes: notes } : item)));
     };
 
-    const fetchReturnRefund=async()=>{
+    const handleMarkReturned=async(returnId)=>{
 
-      
-    try{
-      const response = await axios.get('https://127.0.0.1:8000/api/seller/get_all_returnrefund/',{
-        headers:{
-          Authorization:`Bearer ${accessToken}`,
-          "Content-Type":"application/json",
+        console.log(returnId);
+        console.log(notes);
+
+        const returnData={
+            "notes":notes,
         }
-      });
-      console.log(response);
-      console.log(response.data);
-      setreturnRefund(response.data);
-     
-    }catch(errors)
-    {
-      console.log(errors);
-      console.log(errors.response.data);
+
+        try{
+            const response = await axios.post(`https://127.0.0.1:8000/api/seller/hanle_mark_returned/${returnId}/`,returnData,{
+            headers:{
+                Authorization:`Bearer ${accessToken}`,
+            }
+        });
+            console.log(response.data);
+        }catch(errors)
+        {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+
     }
 
 
-    }
 
-    useEffect(()=>{
-      fetchReturnRefund();
-    },[])
+
+    const fetchReturnRefund = async () => {
+        try {
+            const response = await axios.get("https://127.0.0.1:8000/api/seller/get_all_returnrefund/", {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            console.log(response);
+            console.log(response.data);
+            setreturnRefund(response.data);
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+    };
+
+    useEffect(() => {
+        fetchReturnRefund();
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -167,8 +178,10 @@ const ReturnRefundSection = () => {
                                                     {item.id}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    <div>{item.id}</div>
-                                                    <div className="text-gray-400">{item.email}</div>
+                                                    <div className="text-gray-400">
+                                                        {item.requested_by.first_name}
+                                                        <br /> {item.requested_by.email}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-500">{item.reason}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -217,7 +230,7 @@ const ReturnRefundSection = () => {
                                 ← Back
                             </button>
                             <h2 className="text-lg font-medium text-gray-900">
-                                Return/Refund Details - {selectedReturn.order_id}
+                                Return/Refund Details - {selectedReturn.order}
                             </h2>
                         </div>
 
@@ -227,8 +240,8 @@ const ReturnRefundSection = () => {
                             <div className="space-y-4">
                                 <div>
                                     <h3 className="text-sm font-medium text-gray-500">Customer Information</h3>
-                                    <p className="mt-1 text-sm text-gray-900">{selectedReturn.customer_name}</p>
-                                    <p className="text-sm text-gray-500">{selectedReturn.email}</p>
+                                    <p className="mt-1 text-sm text-gray-900">{selectedReturn.requested_by.first_name}</p>
+                                    <p className="text-sm text-gray-500">{selectedReturn.requested_by.email}</p>
                                 </div>
 
                                 <div>
@@ -238,7 +251,7 @@ const ReturnRefundSection = () => {
 
                                 <div>
                                     <h3 className="text-sm font-medium text-gray-500">Requested Amount</h3>
-                                    <p className="mt-1 text-sm text-gray-900">${selectedReturn.refund_amount.toFixed(2)}</p>
+                                    <p className="mt-1 text-sm text-gray-900">${selectedReturn.refund_amount}</p>
                                 </div>
 
                                 {selectedReturn.supporting_files && (
@@ -288,7 +301,7 @@ const ReturnRefundSection = () => {
                                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                     />
                                     <button
-                                        onClick={() => handleSaveNotes(selectedReturn.id)}
+                                        onClick={() => handleMarkReturned(selectedReturn.id)}
                                         className="mt-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
                                         Save Notes
@@ -319,7 +332,7 @@ const ReturnRefundSection = () => {
                                                 placeholder="Reason for escalation..."
                                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                             />
-                                            <button onClick={() => handleEscalate(selectedReturn.id)} className="...">
+                                            <button onClick={() => handleEscalate(selectedReturn.id)} className="bg-blue-600 hover:bg-blue-700 rounded-md text-white px-2 py-1 my-2">
                                                 [!] Escalate Request
                                             </button>
                                         </div>

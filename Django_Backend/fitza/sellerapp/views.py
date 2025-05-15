@@ -516,9 +516,37 @@ class UpdateOrderShipping(APIView):
 
 from userapp.models import ReturnRefund
 from sellerapp.serializers import GetAllReturnRefundSerializer
+from rest_framework.permissions import IsAuthenticated
 class GetAllReturnRefund(APIView):
     permission_classes=[IsAuthenticated]
-    def get(self,request):
-        obj=ReturnRefund.objects.all()
-        serializer=GetAllReturnRefundSerializer(obj,many=True)
+    def get(self, request):
+        seller = request.user
+        obj = ReturnRefund.objects.filter(
+            order__order_lines__seller=seller
+        ).distinct()  
+        serializer = GetAllReturnRefundSerializer(obj, many=True)
         return Response(serializer.data)
+
+
+from sellerapp.serializers import HandleMarkReturnedSerializer
+
+class HandleMarkReturned(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,returnId):
+        serializer=HandleMarkReturnedSerializer(data=request.data,context={"request":request,"returnId":returnId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Mark return added successfully.."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)
+
+
+from sellerapp.serializers import HandleEscalationSerializer
+class HadleEscalation(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,returnId):
+        serializer=HandleEscalationSerializer(data=request.data,context={"request":request,"returnId":returnId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Escalation Reason successfully.."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)
+    
