@@ -6,7 +6,6 @@ import ChangePassword from "../../../components/User/ProfileComponents/ChangePas
 import BillingAddress from "../../../components/User/ProfileComponents/BillingAddress/BillingAddress";
 import ShippingAddress from "../ProfileComponents/ShippingAddress/ShippingAddress";
 import MyOrders from "../ProfileComponents/MyOrders/MyOrders";
-import Wallet from "../ProfileComponents/Wallet/Wallet";
 import DeleteAccount from "../ProfileComponents/DeleteAccount/DeleteAccount";
 import { useDispatch,useSelector } from "react-redux";
 import { logoutUser } from "../../../redux/authActions";
@@ -78,7 +77,6 @@ const MyProfile = () => {
                     <button onClick={()=>setCurrentView("billing")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-address-card  pr-5"></i><span className="text-lg hover:text-white">Billing Address</span></button>
                     <button onClick={()=>setCurrentView("shipping")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-truck  pr-5"></i><span className="text-lg hover:text-white">Shipping Address</span></button>
                     <button onClick={()=>handleMyOrders()} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-cart-shopping  pr-5"></i><span className="text-lg hover:text-white">My Orders</span></button>
-                    <button onClick={()=>setCurrentView("wallet")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-wallet  pr-5"></i><span className="text-lg hover:text-white">Wallet</span></button>
                     <button onClick={()=>setCurrentView("delete")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-trash  pr-5"></i><span className="text-lg hover:text-white">Delete Account</span></button>
                     <button onClick={handleLogout} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400 hover:bg-blue-800 hover:text-xl hover:text-white"><i class="fa-solid fa-right-from-bracket  pr-5"></i><span className="text-lg">SignOut</span></button>
                 </div>

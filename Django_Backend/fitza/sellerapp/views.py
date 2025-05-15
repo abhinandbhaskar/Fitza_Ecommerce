@@ -528,16 +528,6 @@ class GetAllReturnRefund(APIView):
         return Response(serializer.data)
 
 
-from sellerapp.serializers import HandleMarkReturnedSerializer
-
-class HandleMarkReturned(APIView):
-    permission_classes=[IsAuthenticated]
-    def post(self,request,returnId):
-        serializer=HandleMarkReturnedSerializer(data=request.data,context={"request":request,"returnId":returnId})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message":"Mark return added successfully.."},status=status.HTTP_200_OK)
-        return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)
 
 
 from sellerapp.serializers import HandleEscalationSerializer
@@ -549,4 +539,14 @@ class HadleEscalation(APIView):
             serializer.save()
             return Response({"message":"Escalation Reason successfully.."},status=status.HTTP_200_OK)
         return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+from sellerapp.serializers import HandleReturnedSerializer
+class HandleReturned(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,returnId):
+        serializer=HandleReturnedSerializer(data=request.data,context={"request":request,"returnId":returnId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Returned successfully.."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)

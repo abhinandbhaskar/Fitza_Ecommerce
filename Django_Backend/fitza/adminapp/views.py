@@ -933,3 +933,15 @@ class FetchAllReturnRefund(APIView):
         obj=ReturnRefund.objects.all()
         serializer=FetchAllReturnRefundSerializer(obj,many=True)
         return Response(serializer.data)
+    
+
+from adminapp.serializers import HandleMarkReturnedSerializer
+
+class HandleMarkReturned(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,returnId):
+        serializer=HandleMarkReturnedSerializer(data=request.data,context={"request":request,"returnId":returnId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message":"Mark return added successfully.."},status=status.HTTP_200_OK)
+        return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)

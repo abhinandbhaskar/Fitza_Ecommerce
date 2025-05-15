@@ -888,3 +888,35 @@ class FetchAllReturnRefundSerializer(serializers.ModelSerializer):
     class Meta:
         model=ReturnRefund
         fields='__all__'
+
+
+from datetime import datetime
+from rest_framework import serializers
+from userapp.models import CustomUser, ReturnRefund
+
+class HandleMarkReturnedSerializer(serializers.Serializer):
+    resolution_notes = serializers.CharField()
+    approved_refund_amount=serializers.IntegerField()
+    status=serializers.CharField()
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("User does not exist.")
+        return data
+
+    def save(self):
+        user = self.context["request"].user
+        return_id = self.context["returnId"]
+        resolution_notes = self.validated_data["resolution_notes"]
+        approved_refund_amount = self.validated_data["approved_refund_amount"]
+        status = self.validated_data["status"]
+        try:
+            obj = ReturnRefund.objects.get(id=return_id)
+        except ReturnRefund.DoesNotExist:
+            raise serializers.ValidationError("Invalid ReturnRefund ID.")
+        obj.resolution_notes = resolution_notes
+        obj.approved_refund_amount = approved_refund_amount
+        obj.status = status
+        obj.processed_date = datetime.now()
+        obj.save()
+        return obj

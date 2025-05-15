@@ -762,31 +762,6 @@ class GetAllReturnRefundSerializer(serializers.ModelSerializer):
         model=ReturnRefund
         fields='__all__'
 
-from datetime import datetime
-from rest_framework import serializers
-from userapp.models import CustomUser, ReturnRefund
-
-class HandleMarkReturnedSerializer(serializers.Serializer):
-    notes = serializers.CharField()
-    def validate(self, data):
-        user = self.context["request"].user
-        if not CustomUser.objects.filter(id=user.id).exists():
-            raise serializers.ValidationError("User does not exist.")
-        return data
-
-    def save(self):
-        user = self.context["request"].user
-        return_id = self.context["returnId"]
-        notes = self.validated_data["notes"]
-        try:
-            obj = ReturnRefund.objects.get(id=return_id)
-        except ReturnRefund.DoesNotExist:
-            raise serializers.ValidationError("Invalid ReturnRefund ID.")
-        obj.resolution_notes = notes
-        obj.return_date = datetime.now()
-        obj.resolved_by = user
-        obj.save()
-        return obj
 
 class HandleEscalationSerializer(serializers.Serializer):
     escalationReason = serializers.CharField()
@@ -808,3 +783,24 @@ class HandleEscalationSerializer(serializers.Serializer):
         obj.save()
         return obj
 
+
+
+from datetime import datetime
+class HandleReturnedSerializer(serializers.Serializer):
+    def validate(self, data):
+        user = self.context["request"].user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("User does not exist.")
+        return data
+
+    def save(self):
+        user = self.context["request"].user
+        return_id = self.context["returnId"]
+        try:
+            obj = ReturnRefund.objects.get(id=return_id)
+        except ReturnRefund.DoesNotExist:
+            raise serializers.ValidationError("Invalid ReturnRefund ID.")
+        obj.return_date = datetime.now()
+        obj.resolved_by = user
+        obj.save()
+        return obj

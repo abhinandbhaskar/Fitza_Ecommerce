@@ -6,7 +6,7 @@ from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBran
 from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon
 from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData,AddFreeShippingOffer,GetFreeshipOffers,ShipOfferActiveDeactive,DeleteFreeShippingOffer,GetEditFreeShipOffer
 from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers,GetDealsOfDay,ViewAllComplaints,ResolveComplaint
-from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund
+from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -92,6 +92,7 @@ urlpatterns = [
     path('update_order_status/<int:oid>/<int:uid>/',UpdateOrderStatus.as_view(),name="update_order_status"),
     path('verify_payment/<int:pid>/<int:sid>/',VerifyPaymentAdmin.as_view(),name="verify_payment"),
     path('fetch_all_returnrefund/',FetchAllReturnRefund.as_view(),name="fetch_all_returnrefund"),
+    path('hanle_mark_returned/<int:returnId>/',HandleMarkReturned.as_view(),name="hanle_mark_returned"),
 
 
 

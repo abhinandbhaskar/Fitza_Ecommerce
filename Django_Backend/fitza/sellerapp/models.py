@@ -57,6 +57,7 @@ class FreeShippingOffer(models.Model):
         return f"Free Shipping Offer (Min Order: ${self.min_order_amount})"
 
 
+
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
         ('info', 'Information'),
@@ -73,29 +74,66 @@ class Notification(models.Model):
         ('low', 'Low'),
     ]
 
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notifications')  # Receiver
-    sender = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')  # Sender
+    NOTIFICATION_GROUP_CHOICES = [
+        ('all_users', 'All Users'),
+        ('all_sellers', 'All Sellers'),
+        ('all_admins', 'All Admins'),
+    ]
+
+    user = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.CASCADE, 
+        related_name='notifications', 
+        null=True, 
+        blank=True, 
+        help_text="Specify the individual user for this notification."
+    )  # Receiver
+
+    group = models.CharField(
+        max_length=20, 
+        choices=NOTIFICATION_GROUP_CHOICES, 
+        null=True, 
+        blank=True, 
+        help_text="Specify a group for this notification (if applicable)."
+    )  # Target group for group notifications
+
+    sender = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='sent_notifications',
+        help_text="The sender of the notification."
+    )  # Sender
+
     message = models.TextField()
     type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default='info')
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     redirect_url = models.URLField(null=True, blank=True)
 
-    expires_at = models.DateTimeField(null=True, blank=True, help_text="The time at which the notification will expire.")
+    expires_at = models.DateTimeField(
+        null=True, 
+        blank=True, 
+        help_text="The time at which the notification will expire."
+    )
     priority = models.CharField(
         max_length=10, 
-        choices=NOTIFICATION_PRIORITY_CHOICES,  # Use the internal choices
-        default='medium',
-        null=True,  # Allows the field to be null
-        blank=True,  # Allows the field to be blank
+        choices=NOTIFICATION_PRIORITY_CHOICES, 
+        default='medium', 
+        null=True, 
+        blank=True, 
         help_text="The priority level of the notification."
     )
 
-
     def __str__(self):
-        return f"Notification to {self.user.username} - {self.type.capitalize()}"
+        target = f"Group: {self.group}" if self.group else f"User: {self.user.username}"
+        return f"Notification to {target} - {self.type.capitalize()}"
 
-
+    def save(self, *args, **kwargs):
+        if not self.user and not self.group:
+            raise ValueError("Notification must have a target user or group.")
+        super().save(*args, **kwargs)
 
 
 

@@ -286,7 +286,7 @@ class Shipping(models.Model):
     ('failed', 'Failed')]
     order = models.OneToOneField(ShopOrder, on_delete=models.CASCADE, related_name='shipping')
     shipping_address = models.ForeignKey(UserAddress, on_delete=models.CASCADE)
-    tracking_id = models.CharField(max_length=255, null=True, blank=True)  
+    tracking_id = models.CharField(max_length=600, null=True, blank=True)  
     status = models.CharField(
         max_length=50, 
         choices=SHIPPING_STATUS_CHOICES
@@ -314,7 +314,7 @@ class Payment(models.Model):
     order = models.ForeignKey(ShopOrder, on_delete=models.CASCADE, related_name='payments')
     payment_method = models.CharField(max_length=50)
     status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES)
-    transaction_id = models.CharField(max_length=100)
+    transaction_id = models.CharField(max_length=600)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateTimeField(auto_now_add=True)  # Tracks when the payment was made
     gateway_response = models.JSONField(null=True, blank=True)  # Stores the raw response from the payment gateway

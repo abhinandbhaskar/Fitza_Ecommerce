@@ -3,7 +3,7 @@ from django.urls import path
 from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister
 from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate
 from sellerapp.views import GetCategory,GetBrands,GetColor,GetSize,AddProducts,GetAllProducts,ViewStock,ViewUserReviews,ViewUserQuestions,UserAnswer,ViewAnsweredQues,AddSellerComplaint,ViewSellerComplaints
-from sellerapp.views import ViewUserComplaint,SellerReplyComplaint,ViewAllUserFeedbacks,AddSellerFeedBacks,ViewOrderedUsers,SellerViewOrders,UpdateOrderShipping,GetAllReturnRefund,HandleMarkReturned,HadleEscalation
+from sellerapp.views import ViewUserComplaint,SellerReplyComplaint,ViewAllUserFeedbacks,AddSellerFeedBacks,ViewOrderedUsers,SellerViewOrders,UpdateOrderShipping,GetAllReturnRefund,HadleEscalation,HandleReturned
 
 urlpatterns = [
     path('register/',SellerRegisterAPI.as_view(),name='register'),
@@ -40,8 +40,8 @@ urlpatterns = [
     path('seller_view_orders/',SellerViewOrders.as_view(),name="seller_view_orders"),
     path('update_order_shipping/',UpdateOrderShipping.as_view(),name="update_order_shipping"),
     path('get_all_returnrefund/',GetAllReturnRefund.as_view(),name="get_all_returnrefund"),
-    path('hanle_mark_returned/<int:returnId>/',HandleMarkReturned.as_view(),name="hanle_mark_returned"),
     path('hanle_escalation/<int:returnId>/',HadleEscalation.as_view(),name="hanle_escalation"),
+    path('hanle_returned/<int:returnId>/',HandleReturned.as_view(),name="hanle_returned"),
 ]
 
 from django.conf import settings

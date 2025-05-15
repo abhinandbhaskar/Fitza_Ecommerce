@@ -56,12 +56,9 @@ const ReturnRefundSection = () => {
         console.log(returnId);
         console.log(notes);
 
-        const returnData={
-            "notes":notes,
-        }
 
         try{
-            const response = await axios.post(`https://127.0.0.1:8000/api/seller/hanle_mark_returned/${returnId}/`,returnData,{
+            const response = await axios.post(`https://127.0.0.1:8000/api/seller/hanle_returned/${returnId}/`,{},{
             headers:{
                 Authorization:`Bearer ${accessToken}`,
             }
@@ -291,33 +288,25 @@ const ReturnRefundSection = () => {
                                 {/* Seller Notes */}
                                 <div>
                                     <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-                                        Add Notes (Visible to Admin)
+                                        Product returned (Visible to Admin)
                                     </label>
-                                    <textarea
+                                    <input
                                         id="notes"
                                         rows={3}
-                                        value={notes}
+                                        value={selectedReturn.return_date?"Returned":"Not Returned"}
                                         onChange={(e) => setNotes(e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                        className="mt-1 block w-full border border-gray-300 rounded-md font-bold text-red-600 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                     />
                                     <button
                                         onClick={() => handleMarkReturned(selectedReturn.id)}
                                         className="mt-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
-                                        Save Notes
+                                        Returned
                                     </button>
                                 </div>
 
                                 {/* Seller Actions */}
                                 <div className="space-y-3">
-                                    {selectedReturn.status === "pending" && !selectedReturn.return_date && (
-                                        <button
-                                            onClick={() => handleMarkReturned(selectedReturn.id)}
-                                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                        >
-                                            Confirm Product Received
-                                        </button>
-                                    )}
 
                                     {selectedReturn.status === "pending" && (
                                         <div className="pt-2">
