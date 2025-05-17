@@ -67,7 +67,7 @@ const MyProfile = () => {
         <div className="h-auto w-screen flex flex-row border-2 justify-center  border-gray-200">
             <div className="h-screen w-1/2 m-1 flex justify-center  items-center flex-col">
                 <div className="h-[60%] w-full  flex items-center pt-14 flex-col justify-center">
-                    <h1>{profilePicture}</h1>
+                   
                     <img src={profilePicture} className="h-[180px] w-[180px] rounded-full" alt="" />
                     <h1 className="font-bold text-2xl">{name}</h1>
                 </div>

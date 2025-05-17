@@ -123,8 +123,6 @@ class ProfileUpdateSerializer(serializers.Serializer):
 
 from common.models import UserAddress
 
-
-
 class AddBillingAddessSerializer(serializers.Serializer):
     firstname=serializers.CharField(required=False, allow_blank=True)
     lastname=serializers.CharField(required=False, allow_blank=True)
@@ -880,7 +878,8 @@ class AddUserFeedBackSerializer(serializers.Serializer):
             rating=self.validated_data["rating"],
             comment=self.validated_data["feedback"]
         )
-        
+
+from notifications.notifiers import ReturnRefundNotifier
 from userapp.models import ReturnRefund
 class SendReturnRefundSerializer(serializers.Serializer):
     reason=serializers.CharField()
@@ -894,21 +893,38 @@ class SendReturnRefundSerializer(serializers.Serializer):
         if not CustomUser.objects.filter(id=user.id).exists():
             raise serializers.ValidationError("UnAuthorized User...")
         return data
-    
+
     def save(self):
-        orderId=self.context["orderId"]
-        user=self.context["request"].user
-        order=ShopOrder.objects.get(id=orderId)
-        ReturnRefund.objects.create(order=order,
-                                    requested_by=user,
-                                    reason=self.validated_data["reason"],
-                                    status="pending",
-                                    refund_amount=self.validated_data["refundAmount"],
-                                    refund_method=self.validated_data["refundMethod"],
-                                    comments=self.validated_data["comments"],
-                                    is_partial_refund=self.validated_data["isPartialRefund"],
-                                    supporting_files=self.validated_data["supportingFiles"]
-                                    )
+        order_id = self.context["orderId"]
+        user = self.context["request"].user
+        order = ShopOrder.objects.get(id=order_id)
+        
+        sellers = order.order_lines.values_list('seller', flat=True).distinct()
+        
+        if len(sellers) == 1:
+            seller = CustomUser.objects.get(id=sellers[0])
+        else:
+            seller = None 
+
+        ReturnRefund.objects.create(
+            order=order,
+            requested_by=user,
+            reason=self.validated_data["reason"],
+            status="pending",
+            refund_amount=self.validated_data["refundAmount"],
+            refund_method=self.validated_data["refundMethod"],
+            comments=self.validated_data["comments"],
+            is_partial_refund=self.validated_data["isPartialRefund"],
+            supporting_files=self.validated_data["supportingFiles"]
+        )
+
+        if seller:
+            notifier = ReturnRefundNotifier(user=seller, sender=user)
+            notifier.return_requested(order_id=order_id)
+        else:
+            pass
+
+
 
 from userapp.models import ReturnRefund
 class GetReturnRefundStatusSerializer(serializers.ModelSerializer):

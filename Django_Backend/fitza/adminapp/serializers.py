@@ -448,7 +448,7 @@ class UpdateBannerSerializer(serializers.Serializer):
         obj.is_active=False
         obj.save()
         return obj
-
+from notifications.notifiers import MarketingNotifier
 from common.models import Coupon
 class AddCouponSerializer(serializers.Serializer):
     code=serializers.CharField()
@@ -464,7 +464,7 @@ class AddCouponSerializer(serializers.Serializer):
             raise serializers.ValidationError("UnAuthorized User...")
         return data
     def save(self):
-        Coupon.objects.get_or_create(
+        coupon, created = Coupon.objects.get_or_create(
             code=self.validated_data["code"],
             discount_type=self.validated_data["discountType"],
             discount_value=self.validated_data["discountValue"],
@@ -473,6 +473,14 @@ class AddCouponSerializer(serializers.Serializer):
             end_date=self.validated_data["endDate"],
             usage_limit=self.validated_data["usageLimit"],
         )
+        if created:
+                notifier = MarketingNotifier(group='all_users')  # Notify all users (you can customize the target)
+                notifier.new_coupon(
+                    coupon_code=coupon.code,
+                    discount_type=coupon.discount_type,
+                    discount_value=coupon.discount_value,
+                    expires_on=coupon.end_date
+                )
         
 
 class GetCouponsSerializer(serializers.ModelSerializer):
@@ -522,13 +530,24 @@ class AddDiscountCardSerializer(serializers.Serializer):
             raise serializers.ValidationError("UnAuthorized User...")
         return data
     def save(self):
-        DiscountCard.objects.get_or_create(
+        discount_card, created = DiscountCard.objects.get_or_create(
         card_name=self.validated_data["cardName"],
         discount_percentage=self.validated_data["discountPercentage"],
         start_date=self.validated_data["startDate"],
         end_date=self.validated_data["endDate"], 
         is_active=self.validated_data["isActive"],
         )
+        if created:
+            notifier = MarketingNotifier(group='all_users') 
+            notifier.discount_card(
+                card_name=discount_card.card_name,
+                discount_percentage=discount_card.discount_percentage,
+                expires_on=self.validated_data["endDate"]
+            )
+
+
+
+
 
 from sellerapp.models import DiscountCard  
 class GetDiscountCardSerializer(serializers.ModelSerializer):
@@ -572,13 +591,20 @@ class AddFreeShippingSerializer(serializers.Serializer):
             raise serializers.ValidationError("UnAuthorized User...")
         return data
     def save(self):
-        FreeShippingOffer.objects.get_or_create(
+        free_shipping_offer, created = FreeShippingOffer.objects.get_or_create(
         min_order_amount=self.validated_data["minOrderAmount"],
         description=self.validated_data["description"],
         start_date=self.validated_data["startDate"],
         end_date=self.validated_data["endDate"],
         is_active=self.validated_data["isActive"],
         )
+        if created:
+            notifier = MarketingNotifier(group='all_users')
+            notifier.free_shipping_offer(
+                min_order_amount=free_shipping_offer.min_order_amount,
+                expires_on=self.validated_data["endDate"]
+            ) 
+
 
 
 class GetFreeShipDataSerializer(serializers.ModelSerializer):
@@ -637,15 +663,26 @@ class AddProductOfferSerializer(serializers.Serializer):
         except Product.DoesNotExist:
             raise serializers.ValidationError("Product not found.")
 
-        ProductOffer.objects.get_or_create(
-            product=product,
-            offer_title=self.validated_data["offerTitle"],
-            offer_description=self.validated_data["offerDescription"],
-            discount_percentage=self.validated_data["discountPercentage"],
-            start_date=self.validated_data["startDate"],
-            end_date=self.validated_data["endDate"],
-            is_active=self.validated_data["isActive"],
+        product_offer, created = ProductOffer.objects.get_or_create(
+        product=product,
+        offer_title=self.validated_data["offerTitle"],
+        offer_description=self.validated_data["offerDescription"],
+        discount_percentage=self.validated_data["discountPercentage"],
+        start_date=self.validated_data["startDate"],
+        end_date=self.validated_data["endDate"],
+        is_active=self.validated_data["isActive"],
         )
+        if created:
+            notifier = MarketingNotifier(group='all_users')
+            notifier.product_offer(
+                product_name=product.product_name,
+                offer_title=product_offer.offer_title,
+                discount_percentage=product_offer.discount_percentage,
+                expires_on=self.validated_data["endDate"]
+            )
+
+
+
 
 class ProductNameSerializer(serializers.ModelSerializer):
     class Meta:
@@ -893,6 +930,7 @@ class FetchAllReturnRefundSerializer(serializers.ModelSerializer):
 from datetime import datetime
 from rest_framework import serializers
 from userapp.models import CustomUser, ReturnRefund
+from notifications.notifiers import ReturnRefundNotifier
 
 class HandleMarkReturnedSerializer(serializers.Serializer):
     resolution_notes = serializers.CharField()
@@ -919,4 +957,12 @@ class HandleMarkReturnedSerializer(serializers.Serializer):
         obj.status = status
         obj.processed_date = datetime.now()
         obj.save()
+        notifier = ReturnRefundNotifier(user=obj.requested_by, sender=user)
+        if status=="rejected":
+            notifier.return_rejected(order_id=obj.order.id)
+        elif status=="approved":
+            notifier.refund_initiated(order_id=obj.order.id,refund_amount=approved_refund_amount)
+        elif status=="completed":
+            notifier.refund_completed(order_id=obj.order.id,refund_amount=approved_refund_amount)
+
         return obj

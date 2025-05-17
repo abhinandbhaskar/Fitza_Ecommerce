@@ -13,6 +13,7 @@ import WishlistPage from "../pages/User/WishlistPage/WishlistPage";
 import CategoryProducts from "../pages/User/CategoryProducts/CategoryProducts";
 import CartPage from "../pages/User/CartPage/CartPage";
 import OfferSection from "../pages/User/OfferSection/OfferSection";
+import NotificationPage from "../pages/User/NotificationPage/NotificationPage";
 
 const UserRoutes = () => {
   return (
@@ -31,6 +32,7 @@ const UserRoutes = () => {
           <Route path="/categoryproduct/:pro_name" element={<CategoryProducts/>} />
           <Route path="/cartpage" element={<CartPage/>} />
           <Route path="/offerproduct" element={<OfferSection/>} />
+          <Route path="/notifications" element={<NotificationPage/>} />
       </Routes>  
     </>
   )

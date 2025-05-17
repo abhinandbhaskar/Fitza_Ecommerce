@@ -183,18 +183,19 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import PasswordSerializer,ProfileUpdateSerializer,AddBillingAddessSerializer
 
+from notifications.notifiers import SecurityNotifier
 
 class PasswordChange(APIView):
-    # IsAuthenticated handles token validation before entering the method.
     permission_classes=[IsAuthenticated]
-    # self : Refers to the class instance
-    # request: Carries the data from the frontend.  
     def post(self,request):
         serializer=PasswordSerializer(data=request.data,context={'request':request})
-        # data=request.data: This is the JSON body you sent from React — currentPassword, newPassword, confirmpassword
-        # context={'request': request}: You're passing the full request object as extra context, so that the serializer can access request.user.
         if serializer.is_valid():
             serializer.save()
+            try:
+                SecurityNotifier(request.user).password_change()
+            except Exception as e:
+                print(f"Failed to send notification: {str(e)}")
+
             return Response({"message":"Password changed successfully"},status=status.HTTP_200_OK)
         return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
     
@@ -406,7 +407,6 @@ from userapp.serializers import AddToCartSerializer,GetCartDataSerializer
 class AddToCart(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request,id):
-        print("WORKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
         serializer=AddToCartSerializer(data=request.data,context={"request":request,"id":id})
         if serializer.is_valid():
             serializer.save()

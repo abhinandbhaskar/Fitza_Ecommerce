@@ -14,11 +14,9 @@ const Header = () => {
     const [search,setSearch]=useState("");
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [unreadNotifications, setUnreadNotifications] = useState(3); // Mock count
     
-
-
-
-    const navigate=useNavigate();
+    const navigate = useNavigate();
 
     const dropdownOptions = {
         "Men's Wear": cate1,
@@ -46,11 +44,9 @@ const Header = () => {
         } catch (error) {
             console.error("Category Fetch Error:", error);
         }
-        
     };
 
-    const getAllProducts=async()=>{
-
+    const getAllProducts = async () => {
         try {
             const response = await axios.get(
                 "https://127.0.0.1:8000/api/fetch_drop_data/",
@@ -61,27 +57,32 @@ const Header = () => {
                 }
             );
             setSubCate(response.data);
-            console.log("FIRSTTTTTT",response.data);
             setProducts(response.data);
         } catch (error) {
             console.error("Sub-category Fetch Error:", error);
         }
+    };
 
-    }
+    const handleSearch = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearch(query);
+        const filtered = products.filter((product) =>
+            product.product_name.toLowerCase().includes(query)
+        );
+        setFilteredProducts(filtered);
+    };
 
-const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearch(query);
-    const filtered = products.filter((product) =>
-        product.product_name.toLowerCase().includes(query)
-    );
-    setFilteredProducts(filtered);
-};
+    const ViewProduct = async (pro_name) => {
+        navigate(`/categoryproduct/${pro_name}`);
+    };
 
+    const handleSellerJoin = () => {
+        navigate(isAuthenticated ? "/seller/landpage" : "/seller/landpage");
+    };
 
-    useEffect(()=>{
+    useEffect(() => {
         getAllProducts();
-    },[])
+    }, []);
 
     useEffect(() => {
         if (activeDropdown) {
@@ -89,18 +90,11 @@ const handleSearch = (e) => {
         }
     }, [activeDropdown]);
 
-
-
-    const ViewProduct=async(pro_name)=>{
-        console.log("Pro..",pro_name);
-        navigate(`/categoryproduct/${pro_name}`)
-
-    }
-
     return (
         <header className="w-full relative">
-            <div className="header-top bg-red-300 h-8 w-full flex items-center">
-                <div className="md:ml-4 ml-2 flex space-x-2">
+            {/* Top Bar */}
+            <div className="header-top bg-red-300 h-8 w-full flex items-center justify-between px-4">
+                <div className="flex space-x-2">
                     <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
                         <i className="fa-brands fa-square-facebook p-2 text-white text-sm md:text-base"></i>
                     </a>
@@ -111,9 +105,19 @@ const handleSearch = (e) => {
                         <i className="fa-brands fa-square-instagram p-2 text-white text-sm md:text-base"></i>
                     </a>
                 </div>
+                
+                {/* Seller Join Button - Top Right */}
+                <button 
+                    onClick={handleSellerJoin}
+                    className="hidden md:flex items-center text-white text-xs md:text-sm font-medium hover:bg-red-400 px-2 py-1 rounded transition"
+                >
+                    <i className="fa-solid fa-store mr-1"></i> Join as Seller
+                </button>
             </div>
 
+            {/* Main Header */}
             <div className="header-main h-auto md:h-[100px] w-full border border-red-200 flex flex-col md:flex-row justify-between items-center px-4 md:px-8 py-4">
+                {/* Logo */}
                 <div>
                     <a href="#">
                         <img
@@ -124,56 +128,82 @@ const handleSearch = (e) => {
                     </a>
                 </div>
    
-                <div className="flex items-center w-full md:w-[460px] lg:w-[600px] py-2 rounded-md border border-red-300 bg-white shadow-sm mt-4 md:mt-0">
-    <input
-        type="text"
-        placeholder="Search products..."
-        className="form-control flex-grow px-4 py-2 outline-none text-gray-600 text-sm md:text-base"
-        value={search}
-        onChange={handleSearch}
-    />
-    <i className="fa fa-search text-gray-400 mx-3 text-sm md:text-base"></i>
-</div>
+                {/* Search Bar */}
+                <div className="relative w-full md:w-[460px] lg:w-[600px] mt-4 md:mt-0">
+                    <div className="flex items-center w-full py-2 rounded-md border border-red-300 bg-white shadow-sm">
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            className="form-control flex-grow px-4 py-2 outline-none text-gray-600 text-sm md:text-base"
+                            value={search}
+                            onChange={handleSearch}
+                        />
+                        <i className="fa fa-search text-gray-400 mx-3 text-sm md:text-base"></i>
+                    </div>
 
-{/* Conditionally render product results */}
-{search && (
-    <div className="product-results mt-4 max-h-[200px] overflow-y-auto bg-white shadow-md rounded-lg p-2 w-full md:w-[600px]">
-        {filteredProducts.length > 0 ? (
-            <ul className="space-y-2">
-                {filteredProducts.map((product, index) => (
-                    <li
-                        key={index}
-                        onClick={() => ViewProduct(product.product_name)}
-                        className="hover:text-red-400 transition cursor-pointer text-sm md:text-base"
-                    >
-                        {product.product_name}
-                    </li>
-                ))}
-            </ul>
-        ) : (
-            <p className="text-gray-500 text-sm md:text-base">No products found for "{search}".</p>
-        )}
-    </div>
-)}
+                    {/* Search Results */}
+                    {search && (
+                        <div className="absolute z-10 mt-1 w-full max-h-[200px] overflow-y-auto bg-white shadow-md rounded-lg p-2">
+                            {filteredProducts.length > 0 ? (
+                                <ul className="space-y-2">
+                                    {filteredProducts.map((product, index) => (
+                                        <li
+                                            key={index}
+                                            onClick={() => ViewProduct(product.product_name)}
+                                            className="hover:text-red-400 transition cursor-pointer text-sm md:text-base"
+                                        >
+                                            {product.product_name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-gray-500 text-sm md:text-base">No products found for "{search}".</p>
+                            )}
+                        </div>
+                    )}
+                </div>
 
-
+                {/* Icons Section */}
                 <div className="flex justify-center items-center space-x-4 mt-4 md:mt-0 md:space-x-6">
+
+                    
+                    {/* User Profile */}
                     <Link to={isAuthenticated ? "/profile" : "/login"}>
                         <i className="fa-regular fa-user text-red-400 text-xl md:text-3xl"></i>
                     </Link>
+                    
+                    {/* Wishlist */}
                     <Link to="/wishlistview">
                         <i className="fa-regular fa-heart text-red-400 text-xl md:text-3xl"></i>
                     </Link>
-                    
-                    <Link to="/cartpage">
-                    <i className="fa-solid fa-bag-shopping text-red-400 text-xl md:text-3xl"></i>
+
+                                        {/* Notification Icon with Badge */}
+                    <Link to="/notifications" className="relative">
+                        <i className="fa-solid fa-bell text-red-400 text-xl md:text-3xl"></i>
+                        {unreadNotifications > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {unreadNotifications}
+                            </span>
+                        )}
                     </Link>
                     
+                    {/* Cart */}
+                    <Link to="/cartpage">
+                        <i className="fa-solid fa-bag-shopping text-red-400 text-xl md:text-3xl"></i>
+                    </Link>
+                    
+                    {/* Seller Join Button - Mobile */}
+                    <button 
+                        onClick={handleSellerJoin}
+                        className="md:hidden flex items-center text-red-500 text-sm font-medium hover:bg-red-50 px-2 py-1 rounded transition"
+                    >
+                        <i className="fa-solid fa-store mr-1"></i> Seller
+                    </button>
                 </div>
             </div>
 
+            {/* Navigation */}
             <div className="header-bottom h-auto w-full flex justify-center mb-2">
-
                 <div className="w-full max-w-screen-lg flex flex-wrap justify-center items-center space-x-2">
                     <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
                         HOME
@@ -197,6 +227,7 @@ const handleSearch = (e) => {
                 </div>
             </div>
 
+            {/* Dropdown Menu */}
             {activeDropdown && (
                 <div
                     onMouseEnter={() => handleMouseEnter(activeDropdown)}

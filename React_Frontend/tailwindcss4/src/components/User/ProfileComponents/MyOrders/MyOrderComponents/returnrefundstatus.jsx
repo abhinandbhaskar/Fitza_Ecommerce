@@ -124,25 +124,3 @@ const refundDetails = [
 };
 
 export default ReturnRefundStatus;
-
-// Example data structure to be passed as props
-/*
-
-const refundDetails = [
-  {
-    orderId: 12345,
-    reason: "Item arrived damaged",
-    status: "approved",
-    refundAmount: 50.0,
-    requestDate: "2025-05-12T10:30:00Z",
-    processedDate: "2025-05-13T15:45:00Z",
-    refundMethod: "Credit Card",
-    isPartialRefund: false,
-    isEscalated: true,
-    escalationReason: "Delay in processing",
-    comments: "Please expedite the process.",
-    resolutionNotes: "Refund processed successfully."
-  }
-];
-*/
-

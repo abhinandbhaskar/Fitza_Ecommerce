@@ -8,9 +8,15 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
 
 const BannerSection = () => {
   const [banner, setBanner] = useState([]);
+  const navigate=useNavigate();
+
+  const handleShopNow=()=>{
+    navigate("/offerproduct");
+  }
 
   const { accessToken } = useSelector((state) => state.auth);
 
@@ -74,7 +80,7 @@ const BannerSection = () => {
                  {format(new Date(value.start_date), "MMMM d, yyyy ") || " 2025-04-01"}
             </span>
           </div>
-          <button className="shop-now-btn">
+          <button onClick={()=>handleShopNow()} className="shop-now-btn">
             SHOP NOW
           </button>
         </div>

@@ -709,6 +709,8 @@ class OrderLineMainSerializer(serializers.ModelSerializer):
         model=OrderLine
         fields='__all__'
 
+from notifications.notifiers import OrderNotifier
+
 class UpdateOrderShippingSerializer(serializers.Serializer):
     orderStatus=serializers.CharField()
     shippingStatus=serializers.CharField()
@@ -731,22 +733,38 @@ class UpdateOrderShippingSerializer(serializers.Serializer):
         return data
 
     def save(self):
+        current_user  = self.context["request"].user
         sid = self.validated_data["sid"]
         oid = self.validated_data["oid"]
         uid = self.validated_data["uid"]
         order_status = self.validated_data["orderStatus"]
         shipping_status = self.validated_data["shippingStatus"]
-
         user_instance = CustomUser.objects.get(id=uid)
         order = ShopOrder.objects.get(id=oid, user=user_instance)
         processing_status, created = OrderStatus.objects.get_or_create(status=order_status)
-
         order.order_status = processing_status
+        print("STTTTT",processing_status)
         order.save()
+        
+        notifier = OrderNotifier(order.user, sender=current_user) 
+        if processing_status == "confirm":  # Compare with status object
+            notifier.order_confirmed(order.id)
+        elif processing_status == "cancelled":
+            notifier.order_cancelled(order.id)
 
+        elif processing_status == "delivered":
+            notifier.order_delivered(order.id)
         shipping = Shipping.objects.get(order=order, id=sid)
         shipping.status = shipping_status
         shipping.save()
+        if shipping_status == "shipped":
+            notifier.order_shipped(order.id, shipping.tracking_id)
+        if shipping_status == "delivered":
+            notifier.order_delivered(order.id)       
+        return order
+
+
+    
 
 
 class ViewCustomUserSerializer(serializers.ModelSerializer):
@@ -784,7 +802,7 @@ class HandleEscalationSerializer(serializers.Serializer):
         return obj
 
 
-
+from notifications.notifiers import ReturnRefundNotifier
 from datetime import datetime
 class HandleReturnedSerializer(serializers.Serializer):
     def validate(self, data):
@@ -803,4 +821,8 @@ class HandleReturnedSerializer(serializers.Serializer):
         obj.return_date = datetime.now()
         obj.resolved_by = user
         obj.save()
+        notifier = ReturnRefundNotifier(user=obj.requested_by, sender=user)
+        notifier.return_approved(order_id=obj.order.id)
+
         return obj
+

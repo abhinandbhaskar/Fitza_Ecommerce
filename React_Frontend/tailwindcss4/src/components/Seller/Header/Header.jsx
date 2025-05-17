@@ -85,21 +85,30 @@ const Header = ({setCurrentView}) => {
                     </div>
                 </div>
 
-                <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
-                    {["bell", "envelope", "gear", "circle-info"].map((icon, index) => (
-                        <div
-                            key={index}
-                            className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center"
-                        >
-                            <i className={`fa-solid fa-${icon}`}></i>
+                              <div onClick={()=>setCurrentView("notification")} className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
+                        <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >
+                            <i className="fa-solid fa-bell"></i>
                         </div>
-                    ))}
                 </div>
+
+                        <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
+                        <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >
+                            <i className="fa-solid fa-gear"></i>
+                        </div>
+                        </div>
+
+                        <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
+                        <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >
+                            <i className="fa-solid fa-circle-info"></i>
+                        </div>
+                        </div>
             </div>
 
             <div className="w-full md:w-1/4 flex items-center gap-2 bg-white border-t md:border-t-0 md:border-l border-gray-600 p-4">
                 <div onClick={()=>setCurrentView("profile")} className="flex flex-row bg-white hover:bg-gray-100  p-2 border-1 border-gray-200 shadow-2xl rounded-xl">
-                <img src={profile} className="h-12 w-12 border-2 border-gray-700 rounded-full" alt="Profile" />
+                <img
+                   src={ profilePicture && profilePicture.length > 0 && `https://127.0.0.1:8000/media/${profilePicture}`}
+                  className="h-12 w-12 border-2 border-gray-700 rounded-full" alt="Profile" />
                 <div className="flex flex-col text-sm">
                     <p className="text-sm text-blue-700 px-2">profile</p>
                     {/* <h1 className="font-bold w-[12ch] truncate">{name}</h1> */}

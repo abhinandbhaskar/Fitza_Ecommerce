@@ -2,6 +2,7 @@ import React,{useState,useEffect} from 'react'
 import { useSelector } from 'react-redux';
 import "./DealsOftheDay.css"
 import categoryImg1 from "../../../assets/img/category-1.jpg";
+import { useNavigate } from "react-router-dom";
 
 import axios from 'axios';
 const DealsOftheDay = () => {
@@ -10,6 +11,7 @@ const DealsOftheDay = () => {
   const [products,setProducts]=useState([]);
   const [timeLeft,setTimeLeft]=useState({});
 
+   const navigate=useNavigate();
   const calculateTimeLeft = () =>{
 
     const now=new Date();
@@ -52,6 +54,10 @@ const DealsOftheDay = () => {
     fetchDeals();
   },[])
 
+      const AddToCart=(id)=>{
+        console.log("Yo Yo",id);
+        navigate(`/productview/${id}`);
+    }
 
 
   useEffect(() => {
@@ -101,7 +107,7 @@ const DealsOftheDay = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 cards">
               {
                 products.map((offer,key)=>(
-                  <div className="card m-3">
+                  <div className="card m-3" onClick={()=>AddToCart(offer.product.id)}>
                 
                   <img 
 

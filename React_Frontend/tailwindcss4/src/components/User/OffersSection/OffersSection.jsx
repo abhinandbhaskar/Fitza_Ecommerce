@@ -3,7 +3,10 @@ import "./OffersSection.css";
 import Img1 from "../../../assets/img/deals-1.jpg";
 import Img2 from "../../../assets/img/deals-2.png";
 
+
 const OffersSection = () => {
+  
+
     return (
         <div className="Offers-section">
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 middle-offers">

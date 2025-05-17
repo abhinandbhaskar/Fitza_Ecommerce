@@ -3,78 +3,97 @@ import "./Header.css";
 import Logo from "../../../assets/Logo/Fitza_logo.png";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Header = () => {
     const [activeDropdown, setActiveDropdown] = useState(null);
-    const { isAuthenticated,accessToken } = useSelector((state) => state.auth);
+    const { isAuthenticated, accessToken } = useSelector((state) => state.auth);
+    const [cate1, setCate1] = useState([]);
+    const [subcate, setSubCate] = useState([]);
+    const [search,setSearch]=useState("");
+    const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    
 
-    const handleMouseEnter = (dropdown) => setActiveDropdown(dropdown);
-    const handleMouseLeave = () => setActiveDropdown(null);
-    const [cate1,setCate1]=useState([]);
-    const [subcate,setSubCate]=useState([]);
 
+
+    const navigate=useNavigate();
 
     const dropdownOptions = {
         "Men's Wear": cate1,
         "Women's Wear": cate1,
         "Kid's Wear": cate1,
-
     };
-   
-    const fetchDropDownData=async(cate_status)=>{
 
-        console.log("Based",cate_status);
+    const handleMouseEnter = (dropdown) => setActiveDropdown(dropdown);
+    const handleMouseLeave = () => setActiveDropdown(null);
 
-        try{
-            const response=await axios.get(`https://127.0.0.1:8000/api/drop_down_category/${cate_status}/`,{
-                headers:{
-                    Authorization:`Bearer ${accessToken}`,
-                },
-            });
-            const n=response.data.length
-            const Arr=[]
-            for(let i=0;i<n;i++)
-            {
-                Arr.push(response.data[i].category_description);
-            }
-            setCate1(Arr);
-        }catch(errors)
-        {
-            console.log(errors);
-            console.log(errors.response.data);
+    const fetchDropDownData = async (cate_status) => {
+        try {
+            const response = await axios.get(
+                `https://127.0.0.1:8000/api/drop_down_category/${cate_status}/`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            const categoryDescriptions = response.data.map(
+                (item) => item.category_description
+            );
+            setCate1(categoryDescriptions);
+        } catch (error) {
+            console.error("Category Fetch Error:", error);
         }
+        
+    };
 
+    const getAllProducts=async()=>{
 
-
-        try{
-            const response=await axios.get("https://127.0.0.1:8000/api/fetch_drop_data/",{
-                headers:{
-                    Authorization:`Bearer ${accessToken}`,
-                },
-            });
-            console.log("DropPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPp",response.data);
+        try {
+            const response = await axios.get(
+                "https://127.0.0.1:8000/api/fetch_drop_data/",
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
             setSubCate(response.data);
-        }catch(errors)
-        {
-            console.log(errors);
-            console.log(errors.response.data);
+            console.log("FIRSTTTTTT",response.data);
+            setProducts(response.data);
+        } catch (error) {
+            console.error("Sub-category Fetch Error:", error);
         }
 
     }
 
-    useEffect(()=>{
-        if(activeDropdown !== null)
-            {
-                fetchDropDownData(activeDropdown);
-            }
-    },[activeDropdown]);
+const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearch(query);
+    const filtered = products.filter((product) =>
+        product.product_name.toLowerCase().includes(query)
+    );
+    setFilteredProducts(filtered);
+};
 
-    const Checkk=async()=>{
-        console.log("Start filter:::",subcate);
-        const filteredData=subcate.filter(product => product.category.category_description ==="Casual Dresses" && product.category.category_name ==="Women's Wear" );
-        console.log(filteredData);
-        // const filteredProducts = products.filter(product => product.product_name === 'Baggy Pants');
+
+    useEffect(()=>{
+        getAllProducts();
+    },[])
+
+    useEffect(() => {
+        if (activeDropdown) {
+            fetchDropDownData(activeDropdown);
+        }
+    }, [activeDropdown]);
+
+
+
+    const ViewProduct=async(pro_name)=>{
+        console.log("Pro..",pro_name);
+        navigate(`/categoryproduct/${pro_name}`)
 
     }
 
@@ -104,14 +123,39 @@ const Header = () => {
                         />
                     </a>
                 </div>
+   
                 <div className="flex items-center w-full md:w-[460px] lg:w-[600px] py-2 rounded-md border border-red-300 bg-white shadow-sm mt-4 md:mt-0">
-                    <input
-                        type="text"
-                        placeholder="Search products..."
-                        className="form-control flex-grow px-4 py-2 outline-none text-gray-600 text-sm md:text-base"
-                    />
-                    <i className="fa fa-search text-gray-400 mx-3 text-sm md:text-base"></i>
-                </div>
+    <input
+        type="text"
+        placeholder="Search products..."
+        className="form-control flex-grow px-4 py-2 outline-none text-gray-600 text-sm md:text-base"
+        value={search}
+        onChange={handleSearch}
+    />
+    <i className="fa fa-search text-gray-400 mx-3 text-sm md:text-base"></i>
+</div>
+
+{/* Conditionally render product results */}
+{search && (
+    <div className="product-results mt-4 max-h-[200px] overflow-y-auto bg-white shadow-md rounded-lg p-2 w-full md:w-[600px]">
+        {filteredProducts.length > 0 ? (
+            <ul className="space-y-2">
+                {filteredProducts.map((product, index) => (
+                    <li
+                        key={index}
+                        onClick={() => ViewProduct(product.product_name)}
+                        className="hover:text-red-400 transition cursor-pointer text-sm md:text-base"
+                    >
+                        {product.product_name}
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            <p className="text-gray-500 text-sm md:text-base">No products found for "{search}".</p>
+        )}
+    </div>
+)}
+
 
                 <div className="flex justify-center items-center space-x-4 mt-4 md:mt-0 md:space-x-6">
                     <Link to={isAuthenticated ? "/profile" : "/login"}>
@@ -120,12 +164,16 @@ const Header = () => {
                     <Link to="/wishlistview">
                         <i className="fa-regular fa-heart text-red-400 text-xl md:text-3xl"></i>
                     </Link>
+                    
+                    <Link to="/cartpage">
                     <i className="fa-solid fa-bag-shopping text-red-400 text-xl md:text-3xl"></i>
+                    </Link>
+                    
                 </div>
             </div>
 
             <div className="header-bottom h-auto w-full flex justify-center mb-2">
-                <button onClick={()=>Checkk()} className="bg-red-600 text-white px-3 py-2 hover:bg-red-500">fetch</button>
+
                 <div className="w-full max-w-screen-lg flex flex-wrap justify-center items-center space-x-2">
                     <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
                         HOME
@@ -137,18 +185,15 @@ const Header = () => {
                             onMouseLeave={handleMouseLeave}
                             className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200"
                         >
-                            {key==="Men's Wear"?"MEN":""}
-                            {key==="Women's Wear"?"WOMEN":""}
-                            {key==="Kid's Wear"?"KIDS":""}
+                            {key.replace("Wear", "").toUpperCase()}
                         </button>
                     ))}
-                    <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
-                    OFFERS
+                    <Link to="/offerproduct" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
+                        OFFERS
                     </Link>
                     <Link to="/" className="py-2 px-4 text-sm md:text-base mx-1 border-b-2 border-transparent hover:border-red-300 transition-all duration-200">
-                    COMPARE
+                        COMPARE
                     </Link>
-
                 </div>
             </div>
 
@@ -156,19 +201,27 @@ const Header = () => {
                 <div
                     onMouseEnter={() => handleMouseEnter(activeDropdown)}
                     onMouseLeave={handleMouseLeave}
-                    className="absolute w-[90%] max-w-screen-lg bg-yellow-500 shadow-lg top-[180px] left-1/2 transform -translate-x-1/2 rounded-md grid grid-cols-2 md:grid-cols-4 gap-4 p-4 z-50 transition-transform"
+                    className="absolute w-[90%] max-w-screen-lg bg-white shadow-lg top-[180px] left-1/2 transform -translate-x-1/2 rounded-md grid grid-cols-2 md:grid-cols-4 gap-4 p-4 z-50 transition-transform"
                 >
-                    {dropdownOptions[activeDropdown].map((option, index) => (
-                        <div key={index} className="flex flex-col">
-                            <h1 className="font-semibold text-red-500 mb-2">{option}</h1>
-                            <ul className="space-y-1">
-                                <li className="hover:text-red-400 transition">Sub-item 1</li>
-                                <li className="hover:text-red-400 transition">Sub-item 2</li>
-                                <li className="hover:text-red-400 transition">Sub-item 3</li>
-                                <li className="hover:text-red-400 transition">Sub-item 4</li>
-                            </ul>
-                        </div>
-                    ))}
+                    {dropdownOptions[activeDropdown]?.map((option, index) => {
+                        const filteredData = subcate.filter(
+                            (product) =>
+                                product.category.category_description === option &&
+                                product.category.category_name === activeDropdown
+                        );
+                        return (
+                            <div key={index} className="flex flex-col">
+                                <h1 className="font-semibold text-red-500 mb-2">{option}</h1>
+                                {filteredData.slice(0,8).map((value, subIndex) => (
+                                    <ul key={subIndex} className="space-y-1">
+                                        <li onClick={()=>ViewProduct(value.product_name)} className="hover:text-red-400 transition">
+                                            {value.product_name || "Sub-item 1"}
+                                        </li>
+                                    </ul>
+                                ))}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </header>

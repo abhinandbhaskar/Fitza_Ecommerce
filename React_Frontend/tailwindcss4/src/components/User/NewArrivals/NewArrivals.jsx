@@ -51,7 +51,6 @@ const NewArrivals = ({setTopData}) => {
     const AddToCart=(id)=>{
         console.log("Yo Yo",id);
         navigate(`/productview/${id}`);
-
     }
 
 

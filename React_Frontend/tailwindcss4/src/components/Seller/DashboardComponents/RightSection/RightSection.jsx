@@ -18,6 +18,7 @@ import FeedBackSection from "../FeedBackSection/FeedBackSection";
 import OrdersSection from "../OrdersSection/OrdersSection";
 import ReturnRefundSection from "../ReturnRefundSection/ReturnRefundSection";
 import RevenueSection from "../RevenueSection/RevenueSection";
+import NotificationSection from "../NotificationSection/NotificationSection";
 
 
 const RightSection = ({currentView,setCurrentView}) => {
@@ -45,6 +46,7 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="shopinfo"&&<ShopInfo setCurrentView={setCurrentView}/>}
       {currentView==="bankinfo"&&<BankInfo setCurrentView={setCurrentView}/>}
       {currentView==="changepassword"&&<ChangePassword setCurrentView={setCurrentView}/>}
+      {currentView==="notification"&& <NotificationSection/>}
       <Footer/>
         </div>
     );

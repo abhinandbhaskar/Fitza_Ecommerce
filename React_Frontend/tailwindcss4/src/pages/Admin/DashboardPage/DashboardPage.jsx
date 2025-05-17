@@ -1,12 +1,13 @@
-import React from 'react'
+import React,{useState} from 'react'
 import "./DashboardPage.css"
 import Header from '../../../components/Admin/Header/Header'
 import Dashboard from '../../../components/Admin/Dashboard/Dashboard'
 const DashboardPage = () => {
+  const[currentView,setCurrentView]=useState("mainsection");
   return (
     <div>
-      <Header/>
-      <Dashboard/>
+      <Header setCurrentView={setCurrentView}/>
+      <Dashboard currentView={currentView} setCurrentView={setCurrentView}/>
     </div>
   )
 }

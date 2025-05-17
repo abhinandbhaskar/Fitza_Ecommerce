@@ -8,7 +8,7 @@ import { logout } from "../../../redux/authSlice";
 import {clearProfile} from "../../../redux/profileSlice";
 import { useNavigate } from "react-router-dom";
 
-const Header = () => {
+const Header = ({setCurrentView}) => {
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
     const { accessToken } = useSelector((state) => state.auth);
     const navigate=useNavigate();
@@ -86,25 +86,36 @@ const Header = () => {
                     </div>
                 </div>
 
-                <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
-                    {["bell", "envelope", "gear", "circle-info"].map((icon, index) => (
-                        <div
-                            key={index}
-                            className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center"
-                        >
-                            <i className={`fa-solid fa-${icon}`}></i>
+
+                <div onClick={()=>setCurrentView("notification")} className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
+                        <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >
+                            <i className="fa-solid fa-bell"></i>
                         </div>
-                    ))}
                 </div>
+
+                        <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
+                        <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >
+                            <i className="fa-solid fa-gear"></i>
+                        </div>
+                        </div>
+
+                        <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
+                        <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >
+                            <i className="fa-solid fa-circle-info"></i>
+                        </div>
+                        </div>
             </div>
 
             <div className="w-full md:w-1/4 flex items-center gap-2 bg-white border-t md:border-t-0 md:border-l border-gray-600 p-4">
-                <img src={profile} className="h-12 w-12 border-2 border-gray-700 rounded-full" alt="Profile" />
+        
+                <img 
+                     src={ profilePicture && profilePicture.length > 0 && `https://127.0.0.1:8000/media/${profilePicture}`}
+                className="h-12 w-12 border-2 border-gray-700 rounded-full" alt="Profile" />
                 <div className="flex flex-col text-sm">
                     <h1 className="font-bold">{name}</h1>
                     <p className="text-gray-600">{email}</p>
                 </div>
-                <div className="flex flex-col items-center justify-center ml-6">
+                <div className="flex flex-col items-center justify-center ">
                     <div
                         onClick={handleLogout}
                         className="h-10 w-10 rounded-full border-2 hover:bg-red-500 hover:border-2 hover:border-black hover:text-white border-gray-700 flex items-center justify-center"

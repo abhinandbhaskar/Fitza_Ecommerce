@@ -6,7 +6,7 @@ import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
 import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
 
 const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [activeFilter, setActiveFilter] = useState("all");
   const handleFilterClick = (filter) => setActiveFilter(filter);
   const { accessToken } = useSelector((state) => state.auth);
   const [orderinfo,setOrderInfo]=useState([]);
@@ -111,7 +111,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2">
-          {["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"].map((filter) => (
+          {["all","processing","pending", "confirmed","shipped", "delivered", "cancelled"].map((filter) => (
             <button
               key={filter}
               onClick={() => handleFilterClick(filter)}
@@ -129,6 +129,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 
       {/* Orders Table */}
       <div className="overflow-x-auto">
+        
         <table className="min-w-full table-auto bg-white shadow-lg rounded-lg border border-gray-200">
           <thead className="bg-blue-500 text-white">
             <tr>
@@ -143,7 +144,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
           <tbody>
 
             {
-              orderinfo.map((order,key)=>(
+              (activeFilter==="all"?orderinfo:orderinfo.filter((order)=>order.order_status.status===activeFilter)).map((order,key)=>(
                 <tr key={key} className="border-t hover:bg-gray-100">
                 <td className="px-6 py-4 text-sm text-gray-800">
                   <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
