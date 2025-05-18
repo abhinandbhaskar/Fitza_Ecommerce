@@ -3,6 +3,7 @@ import "./SignUpPage.css";
 import fitza from "../../../assets/fitzaapp.png";
 import { Link } from "react-router-dom";
 import signupimg from "../../../assets/signup.jpg";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SignUpPage = () => {
@@ -15,6 +16,7 @@ const SignUpPage = () => {
     const [password2, setPassword2] = useState("");
     const [error,setError]=useState("");
     const [loading,setLoading]=useState(false);
+    const navigate=useNavigate();
 
     const handleRegister= async (e)=>{
         e.preventDefault();
@@ -63,7 +65,7 @@ const SignUpPage = () => {
                 setPassword1("");
                 setPassword2("");
                setTimeout(()=>{
-                window.location.href="/login"
+                navigate("/login");
                },3000);
             }
         }

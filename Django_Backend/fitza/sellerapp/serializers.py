@@ -22,23 +22,23 @@ class SellerRegisterSerializer(serializers.Serializer):
     password2=serializers.CharField(write_only=True)
     
     def validate(self,data):
-        if CustomUser.objects.filter(email=data["email"]).exists():
+        if CustomUser.objects.filter(email=self.initial_data["email"]).exists():
             raise serializers.ValidationError("Email already exists..")
-        if data["password1"]!=data["password2"]:
+        if self.initial_data["password1"]!=self.initial_data["password2"]:
             raise serializers.ValidationError("Password do not match")
-        if len(data["phone"])<10:
+        if len(self.initial_data["phone"])<10:
             raise serializers.ValidationError("Phone number must contain 10 digits.")
         return data
     
-    def create(self, validated_data):
-        user=CustomUser.objects.create_user(username=validated_data["email"],email=validated_data["email"],phone_number=validated_data["phone"],password=validated_data["password1"],user_type="seller")
-        user.first_name=validated_data["fullname"]
+    def save(self):
+        user=CustomUser.objects.create_user(username=self.validated_data["email"],email=self.validated_data["email"],phone_number=self.validated_data["phone"],password=self.validated_data["password1"],user_type="seller")
+        user.first_name=self.validated_data["fullname"]
         user.is_active=False
         user.save()
         otp, exp_time=generate_otp()
         print("OTP",otp)
         sender_email=settings.EMAIL_HOST_USER
-        receiver_mail=validated_data["email"]
+        receiver_mail=self.validated_data["email"]
         sender_password=settings.EMAIL_HOST_PASSWORD
         try:
             with smtplib.SMTP("smtp.gmail.com", 587) as server:
@@ -46,7 +46,7 @@ class SellerRegisterSerializer(serializers.Serializer):
                 server.login(sender_email, sender_password)
                 message = (
                     f"Subject: OTP Verification\n\n"
-                    f"Hello {validated_data['fullname']},\n\n"
+                    f"Hello {self.validated_data['fullname']},\n\n"
                     f"Your OTP for verification is: {otp}. It will expire in 60 seconds.\n\n"
                     "Thank you!"
                 )
@@ -91,7 +91,7 @@ class VerifyOtpSerializer(serializers.Serializer):
         data["user"] = user
         return data
 
-
+from notifications.notifiers import SellerApprovalNotifier
 from common.models import Seller
 
 class ShopRegisterSerializer(serializers.Serializer):
@@ -116,7 +116,7 @@ class ShopRegisterSerializer(serializers.Serializer):
     def save(self):
         email=self.context.get("email")
         user=CustomUser.objects.get(email=email)
-        Seller.objects.create(
+        sellerobj=Seller.objects.create(
             user=user,
             shop_name=self.validated_data["shopName"],
             shop_address=self.validated_data["shopAddress"],
@@ -128,6 +128,8 @@ class ShopRegisterSerializer(serializers.Serializer):
             shop_logo="seller/logo1.jpg",
             shop_banner="seller/shopbanner.jpg",
         )
+        notifier=SellerApprovalNotifier(user=user,sender=user)
+        notifier.notify_admin_new_seller(seller_id=sellerobj.id, seller_name=sellerobj.user.first_name)
 
 
 
@@ -331,6 +333,7 @@ import json
 from common.models import Product, ProductItem, CustomUser, Seller, Brand,ProductCategory
 from sellerapp.models import ProductImage
 
+from notifications.notifiers import ProductApprovalNotifier
 import uuid
 class AddProductsSerializer(serializers.Serializer):
     product = serializers.CharField()
@@ -428,6 +431,8 @@ class AddProductsSerializer(serializers.Serializer):
                 sub_image_3=self.validated_data["img3"],
 
             )
+        notifier=ProductApprovalNotifier(user=user,sender=user)
+        notifier.notify_admin_new_product(product_id=product.id, product_name=self.validated_data["product"], seller_name=user.first_name)
         return product
 
 
@@ -499,6 +504,8 @@ class ViewUserQuestionsSerializer(serializers.ModelSerializer):
         model=Question
         fields='__all__'
 
+
+from notifications.notifiers import QASectionNotifier
 from userapp.models import Answer,Question
 class UserAnswerSerializer(serializers.Serializer):
     qid = serializers.IntegerField()
@@ -518,12 +525,15 @@ class UserAnswerSerializer(serializers.Serializer):
         except Question.DoesNotExist:
             raise serializers.ValidationError({"qid": "Invalid question ID."})
 
-        Answer.objects.create(
+        answerobj=Answer.objects.create(
             question=questionobj,
             answered_by=user,
             answer_text=self.validated_data["answer"]
         )
+        notifier=QASectionNotifier(user=questionobj.user,sender=user)
+        notifier.new_answer_added(question_id=questionobj.id, product_name=answerobj.question.product.product_name, seller_name=answerobj.answered_by)
 
+from notifications.notifiers import ComplaintNotifier
 from adminapp.models import Complaint
 class AddSellerComplaintSerializer(serializers.Serializer):
     title=serializers.CharField()
@@ -535,7 +545,9 @@ class AddSellerComplaintSerializer(serializers.Serializer):
         return data
     def save(self):
         user=self.context["request"].user
-        Complaint.objects.create(seller=user,title=self.validated_data["title"],description=self.validated_data["description"])
+        complaintobj=Complaint.objects.create(seller=user,title=self.validated_data["title"],description=self.validated_data["description"])
+        notifier = ComplaintNotifier(user=user, sender=user)
+        notifier.notify_admin_new_complaint(complaint_id=complaintobj.id,complaint_subject=self.validated_data["title"],seller_name=user.first_name)
 
 class ViewSellerComplaintsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -595,6 +607,7 @@ class ViewAllUserFeedbacksSerializer(serializers.ModelSerializer):
         model=Feedback
         fields='__all__'
     
+from notifications.notifiers import FeedbackAndReviewNotifier
 from userapp.models import Feedback
 class AddSellerFeedBackSerializer(serializers.Serializer):
     rating = serializers.IntegerField()
@@ -609,13 +622,16 @@ class AddSellerFeedBackSerializer(serializers.Serializer):
     def save(self):
         user = self.context["request"].user
         sellerobj = Seller.objects.get(user=user)
-        Feedback.objects.create(
+        feedbackobj=Feedback.objects.create(
             user=user,
             seller=sellerobj,
             rating=self.validated_data["rating"],
             comment=self.validated_data["feedback"],
             platform=True
         )
+        notifier=FeedbackAndReviewNotifier(user=user,sender=user)
+        notifier.notify_admin_feedback(feedback_id=feedbackobj.id,seller_name=user.first_name)
+
 
 
 

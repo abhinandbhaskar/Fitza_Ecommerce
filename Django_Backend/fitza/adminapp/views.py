@@ -128,10 +128,11 @@ class RemoveSeller(APIView):
         except Exception as e:
             return Response({"error":f" Failed to remove seller {str(e)}"},status=status.HTTP_400_BAD_REQUEST)
 
-
+from notifications.notifiers import SellerApprovalNotifier
 class ApproveSeller(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request,seller_id):
+        currentuser=request.user
         if not request.user.is_staff:
             return Response({"errors":"You are not authorized to perform this action."},status=status.HTTP_403_FORBIDDEN)
         seller=Seller.objects.get(id=seller_id)
@@ -140,6 +141,9 @@ class ApproveSeller(APIView):
         user.save()
         seller.account_verified=True
         seller.save()
+        notifier=SellerApprovalNotifier(user=seller.user,sender=currentuser)
+        notifier.notify_seller_approval(seller_id=seller.id)
+
         return Response({"message":"Approved Successfully..."},status=status.HTTP_200_OK)
 
 
@@ -947,3 +951,21 @@ class HandleMarkReturned(APIView):
             serializer.save()
             return Response({"message":"Mark return added successfully.."},status=status.HTTP_200_OK)
         return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)
+
+from adminapp.serializers import ViewAllNotificationsSerializer
+from django.db.models import Q
+from sellerapp.models import Notification
+class ViewAllNotifications(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        notifications = Notification.objects.filter(group='all_admins') 
+        priority = Notification.objects.filter(group='all_admins',priority='high') 
+        sellers = Notification.objects.filter(group='all_admins',redirect_url='/admin/sellers/pending/') 
+        products = Notification.objects.filter(group='all_admins',redirect_url='/admin/products/pending/') 
+        returnrefunds = Notification.objects.filter(group='all_admins',redirect_url='/neworders/return') 
+        statuscounts={"critical":len(priority),"seller":len(sellers),"products":len(products),"returnrefund":len(returnrefunds)}
+        print("Status:",statuscounts)
+        serializer = ViewAllNotificationsSerializer(notifications, many=True)  # Serialize the queryset
+        responsedata={"data":serializer.data,"counts":statuscounts}
+        return Response(responsedata)

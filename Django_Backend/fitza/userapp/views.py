@@ -15,8 +15,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 #register function
 class RegisterAPI(APIView):
     def post(self,request):
-        _data=request.data
-        serializer=RegisterSerializer(data=_data)
+        serializer=RegisterSerializer(data=request.data,context={"request":request})
         if not serializer.is_valid():
             return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
@@ -192,7 +191,7 @@ class PasswordChange(APIView):
         if serializer.is_valid():
             serializer.save()
             try:
-                SecurityNotifier(request.user).password_change()
+                SecurityNotifier(user=request.user).password_change()
             except Exception as e:
                 print(f"Failed to send notification: {str(e)}")
 
@@ -819,5 +818,13 @@ class GetReturnRefundStatus(APIView):
         return Response(serializer.data)
 
 
+from userapp.serializers import CustomerCancelOrderSerializer
+class CustomerCancelOrder(APIView):
+    permission_classes = [IsAuthenticated]
 
-
+    def post(self, request, orderId):
+        serializer = CustomerCancelOrderSerializer(data=request.data, context={"request": request, "orderId": orderId})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Order Cancelled..."}, status=status.HTTP_200_OK)
+        return Response({"error": "Error Occurred..."}, status=status.HTTP_400_BAD_REQUEST)

@@ -24,7 +24,7 @@ class NotificationService:
         
         return Notification.objects.create(
             user=self.user,
-            group=self.group,
+            group=self.group if 'group' not in kwargs else kwargs['group'],
             sender=self.sender,
             message=message,
             type=params['type'],

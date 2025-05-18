@@ -1,8 +1,9 @@
+
 from .services import NotificationService
 
 class OrderNotifier(NotificationService):
-    def __init__(self,user,sender=None):
-        super().__init__(user=user, sender=sender)
+    def __init__(self,user,sender=None,group='all_users'):
+        super().__init__(user=user, sender=sender, group=group)
         self.defaults.update({
             'type':'success',
             'priority':'high',
@@ -12,7 +13,7 @@ class OrderNotifier(NotificationService):
     def order_confirmed(self, order_id):
         return self.send(
             message=f"Your order #{order_id} has been confirmed",
-            redirect_url=f'/orders/{order_id}'
+            redirect_url=f'/orders/{order_id}',
         )
     
     def order_shipped(self,order_id, tracking_number):
@@ -41,8 +42,8 @@ class OrderNotifier(NotificationService):
 
 
 class SecurityNotifier(NotificationService):
-    def __init__(self,user):
-        super().__init__(user=user)
+    def __init__(self,user, group='all_users'):
+        super().__init__(user=user,group=group)
         self.defaults.update({
             'type':'info',
             'priority':'high',
@@ -54,6 +55,9 @@ class SecurityNotifier(NotificationService):
             message="Your password was changes successfully.",
             redirect_url='/account/security'
         )
+    
+
+
 from datetime import datetime
 class MarketingNotifier(NotificationService):
     def __init__(self, group='all_users', user=None):
@@ -125,9 +129,11 @@ class MarketingNotifier(NotificationService):
 
 
 
+
+
 class ReturnRefundNotifier(NotificationService):
-    def __init__(self, user,sender=None):
-        super().__init__(user=user, sender=sender)
+    def __init__(self, user,sender=None, group='all_users'):
+        super().__init__(user=user, sender=sender,group=group)
         self.defaults.update({
             'type':'info',
             'priority':'medium',
@@ -138,7 +144,7 @@ class ReturnRefundNotifier(NotificationService):
         """Notify when a return request is submitted."""
         return self.send(
             message=f"Your return request for order #{order_id} has been submitted.",
-            redirect_url=f'/orders/{order_id}/return'
+            redirect_url=f'/neworders/return'
         )
     
     def return_approved(self, order_id):
@@ -172,20 +178,251 @@ class ReturnRefundNotifier(NotificationService):
 
 
 
+class ProductNotifier(NotificationService):
+    def __init__(self, user, sender=None,group="all_sellers"):
+        super().__init__(user=user, sender=sender,group=group)
+        self.defaults.update({
+            'type': 'info',
+            'priority': 'high',
+            'expires_in': 72  # 3 days
+        })
+
+    def product_approved(self, product_name):
+        """
+        Notify the seller when their product is approved.
+        """
+        return self.send(
+            message=f"Your product '{product_name}' has been approved and is now available for sale.",
+            redirect_url='/products'
+        )
+
+    def product_rejected(self, product_name, reason):
+        """
+        Notify the seller when their product is rejected, including the reason for rejection.
+        """
+        return self.send(
+            message=f"Your product '{product_name}' has been rejected. Reason: {reason}.",
+            redirect_url='/products'
+        )
 
 
 
-# class CartNotifier(NotificationService):
-#     def __init__(self,user):
-#         super().__init__(user=user)
-#         self.defaults.update({
-#             'type':'warning',
-#             'priority':'high',
-#             'expires_in':48
-#         })
-    
-#     def abandoned_cart(self, cart_items_count):
-#         return self.send(
-#             message=f"You have {cart_items_count} item(s) waiting in your cart",
-#             redirect_url='/cart'
-#         )
+class SellerNotifier(NotificationService):
+    def __init__(self, seller_user, sender=None,group="all_sellers"):
+        super().__init__(user=seller_user, sender=sender,group=group)
+        self.defaults.update({
+            'type': 'info',  # Notification type
+            'priority': 'high',  # High priority
+            'expires_in': 72,  # 3 days
+        })
+
+    def new_order_received(self, order_id, user_name, order_total):
+        """
+        Notify the seller about a new order placed by a user.
+        """
+        return self.send(
+            message=f"A new order #{order_id} has been placed by {user_name}. Order Total: ${order_total:.2f}.",
+            redirect_url=f'/seller/orders/{order_id}'
+        )
+
+    def order_canceled(self, order_id, cancellation_reason):
+        """
+        Notify the seller about an order cancellation along with the reason.
+        """
+        return self.send(
+            message=f"Order #{order_id} has been canceled. Reason: {cancellation_reason}.",
+            redirect_url=f'/seller/orders/{order_id}'
+        )
+
+
+class ComplaintNotifier(NotificationService):
+    def __init__(self, user, sender=None):
+        """
+        Notification service for handling complaints, applicable for notifying admins and sellers.
+        """
+        super().__init__(user=user, sender=sender)
+        self.defaults.update({
+            'type': 'info',  # Notification type
+            'priority': 'medium',  # Medium priority for complaint-related notifications
+            'expires_in': 72,  # 3 days for complaint-related notifications
+        })
+
+    def notify_admin_new_complaint(self, complaint_id, complaint_subject, seller_name):
+        """
+        Notify the admin about a new complaint added by a seller.
+        """
+        return self.send(
+            message=f"A new complaint (ID: {complaint_id}, Subject: '{complaint_subject}') has been submitted by (seller) {seller_name}.",
+            redirect_url=f'/admin/complaints/view/{complaint_id}',
+            group='all_admins'
+        )
+
+    def notify_seller_admin_reply(self, complaint_id, reply_message):
+        """
+        Notify the seller that the admin has replied to their complaint.
+        """
+        return self.send(
+            message=f"The admin has replied to your complaint (ID: {complaint_id}): '{reply_message}'.",
+            redirect_url=f'/seller/complaints/view/{complaint_id}',
+            group='all_sellers'
+        )
+
+
+
+
+class QASectionNotifier(NotificationService):
+    def __init__(self, user, sender=None):
+        """
+        Notification service for the Q&A section, applicable for both sellers and users.
+        """
+        super().__init__(user=user, sender=sender)
+        self.defaults.update({
+            'type': 'info',  # Notification type
+            'priority': 'medium',  # Medium priority
+            'expires_in': 48,  # 2 days
+        })
+
+    def new_question_added(self, question_id, product_name, user_name):
+        """
+        Notify the seller about a new question added by a user for their product.
+        """
+        return self.send(
+            message=f"A new question (ID: {question_id}) has been added by {user_name} for the product '{product_name}'.",
+            redirect_url=f'/seller/questions/{question_id}',
+            group='all_sellers'
+        )
+
+    def new_answer_added(self, question_id, product_name, seller_name):
+        """
+        Notify the user that the seller has added an answer to their question.
+        """
+        return self.send(
+            message=f"Your question (ID: {question_id}) about the product '{product_name}' has been answered by {seller_name}.",
+            redirect_url=f'/user/questions/{question_id}',
+            group='all_users'
+        )
+
+
+
+
+class FeedbackAndReviewNotifier(NotificationService):
+    def __init__(self, user, sender=None):
+        """
+        Notification service for feedback and reviews, applicable for both sellers and admins.
+        """
+        super().__init__(user=user, sender=sender)
+        self.defaults.update({
+            'type': 'info',  # Notification type
+            'priority': 'medium',  # Medium priority
+            'expires_in': 72,  # 3 days for feedback/review
+        })
+
+    def notify_admin_feedback(self, feedback_id, seller_name):
+        """
+        Notify the admin about feedback submitted by a seller.
+        """
+        return self.send(
+            message=f"New feedback (ID: {feedback_id}) has been submitted by {seller_name}.",
+            redirect_url=f'/admin/feedback/{feedback_id}',
+            group='all_admins'
+        )
+
+    def notify_seller_feedback(self, feedback_id, user_name):
+        """
+        Notify the seller about feedback submitted by a user.
+        """
+        return self.send(
+            message=f"A new feedback (ID: {feedback_id}) has been submitted by {user_name}.",
+            redirect_url=f'/seller/feedback/{feedback_id}',
+            group='all_sellers'
+        )
+
+    def notify_seller_review(self, review_id, product_name, user_name):
+        """
+        Notify the seller that a user has added a review for their product.
+        """
+        return self.send(
+            message=f"User {user_name} has added a review (ID: {review_id}) for your product '{product_name}'.",
+            redirect_url=f'/seller/reviews/{review_id}',
+            group='all_sellers'
+        )
+
+    def notify_user_review_acknowledgment(self, review_id, product_name, seller_name):
+        """
+        Notify the user that their review has been acknowledged by the seller.
+        """
+        return self.send(
+            message=f"Your review (ID: {review_id}) for the product '{product_name}' has been acknowledged by {seller_name}.",
+            redirect_url=f'/user/reviews/{review_id}',
+            group='all_users'
+        )
+
+
+
+
+class SellerApprovalNotifier(NotificationService):
+    def __init__(self, user, sender=None):
+        """
+        Notification service for seller approval process, applicable for both admins and sellers.
+        """
+        super().__init__(user=user, sender=sender)
+        self.defaults.update({
+            'type': 'info',  # Notification type
+            'priority': 'high',  # High priority for approvals
+            'expires_in': 48,  # 2 days for approval-related notifications
+        })
+
+    def notify_admin_new_seller(self, seller_id, seller_name):
+        """
+        Notify the admin about a new seller waiting for approval.
+        """
+        return self.send(
+            message=f"A new seller (ID: {seller_id}, Name: {seller_name}) has registered and is awaiting approval.",
+            redirect_url=f'/admin/sellers/pending/',
+            group='all_admins'
+        )
+
+    def notify_seller_approval(self, seller_id):
+        """
+        Notify the seller that they have been approved.
+        """
+        return self.send(
+            message=f"Congratulations! Your seller account (ID: {seller_id}) has been approved. You can now start listing your products.",
+            redirect_url='/seller/dashboard',
+            group='all_sellers'
+        )
+
+    def notify_seller_rejection(self, seller_id, reason):
+        """
+        Notify the seller that their application has been rejected.
+        """
+        return self.send(
+            message=f"Unfortunately, your seller account (ID: {seller_id}) has been rejected. Reason: {reason}.",
+            redirect_url='/seller/help-center',
+            group='all_sellers'
+        )
+
+
+class ProductApprovalNotifier(NotificationService):
+    def __init__(self, user, sender=None):
+        """
+        Notification service for product approval process, specifically for notifying admins.
+        """
+        super().__init__(user=user, sender=sender)
+        self.defaults.update({
+            'type': 'info',  # Notification type
+            'priority': 'high',  # High priority for product approvals
+            'expires_in': 48,  # 2 days for approval-related notifications
+        })
+
+    def notify_admin_new_product(self, product_id, product_name, seller_name):
+        """
+        Notify the admin about a new product submitted by a seller for approval.
+        """
+        return self.send(
+            message=f"A new product (ID: {product_id}, Name: '{product_name}') has been submitted by {seller_name} for approval.",
+            redirect_url=f'/admin/products/pending/',
+            group='all_admins'
+        )
+
+

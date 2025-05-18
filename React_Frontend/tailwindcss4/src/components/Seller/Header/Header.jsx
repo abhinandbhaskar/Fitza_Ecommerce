@@ -46,7 +46,7 @@ const Header = ({setCurrentView}) => {
         }
     };
     return (
-        <div className="w-full bg-gray-900 flex flex-col md:flex-row fixed z-10 mb-10">
+        <div className="w-full bg-gray-900 flex flex-col md:flex-row fixed border-b-1 z-10 mb-10">
             <div className="w-full md:w-[390px] bg-gray-800 border-b md:border-r border-gray-800 flex items-center justify-center p-2">
                 <img src={fitza} className="h-12 w-12" alt="Fitza Logo" />
                 <h1 className="text-xl md:text-2xl text-white font-bold px-2">Fitza Seller</h1>

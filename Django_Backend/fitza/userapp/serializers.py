@@ -16,12 +16,11 @@ class RegisterSerializer(serializers.Serializer):
     password2=serializers.CharField(write_only=True)
 
     def validate(self, data):
-        if CustomUser.objects.filter(email=data['email']).exists():
-            
+        if CustomUser.objects.filter(email=self.initial_data['email']).exists():
             raise serializers.ValidationError("Email already exists..")
-        if data["password1"]!=data["password2"]:
+        if self.initial_data["password1"]!=self.initial_data["password2"]:
             raise serializers.ValidationError("Passwords do not match.")
-        if len(data["phone"])<10:
+        if len(self.initial_data["phone"])<10:
             raise serializers.ValidationError("Phone number must contain 10 digits.") 
         return data
     # Most commonly, we override create() when we want to save the currently logged-in user (or any extra info not directly coming from the request.data) into the model.
@@ -334,6 +333,7 @@ class SellProductsSerializer(serializers.ModelSerializer):
             return ShopSellerSerializer(obj.product.shop).data
         return None
 
+from notifications.notifiers import FeedbackAndReviewNotifier
 from userapp.models import RatingsReview
 class AddReviewRatingSerializer(serializers.Serializer):
     id=serializers.CharField()
@@ -349,6 +349,8 @@ class AddReviewRatingSerializer(serializers.Serializer):
         user=self.context["request"].user
         pro_id=Product.objects.get(id=self.validated_data["id"])
         obj=RatingsReview.objects.create(user=user,product=pro_id,rating=self.validated_data["rating"],review_content=self.validated_data["description"])
+        notifier=FeedbackAndReviewNotifier(user=obj.product.shop.user,sender=user)
+        notifier.notify_seller_review(review_id=obj.id, product_name=obj.product.product_name, user_name=user.first_name)
         return obj
 
 class UserProSerializer(serializers.ModelSerializer):
@@ -679,9 +681,10 @@ class AddInitialOrderSerializer(serializers.Serializer):
             raise serializers.ValidationError(f"Failed to create order: {str(e)}")
 
 
+
 from rest_framework import serializers
 from common.models import Payment, Shipping, UserAddress
-
+from notifications.notifiers import SellerNotifier
 class PaymentSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Payment.PAYMENT_STATUS_CHOICES)
     transaction_id = serializers.CharField(max_length=50)  # Reduced length
@@ -742,14 +745,14 @@ class PaymentSerializer(serializers.Serializer):
                 order=order,
                 payment_method=self.validated_data['payment_method'],  
                 status=self.validated_data['status'],
-                transaction_id=transaction_id,  # Use validated value
+                transaction_id=transaction_id, 
                 amount=self.validated_data['amount'],
                 gateway_response=self.validated_data['gateway_response'],
                 currency=self.validated_data['currency'],
                 platform_fee=self.validated_data.get('platform_fee', 0.00),
                 seller_payout=self.validated_data.get('seller_payout', 0.00),
             )
-            
+            seller_instance = order.order_lines.first().seller
             print("Payment saved successfully.")
             
             shipping = Shipping.objects.create(
@@ -763,6 +766,10 @@ class PaymentSerializer(serializers.Serializer):
             order.payment_method = payment
             order.shipping_address = shipping
             order.save()
+
+            if self.validated_data['status']=="completed":
+                notifier = SellerNotifier(seller_user=seller_instance,sender=user)
+                notifier.new_order_received(order_id=order.id, user_name=user, order_total=self.validated_data['amount'])
             
             return payment  # Return the created Payment object
         except Exception as e:
@@ -770,7 +777,7 @@ class PaymentSerializer(serializers.Serializer):
             raise serializers.ValidationError({"detail": str(e)})
 
 
-
+from notifications.notifiers import QASectionNotifier
 from userapp.models import Question
 class AskQuestionSerializer(serializers.Serializer):
     pid = serializers.IntegerField()  
@@ -797,6 +804,8 @@ class AskQuestionSerializer(serializers.Serializer):
             product=product,
             question_text=self.validated_data["question"],
         )
+        notifier=QASectionNotifier(user=question.product.shop.user,sender=user)
+        notifier.new_question_added(question_id=question.id,product_name=self.validated_data["product"],user_name=user.first_name)
         return question
 
 class ShopSellerDetailsSerializer(serializers.ModelSerializer):
@@ -855,7 +864,7 @@ class GetUserOrdersSerializer(serializers.ModelSerializer):
         ]
 
 
-
+from notifications.notifiers import FeedbackAndReviewNotifier
 from userapp.models import Feedback
 
 class AddUserFeedBackSerializer(serializers.Serializer):
@@ -872,12 +881,15 @@ class AddUserFeedBackSerializer(serializers.Serializer):
         user = self.context["request"].user
         sid = self.context.get("sid")
         sellerobj = Seller.objects.get(id=sid)
-        Feedback.objects.create(
+        feedobj=Feedback.objects.create(
             user=user,
             seller=sellerobj,
             rating=self.validated_data["rating"],
             comment=self.validated_data["feedback"]
         )
+        notifier=FeedbackAndReviewNotifier(user=sellerobj.user,sender=user)
+        notifier.notify_seller_feedback( feedback_id=feedobj.id, user_name=user.first_name)
+
 
 from notifications.notifiers import ReturnRefundNotifier
 from userapp.models import ReturnRefund
@@ -934,4 +946,19 @@ class GetReturnRefundStatusSerializer(serializers.ModelSerializer):
 
 
 
-        
+class CustomerCancelOrderSerializer(serializers.Serializer):
+    cancellationReason = serializers.CharField()
+
+    def save(self):
+        user=self.context["request"].user
+        cancelled_status = OrderStatus.objects.get(status="cancelled")
+        obj = ShopOrder.objects.get(id=self.context["orderId"])
+        obj.order_status = cancelled_status
+        obj.order_notes = self.validated_data["cancellationReason"]
+        obj.save()
+        seller_instance = obj.order_lines.first().seller
+        notifier = SellerNotifier(seller_user=seller_instance,sender=user)
+        notifier.order_canceled(order_id=obj.id, cancellation_reason=self.validated_data["cancellationReason"])
+
+
+       

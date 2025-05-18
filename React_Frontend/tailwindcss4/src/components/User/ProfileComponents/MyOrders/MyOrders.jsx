@@ -12,6 +12,41 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [orderinfo,setOrderInfo]=useState([]);
   const [details,setDetails]=useState("");
   const [orderId,setOrderId]=useState(null);
+  const [cancellationReason, setCancellationReason] = useState("");
+
+
+   const handleOrderCancellation = async() => {
+    if (!cancellationReason) {
+      alert("Please provide a cancellation reason.");
+      return;
+    }
+    // Add your cancellation logic here
+    console.log("Order cancelled with reason:", cancellationReason);
+    console.log("OrderId",orderId);
+
+    const canceldata={
+      "cancellationReason":cancellationReason,
+
+    }
+    
+
+    try{
+      const response = await axios.post(`https://127.0.0.1:8000/api/user_cancel_order/${orderId}/`,canceldata,{
+        headers:{
+          Authorization:`Bearer ${accessToken}`,
+          "Content-Type":"application/json",
+        }
+      });
+      console.log("Ressss",response);
+      console.log("Ressss",response.data);
+    }catch(errors)
+    {
+      console.log(errors);
+      console.log(errors.response.data);
+    }
+
+  };
+
 
     const safeGet = (obj, path, defaultValue = "Not Available") => {
     return path.split('.').reduce((acc, part) => acc && acc[part], obj) || defaultValue;
@@ -300,6 +335,23 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   </p>
 </div>
 </div>
+
+<div className="bg-white rounded-lg shadow-md p-4 my-4">
+  <h2 className="text-xl font-semibold text-gray-800">Order Cancellation</h2>
+  <textarea 
+    placeholder="Enter your cancellation reason here..." 
+    className="mt-2 w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
+    rows="3"
+    onChange={(e) => setCancellationReason(e.target.value)} // Assume `setCancellationReason` is the state handler
+  ></textarea>
+  <button 
+    onClick={() => handleOrderCancellation()} // Replace with your cancellation logic
+    className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+  >
+    Cancel Order
+  </button>
+</div>
+
 
 {/* Download Invoice */}
 <div className="text-right mt-4">

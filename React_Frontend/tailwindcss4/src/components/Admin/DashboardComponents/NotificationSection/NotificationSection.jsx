@@ -1,52 +1,32 @@
-import React, { useState } from 'react';
-
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from "react-redux";
 const NotificationSection = () => {
   // Sample notification data
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'seller_approval',
-      title: 'New Seller Approval Pending',
-      message: 'Seller "ElectroMart" has submitted documents for verification.',
-      priority: 'high',
-      status: 'pending',
-      timestamp: '2023-05-20T10:30:00Z',
-      metadata: { sellerId: 789 },
-      read: false
-    },
-    {
-      id: 2,
-      type: 'refund_request',
-      title: 'Refund Approval Needed',
-      message: 'Order #456 - $120 refund requested for defective product.',
-      priority: 'high',
-      status: 'pending',
-      timestamp: '2023-05-20T09:15:00Z',
-      metadata: { orderId: 456, amount: 120 },
-      read: false
-    },
-    {
-      id: 3,
-      type: 'product_approval',
-      title: 'Product Flagged',
-      message: 'Product #321 (Wireless Earbuds) reported for counterfeit branding.',
-      priority: 'medium',
-      status: 'pending',
-      timestamp: '2023-05-19T14:20:00Z',
-      metadata: { productId: 321 },
-      read: true
-    },
-    {
-      id: 4,
-      type: 'system_alert',
-      title: 'High Server Load',
-      message: 'API response times are slower than usual (avg. 1200ms).',
-      priority: 'high',
-      status: 'pending',
-      timestamp: '2023-05-19T11:05:00Z',
-      read: false
+  const { accessToken } = useSelector((state) => state.auth);
+  const [notifications,setNotifications]=useState([]);
+  const [counts,setCounts]=useState([]);
+  const fetchNotifications=async()=>{
+    try{
+      const response=await axios.get("https://127.0.0.1:8000/api/admin/view_all_notifications/",{
+        headers:{
+          Authorization:`Bearer ${accessToken}`,
+        }
+      });
+      console.log("KAKAKAKAK",response.data.data);
+      console.log(response.data.counts);
+      setCounts(response.data.counts);
+      setNotifications(response.data.data);
+    }catch(errors){
+      console.log("errors:",errors);
+      console.log("errors:",errors.response.data);
     }
-  ]);
+  }
+
+  useEffect(()=>{
+    fetchNotifications();
+  },[]);
+
 
   const [activeTab, setActiveTab] = useState('all');
   const [expandedNotification, setExpandedNotification] = useState(null);
@@ -55,21 +35,18 @@ const NotificationSection = () => {
   const tabs = [
     { id: 'all', name: 'All Notifications', count: notifications.length },
     { id: 'high', name: 'Critical', count: notifications.filter(n => n.priority === 'high').length },
-    { id: 'pending', name: 'Pending Actions', count: notifications.filter(n => n.status === 'pending').length },
-    { id: 'seller', name: 'Seller Approvals', count: notifications.filter(n => n.type.includes('seller')).length },
-    { id: 'orders', name: 'Order Approvals', count: notifications.filter(n => n.type.includes('order') || n.type.includes('refund')).length },
-    { id: 'orders', name: 'Product Approvals', count: notifications.filter(n => n.type.includes('order') || n.type.includes('refund')).length },
-    { id: 'orders', name: 'Return Refund Issues', count: notifications.filter(n => n.type.includes('order') || n.type.includes('refund')).length },
-    { id: 'orders', name: 'complaints feedback', count: notifications.filter(n => n.type.includes('order') || n.type.includes('refund')).length }
+    { id: 'seller', name: 'Seller Approvals', count: notifications.filter(n => n.redirect_url === '/admin/sellers/pending/').length },
+    { id: 'pending', name: 'Product Approvals', count: notifications.filter(n => n.redirect_url === '/admin/products/pending/').length },
+    { id: 'orders', name: 'Return Refund Issues', count: notifications.filter(n => n.redirect_url === '/neworders/return').length },
   ];
 
   // Filter notifications based on active tab
   const filteredNotifications = notifications.filter(notification => {
     if (activeTab === 'all') return true;
     if (activeTab === 'high') return notification.priority === 'high';
-    if (activeTab === 'pending') return notification.status === 'pending';
-    if (activeTab === 'seller') return notification.type.includes('seller');
-    if (activeTab === 'orders') return notification.type.includes('order') || notification.type.includes('refund');
+    if (activeTab === 'seller') return notification.redirect_url === '/admin/sellers/pending/';
+    if (activeTab === 'pending') return notification.redirect_url === '/admin/products/pending/';
+    if (activeTab === 'orders') return notification.redirect_url === '/neworders/return';
     return true;
   });
 
@@ -118,12 +95,7 @@ const NotificationSection = () => {
               Admin Dashboard <span className="text-gray-400">/</span> <span className="text-indigo-600">Notifications</span>
             </h1>
             <div className="flex space-x-3">
-              <button className="px-3 py-1 bg-gray-100 text-gray-600 rounded-md text-sm hover:bg-gray-200">
-                Mark All as Read
-              </button>
-              <button className="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700">
-                Notification Settings
-              </button>
+            
             </div>
           </div>
         </div>
@@ -136,24 +108,26 @@ const NotificationSection = () => {
           <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
             <h3 className="text-sm font-medium text-gray-500">Critical Alerts</h3>
             <p className="text-2xl font-semibold text-gray-900">
-              {notifications.filter(n => n.priority === 'high').length}
+            {counts.critical}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-            <h3 className="text-sm font-medium text-gray-500">Pending Actions</h3>
+            <h3 className="text-sm font-medium text-gray-500">Seller Approvals</h3>
             <p className="text-2xl font-semibold text-gray-900">
-              {notifications.filter(n => n.status === 'pending').length}
+             {counts.seller}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
-            <h3 className="text-sm font-medium text-gray-500">Seller Approvals</h3>
+            <h3 className="text-sm font-medium text-gray-500">Product Approvals</h3>
             <p className="text-2xl font-semibold text-gray-900">
-              {notifications.filter(n => n.type.includes('seller')).length}
+            {counts.products}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-            <h3 className="text-sm font-medium text-gray-500">Resolved Today</h3>
-            <p className="text-2xl font-semibold text-gray-900">8</p>
+            <h3 className="text-sm font-medium text-gray-500">Return Refund Issues</h3>
+            <p className="text-2xl font-semibold text-gray-900">
+            {counts.returnrefund}
+            </p>
           </div>
         </div>
 

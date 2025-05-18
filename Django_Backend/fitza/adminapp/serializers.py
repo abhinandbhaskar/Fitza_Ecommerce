@@ -331,7 +331,7 @@ class IndividualProductsSerializer(serializers.ModelSerializer):
             return ShopSellerSerializer(obj.product.shop).data
         return None
 
-
+from notifications.notifiers import ProductNotifier
 class ApproveProductSerializer(serializers.Serializer):
     saleprice=serializers.CharField()
     code=serializers.CharField()
@@ -341,11 +341,18 @@ class ApproveProductSerializer(serializers.Serializer):
             raise serializers.ValidationError("You are not authorized to perform this action.")
         return data
     def save(self):
+        adminuser=self.context["request"].user
         id=self.context["id"]
         obj1=ProductItem.objects.get(id=id)
         obj1.sale_price=self.validated_data["saleprice"]
         obj1.product_code=self.validated_data["code"]
         obj1.save()
+        seller_user = obj1.product.shop.user # Assuming ProductItem has a seller field
+        notifier = ProductNotifier(user=seller_user,sender=adminuser)
+        notifier.product_approved(product_name=obj1.product.product_name)
+
+
+
 
 
 
@@ -361,7 +368,9 @@ class RejectProductSerializer(serializers.Serializer):
         obj1=ProductItem.objects.get(id=id)
         obj1.rejection_reason=self.validated_data["reason"]
         obj1.save()
-
+        seller_user = obj1.product.shop.user # Assuming ProductItem has a seller field
+        notifier = ProductNotifier(user=seller_user)
+        notifier.product_rejected(product_name=obj1.product.product_name,reason=self.validated_data["reason"])
 
 from userapp.models import RatingsReview
 
@@ -800,7 +809,7 @@ class ViewAllComplaintsSerializer(serializers.ModelSerializer):
         fields=['id','seller','title','description','response','created_at','updated_at','resolved','messages']
 
 
-
+from notifications.notifiers import ComplaintNotifier
 class ResolveComplaintSerializer(serializers.Serializer):
     id = serializers.CharField()
     status = serializers.BooleanField()
@@ -812,9 +821,12 @@ class ResolveComplaintSerializer(serializers.Serializer):
         return data
 
     def save(self):
+        user = self.context["request"].user
         complaint = Complaint.objects.get(id=self.validated_data["id"])
         complaint.resolved = self.validated_data["status"]
         complaint.save()
+        notifier = ComplaintNotifier(user=complaint.seller, sender=user)
+        notifier.notify_seller_admin_reply(complaint_id=complaint.id,reply_message="Your Complaint has been resolved. Please check the updated status.")
 
 class AdminReplySerializer(serializers.Serializer):
     cid = serializers.IntegerField()
@@ -966,3 +978,11 @@ class HandleMarkReturnedSerializer(serializers.Serializer):
             notifier.refund_completed(order_id=obj.order.id,refund_amount=approved_refund_amount)
 
         return obj
+
+
+from sellerapp.models import Notification
+
+class ViewAllNotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Notification
+        fields='__all__'
