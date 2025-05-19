@@ -20,6 +20,9 @@ const Categories = () => {
     const [categories, setCategories] = useState([]);
     const [subdescription, setsubDescription] = useState("");
     const [viewSubCategory,setViewSubCategory]=useState([]);
+    const [subcategory1,setsubcategory1]=useState("");
+    const [subdescription1,setSubdescription1]=useState("");
+    const [parentCategory1,setParentCategory1]=useState("");
 
     const handleAddSubCategory = () => {
         setView("addsub");
@@ -185,6 +188,28 @@ const Categories = () => {
         }
     };
 
+    const handleSubCategoryDelete=async(cate_id)=>{
+
+                console.log(cate_id);
+
+        try {
+            const response = await axios.delete(`https://127.0.0.1:8000/api/admin/delete_sub_category/${cate_id}/`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            console.log(response.data);
+            if (response.status === 200) {
+                alert(response.data.message);
+                ViewSubCategorys();
+            }
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+
+    }
+
 
     const ViewSubCategorys=async()=>{
         setView("viewsub");
@@ -208,6 +233,68 @@ const Categories = () => {
             console.log(errors.response.data);
         }
 
+
+    }
+
+    const updateSubCategory=async(cate_id)=>{
+        setView("subupdate");
+
+                try {
+            const response = await axios.get(`https://127.0.0.1:8000/api/admin/fetch_subupdate_category/${cate_id}/`, {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            fetchCategory();
+            console.log("OPOPOPPPPPPP",response.data);
+            // console.log("FET", response.data[0]);
+            setParentCategory1(response.data[0].category.category_name);
+            setsubcategory1(response.data[0].subcategory_name);
+            setSubdescription1(response.data[0].subcategory_description);
+            // setImage1(response.data[0].category_image);
+            setCateId(response.data[0].id);
+
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+
+    }
+
+    const updateNewSubCategory=async(cate_id)=>{
+
+        console.log("name",subcategory1);
+        console.log("description",subdescription1);
+        console.log("KO",cate_id);
+
+        const formData = new FormData();
+        formData.append("parentCategory", parentCategory1);
+        formData.append("category", subcategory1);
+        formData.append("description", subdescription1);
+       
+
+        formData.forEach((value, key) => {
+            console.log(value, key);
+        });
+
+        try {
+            const response = await axios.post(`https://127.0.0.1:8000/api/admin/update_newsub_category/${cate_id}/`, formData, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            console.log(response.data);
+            if (response.status === 200) {
+                alert(response.data.message);
+            } else {
+                setError("Failed to update profile. Please try again.");
+            }
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
 
     }
 
@@ -341,7 +428,7 @@ const Categories = () => {
                                         </td>
                                         <td className="border border-gray-200 px-4 py-2">
                                             <button
-                                                onClick={() => updateCategory(category.id)}
+                                                onClick={() => updateSubCategory(category.id)}
                                                 className="px-3 py-1 text-white bg-yellow-500 rounded-lg shadow hover:bg-yellow-600"
                                             >
                                                 Update
@@ -349,7 +436,7 @@ const Categories = () => {
                                         </td>
                                         <td className="border border-gray-200 px-4 py-2">
                                             <button
-                                                onClick={() => handleCategoryDelete(category.id)}
+                                                onClick={() => handleSubCategoryDelete(category.id)}
                                                 className="px-3 py-1 text-white bg-red-500 rounded-lg shadow hover:bg-red-600"
                                             >
                                                 Delete
@@ -583,6 +670,69 @@ const Categories = () => {
                     </form>
                 </div>
             )}
+
+
+        
+            {view === "subupdate" && (
+                <div className="w-full max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+                    <h2 className="text-lg font-semibold text-gray-700 mb-4">Update Category</h2>
+                    <form className="space-y-4">
+                                                <div>
+                            <label htmlFor="category" className="block text-sm font-medium text-gray-600">
+                                Parent Category
+                            </label>
+                            <select
+                                id="category"
+                                name="category"
+                                value={parentCategory1}
+                                onChange={(e) => setParentCategory1(e.target.value)}
+                                className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-indigo-300"
+                            >
+                                <option value="">Select a category</option>
+                                {categories.map((cat) => (
+                                    <option key={cat} value={cat}>
+                                        {cat}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="categoryName" className="block text-sm font-medium text-gray-600">
+                               Sub Category Name
+                            </label>
+                            <input
+                                type="text"
+                                id="categoryName"
+                                placeholder="Enter category name"
+                                className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-indigo-300"
+                                value={subcategory1}
+                                onChange={(e) => setsubcategory1(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-600">
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                rows="3"
+                                placeholder="Enter category description"
+                                className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-indigo-300"
+                                value={subdescription1}
+                                onChange={(e) => setSubdescription1(e.target.value)}
+                            ></textarea>
+                        </div>
+                        <button
+                            onClick={() => updateNewSubCategory(cate_id)}
+                            type="button"
+                            className="px-6 py-2 text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700"
+                        >
+                            Update
+                        </button>
+                    </form>
+                </div>
+            )}
+
         </div>
     );
 };

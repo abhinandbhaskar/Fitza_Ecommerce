@@ -1042,3 +1042,52 @@ class ViewSubCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model=SubCategory
         fields='__all__'
+
+
+class DeleteSubCategorySerializer(serializers.Serializer):
+    def validate(self):
+        cate_id = self.context["cate_id"]
+        if not SubCategory.objects.filter(id=cate_id).exists():
+            raise serializers.ValidationError({"category": "The category does not exist."})
+        return {}
+    
+    def save(self):
+        cate_id = self.context["cate_id"]
+        category = SubCategory.objects.get(id=cate_id)
+        category.delete()
+
+
+class MainCategorySerializer1(serializers.ModelSerializer):
+    class Meta:
+        model=ProductCategory
+        fields=['id','category_name']
+
+class ViewSubCategorySerializer1(serializers.ModelSerializer):
+    category=MainCategorySerializer1(read_only=True)
+
+    class Meta:
+        model=SubCategory
+        fields='__all__'
+
+
+
+
+class UpdateNewSubCategorySerializer(serializers.Serializer):
+    parentCategory=serializers.CharField()
+    category = serializers.CharField()
+    description = serializers.CharField()
+   
+    def validate(self, data):
+        cate_id = self.context["cate_id"]
+        if not SubCategory.objects.filter(id=cate_id).exists():
+            raise serializers.ValidationError({"category": "The category does not exist."})
+        return data
+
+    def save(self):
+        cate_id = self.context["cate_id"]
+        obj = SubCategory.objects.get(id=cate_id)
+        res=ProductCategory.objects.get(category_name=self.validated_data["parentCategory"])
+        obj.category=res
+        obj.subcategory_name = self.validated_data["category"]
+        obj.subcategory_description = self.validated_data["description"]
+        obj.save()

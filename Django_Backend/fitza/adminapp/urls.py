@@ -2,11 +2,11 @@ from django.urls import path
 
 from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller,MarksAdminRead,UnReadNotifications
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
-from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview
-from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon
+from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview,UpdateNewSubCategory
+from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon,fetchSubUpdateCategory
 from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData,AddFreeShippingOffer,GetFreeshipOffers,ShipOfferActiveDeactive,DeleteFreeShippingOffer,GetEditFreeShipOffer
 from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers,GetDealsOfDay,ViewAllComplaints,ResolveComplaint
-from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned,ViewAllNotifications,AddSubCategory,ViewSubCategory
+from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned,ViewAllNotifications,AddSubCategory,ViewSubCategory,DeleteSubCategory
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -23,8 +23,11 @@ urlpatterns = [
     path('view_category/',ViewCategory.as_view(),name="view_category"),
     path('view_sub_category/',ViewSubCategory.as_view(),name="view_sub_category"),
     path('fetch_update_category/<int:cate_id>/',fetchUpdateCategory.as_view(),name="fetch_update_category"),
+    path('fetch_subupdate_category/<int:cate_id>/',fetchSubUpdateCategory.as_view(),name="fetch_subupdate_category"),
     path('update_new_category/<int:cate_id>/',UpdateNewCategory.as_view(),name="update_new_category"),
+    path('update_newsub_category/<int:cate_id>/',UpdateNewSubCategory.as_view(),name="update_newsub_category"),
     path('delete_category/<int:cate_id>/',DeleteCategory.as_view(),name="delete_category"),
+    path('delete_sub_category/<int:cate_id>/',DeleteSubCategory.as_view(),name="delete_sub_category"),
     path('add_color/',AddColor.as_view(),name="add_color"),
     path('view_colors/',ViewColors.as_view(),name="view_colors"),
     path('delete_color/<int:color_id>/',DeleteColor.as_view(),name="delete_color"),

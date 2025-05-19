@@ -1014,3 +1014,43 @@ class ViewSubCategory(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"message":f"An Error Occured while fetching Categories {e}"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from adminapp.serializers import DeleteSubCategorySerializer
+class DeleteSubCategory(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def delete(self,request,cate_id):
+        try:
+            serializer=DeleteSubCategorySerializer(context={"request":request,"cate_id":cate_id})
+            serializer.save()
+            return Response({"message":"SubCategory Deleted Successfully..."},status=status.HTTP_200_OK)
+        except ProductCategory.DoesNotExist:
+            return Response({"errors":"The SubCategory does not exist."},status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"errors":str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from adminapp.serializers import ViewSubCategorySerializer1
+
+class fetchSubUpdateCategory(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,cate_id):
+        try:
+            categories=SubCategory.objects.filter(id=cate_id)
+            serializer=ViewSubCategorySerializer1(categories,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message":f"An Error Occured while fetching Categories {e}"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+from adminapp.serializers import UpdateNewSubCategorySerializer
+class UpdateNewSubCategory(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, cate_id):
+        serializer = UpdateNewSubCategorySerializer(
+            data=request.data, context={"request": request, "cate_id": cate_id}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "SubCategory Updated Successfully"}, status=status.HTTP_200_OK)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
