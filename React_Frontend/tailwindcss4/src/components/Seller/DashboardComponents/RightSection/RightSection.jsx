@@ -21,7 +21,8 @@ import RevenueSection from "../RevenueSection/RevenueSection";
 import NotificationSection from "../NotificationSection/NotificationSection";
 
 
-const RightSection = ({currentView,setCurrentView}) => {
+
+const RightSection = ({currentView,setCurrentView,setCountN,countN}) => {
     const [yourcomplaint,setYourComplaint]=useState("");
     return (
         <div className="h-screen w-full bg-gray-800  overflow-y-auto">
@@ -46,7 +47,7 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="shopinfo"&&<ShopInfo setCurrentView={setCurrentView}/>}
       {currentView==="bankinfo"&&<BankInfo setCurrentView={setCurrentView}/>}
       {currentView==="changepassword"&&<ChangePassword setCurrentView={setCurrentView}/>}
-      {currentView==="notification"&& <NotificationSection/>}
+      {currentView==="notification"&& <NotificationSection  setCountN={setCountN} countN={countN} />}
       <Footer/>
         </div>
     );

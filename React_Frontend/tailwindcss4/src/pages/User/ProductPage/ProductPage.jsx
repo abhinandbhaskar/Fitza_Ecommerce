@@ -6,7 +6,7 @@ import ProductView from '../../../components/User/ProductView/ProductView'
 import Header from "../../../components/User/Header/Header"
 import Footer from "../../../components/User/Footer/Footer"
 import { useSelector } from 'react-redux';
-const ProductPage = () => {
+const ProductPage = ({countsN}) => {
   const { id } = useParams();
   const[product,setProduct]=useState([]);
   const {accessToken}=useSelector((state)=>state.auth);
@@ -36,7 +36,7 @@ useEffect(()=>{
 
   return (
     <div>
-    <Header/>
+    <Header countsN={countsN}/>
     <ProductView product={product}/>
     <Footer/>
     </div>

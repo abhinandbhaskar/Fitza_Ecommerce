@@ -1,7 +1,7 @@
 from django.urls import path
 # from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,CompleteSellerRegister
-from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister
-from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate
+from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister,ViewSellerAllNotifications,UnReadSellerNotifications
+from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate,MarkSellerRead
 from sellerapp.views import GetCategory,GetBrands,GetColor,GetSize,AddProducts,GetAllProducts,ViewStock,ViewUserReviews,ViewUserQuestions,UserAnswer,ViewAnsweredQues,AddSellerComplaint,ViewSellerComplaints
 from sellerapp.views import ViewUserComplaint,SellerReplyComplaint,ViewAllUserFeedbacks,AddSellerFeedBacks,ViewOrderedUsers,SellerViewOrders,UpdateOrderShipping,GetAllReturnRefund,HadleEscalation,HandleReturned
 
@@ -42,6 +42,10 @@ urlpatterns = [
     path('get_all_returnrefund/',GetAllReturnRefund.as_view(),name="get_all_returnrefund"),
     path('hanle_escalation/<int:returnId>/',HadleEscalation.as_view(),name="hanle_escalation"),
     path('hanle_returned/<int:returnId>/',HandleReturned.as_view(),name="hanle_returned"),
+    path('view_sellerall_notifications/',ViewSellerAllNotifications.as_view(),name="view_sellerall_notifications"),
+    path('marks_seller_read/<int:id>/',MarkSellerRead.as_view(),name="marks_seller_read"),
+    path('seller_unread_notifications/',UnReadSellerNotifications.as_view(),name="seller_unread_notifications"),
+
 ]
 
 from django.conf import settings

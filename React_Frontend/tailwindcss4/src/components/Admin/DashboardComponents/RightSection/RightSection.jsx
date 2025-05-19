@@ -19,7 +19,7 @@ import FeedBackSection from "../FeedBackSection/FeedBackSection";
 import ReturnRefundSection from "../ReturnRefundSection/ReturnRefundSection";
 import NotificationSection from "../NotificationSection/NotificationSection";
 
-const RightSection = ({currentView,setCurrentView}) => {
+const RightSection = ({currentView,setCurrentView,setCountN}) => {
     return (
         <div className="h-screen w-8/10 bg-white p-4 overflow-y-auto relative ml-77 mt-20">
       {currentView==="mainsection"&&<MainSection/>}
@@ -39,7 +39,7 @@ const RightSection = ({currentView,setCurrentView}) => {
       {currentView==="productoffer"&&<ProductsOfferSection/>}
       {currentView==="feedback"&&<FeedBackSection/>}
       {currentView==="returnrefund"&&<ReturnRefundSection/>}
-      {currentView==="notification"&&<NotificationSection/>}
+      {currentView==="notification"&&<NotificationSection setCountN={setCountN} />}
 
       <Footer/>
         </div>

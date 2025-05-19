@@ -961,4 +961,9 @@ class CustomerCancelOrderSerializer(serializers.Serializer):
         notifier.order_canceled(order_id=obj.id, cancellation_reason=self.validated_data["cancellationReason"])
 
 
+from sellerapp.models import Notification
+class ViewUserAllNotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Notification
+        fields='__all__'
        

@@ -193,7 +193,7 @@ class ProductNotifier(NotificationService):
         """
         return self.send(
             message=f"Your product '{product_name}' has been approved and is now available for sale.",
-            redirect_url='/products'
+            redirect_url='/approvals/orders'
         )
 
     def product_rejected(self, product_name, reason):
@@ -202,7 +202,7 @@ class ProductNotifier(NotificationService):
         """
         return self.send(
             message=f"Your product '{product_name}' has been rejected. Reason: {reason}.",
-            redirect_url='/products'
+            redirect_url='/rejects'
         )
 
 
@@ -222,7 +222,7 @@ class SellerNotifier(NotificationService):
         """
         return self.send(
             message=f"A new order #{order_id} has been placed by {user_name}. Order Total: ${order_total:.2f}.",
-            redirect_url=f'/seller/orders/{order_id}'
+            redirect_url=f'/approvals/orders'
         )
 
     def order_canceled(self, order_id, cancellation_reason):
@@ -231,7 +231,7 @@ class SellerNotifier(NotificationService):
         """
         return self.send(
             message=f"Order #{order_id} has been canceled. Reason: {cancellation_reason}.",
-            redirect_url=f'/seller/orders/{order_id}'
+            redirect_url=f'/rejects'
         )
 
 
@@ -263,7 +263,7 @@ class ComplaintNotifier(NotificationService):
         """
         return self.send(
             message=f"The admin has replied to your complaint (ID: {complaint_id}): '{reply_message}'.",
-            redirect_url=f'/seller/complaints/view/{complaint_id}',
+            redirect_url=f'/seller/questions/',
             group='all_sellers'
         )
 
@@ -288,7 +288,7 @@ class QASectionNotifier(NotificationService):
         """
         return self.send(
             message=f"A new question (ID: {question_id}) has been added by {user_name} for the product '{product_name}'.",
-            redirect_url=f'/seller/questions/{question_id}',
+            redirect_url=f'/seller/questions/',
             group='all_sellers'
         )
 
@@ -333,7 +333,7 @@ class FeedbackAndReviewNotifier(NotificationService):
         """
         return self.send(
             message=f"A new feedback (ID: {feedback_id}) has been submitted by {user_name}.",
-            redirect_url=f'/seller/feedback/{feedback_id}',
+            redirect_url=f'/seller/questions/',
             group='all_sellers'
         )
 
@@ -343,7 +343,7 @@ class FeedbackAndReviewNotifier(NotificationService):
         """
         return self.send(
             message=f"User {user_name} has added a review (ID: {review_id}) for your product '{product_name}'.",
-            redirect_url=f'/seller/reviews/{review_id}',
+            redirect_url=f'/seller/questions/',
             group='all_sellers'
         )
 
@@ -388,7 +388,7 @@ class SellerApprovalNotifier(NotificationService):
         """
         return self.send(
             message=f"Congratulations! Your seller account (ID: {seller_id}) has been approved. You can now start listing your products.",
-            redirect_url='/seller/dashboard',
+            redirect_url='/seller/questions/',
             group='all_sellers'
         )
 
@@ -398,7 +398,7 @@ class SellerApprovalNotifier(NotificationService):
         """
         return self.send(
             message=f"Unfortunately, your seller account (ID: {seller_id}) has been rejected. Reason: {reason}.",
-            redirect_url='/seller/help-center',
+            redirect_url='/rejects',
             group='all_sellers'
         )
 

@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Header = () => {
+const Header = ({countsN,setNcounts}) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const { isAuthenticated, accessToken } = useSelector((state) => state.auth);
     const [cate1, setCate1] = useState([]);
@@ -80,8 +80,32 @@ const Header = () => {
         navigate(isAuthenticated ? "/seller/landpage" : "/seller/landpage");
     };
 
+    
+        const fetchNotificationCount=async()=>{
+
+                try {
+                    const response = await axios.get("https://127.0.0.1:8000/api/user_unread_notifications/", {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+                    console.log("KAKAKAKAK", response);
+                    setNcounts(response.data.notifications);
+                    // setCountN(response.data.notifications)
+                   
+                } catch (errors) {
+                    console.log("errors:", errors);
+                    console.log("errors:", errors.response.data);
+                }
+
+    }
+
+
+
+
     useEffect(() => {
         getAllProducts();
+        fetchNotificationCount();
     }, []);
 
     useEffect(() => {
@@ -180,11 +204,11 @@ const Header = () => {
                                         {/* Notification Icon with Badge */}
                     <Link to="/notifications" className="relative">
                         <i className="fa-solid fa-bell text-red-400 text-xl md:text-3xl"></i>
-                        {unreadNotifications > 0 && (
+                       
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                {unreadNotifications}
+                                {countsN}
                             </span>
-                        )}
+                       
                     </Link>
                     
                     {/* Cart */}

@@ -5,14 +5,14 @@ import CartSection from "../../../components/User/CartComponents/CartSection/Car
 import AddressSection from "../../../components/User/CartComponents/AddressSection/AddressSection";
 import PaymentSection from "../../../components/User/CartComponents/PaymentSection/PaymentSection";
 
-const CartPage = () => {
+const CartPage = ({countsN}) => {
     const[cartView,setCartView]=useState("cart");
     const[cartId,setCartId]=useState(null);
 
 
   return (
     <>
-      <Header />
+      <Header countsN={countsN} />
       <div className="min-h-screen bg-gray-50">
         {/* Progress Bar */}
         <div className="flex items-center justify-center py-4 bg-white shadow-md">

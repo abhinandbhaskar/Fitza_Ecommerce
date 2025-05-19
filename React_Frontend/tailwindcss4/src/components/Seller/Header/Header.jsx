@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import fitza from "../../../assets/fitzaapp.png";
 import profile from "../../../assets/profile.jpg";
 import axios from "axios";
@@ -7,7 +7,7 @@ import { logout } from "../../../redux/authSlice";
 import {clearProfile} from "../../../redux/profileSlice";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({setCurrentView}) => {
+const Header = ({setCurrentView,countN,setCountN}) => {
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
     const { accessToken } = useSelector((state) => state.auth);
     const navigate=useNavigate();
@@ -45,6 +45,30 @@ const Header = ({setCurrentView}) => {
             console.log("Errors", errors);
         }
     };
+
+        const fetchNotificationCount=async()=>{
+
+                try {
+                    const response = await axios.get("https://127.0.0.1:8000/api/seller/seller_unread_notifications/", {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+                    console.log("KAKAKAKAK", response);
+                    setCountN(response.data.notifications)
+                   
+                } catch (errors) {
+                    console.log("errors:", errors);
+                    console.log("errors:", errors.response.data);
+                }
+
+    }
+
+
+    useEffect(()=>{
+        fetchNotificationCount();
+    },[])
+
     return (
         <div className="w-full bg-gray-900 flex flex-col md:flex-row fixed border-b-1 z-10 mb-10">
             <div className="w-full md:w-[390px] bg-gray-800 border-b md:border-r border-gray-800 flex items-center justify-center p-2">
@@ -85,11 +109,26 @@ const Header = ({setCurrentView}) => {
                     </div>
                 </div>
 
-                              <div onClick={()=>setCurrentView("notification")} className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
-                        <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >
-                            <i className="fa-solid fa-bell"></i>
-                        </div>
-                </div>
+                        
+
+<div 
+  onClick={() => setCurrentView("notification")} 
+  className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2"
+>
+  <div className="relative">
+    <div 
+      key="" 
+      className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" 
+    >
+      <i className="fa-solid fa-bell"></i>
+    </div>
+    {/* Notification counter badge */}
+    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+      {countN} 
+      
+    </div>
+  </div>
+</div>
 
                         <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
                         <div key="" className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center" >

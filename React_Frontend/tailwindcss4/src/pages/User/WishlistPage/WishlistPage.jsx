@@ -4,7 +4,7 @@ import Footer from "../../../components/User/Footer/Footer";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-const WishlistPage = () => {
+const WishlistPage = ({countsN}) => {
 
     const {accessToken}=useSelector((state)=>state.auth);
     const[fav,setFav]=useState([]);
@@ -71,7 +71,7 @@ const WishlistPage = () => {
 
     return (
         <>
-            <Header />
+            <Header countsN={countsN} />
             <div className="collection-container h-auto min-h-[400px] width-screen">
                 <div className="py-10 text-center">
                     <h3 className="text-2xl font-semibold text-gray-800">My Wishlist</h3>

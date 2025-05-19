@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes,Route } from "react-router-dom";
 import HomePage from '../pages/User/HomePage/HomePage'
 import SignUpPage from '../pages/User/SignUpPage/SignUpPage'
@@ -16,23 +16,24 @@ import OfferSection from "../pages/User/OfferSection/OfferSection";
 import NotificationPage from "../pages/User/NotificationPage/NotificationPage";
 
 const UserRoutes = () => {
+  const [countsN,setNcounts]=useState(0);
   return (
     <>
       <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePage countsN={countsN} setNcounts={setNcounts} />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/authredirect" element={<HandleRedirect />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/viewprofile" element={<ViewProfile />} />
+          <Route path="/profile" element={<ProfilePage countsN={countsN} />} />
+          <Route path="/viewprofile" element={<ViewProfile/>} />
           <Route path="/changepassword" element={<ChangePassword />} />
           <Route path="/billingaddress" element={<BillingAddress />} />
-          <Route path="/productview/:id" element={<ProductPage />} />
-          <Route path="/wishlistview" element={<WishlistPage/>}/>
+          <Route path="/productview/:id" element={<ProductPage countsN={countsN} />} />
+          <Route path="/wishlistview" element={<WishlistPage countsN={countsN}/>}/>
           <Route path="/categoryproduct/:pro_name" element={<CategoryProducts/>} />
-          <Route path="/cartpage" element={<CartPage/>} />
-          <Route path="/offerproduct" element={<OfferSection/>} />
-          <Route path="/notifications" element={<NotificationPage/>} />
+          <Route path="/cartpage" element={<CartPage countsN={countsN}/>} />
+          <Route path="/offerproduct" element={<OfferSection countsN={countsN} />} />
+          <Route path="/notifications" element={<NotificationPage countsN={countsN} setNcounts={setNcounts}/>} />
       </Routes>  
     </>
   )

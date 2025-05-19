@@ -550,3 +550,32 @@ class HandleReturned(APIView):
             serializer.save()
             return Response({"message":"Returned successfully.."},status=status.HTTP_200_OK)
         return Response({"errors":"Error occured..."},status=status.HTTP_400_BAD_REQUEST)
+    
+
+from sellerapp.models import Notification
+from sellerapp.serializers import ViewSellerAllNotificationsSerializer
+class ViewSellerAllNotifications(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        notifications = Notification.objects.filter(user=user,group='all_sellers') 
+        serializer = ViewSellerAllNotificationsSerializer(notifications, many=True) 
+        return Response(serializer.data)
+
+from sellerapp.models import Notification
+
+class MarkSellerRead(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        obj=Notification.objects.get(id=id)
+        obj.is_read=True
+        obj.save()
+        return Response({"message":"Mark As Read...."},status=status.HTTP_200_OK)
+
+class UnReadSellerNotifications(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        obj=Notification.objects.filter(group='all_sellers',is_read=False,user=user)
+        serializer={"notifications":len(obj)}
+        return Response(serializer)

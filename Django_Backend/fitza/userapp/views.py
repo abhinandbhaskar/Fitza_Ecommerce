@@ -828,3 +828,33 @@ class CustomerCancelOrder(APIView):
             serializer.save()
             return Response({"message": "Order Cancelled..."}, status=status.HTTP_200_OK)
         return Response({"error": "Error Occurred..."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+from sellerapp.models import Notification
+from userapp.serializers import ViewUserAllNotificationsSerializer
+class ViewUserAllNotifications(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        notifications = Notification.objects.filter(user=user,group='all_users') 
+        serializer = ViewUserAllNotificationsSerializer(notifications, many=True) 
+        return Response(serializer.data)
+    
+
+from sellerapp.models import Notification
+class MarksUserRead(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,id):
+        obj=Notification.objects.get(id=id)
+        obj.is_read=True
+        obj.save()
+        return Response({"message":"Mark As Read...."},status=status.HTTP_200_OK)
+    
+class UserUnreadNotifications(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        obj=Notification.objects.filter(user=user,group='all_users',is_read=False)
+        serializer={"notifications":len(obj)}
+        return Response(serializer)

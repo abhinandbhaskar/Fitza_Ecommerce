@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import Header from "../../../components/User/Header/Header";
 import Footer from "../../../components/User/Footer/Footer";
 
-const OfferSection = () => {
+const OfferSection = ({countsN}) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [products, setProducts] = useState([]);
 
@@ -28,7 +28,7 @@ const OfferSection = () => {
 
   return (
     <>
-      <Header />
+      <Header countsN={countsN} />
       <div className="collection-container h-auto w-screen">
         <div className="collection-header h-auto w-full text-center my-12">
           <div>

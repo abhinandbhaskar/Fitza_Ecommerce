@@ -8,11 +8,11 @@ import NewArrivals from '../../../components/User/NewArrivals/NewArrivals'
 import TopRelease from '../../../components/User/TopRelease/TopRelease'
 import Footer from '../../../components/User/Footer/Footer'
 import api from '../../../utils/api'
-const HomePage = () => {
+const HomePage = ({countsN,setNcounts}) => {
    const[topdata,setTopData]=useState([])
   return (
     <div>
-      <Header></Header>
+      <Header countsN={countsN} setNcounts={setNcounts}></Header>
       <BannerSection/>
       <DealsOftheDay/>
       <TopCollection/>

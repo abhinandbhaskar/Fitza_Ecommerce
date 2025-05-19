@@ -2,12 +2,12 @@ from django.urls import path
 from .views import RegisterAPI, UserLogout, PasswordChange
 from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView)
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
-from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct
+from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct,MarksUserRead
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
 from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode
 
 from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack
-from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus,CustomerCancelOrder
+from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus,CustomerCancelOrder,ViewUserAllNotifications,UserUnreadNotifications
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -57,6 +57,9 @@ urlpatterns = [
     path('send_return_refund/<int:orderId>/',SendReturnRefund.as_view(),name="send_return_refund"),
     path('get_returnrefund_status/<int:orderId>/',GetReturnRefundStatus.as_view(),name="get_returnrefund_status"),
     path('user_cancel_order/<int:orderId>/',CustomerCancelOrder.as_view(),name="user_cancel_order"),
+    path('view_user_all_notifications/',ViewUserAllNotifications.as_view(),name="view_user_all_notifications"),
+    path('marks_user_read/<int:id>/',MarksUserRead.as_view(),name="marks_user_read"),
+    path('user_unread_notifications/',UserUnreadNotifications.as_view(),name="user_unread_notifications"),
 
 
 ]

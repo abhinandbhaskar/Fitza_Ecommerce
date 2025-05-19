@@ -1,160 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
 
-const NotificationSection = () => {
+const NotificationSection = ({countN,setCountN}) => {
+  const { accessToken } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState('all');
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
-  // Mock data - replace with actual API calls
-  useEffect(() => {
-    const mockNotifications = [
-      {
-        id: 1,
-        type: 'success',
-        title: 'Product Approved',
-        message: 'Your product "Premium Wireless Headphones" has been approved and is now live.',
-        isRead: false,
-        createdAt: '2023-05-15T10:30:00Z',
-        priority: 'high',
-        redirectUrl: '/products/123'
-      },
-      {
-        id: 2,
-        type: 'error',
-        title: 'Product Rejected',
-        message: 'Your product "Leather Wallet" was rejected due to quality issues.',
-        isRead: false,
-        createdAt: '2023-05-14T15:45:00Z',
-        priority: 'high',
-        redirectUrl: '/products/456'
-      },
-      {
-        id: 3,
-        type: 'warning',
-        title: 'Low Stock Alert',
-        message: 'Only 5 units left of "Smart Watch Pro". Consider restocking soon.',
-        isRead: true,
-        createdAt: '2023-05-13T09:20:00Z',
-        priority: 'high',
-        redirectUrl: '/inventory'
-      },
-      {
-        id: 4,
-        type: 'success',
-        title: 'New Order Received',
-        message: 'You have a new order #ORD-7894 for "Wireless Earbuds".',
-        isRead: true,
-        createdAt: '2023-05-12T14:10:00Z',
-        priority: 'high',
-        redirectUrl: '/orders/7894'
-      },
-      {
-        id: 5,
-        type: 'error',
-        title: 'Order Cancelled',
-        message: 'Order #ORD-6543 has been cancelled by the customer.',
-        isRead: false,
-        createdAt: '2023-05-11T11:25:00Z',
-        priority: 'high',
-        redirectUrl: '/orders/6543'
-      },
-      {
-        id: 6,
-        type: 'warning',
-        title: 'Return Request',
-        message: 'Customer has requested return for order #ORD-3217.',
-        isRead: false,
-        createdAt: '2023-05-10T16:40:00Z',
-        priority: 'high',
-        redirectUrl: '/returns/3217'
-      },
-      {
-        id: 7,
-        type: 'info',
-        title: 'New Customer Question',
-        message: 'Question received about "Bluetooth Speaker": "Is this waterproof?"',
-        isRead: true,
-        createdAt: '2023-05-09T13:15:00Z',
-        priority: 'medium',
-        redirectUrl: '/questions/123'
-      },
-      {
-        id: 8,
-        type: 'warning',
-        title: 'Customer Complaint',
-        message: 'Complaint received about delayed shipping for order #ORD-9876.',
-        isRead: true,
-        createdAt: '2023-05-08T10:05:00Z',
-        priority: 'medium',
-        redirectUrl: '/complaints/9876'
-      },
-      {
-        id: 9,
-        type: 'info',
-        title: 'New Product Review',
-        message: 'You received a 4-star review for "Wireless Charger".',
-        isRead: true,
-        createdAt: '2023-05-07T08:30:00Z',
-        priority: 'medium',
-        redirectUrl: '/reviews/456'
-      },
-      {
-        id: 10,
-        type: 'success',
-        title: 'Payment Processed',
-        message: 'Your payment of $1,245.00 for last week\'s sales has been processed.',
-        isRead: false,
-        createdAt: '2023-05-06T12:00:00Z',
-        priority: 'high',
-        redirectUrl: '/payments'
-      },
-      {
-        id: 11,
-        type: 'admin',
-        title: 'Platform Update',
-        message: 'New seller dashboard features will be rolled out next week.',
-        isRead: true,
-        createdAt: '2023-05-05T09:00:00Z',
-        priority: 'medium',
-        redirectUrl: '/announcements/1'
+
+
+
+    const fetchNotifications=async()=>{
+      try{
+        const response=await axios.get("https://127.0.0.1:8000/api/seller/view_sellerall_notifications/",{
+          headers:{
+            Authorization:`Bearer ${accessToken}`,
+          }
+        });
+        console.log("BlooBlooo",response.data);
+        setNotifications(response.data);
+        setUnreadCount(response.data.filter(n => !n.is_read).length);
+        setCountN(response.data.filter(n => !n.is_read).length);
+      }catch(errors){
+        console.log("errors:",errors);
+        console.log("errors:",errors.response.data);
       }
-    ];
+    }
+  
+    useEffect(()=>{
+      fetchNotifications();
+    },[]);
+  
 
-    setNotifications(mockNotifications);
-    setUnreadCount(mockNotifications.filter(n => !n.isRead).length);
-  }, []);
-
-  const markAsRead = (id) => {
-    const updatedNotifications = notifications.map(notification => 
-      notification.id === id ? { ...notification, isRead: true } : notification
-    );
-    setNotifications(updatedNotifications);
-    setUnreadCount(updatedNotifications.filter(n => !n.isRead).length);
-  };
-
-  const markAllAsRead = () => {
-    const updatedNotifications = notifications.map(notification => 
-      ({ ...notification, isRead: true })
-    );
-    setNotifications(updatedNotifications);
-    setUnreadCount(0);
-  };
 
   const filteredNotifications = activeTab === 'all' 
     ? notifications 
-    : notifications.filter(n => n.type === activeTab);
+    : notifications.filter(n => n.redirect_url === activeTab);
 
   const getIcon = (type) => {
     switch(type) {
-      case 'success':
+      case '/approvals/orders':
         return <i className="fa-solid fa-circle-check text-green-500 text-icon-md" />;
-      case 'error':
+      case '/rejects':
         return <i className="fa-solid fa-circle-xmark text-red-500 text-icon-md" />;
-      case 'warning':
-        return <i className="fa-solid fa-triangle-exclamation text-yellow-500 text-icon-md" />;
-      case 'admin':
+      case '/seller/questions/':
         return <i className="fa-solid fa-shield-halved text-blue-500 text-icon-md" />;
       case 'seller':
         return <i className="fa-solid fa-cube text-indigo-500 text-icon-md" />;
@@ -178,11 +70,36 @@ const NotificationSection = () => {
   };
 
   const handleNotificationClick = (notification) => {
-    markAsRead(notification.id);
     if (notification.redirectUrl) {
       navigate(notification.redirectUrl);
     }
   };
+
+  const markAsRead=async(id)=>{
+
+    console.log("OOO",id);
+
+            try {
+            const response = await axios.post(
+                `https://127.0.0.1:8000/api/seller/marks_seller_read/${id}/`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    withCredentials: true,
+                }
+            );
+            console.log(response);
+            console.log(response.data);
+            fetchNotifications();
+          
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -217,7 +134,7 @@ const NotificationSection = () => {
                 </button>
                 
                 <button
-                  onClick={() => setActiveTab('success')}
+                  onClick={() => setActiveTab('/approvals/orders')}
                   className={`w-full text-left px-3 py-2 rounded-md flex items-center ${activeTab === 'success' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
                   <i className="fa-solid fa-circle-check text-green-500 text-icon-xs mr-2" />
@@ -225,23 +142,16 @@ const NotificationSection = () => {
                 </button>
                 
                 <button
-                  onClick={() => setActiveTab('error')}
+                  onClick={() => setActiveTab('/rejects')}
                   className={`w-full text-left px-3 py-2 rounded-md flex items-center ${activeTab === 'error' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
                   <i className="fa-solid fa-circle-xmark text-red-500 text-icon-xs mr-2" />
                   <span>Rejections & Issues</span>
                 </button>
                 
-                <button
-                  onClick={() => setActiveTab('warning')}
-                  className={`w-full text-left px-3 py-2 rounded-md flex items-center ${activeTab === 'warning' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                >
-                  <i className="fa-solid fa-triangle-exclamation text-yellow-500 text-icon-xs mr-2" />
-                  <span>Alerts</span>
-                </button>
                 
                 <button
-                  onClick={() => setActiveTab('info')}
+                  onClick={() => setActiveTab('/seller/questions/')}
                   className={`w-full text-left px-3 py-2 rounded-md flex items-center ${activeTab === 'info' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
                   <i className="fa-solid fa-comment-dots text-blue-400 text-icon-xs mr-2" />
@@ -258,12 +168,7 @@ const NotificationSection = () => {
               </div>
               
               <div className="mt-6 pt-4 border-t border-gray-200">
-                <button
-                  onClick={markAllAsRead}
-                  className="w-full text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                >
-                  Mark all as read
-                </button>
+               
               </div>
             </div>
           </div>
@@ -306,7 +211,7 @@ const NotificationSection = () => {
                             <div className="flex items-center space-x-2">
                               {getPriorityBadge(notification.priority)}
                               <span className="text-xs text-gray-500">
-                                {new Date(notification.createdAt).toLocaleDateString('en-US', {
+                                {new Date(notification.created_at).toLocaleDateString('en-US', {
                                   month: 'short',
                                   day: 'numeric',
                                   hour: '2-digit',
@@ -319,9 +224,17 @@ const NotificationSection = () => {
                             {notification.message}
                           </p>
                         </div>
-                        {!notification.isRead && (
+                        {!notification.is_read && (
                           <div className="ml-2 flex-shrink-0">
-                            <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                          
+                           <button
+                                                        onClick={() => markAsRead(notification.id)}
+                                                        className="text-gray-400 hover:text-gray-500"
+                                                        title="Mark as read"
+                                                    >
+                                                        <i className="fa-solid fa-check"></i>
+                                                    </button>
+
                           </div>
                         )}
                       </div>

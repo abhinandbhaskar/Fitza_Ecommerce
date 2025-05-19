@@ -1,6 +1,6 @@
 from django.urls import path
 
-from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller
+from adminapp.views import AdminTokenObtainPairView,AdminLogout,ViewUsers,ViewSellers,RemoveUsers,ViewSellerDetails,RemoveSeller,MarksAdminRead,UnReadNotifications
 from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategory,fetchUpdateCategory,UpdateNewCategory,DeleteCategory,AddColor,ViewColors,DeleteColor,AddSize
 from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview
 from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon
@@ -93,7 +93,9 @@ urlpatterns = [
     path('verify_payment/<int:pid>/<int:sid>/',VerifyPaymentAdmin.as_view(),name="verify_payment"),
     path('fetch_all_returnrefund/',FetchAllReturnRefund.as_view(),name="fetch_all_returnrefund"),
     path('hanle_mark_returned/<int:returnId>/',HandleMarkReturned.as_view(),name="hanle_mark_returned"),
-    path('view_all_notifications/',ViewAllNotifications.as_view(),name="view_all_notifications",)
+    path('view_all_notifications/',ViewAllNotifications.as_view(),name="view_all_notifications"),
+    path('marks_admin_read/<int:id>/',MarksAdminRead.as_view(),name="marks_admin_read"),
+    path('unread_notifications/',UnReadNotifications.as_view(),name="unread_notifications"),
 
 
 

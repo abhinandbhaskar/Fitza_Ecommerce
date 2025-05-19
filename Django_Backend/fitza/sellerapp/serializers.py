@@ -842,3 +842,10 @@ class HandleReturnedSerializer(serializers.Serializer):
 
         return obj
 
+
+from sellerapp.models import Notification
+
+class ViewSellerAllNotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Notification
+        fields='__all__'
