@@ -6,7 +6,7 @@ from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBran
 from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon
 from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData,AddFreeShippingOffer,GetFreeshipOffers,ShipOfferActiveDeactive,DeleteFreeShippingOffer,GetEditFreeShipOffer
 from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers,GetDealsOfDay,ViewAllComplaints,ResolveComplaint
-from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned,ViewAllNotifications
+from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned,ViewAllNotifications,AddSubCategory,ViewSubCategory
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -19,7 +19,9 @@ urlpatterns = [
     path('remove_seller/<int:seller_id>/',RemoveSeller.as_view(),name="remove_seller"),
     path('approve_seller/<int:seller_id>/',ApproveSeller.as_view(),name="approve_seller"),
     path('add_category/',AddCategory.as_view(),name="add_category"),
+    path('add_sub_category/',AddSubCategory.as_view(),name="add_sub_category"),
     path('view_category/',ViewCategory.as_view(),name="view_category"),
+    path('view_sub_category/',ViewSubCategory.as_view(),name="view_sub_category"),
     path('fetch_update_category/<int:cate_id>/',fetchUpdateCategory.as_view(),name="fetch_update_category"),
     path('update_new_category/<int:cate_id>/',UpdateNewCategory.as_view(),name="update_new_category"),
     path('delete_category/<int:cate_id>/',DeleteCategory.as_view(),name="delete_category"),

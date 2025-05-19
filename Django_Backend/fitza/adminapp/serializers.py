@@ -986,3 +986,59 @@ class ViewAllNotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model=Notification
         fields='__all__'
+
+
+from common.models import SubCategory
+class AddSubCategorySerializer(serializers.Serializer):
+    category=serializers.CharField()
+    subcategoryName=serializers.CharField(required=False, allow_blank=True)
+    subdescription=serializers.CharField(required=False, allow_blank=True)
+
+
+    def validate(self, data):
+        user = self.context["request"].user
+
+        # Check if the user exists
+        if not CustomUser.objects.filter(id=user.id).exists():
+            raise serializers.ValidationError("You don't have permission to add a category.")
+        
+        # Check if the main category exists
+        if not ProductCategory.objects.filter(category_name=data["category"]).exists():
+            raise serializers.ValidationError("Main Category does not exist.")
+        
+        # Optional: Ensure subcategory is unique under the same category
+        category = ProductCategory.objects.get(category_name=data["category"])
+        if category and SubCategory.objects.filter(category=category, subcategory_name=data["subcategoryName"]).exists():
+            raise serializers.ValidationError("Subcategory with this name already exists in the selected category.")
+        return data
+        
+    def save(self):
+        try:
+            # Fetch the main category object
+            obj = ProductCategory.objects.get(category_name=self.validated_data["category"])
+
+            # Create a new subcategory
+            category = SubCategory.objects.create(
+                category=obj,
+                subcategory_name=self.validated_data["subcategoryName"],
+                subcategory_description=self.validated_data["subdescription"],
+            )
+            return category
+        except ProductCategory.DoesNotExist:
+            raise serializers.ValidationError("The specified category does not exist.")
+        except Exception as e:
+            raise serializers.ValidationError(f"Failed to create subcategory: {str(e)}")
+
+from common.models import SubCategory,ProductCategory
+
+class MainCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductCategory
+        fields=['category_name']
+
+class ViewSubCategorySerializer(serializers.ModelSerializer):
+    category=MainCategorySerializer(read_only=True)
+
+    class Meta:
+        model=SubCategory
+        fields='__all__'

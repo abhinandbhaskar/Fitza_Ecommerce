@@ -10,21 +10,7 @@ import PaymentImg from "../../../assets/img/payment-method.png";
 const Footer = () => {
   return (
     <div className='Footer-section'>
-      {/* <div className="email-section w-full">
-        <div className="email-subsection grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            
-           <div className='email-icon'> <h2><span><img src={emailImg} alt="" /></span>Sign up to Newsletter</h2></div>
-           <div className='coupon-msg'> <h4>...and receive $25 coupon for first shopping.</h4></div>
-           
-           <div className='subscribe-btn'>
-           <div className='subscribe-input'>
-           <input type="text" placeholder='Enter your email' />
-           <button>Subscribe</button>
-            </div>
-           </div>
 
-        </div>
-        </div>  */}
         <div className="footer-subsection grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <div className='contact m-2'>
             <h1>Fitza</h1>

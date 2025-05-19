@@ -1,98 +1,128 @@
 import React, { useState } from "react";
 import "./MyProfile.css";
 import axios from "axios";
-import ViewProfile from "../../../components/User/ProfileComponents/ViewProfile/ViewProfile"
+import ViewProfile from "../../../components/User/ProfileComponents/ViewProfile/ViewProfile";
 import ChangePassword from "../../../components/User/ProfileComponents/ChangePassword/ChangePassword";
 import BillingAddress from "../../../components/User/ProfileComponents/BillingAddress/BillingAddress";
 import ShippingAddress from "../ProfileComponents/ShippingAddress/ShippingAddress";
 import MyOrders from "../ProfileComponents/MyOrders/MyOrders";
 import DeleteAccount from "../ProfileComponents/DeleteAccount/DeleteAccount";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../../redux/authActions";
-import {clearProfile} from "../../../redux/profileSlice";
+import { clearProfile } from "../../../redux/profileSlice";
 import ProductsDetailView from "../ProfileComponents/MyOrders/MyOrderComponents/ProductsDetailView";
 import SellerFeedBack from "../ProfileComponents/MyOrders/MyOrderComponents/SellerFeedBack";
+
 const MyProfile = () => {
-    const [currentView,setCurrentView]=useState("profile");
-    const [myorderview,setMyOrderView]=useState("myorder");
+    const [currentView, setCurrentView] = useState("profile");
+    const [myorderview, setMyOrderView] = useState("myorder");
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
-    console.log("NAME",name);
-    console.log("EMail",email);
-    console.log("PROOO",profilePicture);
-
-
-    // const [photo,setPhoto]=useState("");
-    console.log(currentView);
-    const dispatch=useDispatch()
-    const{accessToken}=useSelector((state)=>state.auth);
+    const dispatch = useDispatch();
+    const { accessToken } = useSelector((state) => state.auth);
 
     const handleLogout = async () => {
-
-        console.log("Yes");
         try {
-            // Get token from Redux store
-    
             await axios.post(
                 "https://127.0.0.1:8000/api/logout/",
                 {},
                 {
-                    withCredentials: true, // Ensure cookies are sent
+                    withCredentials: true,
                     headers: {
-                        Authorization: `Bearer ${accessToken}`, // Include access token
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
             dispatch(
                 clearProfile({
-                    name:null,
-                    email:null,
-                    profilePicture:null,    
+                    name: null,
+                    email: null,
+                    profilePicture: null,    
                 })
             );
-            dispatch(logoutUser()); // Clear Redux state
+            dispatch(logoutUser());
             window.location.href = "/";
         } catch (error) {
             console.error("Logout failed:", error);
         }
     };
 
-    const handleMyOrders=async()=>{
+    const handleMyOrders = () => {
         setCurrentView("myorders");
         setMyOrderView("myorder");
-    }
-    
-    
+    };
+
+    const menuItems = [
+        { id: "profile", label: "Account Details", icon: "👤" },
+        { id: "password", label: "Change Password", icon: "🔑" },
+        { id: "billing", label: "Billing Address", icon: "🏠" },
+        { id: "shipping", label: "Shipping Address", icon: "🚚" },
+        { id: "myorders", label: "My Orders", icon: "🛒", action: handleMyOrders },
+        { id: "delete", label: "Delete Account", icon: "🗑️" },
+    ];
 
     return (
-        <div className="h-auto w-screen flex flex-row border-2 justify-center  border-gray-200">
-            <div className="h-screen w-1/2 m-1 flex justify-center  items-center flex-col">
-                <div className="h-[60%] w-full  flex items-center pt-14 flex-col justify-center">
-                   
-                    <img src={profilePicture} className="h-[180px] w-[180px] rounded-full" alt="" />
-                    <h1 className="font-bold text-2xl">{name}</h1>
+        <div className="profile-container">
+            <div className="profile-sidebar">
+                <div className="profile-header">
+                    <div className="avatar-container">
+                        <img 
+                            src={profilePicture || "https://via.placeholder.com/150"} 
+                            className="profile-avatar" 
+                            alt="Profile" 
+                            onError={(e) => {
+                                e.target.onerror = null; 
+                                e.target.src = "https://via.placeholder.com/150";
+                            }}
+                        />
+                    </div>
+                    <h2 className="profile-name">{name || "User"}</h2>
+                    <p className="profile-email">{email || "user@example.com"}</p>
                 </div>
-                <div className="h-[100%] w-full flex items-center justify-center flex-col">
-                    <button onClick={()=>setCurrentView("profile")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400 hover:bg-red-400"> <i class="fa-solid fa-user pr-5 "></i> <span className="text-lg hover:text-white">Account details</span></button>
-                    <button onClick={()=>setCurrentView("password")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-key  pr-5"></i><span className="text-lg hover:text-white">Change Password</span></button>
-                    <button onClick={()=>setCurrentView("billing")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-address-card  pr-5"></i><span className="text-lg hover:text-white">Billing Address</span></button>
-                    <button onClick={()=>setCurrentView("shipping")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-truck  pr-5"></i><span className="text-lg hover:text-white">Shipping Address</span></button>
-                    <button onClick={()=>handleMyOrders()} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-cart-shopping  pr-5"></i><span className="text-lg hover:text-white">My Orders</span></button>
-                    <button onClick={()=>setCurrentView("delete")} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400  hover:bg-red-400"><i class="fa-solid fa-trash  pr-5"></i><span className="text-lg hover:text-white">Delete Account</span></button>
-                    <button onClick={handleLogout} className="px-6 py-2 w-10/14 bg-gray-200 flex flex-row items-center justify-start border-1 border-gray-400 hover:bg-blue-800 hover:text-xl hover:text-white"><i class="fa-solid fa-right-from-bracket  pr-5"></i><span className="text-lg">SignOut</span></button>
-                </div>
+
+                <nav className="profile-menu">
+                    {menuItems.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={item.action || (() => setCurrentView(item.id))}
+                            className={`menu-item ${currentView === item.id ? "active" : ""}`}
+                        >
+                            <span className="menu-icon">{item.icon}</span>
+                            <span className="menu-label">{item.label}</span>
+                        </button>
+                    ))}
+                    
+                    <button 
+                        onClick={handleLogout} 
+                        className="menu-item logout-button"
+                    >
+                        <span className="menu-icon">🚪</span>
+                        <span className="menu-label">Sign Out</span>
+                    </button>
+                </nav>
             </div>
-            <div className="h-auto w-[100%] m-1 shadow-2xl border-1 border-gray-300 my-9 rounded-2xl">
-                
-                { currentView === "profile" && <ViewProfile/> }
-                { currentView === "password" && <ChangePassword/>}
-                { currentView === "billing" && <BillingAddress/>}
-                { currentView === "shipping" && <ShippingAddress/>}
-                { currentView === "myorders" && <MyOrders setCurrentView={setCurrentView} myorderview={myorderview} setMyOrderView={setMyOrderView} />}
-                { currentView.view === "productdetail" && <ProductsDetailView currentView={currentView} setCurrentView={setCurrentView} />}
-                { currentView === "wallet" && <Wallet/>}
-                { currentView === "delete" && <DeleteAccount/>}
-                { currentView.view1 ==="sellerfeedback" && <SellerFeedBack currentView={currentView} />}
-           
+
+            <div className="profile-content">
+                {currentView === "profile" && <ViewProfile />}
+                {currentView === "password" && <ChangePassword />}
+                {currentView === "billing" && <BillingAddress />}
+                {currentView === "shipping" && <ShippingAddress />}
+                {currentView === "myorders" && (
+                    <MyOrders 
+                        setCurrentView={setCurrentView} 
+                        myorderview={myorderview} 
+                        setMyOrderView={setMyOrderView} 
+                    />
+                )}
+                {currentView.view === "productdetail" && (
+                    <ProductsDetailView 
+                        currentView={currentView} 
+                        setCurrentView={setCurrentView} 
+                    />
+                )}
+                {currentView === "delete" && <DeleteAccount />}
+                {currentView.view1 === "sellerfeedback" && (
+                    <SellerFeedBack currentView={currentView} />
+                )}
             </div>
         </div>
     );

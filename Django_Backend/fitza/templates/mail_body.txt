@@ -1,4 +1,29 @@
-Welcome, {{ user.username }}!
-Please verify your email by clicking the link below:
+
+╔══════════════════════════════════════════════════╗
+║               EMAIL VERIFICATION                 ║
+╚══════════════════════════════════════════════════╝
+
+🌟 Welcome to Fitza, {{ user.username }}! 🌟
+
+We're excited to have you on board. To complete your 
+registration and access all features, please verify 
+your email address by clicking the link below:
+
+🔗 Verify Your Email: 
 {{ link }}
-This link will expire on {{ expiry|date:"Y-m-d H:i" }}.
+
+⏳ This verification link will expire on: 
+{{ expiry|date:"F j, Y \a\t H:i A" }} (UTC)
+
+For your security:
+• Never share this link with anyone
+• The link expires after 24 hours
+• If you didn't request this, please ignore this email
+
+Need help? Contact our support team at:
+support@fitza.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+© 2025 Fitza. All rights reserved.
+123 Business Ave, San Francisco, CA 94107
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

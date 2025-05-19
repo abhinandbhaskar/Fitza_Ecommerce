@@ -3,83 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email</title>
+    <title>Verify Your Email | Fitza</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
             margin: 0;
             padding: 0;
+            line-height: 1.6;
         }
         .email-container {
             max-width: 600px;
-            margin: 20px auto;
+            margin: 30px auto;
             background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            border: 1px solid #e2e8f0;
         }
         .header {
-            background-color: red;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             color: #ffffff;
-            padding: 20px;
+            padding: 30px 20px;
             text-align: center;
+            border-bottom: 4px solid rgba(255,255,255,0.1);
         }
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .logo {
+            height: 40px;
+            margin-bottom: 15px;
         }
         .content {
-            padding: 20px;
+            padding: 30px;
         }
         .content h2 {
-            color: #5a67d8;
-            font-size: 20px;
+            color: #1e293b;
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
         }
         .content p {
-            font-size: 16px;
-            margin: 10px 0;
-            line-height: 1.5;
+            font-size: 15px;
+            margin: 15px 0;
+            color: #475569;
+        }
+        .highlight-box {
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
         }
         .verify-button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #5a67d8;
+            display: inline-block;
+            margin: 25px auto;
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             color: #ffffff;
             text-align: center;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+            transition: all 0.3s ease;
         }
         .verify-button:hover {
-            background-color: #434190;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.3);
         }
         .footer {
             text-align: center;
-            font-size: 12px;
-            color: #999999;
-            padding: 10px;
+            font-size: 13px;
+            color: #94a3b8;
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .social-links {
+            margin: 15px 0;
+        }
+        .social-links a {
+            margin: 0 8px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .expiry-notice {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        .user-detail {
+            font-weight: 500;
+            color: #1e293b;
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>Fitza</h1>
+            <!-- Replace with your actual logo -->
+            <div class="logo">FITZA</div>
+            <h1>Verify Your Email Address</h1>
         </div>
         <div class="content">
-            <h2>Welcome, {{ user.first_name }}!</h2>
-            <p>We are excited to have you on board. Here are your account details:</p>
-            <p><strong>Email Address:</strong> {{ user.email }}</p>
-            <p>To complete your registration, please verify your email address.</p>
-            <p>This link will expire on <strong>{{ expiry|date:"Y-m-d H:i" }}</strong>.</p>
-            <a href="{{ link }}" class="verify-button">Verify Your Email</a>
-            <p>If you didn’t request this, please ignore this email.</p>
+            <h2>Welcome aboard, {{ user.first_name }}! 👋</h2>
+            <p>Thank you for joining Fitza. We're excited to have you as part of our community.</p>
+            
+            <div class="highlight-box">
+                <p><span class="user-detail">Registered email:</span> {{ user.email }}</p>
+                <p><span class="user-detail">Verification link expires:</span> <span class="expiry-notice">{{ expiry|date:"F j, Y \a\t H:i" }}</span></p>
+            </div>
+            
+            <p>To complete your registration and access all features, please verify your email address by clicking the button below:</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ link }}" class="verify-button">Verify Email Address</a>
+            </div>
+            
+            <p>If you didn't create an account with Fitza, please ignore this email or contact our support team if you have any concerns.</p>
+            
+            <p>For security reasons, this verification link will expire in 24 hours.</p>
         </div>
         <div class="footer">
+            <div class="social-links">
+                <a href="#">Help Center</a> | 
+                <a href="#">Privacy Policy</a> | 
+                <a href="#">Terms of Service</a>
+            </div>
             <p>© 2025 Fitza. All rights reserved.</p>
+            <p>123 Business Ave, Suite 100, San Francisco, CA 94107</p>
         </div>
     </div>
 </body>

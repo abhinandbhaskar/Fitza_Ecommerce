@@ -15,6 +15,17 @@ const Categories = () => {
     const [image1, setImage1] = useState("");
     const [cate_id, setCateId] = useState("");
 
+    const [parentCategory, setParentCategory] = useState("");
+    const [subcategoryName, setSubcategoryName] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [subdescription, setsubDescription] = useState("");
+    const [viewSubCategory,setViewSubCategory]=useState([]);
+
+    const handleAddSubCategory = () => {
+        setView("addsub");
+        fetchCategory();
+    };
+
     const AddCategory = async (e) => {
         e.preventDefault();
         const addData = {
@@ -40,6 +51,34 @@ const Categories = () => {
         }
     };
 
+    const AddSubcategory = async () => {
+        const formData = new FormData();
+        formData.append("category", parentCategory);
+        formData.append("subcategoryName", subcategoryName);
+        formData.append("subdescription", subdescription);
+
+        try {
+            const response = await axios.post("https://127.0.0.1:8000/api/admin/add_sub_category/",formData,{
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            console.log(response.data);
+            if (response.status === 201) {
+                alert("Subcategory added successfully!");
+                // Clear form or refresh data
+                setParentCategory("");
+                setSubcategoryName("");
+                setsubDescription("");
+            } else {
+                alert("Failed to add subcategory.");
+            }
+        } catch (error) {
+            console.error("Error adding subcategory:", error);
+        }
+    };
+
     const fetchCategory = async (e) => {
         try {
             const response = await axios.get("https://127.0.0.1:8000/api/admin/view_category/", {
@@ -48,8 +87,12 @@ const Categories = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            console.log(response.data);
+            console.log("asasaasaasasasasassass", response.data);
             setViewCategory(response.data);
+
+            const categoryNames = response.data.map((item) => item.category_name); // Extract category names
+            setCategories(categoryNames); // Update the state with only category names
+            console.log("asasaasaasasasasassass", categoryNames);
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
@@ -122,25 +165,49 @@ const Categories = () => {
         fetchCategory();
     };
 
-    const handleCategoryDelete=async(cate_id)=>{
-      console.log(cate_id);
+    const handleCategoryDelete = async (cate_id) => {
+        console.log(cate_id);
 
-      try {
-        const response = await axios.delete(`https://127.0.0.1:8000/api/admin/delete_category/${cate_id}/`,{
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        console.log(response.data);
-        if (response.status === 200) {
-            alert(response.data.message);
-            fetchCategory();
-            
+        try {
+            const response = await axios.delete(`https://127.0.0.1:8000/api/admin/delete_category/${cate_id}/`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            console.log(response.data);
+            if (response.status === 200) {
+                alert(response.data.message);
+                fetchCategory();
+            }
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
         }
-    } catch (errors) {
-        console.log(errors);
-        console.log(errors.response.data);
-    }
+    };
+
+
+    const ViewSubCategorys=async()=>{
+        setView("viewsub");
+
+                try {
+            const response = await axios.get("https://127.0.0.1:8000/api/admin/view_sub_category/", {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            console.log("ooooooooooooo", response.data);
+            setViewSubCategory(response.data);
+            // setViewCategory(response.data);
+
+            // const categoryNames = response.data.map((item) => item.category_name); // Extract category names
+            // setCategories(categoryNames); // Update the state with only category names
+            // console.log("asasaasaasasasasassass", categoryNames);
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+
 
     }
 
@@ -161,7 +228,15 @@ const Categories = () => {
                         view === "view" ? "bg-indigo-600" : "bg-blue-500 hover:bg-blue-600"
                     }`}
                 >
-                    View Categories
+                    View Main Categories
+                </button>
+                  <button
+                    onClick={() => ViewSubCategorys()}
+                    className={`px-4 py-2 text-white font-medium rounded-lg shadow ${
+                        view === "viewsub" ? "bg-indigo-600" : "bg-blue-500 hover:bg-blue-600"
+                    }`}
+                >
+                    View SubCategories
                 </button>
                 <button
                     onClick={() => setView("add")}
@@ -170,6 +245,15 @@ const Categories = () => {
                     }`}
                 >
                     Add Categories
+                </button>
+
+                <button
+                    onClick={() => handleAddSubCategory()}
+                    className={`px-4 py-2 text-white font-medium rounded-lg shadow ${
+                        view === "add" ? "bg-indigo-600" : "bg-blue-500 hover:bg-blue-600"
+                    }`}
+                >
+                    Add SubCategories
                 </button>
             </div>
 
@@ -213,7 +297,10 @@ const Categories = () => {
                                             </button>
                                         </td>
                                         <td className="border border-gray-200 px-4 py-2">
-                                            <button onClick={()=>handleCategoryDelete(category.id)} className="px-3 py-1 text-white bg-red-500 rounded-lg shadow hover:bg-red-600">
+                                            <button
+                                                onClick={() => handleCategoryDelete(category.id)}
+                                                className="px-3 py-1 text-white bg-red-500 rounded-lg shadow hover:bg-red-600"
+                                            >
                                                 Delete
                                             </button>
                                         </td>
@@ -224,6 +311,58 @@ const Categories = () => {
                     </div>
                 </div>
             )}
+
+            {view === "viewsub" && (
+                <div className="w-full max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6">
+                    <h2 className="text-lg font-semibold text-gray-700 mb-4">Category List</h2>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full border-collapse border border-gray-200">
+                            <thead>
+                                <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                                    <th className="border border-gray-200 px-4 py-2">ID</th>
+                                    <th className="border border-gray-200 px-4 py-2">Main Category</th>
+                                    <th className="border border-gray-200 px-4 py-2">Sub Category</th>
+                                    <th className="border border-gray-200 px-4 py-2">Description</th>
+                                    <th className="border border-gray-200 px-4 py-2">Update</th>
+                                    <th className="border border-gray-200 px-4 py-2">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {viewSubCategory.map((category, key) => (
+                                    <tr value={key} className="hover:bg-gray-100 text-sm text-gray-700">
+                                        <td className="border border-gray-200 px-4 py-2">#{category.id}</td>
+                                        <td className="border border-gray-200 px-4 py-2">
+                                            {category.category.category_name}
+                                            
+                                        </td>
+                                        <td className="border border-gray-200 px-4 py-2">{category.subcategory_name}</td>
+                                        <td className="border border-gray-200 px-4 py-2">
+                                            {category.subcategory_description}
+                                        </td>
+                                        <td className="border border-gray-200 px-4 py-2">
+                                            <button
+                                                onClick={() => updateCategory(category.id)}
+                                                className="px-3 py-1 text-white bg-yellow-500 rounded-lg shadow hover:bg-yellow-600"
+                                            >
+                                                Update
+                                            </button>
+                                        </td>
+                                        <td className="border border-gray-200 px-4 py-2">
+                                            <button
+                                                onClick={() => handleCategoryDelete(category.id)}
+                                                className="px-3 py-1 text-white bg-red-500 rounded-lg shadow hover:bg-red-600"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
 
             {/* Add Categories Section */}
             {view === "add" && (
@@ -296,6 +435,70 @@ const Categories = () => {
                         </div>
                         <button
                             onClick={AddCategory}
+                            type="button"
+                            className="px-6 py-2 text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            )}
+
+            {/* Add Categories Section */}
+            {/* Add Subcategories Section */}
+            {view === "addsub" && (
+                <div className="w-full max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+                    <h2 className="text-lg font-semibold text-gray-700 mb-4">Add New Subcategory</h2>
+                    <form className="space-y-4">
+                        <div>
+                            <label htmlFor="category" className="block text-sm font-medium text-gray-600">
+                                Parent Category
+                            </label>
+                            <select
+                                id="category"
+                                name="category"
+                                value={parentCategory}
+                                onChange={(e) => setParentCategory(e.target.value)}
+                                className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-indigo-300"
+                            >
+                                <option value="">Select a category</option>
+                                {categories.map((cat) => (
+                                    <option key={cat} value={cat}>
+                                        {cat}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="subcategoryName" className="block text-sm font-medium text-gray-600">
+                                Subcategory Name
+                            </label>
+                            <input
+                                type="text"
+                                id="subcategoryName"
+                                placeholder="Enter subcategory name"
+                                className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-indigo-300"
+                                name="subcategoryName"
+                                value={subcategoryName}
+                                onChange={(e) => setSubcategoryName(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-600">
+                                Description
+                            </label>
+                            <textarea
+                                id="description"
+                                rows="3"
+                                placeholder="Enter subcategory description"
+                                className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-indigo-300"
+                                name="description"
+                                value={subdescription}
+                                onChange={(e) => setsubDescription(e.target.value)}
+                            ></textarea>
+                        </div>
+                        <button
+                            onClick={() => AddSubcategory()}
                             type="button"
                             className="px-6 py-2 text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700"
                         >

@@ -1,13 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Email Verification</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification | Fitza</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #dc3545; /* Fitza brand color */
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --secondary-color: #f8f9fa;
+            --text-color: #212529;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .verification-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .verification-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .success-icon {
+            color: var(--success-color);
+            animation: bounce 1s;
+        }
+        
+        .error-icon {
+            color: var(--error-color);
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .success-message {
+            color: var(--success-color);
+        }
+        
+        .error-message {
+            color: var(--error-color);
+        }
+        
+        p {
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .btn-action {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-action:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            color: white;
+        }
+        
+        .additional-info {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        
+        @media (max-width: 576px) {
+            .verification-container {
+                padding: 30px 20px;
+            }
+            
+            .verification-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    {% if success %}
-    <h2>Your email has been verified successfully!</h2>
-    {% else %}
-    <h2>Invalid or expired token!</h2>
-    {% endif %}
+    <div class="verification-container">
+        {% if success %}
+        <div class="verification-icon success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="success-message">Email Verified Successfully!</h2>
+        <p>Thank you for verifying your email address. Your account is now fully activated.</p>
+        
+        <a href="https://localhost:3000/login" class="btn-action">
+            <i class="fas fa-sign-in-alt"></i> Continue to Login
+        </a>
+        
+        <div class="additional-info">
+            <p><i class="fas fa-info-circle"></i> You can now access all features of your account.</p>
+        </div>
+        {% else %}
+        <div class="verification-icon error-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <h2 class="error-message">Verification Failed</h2>
+        <p>The verification link is invalid or has expired. Please request a new verification email.</p>
+        
+        <a href="https://localhost:3000/resend-verification" class="btn-action">
+            <i class="fas fa-paper-plane"></i> Resend Verification Email
+        </a>
+        
+        <div class="additional-info">
+            <p><i class="fas fa-question-circle"></i> Need help? Contact our support team.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -986,3 +986,31 @@ class UnReadNotifications(APIView):
         obj=Notification.objects.filter(group='all_admins',is_read=False)
         serializer={"notifications":len(obj)}
         return Response(serializer)
+
+
+from adminapp.serializers import AddSubCategorySerializer
+
+class AddSubCategory(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        serializer = AddSubCategorySerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response({"message": "Sub Category added successfully"}, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({"message": f"Failed to add category: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from adminapp.serializers import ViewSubCategorySerializer
+from common.models import SubCategory
+class ViewSubCategory(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        try:
+            categories=SubCategory.objects.all()
+            serializer=ViewSubCategorySerializer(categories,many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message":f"An Error Occured while fetching Categories {e}"},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
