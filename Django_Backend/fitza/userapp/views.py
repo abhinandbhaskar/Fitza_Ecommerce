@@ -261,34 +261,38 @@ class AccountDeactivate(APIView):
 
 
 from common.models import ProductItem
-from userapp.serializers import ProductViewSerializer,SellProductsSerializer
+from userapp.serializers import SellProductsSerializer
+from userapp.serializers import ProductSerializer
 
 class ViewNewArrivals(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=ProductItem.objects.filter(status="approved")
-        serializer=ProductViewSerializer(obj,many=True)
+        obj = Product.objects.filter(items__status="approved").distinct() 
+        serializer=ProductSerializer(obj,many=True)
         return Response(serializer.data)
 
+
+
+
+
+
+# class ViewTopCollections(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def get(self,request):
+#         obj=ProductItem.objects.filter(status="approved")
+#         serializer=ProductViewSerializer(obj,many=True)
+#         return Response(serializer.data)
+
+
+from userapp.serializers import ProductSerializer
 
 class ViewTopCollections(APIView):
     permission_classes=[IsAuthenticated]
-    def get(self,request,topfilter):
-        print("FILTEERRRR",topfilter)
-        if topfilter=="all":
-            cate_status=None
-        elif topfilter=="men":
-            cate_status="Men's Wear"
-        elif topfilter=="women":
-            cate_status="Women's Wear"
-        elif topfilter=="kids":
-            cate_status="Kid's Wear"
-        filters={"status":"approved"}
-        if cate_status is not None:
-            filters={"product__category__category_name":cate_status,"status":"approved"}
-        obj=ProductItem.objects.filter(**filters)
-        serializer=ProductViewSerializer(obj,many=True)
+    def get(self,request):
+        obj = Product.objects.filter(items__status="approved").distinct() 
+        serializer=ProductSerializer(obj,many=True)
         return Response(serializer.data)
+
 
 class ViewSellProduct(APIView):
     permission_classes=[IsAuthenticated]
@@ -384,12 +388,15 @@ class DropDownCategory(APIView):
 
 # from userapp.serializers import CategoryProductSerializer
 
+from userapp.serializers import ProductViewSerializer
+
 class FetchCategoryProduct(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request,pro_name):
         obj=ProductItem.objects.filter(product__product_name=pro_name)
         serializer=ProductViewSerializer(obj,many=True)
         return Response(serializer.data)
+    
 
 
 from userapp.serializers import BannerShowSerializer

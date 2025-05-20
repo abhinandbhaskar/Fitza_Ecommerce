@@ -5,6 +5,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
 from django_email_verification import send_email
 from django.conf import settings
+from django.utils.timezone import now
 
 
 
@@ -238,28 +239,79 @@ class GetShippingAddressSerializer(serializers.ModelSerializer):
         model=UserAddress
         fields='__all__'
 
-from sellerapp.models import ProductImage
 
+
+
+
+
+
+
+from sellerapp.models import ProductImage
+from sellerapp.models import ProductOffer
 class ViewProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = ['main_image']
 
-from common.models import Product
-class ProductsSerializer(serializers.ModelSerializer):
+from django.utils.timezone import now
+from django.db.models import Q, Avg
+from common.models import Product,ProductItem
+class ActiveOfferSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Product
-        fields='__all__'
+        model = ProductOffer
+        fields = ['offer_title', 'discount_percentage', 'end_date']
+        read_only_fields = fields
 
-from common.models import ProductItem
+from common.models import ProductCategory
+
+class ProductItemSerializer3(serializers.ModelSerializer):
+    images = ViewProductImageSerializer(many=True, read_only=True)
+    final_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductItem
+        fields = '__all__'
+
+    def get_final_price(self, obj):
+        # Calculate the final price using sale_price if available; otherwise, use original_price
+        base_price = obj.sale_price if obj.sale_price else obj.original_price
+        return float(base_price)
+
+
+
+from common.models import ProductCategory
+class ProductCategorySerializer2(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields=['category_name']
+
+class ProductSerializer(serializers.ModelSerializer):
+    items = ProductItemSerializer3(many=True, read_only=True)  # Properly handle related items
+    category = ProductCategorySerializer2(read_only=True)
+    ratings = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+    def get_ratings(self, obj):
+        reviews = RatingsReview.objects.filter(product=obj, status='approved')  # Fetch approved reviews
+        average_rating = reviews.aggregate(average=Avg('rating'))['average']
+        return {
+            'average_rating': round(average_rating, 1) if average_rating else 0,
+            'total_reviews': reviews.count(),
+        }
+
+
+
+
+
+
 class ProductViewSerializer(serializers.ModelSerializer):
-    images = ViewProductImageSerializer(many=True, read_only=True) 
-    product=ProductsSerializer(read_only=True)
     class Meta:
         model=ProductItem
         fields='__all__'
-        
-# jj
+
 
 
 class ViewProductsSerializer(serializers.ModelSerializer):

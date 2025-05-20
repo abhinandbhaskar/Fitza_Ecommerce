@@ -157,6 +157,7 @@ class SubCategory(models.Model):
 
 class Product(models.Model):
     category=models.ForeignKey(ProductCategory,on_delete=models.CASCADE,related_name='products')
+    # subcategory = models.ForeignKey(SubCategory,on_delete=models.CASCADE,related_name='products',null=True,blank=True)
     brand=models.ForeignKey(Brand,on_delete=models.SET_NULL,null=True,blank=True,related_name='products')
     shop=models.ForeignKey(Seller,on_delete=models.CASCADE,related_name='products')
     product_name=models.CharField(max_length=255)
