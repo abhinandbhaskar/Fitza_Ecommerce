@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct,MarksUserRead
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
-from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode
+from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode,GetDealsOfDay
 
 from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack
 from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus,CustomerCancelOrder,ViewUserAllNotifications,UserUnreadNotifications
@@ -33,10 +33,12 @@ urlpatterns = [
     path('drop_down_category/<str:cate_status>/',DropDownCategory.as_view(),name="drop_down_category"),
     path('fetch_cate_products/<str:pro_name>/',FetchCategoryProduct.as_view(),name="fetch_cate_products"),
     path('getbanners/',GetBanners.as_view(),name="getbanners"),
-    path('add_to_cart/<int:id>/',AddToCart.as_view(),name="add_to_cart"),
+    path('add_to_cart/<int:itemId>/',AddToCart.as_view(),name="add_to_cart"),
     path('get_cart_data/',GetCartData.as_view(),name="get_cart_data"),
     path('remove_cart_product/<int:id>/',RemoveCartProduct.as_view(),name="remove_cart_product"),
     path('cart_size/<int:id>/',CartProductSize.as_view(),name="cart_size"),
+
+    path('deals_of_day/',GetDealsOfDay.as_view(),name="deals_of_day"),
     
     path('cart_quantity/<int:id>/',CartProductQuantity.as_view(),name="cart_quantity"),
     path('apply_coupon_code/',ApplyCouponCode.as_view(),name="apply_coupon_code"),

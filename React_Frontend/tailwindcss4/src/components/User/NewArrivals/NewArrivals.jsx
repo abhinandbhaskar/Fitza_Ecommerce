@@ -4,24 +4,23 @@ import "./NewArrivals.css";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-// const NewArrivals = ({ setTopData }) => {
-const NewArrivals = () => {
+const NewArrivals = ({ setTopData }) => {
     const [startIndex, setStartIndex] = useState(0);
     const itemsPerPage = 4;
     const { accessToken } = useSelector((state) => state.auth);
     const [products, setProducts] = useState([]);
 
     const navigate = useNavigate();
-    console.log("OOXZ", products);
+
     const handleNext = () => {
         if (startIndex + itemsPerPage < products.length) {
-            setStartIndex(startIndex + 1);
+            setStartIndex(startIndex + itemsPerPage);
         }
     };
 
     const handlePrev = () => {
         if (startIndex > 0) {
-            setStartIndex(startIndex - 1);
+            setStartIndex(startIndex - itemsPerPage);
         }
     };
 
@@ -32,13 +31,10 @@ const NewArrivals = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            console.log(response);
-            console.log("New Arrivals", response.data);
             setProducts(response.data);
             setTopData(response.data);
         } catch (errors) {
-            console.log(errors);
-            console.log(errors.response.data);
+            console.error(errors);
         }
     };
 
@@ -47,7 +43,6 @@ const NewArrivals = () => {
     }, []);
 
     const AddToCart = (id) => {
-        console.log("Yo Yo", id);
         navigate(`/productview/${id}`);
     };
 
@@ -63,11 +58,8 @@ const NewArrivals = () => {
                     withCredentials: true,
                 }
             );
-            console.log(response);
-            console.log("Wishlist Res", response.data);
         } catch (errors) {
-            console.log(errors);
-            console.log(errors.response.data);
+            console.error(errors);
         }
     };
 
@@ -88,22 +80,20 @@ const NewArrivals = () => {
             </div>
 
             <div className="Featured-section">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20 ">
-                    {/* { (filtersts==="all"?products:products.filter((item)=>(item.product.category.category_name===filtersts))).map((product) => ( */}
-                    { products.map((product) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20">
+                    {products.slice(startIndex, startIndex + itemsPerPage).map((product) => (
                         <div key={product.id} className="card">
                             <div className="Tag">
                                 <h6>New</h6>
                             </div>
                             <img
-                               src={
-        product.items?.[0]?.images?.[0]?.main_image
-            ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
-            : '/path/to/default/image.jpg' // Fallback image
-    }
-    alt={product.product_name}
+                                src={
+                                    product.items?.[0]?.images?.[0]?.main_image
+                                        ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
+                                        : "/path/to/default/image.jpg"
+                                }
+                                alt={product.product_name}
                                 className="card-img-top"
-                                
                             />
                             <div className="Cards-Options">
                                 <div className="Cards-Icons">
@@ -121,40 +111,44 @@ const NewArrivals = () => {
                                     </div>
                                 </div>
                             </div>
-
                             <div className="card-body">
-                                <h2 className="card-title my-2 text-bold text-xl">{product.product_name}</h2>
-                                <div>
-                                 <span className="text-xl font-bold">${product.items[0].sale_price}</span>
-      {product.items[0].sale_price < product.items[0].original_price && (
-        <span className="text-gray-400 line-through text-sm ml-2">
-          ${product.items[0].original_price}
-        </span>
-      )}
-    </div>
+                                <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
+                                    {product.product_name}
+                                </h2>
+                                <h4 className="text-gray-700 leading-relaxed text-lg">
+                                    {product.product_description.length > 28
+                                        ? `${product.product_description.substring(0, 28)}...`
+                                        : product.product_description}
+                                </h4>
 
-                                 <div className="flex items-center gap-2 mb-2">
-    <div className="flex items-center">
-      <span className="text-yellow-500 font-medium">
-        {product.ratings.average_rating.toFixed(1)}
-      </span>
-      <span className="text-yellow-400 ml-1">★</span>
-    </div>
-    <span className="text-gray-500 text-sm">
-      ({product.ratings.total_reviews} reviews)
-    </span>
-  </div>
-                                {/* {product?.product?.active_offer &&
-    parseFloat(product.product.active_offer.discount_percentage) > 0 && (
-      <div className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs flex items-center gap-1 w-fit">
-        <i className="fa-solid fa-tag text-xs"></i>
-        <span>
-          {parseFloat(product.product.active_offer.discount_percentage)}% OFF
-        </span>
-      </div>
-  )} */}
+                                <div>
+                                    <span className="text-xl font-bold">${product.items[0].sale_price}</span>
+                                    {product.items[0].sale_price < product.items[0].original_price && (
+                                        <span className="text-gray-400 line-through text-sm ml-2">
+                                            ${product.items[0].original_price}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="flex items-center">
+                                        <span className="text-yellow-500 font-medium">
+                                            {product.ratings.average_rating.toFixed(1)}
+                                        </span>
+                                        <span className="text-yellow-400 ml-1">★</span>
+                                    </div>
+                                    <span className="text-gray-500 text-sm">({product.ratings.total_reviews} reviews)</span>
+
+                                      {product?.offers?.[0] && parseFloat(product.offers[0].discount_percentage) > 0 && (
+                                    <div className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs flex items-center gap-1 w-fit">
+                                        <i className="fa-solid fa-tag text-xs"></i>
+                                        <span>{parseFloat(product.offers[0].discount_percentage)}% OFF</span>
+                                    </div>
+                                )}
+                                </div>
+                              
+
                                 <div className="label-icon my-2">
-                                
                                     <button onClick={() => AddToCart(product.items[0].id)} className="Addcart-icon">
                                         <i className="fa-solid fa-cart-arrow-down"></i>
                                     </button>

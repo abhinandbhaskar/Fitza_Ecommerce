@@ -755,36 +755,6 @@ class EditProductOfferSerializer(serializers.Serializer):
         product_offer.save()
 
 
-from sellerapp.models import ProductImage
-class ProductImageSerializer1(serializers.ModelSerializer):
-    class Meta:
-        model = ProductImage
-        fields = ['id','main_image']
-
-from common.models import ProductItem
-class ProductItemSerializer1(serializers.ModelSerializer):
-    images = ProductImageSerializer1(many=True, read_only=True)  # Corrected
-
-    class Meta:
-        model = ProductItem
-        fields = ['id', 'images']
-
-
-class GetProductDataSerializer1(serializers.ModelSerializer):
-    items = ProductItemSerializer1(many=True, read_only=True)  # Corrected
-
-    class Meta:
-        model = Product
-        fields = ['id', 'product_name', 'items']
-
-
-class DealsOfdayAllProducts(serializers.ModelSerializer):
-    product=GetProductDataSerializer1(read_only=True)
-    
-    class Meta:
-        model=ProductOffer
-        fields=['end_date','product']
-
 
 
 from adminapp.models import Complaint,ComplaintMessage

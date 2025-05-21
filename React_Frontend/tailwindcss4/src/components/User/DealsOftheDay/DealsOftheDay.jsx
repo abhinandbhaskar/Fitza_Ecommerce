@@ -34,7 +34,7 @@ const DealsOftheDay = () => {
   };
   const fetchDeals = async () => {
     try {
-      const response = await axios.get("https://127.0.0.1:8000/api/admin/deals_of_day/", {
+      const response = await axios.get("https://127.0.0.1:8000/api/deals_of_day/", {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

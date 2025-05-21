@@ -231,7 +231,7 @@ class GetBillingAddress(APIView):
             return Response(serializer.data)
         return Response({"error":"Address not found"},status=status.HTTP_404_NOT_FOUND)
     
-
+from sellerapp.models import ProductOffer
 class AddShippingAddess(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request):
@@ -272,6 +272,14 @@ class ViewNewArrivals(APIView):
         return Response(serializer.data)
 
 
+from userapp.serializers import DealsOfdayAllProducts
+
+class GetDealsOfDay(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=ProductOffer.objects.all().order_by('-id')[:6]
+        serializer=DealsOfdayAllProducts(obj,many=True)
+        return Response(serializer.data)
 
 
 
@@ -294,12 +302,24 @@ class ViewTopCollections(APIView):
         return Response(serializer.data)
 
 
+# class ViewSellProduct(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def get(self,request,id):
+#         obj=ProductItem.objects.filter(id=id)
+#         serializer=SellProductsSerializer(obj,many=True)
+#         return Response(serializer.data)
+
+
+from userapp.serializers import ProductDetaileViewSerializer
+
 class ViewSellProduct(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request,id):
-        obj=ProductItem.objects.filter(id=id)
-        serializer=SellProductsSerializer(obj,many=True)
+        obj=Product.objects.get(id=id)
+        serializer=ProductDetaileViewSerializer(obj)
         return Response(serializer.data)
+
+
 
 from userapp.serializers import AddReviewRatingSerializer,RatingReviewSerializer
 
@@ -412,8 +432,8 @@ from userapp.serializers import AddToCartSerializer,GetCartDataSerializer
 
 class AddToCart(APIView):
     permission_classes=[IsAuthenticated]
-    def post(self,request,id):
-        serializer=AddToCartSerializer(data=request.data,context={"request":request,"id":id})
+    def post(self,request,itemId):
+        serializer=AddToCartSerializer(data=request.data,context={"request":request,"itemId":itemId})
         if serializer.is_valid():
             serializer.save()
             return Response({"message":"Product added to cart."},status=status.HTTP_201_CREATED)

@@ -8,7 +8,8 @@ from django.conf import settings
 from django.utils.timezone import now
 
 
-
+from common.models import Product,ProductItem
+from sellerapp.models import ProductOffer
 class RegisterSerializer(serializers.Serializer):
     fullname=serializers.CharField()
     email=serializers.EmailField()
@@ -241,6 +242,37 @@ class GetShippingAddressSerializer(serializers.ModelSerializer):
 
 
 
+from sellerapp.models import ProductImage
+class ProductImageSerializer1(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id','main_image']
+
+from common.models import ProductItem
+class ProductItemSerializer1(serializers.ModelSerializer):
+    images = ProductImageSerializer1(many=True, read_only=True)  # Corrected
+
+    class Meta:
+        model = ProductItem
+        fields = ['id', 'images']
+
+
+class GetProductDataSerializer1(serializers.ModelSerializer):
+    items = ProductItemSerializer1(many=True, read_only=True)  # Corrected
+
+    class Meta:
+        model = Product
+        fields = ['id', 'product_name', 'items']
+
+
+class DealsOfdayAllProducts(serializers.ModelSerializer):
+    product=GetProductDataSerializer1(read_only=True)
+    
+    class Meta:
+        model=ProductOffer
+        fields=['end_date','product']
+
+
 
 
 
@@ -278,7 +310,7 @@ class ProductItemSerializer3(serializers.ModelSerializer):
         return float(base_price)
 
 
-
+from django.utils import timezone
 from common.models import ProductCategory
 class ProductCategorySerializer2(serializers.ModelSerializer):
     class Meta:
@@ -289,6 +321,7 @@ class ProductSerializer(serializers.ModelSerializer):
     items = ProductItemSerializer3(many=True, read_only=True)  # Properly handle related items
     category = ProductCategorySerializer2(read_only=True)
     ratings = serializers.SerializerMethodField()
+    offers = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -302,7 +335,10 @@ class ProductSerializer(serializers.ModelSerializer):
             'total_reviews': reviews.count(),
         }
 
-
+    def get_offers(self, obj):
+            """Retrieve active offers for the product."""
+            active_offers = obj.offers.filter(is_active=True, start_date__lte=timezone.now(), end_date__gte=timezone.now())
+            return ActiveOfferSerializer(active_offers, many=True).data
 
 
 
@@ -314,10 +350,14 @@ class ProductViewSerializer(serializers.ModelSerializer):
 
 
 
-class ViewProductsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
+
+
+
+
+
+
+
+
 
 class ViewProductImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -354,36 +394,34 @@ class ShopSellerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SellProductsSerializer(serializers.ModelSerializer):
-    product = ViewProductsSerializer(read_only=True) 
     images = ViewProductImageSerializer(many=True, read_only=True) 
-    brand=serializers.SerializerMethodField()
     size=ViewSizeSerializer(read_only=True)
     color=ViewColorsSerializer(read_only=True)
-    category=serializers.SerializerMethodField() 
-    shop=serializers.SerializerMethodField() 
 
     class Meta:
         model = ProductItem
-        fields = [
-            'id', 'product','color','shop', 'size', 'original_price', 'sale_price', 'product_code',
-            'quantity_in_stock', 'rejection_reason', 'images', 'brand', 'category'
-        ]
+        fields = '__all__'
 
 
-    def get_brand(self, obj):
-        if obj.product and obj.product.brand:
-            return BrandSerializer(obj.product.brand).data
-        return None
 
-    def get_category(self, obj):
-        if obj.product and obj.product.category:
-            return ViewCategorySerializer(obj.product.category).data
-        return None
 
-    def get_shop(self, obj):
-        if obj.product and obj.product.shop:
-            return ShopSellerSerializer(obj.product.shop).data
-        return None
+class ProductDetaileViewSerializer(serializers.ModelSerializer):
+    items=SellProductsSerializer(read_only=True,many=True)
+    category=ViewCategorySerializer(read_only=True)
+    brand=BrandSerializer(read_only=True)
+    shop=ShopSellerSerializer(read_only=True)
+
+
+    class Meta:
+        model=Product
+        fields='__all__'
+
+
+
+
+
+
+
 
 from notifications.notifiers import FeedbackAndReviewNotifier
 from userapp.models import RatingsReview
@@ -481,29 +519,28 @@ class BannerShowSerializer(serializers.ModelSerializer):
 from userapp.models import ShoppingCart,ShoppingCartItem
 
 class AddToCartSerializer(serializers.Serializer):
-    size = serializers.CharField()
     qnty = serializers.IntegerField()
 
     def validate(self, data):
         user = self.context["request"].user
         if not user.is_authenticated:
             raise serializers.ValidationError("Unauthorized user.")
-        product_id = self.context.get("id")
-        if not ProductItem.objects.filter(id=product_id).exists():
+        itemId = self.context.get("itemId")
+        if not ProductItem.objects.filter(id=itemId).exists():
             raise serializers.ValidationError("Invalid product ID.")
         return data
 
     def save(self, **kwargs):
         user = self.context["request"].user
-        product_id = self.context["id"]
+        itemId = self.context["itemId"]
 
         shopping_cart, created = ShoppingCart.objects.get_or_create(user=user)
 
-        product = ProductItem.objects.get(id=product_id)
+        productitem = ProductItem.objects.get(id=itemId)
 
         cart_item, created = ShoppingCartItem.objects.get_or_create(
             shopping_cart=shopping_cart,
-            product_item=product,
+            product_item=productitem,
             defaults={"quantity": self.validated_data["qnty"]}
         )
 
@@ -515,6 +552,11 @@ class AddToCartSerializer(serializers.Serializer):
 
 
 
+
+class ViewProductsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
 
 from rest_framework import serializers
 from userapp.models import ShoppingCartItem

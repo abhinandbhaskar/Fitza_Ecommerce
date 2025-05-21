@@ -26,7 +26,7 @@ const TopRelease = ({ topdata }) => {
             <div className="space-y-4">
               {topdata.slice(colIndex * 3, (colIndex + 1) * 3).map((product, rowIndex) => {
                 // Using product data to dynamically show images and other details
-                const productImage = product.image || productImg1; // Fallback to default image
+                const productImage = product.items?.[0]?.images?.[0] || productImg1; // Fallback to default image
 
                 return (
                   <div
@@ -35,15 +35,20 @@ const TopRelease = ({ topdata }) => {
                  onClick={()=>AddToCart(product.id)}
                  >
                     <img
-                       src={ product.images && product.images.length > 0 && `https://127.0.0.1:8000${product.images[0].main_image}`}
+                      src={
+                            product.items?.[0]?.images?.[0]?.main_image
+                                        ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
+                                        : "/path/to/default/image.jpg" // Fallback image
+                            }
+    
                       className="ProductImgs w-full h-36 object-cover rounded-md"
                       alt={`Product ${product.id}`}
                     />
                     <div className="product-details mt-1 flex flex-col pt-2">
-                      <h5 className="text-sm font-medium text-gray-700">{product.product.product_name}</h5>
+                      <h5 className="text-sm font-medium text-gray-700">{product.product_name}</h5>
                       <h4 className="text-sm font-semibold text-gray-800 mt-1">
                         {/* Example price, update with actual price from product */}
-                        {product.sale_price}{" "}
+                        {product.items[0].sale_price}{" "}
                         <span className="text-gray-500 text-xs line-through">$245.80</span>
                       </h4>
                     </div>

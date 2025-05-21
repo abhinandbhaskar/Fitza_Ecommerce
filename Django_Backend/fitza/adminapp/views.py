@@ -799,14 +799,7 @@ class EditProductOffers(APIView):
             return Response({"message":"Product Offer Edited Successfully..."},status=status.HTTP_201_CREATED)
         return Response({"errors":serializer.errors},status=status.HTTP_404_NOT_FOUND)
 
-from adminapp.serializers import DealsOfdayAllProducts
 
-class GetDealsOfDay(APIView):
-    permission_classes=[IsAuthenticated]
-    def get(self,request):
-        obj=ProductOffer.objects.all().order_by('-id')[:6]
-        serializer=DealsOfdayAllProducts(obj,many=True)
-        return Response(serializer.data)
     
 
 from adminapp.models import Complaint

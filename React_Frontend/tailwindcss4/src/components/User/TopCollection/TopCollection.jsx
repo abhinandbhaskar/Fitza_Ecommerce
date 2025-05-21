@@ -92,8 +92,10 @@ const TopCollection = () => {
 
             <div className="Featured-section">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20 ">
-                    { (filtersts==="all"?products:products.filter((item)=>(item.category.category_name===filtersts))).map((product) => (
-                  
+                    {(filtersts === "all"
+                        ? products
+                        : products.filter((item) => item.category.category_name === filtersts)
+                    ).map((product) => (
                         <div key={product.id} className="card">
                             <div className="Tag">
                                 <h6>New</h6>
@@ -109,7 +111,7 @@ const TopCollection = () => {
                             />
                             <div className="Cards-Options">
                                 <div className="Cards-Icons">
-                                    <div onClick={() => AddToCart(product.items[0].id)} className="Eye-Icons">
+                                    <div onClick={() => AddToCart(product.id)} className="Eye-Icons">
                                         <i className="fa-regular fa-eye"></i>
                                         <div className="tooltip1">Quick View</div>
                                     </div>
@@ -125,7 +127,15 @@ const TopCollection = () => {
                             </div>
 
                             <div className="card-body">
-                                <h2 className="card-title my-2 text-bold text-xl">{product.product_name}</h2>
+                                <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
+                                    {product.product_name}
+                                </h2>
+                                <h4 className="text-gray-700 leading-relaxed text-lg">
+                                    {product.product_description.length > 28
+                                        ? `${product.product_description.substring(0, 28)}...`
+                                        : product.product_description}
+                                </h4>
+
                                 <div>
                                     <span className="text-xl font-bold">${product.items[0].sale_price}</span>
                                     {product.items[0].sale_price < product.items[0].original_price && (
@@ -143,18 +153,17 @@ const TopCollection = () => {
                                         <span className="text-yellow-400 ml-1">★</span>
                                     </div>
                                     <span className="text-gray-500 text-sm">({product.ratings.total_reviews} reviews)</span>
+                                     {product?.offers?.[0] && parseFloat(product.offers[0].discount_percentage) > 0 && (
+                                    <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit font-bold">
+                                        <i className="fa-solid fa-tag text-sm"></i>
+                                        <span>{parseFloat(product.offers[0].discount_percentage)}% OFF</span>
+                                    </div>
+                                )}
                                 </div>
-                                {/* {product?.product?.active_offer &&
-    parseFloat(product.product.active_offer.discount_percentage) > 0 && (
-      <div className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs flex items-center gap-1 w-fit">
-        <i className="fa-solid fa-tag text-xs"></i>
-        <span>
-          {parseFloat(product.product.active_offer.discount_percentage)}% OFF
-        </span>
-      </div>
-  )} */}
+                               
+
                                 <div className="label-icon my-2">
-                                    <button onClick={() => AddToCart(product.items[0].id)} className="Addcart-icon">
+                                    <button onClick={() => AddToCart(product.id)} className="Addcart-icon">
                                         <i className="fa-solid fa-cart-arrow-down"></i>
                                     </button>
                                 </div>

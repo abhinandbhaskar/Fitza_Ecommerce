@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import "./ProductPage.css"
+import "./ProductPage.css";
 import { useParams } from "react-router-dom";
-import ProductView from '../../../components/User/ProductView/ProductView'
-import Header from "../../../components/User/Header/Header"
-import Footer from "../../../components/User/Footer/Footer"
+import ProductView from '../../../components/User/ProductView/ProductView';
+import Header from "../../../components/User/Header/Header";
+import Footer from "../../../components/User/Footer/Footer";
 import { useSelector } from 'react-redux';
 const ProductPage = ({countsN}) => {
   const { id } = useParams();
@@ -20,8 +20,8 @@ const ProductPage = ({countsN}) => {
           }
       });
       console.log(response);
-      console.log("Individual Top Collections",response.data[0]);
-      setProduct(response.data[0]);
+      console.log("Individual Top Collections",response.data);
+      setProduct(response.data);
     
   }
     catch(errors){

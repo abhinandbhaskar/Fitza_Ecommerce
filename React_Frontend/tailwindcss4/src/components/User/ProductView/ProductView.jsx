@@ -1,38 +1,90 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 import AdditionalInfo from "../../User/ProductView/ProductViewSections/AdditionalInfo";
 import AddReview from "../../User/ProductView/ProductViewSections/AddReview";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import QandAsection from "./ProductViewSections/QandAsection";
-function ProductPage({ product }) {
+
+function ProductView({ product }) {
     const [addInfoToggle, setAddInfoToggle] = useState("addInfo");
-    const {accessToken}=useSelector((state)=>state.auth);
+    const { accessToken } = useSelector((state) => state.auth);
+    const [qnty, setQnty] = useState(1);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
 
-    const [size,setSize]=useState("M");
-    const [qnty,setQnty]=useState(1);
+    useEffect(() => {
+        if (product?.items?.length > 0) {
+            const initialItem = product.items[0];
+            setSelectedColor(initialItem.color);
+            setSelectedSize(initialItem.size);
+            setSelectedItem(initialItem);
+        }
+    }, [product]);
 
+    // Update selected item when color or size changes
+    useEffect(() => {
+        if (selectedColor && selectedSize) {
+            const matchingItem = product?.items?.find(item => 
+                item.color.id === selectedColor.id && 
+                item.size.id === selectedSize.id
+            );
+            if (matchingItem) {
+                setSelectedItem(matchingItem);
+            }
+        }
+    }, [selectedColor, selectedSize, product?.items]);
 
+    // Get unique colors from items
+    const uniqueColors = [];
+    const colorMap = new Map();
+    product?.items?.forEach(item => {
+        if (!colorMap.has(item.color.id)) {
+            colorMap.set(item.color.id, true);
+            uniqueColors.push(item.color);
+        }
+    });
 
-    const AddToCartNow = async (id) => {
-        console.log("CCCC",id);
+    // Get available sizes for selected color
+    const availableSizes = [];
+    const sizeMap = new Map();
+    product?.items?.forEach(item => {
+        if (item.color.id === selectedColor?.id && !sizeMap.has(item.size.id)) {
+            sizeMap.set(item.size.id, true);
+            availableSizes.push(item.size);
+        }
+    });
 
+    // Handle color selection
+    const handleColorSelect = (color) => {
+        setSelectedColor(color);
+        // Find first available size for this color
+        const firstSizeForColor = product?.items?.find(item => 
+            item.color.id === color.id
+        )?.size;
+        if (firstSizeForColor) {
+            setSelectedSize(firstSizeForColor);
+        }
+    };
+
+    // Handle size selection
+    const handleSizeSelect = (size) => {
+        setSelectedSize(size);
+    };
+
+    const AddToCartNow = async (itemId) => {
         const inputData = {
-            "size": size.trim(),
             "qnty": parseInt(qnty),
         };
 
-    
         try {
-            const response = await axios.post(`https://127.0.0.1:8000/api/add_to_cart/${id}/`, inputData, {
+            const response = await axios.post(`https://127.0.0.1:8000/api/add_to_cart/${itemId}/`, inputData, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            console.log(response);
-            console.log(response.data);
-    
+            
             if (response.status === 201) {
                 alert(response.data.message);
             }
@@ -40,78 +92,123 @@ function ProductPage({ product }) {
             console.error("Error:", err.response?.data || err.message);
         }
     };
-    
+
+    // Fallback image in case selectedItem or images are not available
+    const mainImage = selectedItem?.images?.[0]?.main_image 
+        ? `https://127.0.0.1:8000${selectedItem.images[0].main_image}`
+        : '/path/to/default-image.jpg'; // Add a default image path
 
     return (
         <div className="min-h-screen p-8 bg-gray-100">
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                     <img
-                        src={
-                            product.images &&
-                            product.images.length > 0 &&
-                            `https://127.0.0.1:8000${product.images[0].main_image}`
-                        }
+                        src={mainImage}
                         alt="Product"
                         className="w-full rounded-lg"
                     />
                     <div className="flex space-x-4 mt-4">
-                        <img
-                            src={
-                                product.images &&
-                                product.images.length > 0 &&
-                                `https://127.0.0.1:8000${product.images[0].sub_image_1}`
-                            }
-                            alt="Product"
-                            className="w-24 h-24 rounded-lg"
-                        />
-                        <img
-                            src={
-                                product.images &&
-                                product.images.length > 0 &&
-                                `https://127.0.0.1:8000${product.images[0].sub_image_2}`
-                            }
-                            alt="Product"
-                            className="w-24 h-24 rounded-lg"
-                        />
-                        <img
-                            src={
-                                product.images &&
-                                product.images.length > 0 &&
-                                `https://127.0.0.1:8000${product.images[0].sub_image_3}`
-                            }
-                            alt="Product"
-                            className="w-24 h-24 rounded-lg"
-                        />
+                        {selectedItem?.images?.[0]?.sub_image_1 && (
+                            <img
+                                src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}`}
+                                alt="Product"
+                                className="w-24 h-24 rounded-lg"
+                            />
+                        )}
+                        {selectedItem?.images?.[0]?.sub_image_2 && (
+                            <img
+                                src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}`}
+                                alt="Product"
+                                className="w-24 h-24 rounded-lg"
+                            />
+                        )}
+                        {selectedItem?.images?.[0]?.sub_image_3 && (
+                            <img
+                                src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}`}
+                                alt="Product"
+                                className="w-24 h-24 rounded-lg"
+                            />
+                        )}
                     </div>
                 </div>
 
                 <div>
-                    <h2 className="text-3xl font-bold">{product?.product?.product_name || ""}</h2>
+                    <h2 className="text-3xl font-bold">{product?.product_name || ""}</h2>
                     <h5 className="text-lg mt-2">
                         Brand: <span className="text-green-600 font-bold">{product?.brand?.brand_name || ""}</span>
                     </h5>
                     <hr className="my-4" />
                     <h3 className="text-xl font-semibold">
-                        <span className="text-green-600 text-2xl">₹ {product?.original_price || ""}</span>{" "}
-                        <strike>$200.00</strike> 25% Off
+                        <span className="text-green-600 text-2xl">₹ {selectedItem?.original_price || ""}</span>
+                        {/* {selectedItem?.sale_price && selectedItem?.sale_price !== selectedItem?.original_price && (
+                            <>
+                                <strike>₹{selectedItem?.sale_price}</strike>
+                                <span className="text-red-500 ml-2">
+                                    {Math.round(
+                                        ((parseFloat(selectedItem.sale_price) - parseFloat(selectedItem.original_price)) /
+                                        parseFloat(selectedItem.sale_price) * 100
+                                    )}% Off
+                                </span>
+                            </>
+                        )} */}
                     </h3>
-                    <p className="mt-4 text-gray-700">{product?.product?.product_description || ""}</p>
+                    
+                    {/* Color Selection */}
+                    <div className="mt-4">
+                        <h4 className="font-semibold">Color:</h4>
+                        <div className="flex space-x-2 mt-2">
+                            {uniqueColors.map((color) => (
+                                <button
+                                    key={color.id}
+                                    onClick={() => handleColorSelect(color)}
+                                    className={`px-4 py-2 border rounded-lg ${
+                                        selectedColor?.id === color.id ? 'border-green-600 border-2' : ''
+                                    }`}
+                                >
+                                    {color.color_name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <p className="mt-4 text-gray-700">{product?.product_description || ""}</p>
                     <ul className="mt-4 space-y-2">
-                        <li>1 Year AL Jazeera Brand Warranty</li>
+                        <li>1 Year {product?.brand?.brand_name || ''} Brand Warranty</li>
                         <li>30 Day Return Policy</li>
                         <li>Cash on Delivery available</li>
                     </ul>
-                    <div className="flex space-x-4 mt-6">
-                        <button value="M" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">M</button>
-                        <button value="L" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">L</button>
-                        <button value="XL" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">XL</button>
-                        <button value="XXL" onClick={(e)=>setSize(e.target.value)} className="px-4 py-2 border rounded-lg">XXL</button>
+                    
+                    {/* Size Selection */}
+                    <div className="mt-6">
+                        <h4 className="font-semibold">Size:</h4>
+                        <div className="flex space-x-4 mt-2">
+                            {availableSizes.map((sizeItem) => (
+                                <button
+                                    key={sizeItem.id}
+                                    onClick={() => handleSizeSelect(sizeItem)}
+                                    className={`px-4 py-2 border rounded-lg ${
+                                        selectedSize?.id === sizeItem.id ? 'bg-green-600 text-white' : ''
+                                    }`}
+                                >
+                                    {sizeItem.size_name}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="mt-6 flex items-center space-x-4">
-                        <input type="number" value={qnty} onChange={(e)=>setQnty(e.target.value)} className="border rounded-lg p-2 w-24" placeholder="1" />
-                        <button onClick={()=>AddToCartNow(product?.id)} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                        <input
+                            type="number"
+                            min="1"
+                            max={selectedItem?.quantity_in_stock || 10}
+                            value={qnty}
+                            onChange={(e) => setQnty(Math.max(1, Math.min(selectedItem?.quantity_in_stock || 10, e.target.value)))}
+                            className="border rounded-lg p-2 w-24"
+                        />
+                        <button 
+                            onClick={() => AddToCartNow(selectedItem?.id)}
+                            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+                        >
                             Add to Cart
                         </button>
                         <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
@@ -129,26 +226,41 @@ function ProductPage({ product }) {
                                 </tr>
                                 <tr>
                                     <th className="border border-gray-300 px-4 py-2">Material</th>
-                                    <td className="border border-gray-300 px-4 py-2">{product?.product?.about || ""}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{product?.about || ""}</td>
                                 </tr>
                                 <tr>
                                     <th className="border border-gray-300 px-4 py-2">Color</th>
-                                    <td className="border border-gray-300 px-4 py-2">{product?.color?.color_name}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{selectedColor?.color_name || ""}</td>
+                                </tr>
+                                <tr>
+                                    <th className="border border-gray-300 px-4 py-2">Size</th>
+                                    <td className="border border-gray-300 px-4 py-2">
+                                        {selectedSize?.size_name || "N/A"}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th className="border border-gray-300 px-4 py-2">Availability</th>
                                     <td className="border border-gray-300 px-4 py-2">
-                                        {product?.quantity_in_stock || ""} items In Stock
+                                        {selectedItem?.quantity_in_stock || 0} items In Stock
                                     </td>
+                                </tr>
+                                <tr>
+                                    <th className="border border-gray-300 px-4 py-2">Weight</th>
+                                    <td className="border border-gray-300 px-4 py-2">{product?.weight || "0.00"} kg</td>
+                                </tr>
+                                <tr>
+                                    <th className="border border-gray-300 px-4 py-2">Care Instructions</th>
+                                    <td className="border border-gray-300 px-4 py-2">{product?.care_instructions || ""}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+            
+            {/* Additional Info Section */}
             <div className="min-h-screen p-8 bg-gray-100">
                 <div className="max-w-7xl mx-auto">
-                    {/* Tabs for toggling */}
                     <div className="flex space-x-4 mb-4">
                         <button
                             className={`px-4 py-2 rounded-lg ${
@@ -166,7 +278,6 @@ function ProductPage({ product }) {
                         >
                             Add Review
                         </button>
-
                         <button
                             className={`px-4 py-2 rounded-lg ${
                                 addInfoToggle === "QandA" ? "bg-green-600 text-white" : "bg-gray-200"
@@ -175,11 +286,8 @@ function ProductPage({ product }) {
                         >
                             Q&A
                         </button>
-
-
                     </div>
 
-                    {/* Conditional rendering */}
                     {addInfoToggle === "addInfo" && <AdditionalInfo product={product} />}
                     {addInfoToggle === "AddReview" && <AddReview product={product} />}
                     {addInfoToggle === "QandA" && <QandAsection product={product} />}
@@ -189,4 +297,4 @@ function ProductPage({ product }) {
     );
 }
 
-export default ProductPage;
+export default ProductView;

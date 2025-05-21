@@ -191,9 +191,10 @@
     flex-direction: column;
     justify-content: left;
     align-items: first baseline;
-    height: 104px;
+    height: 30px;
     gap: 0; 
     line-height:0;
+    padding: 10px;
 }
 
 .card-body p{
