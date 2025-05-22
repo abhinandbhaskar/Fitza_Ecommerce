@@ -115,7 +115,7 @@ const TopCollection = () => {
                                         <i className="fa-regular fa-eye"></i>
                                         <div className="tooltip1">Quick View</div>
                                     </div>
-                                    <div onClick={() => AddToWishlist(product.items[0].id)} className="Heart-Icon">
+                                    <div onClick={() => AddToWishlist(product.id)} className="Heart-Icon">
                                         <i className="fa-regular fa-heart"></i>
                                         <div className="tooltip2">Add To Wishlist</div>
                                     </div>
@@ -137,30 +137,47 @@ const TopCollection = () => {
                                 </h4>
 
                                 <div>
-                                    <span className="text-xl font-bold">${product.items[0].sale_price}</span>
-                                    {product.items[0].sale_price < product.items[0].original_price && (
-                                        <span className="text-gray-400 line-through text-sm ml-2">
-                                            ${product.items[0].original_price}
-                                        </span>
-                                    )}
-                                </div>
+                                    {/* Price display - only shows sale_price with optional offer discount */}
+                                    <div>
+                                        {product?.offers?.[0]?.discount_percentage > 0 ? (
+                                            <>
+                                                <span className="text-gray-400 line-through text-sm mr-2">
+                                                    ${product.items[0].sale_price}
+                                                </span>
+                                                <span className="text-xl font-bold text-green-600">
+                                                    $
+                                                    {(
+                                                        parseFloat(product.items[0].sale_price) *
+                                                        (1 - parseFloat(product.offers[0].discount_percentage) / 100)
+                                                    ).toFixed(2)}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span className="text-xl font-bold">${product.items[0].sale_price}</span>
+                                        )}
+                                    </div>
 
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="flex items-center">
-                                        <span className="text-yellow-500 font-medium">
-                                            {product.ratings.average_rating.toFixed(1)}
+                                    {/* Ratings and offer badge */}
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="flex items-center">
+                                            <span className="text-yellow-500 font-medium">
+                                                {product.ratings.average_rating.toFixed(1)}
+                                            </span>
+                                            <span className="text-yellow-400 ml-1">★</span>
+                                        </div>
+                                        <span className="text-gray-500 text-sm">
+                                            ({product.ratings.total_reviews} reviews)
                                         </span>
-                                        <span className="text-yellow-400 ml-1">★</span>
+
+                                        {/* Only show offer badge when offer exists */}
+                                        {product?.offers?.[0]?.discount_percentage > 0 && (
+                                            <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit font-bold">
+                                                <i className="fa-solid fa-tag text-sm"></i>
+                                                <span>{parseFloat(product.offers[0].discount_percentage)}% OFF</span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <span className="text-gray-500 text-sm">({product.ratings.total_reviews} reviews)</span>
-                                     {product?.offers?.[0] && parseFloat(product.offers[0].discount_percentage) > 0 && (
-                                    <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit font-bold">
-                                        <i className="fa-solid fa-tag text-sm"></i>
-                                        <span>{parseFloat(product.offers[0].discount_percentage)}% OFF</span>
-                                    </div>
-                                )}
                                 </div>
-                               
 
                                 <div className="label-icon my-2">
                                     <button onClick={() => AddToCart(product.id)} className="Addcart-icon">

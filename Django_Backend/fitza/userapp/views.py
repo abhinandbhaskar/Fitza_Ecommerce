@@ -411,12 +411,26 @@ class DropDownCategory(APIView):
 from userapp.serializers import ProductViewSerializer
 
 class FetchCategoryProduct(APIView):
-    permission_classes=[IsAuthenticated]
-    def get(self,request,pro_name):
-        obj=ProductItem.objects.filter(product__product_name=pro_name)
-        serializer=ProductViewSerializer(obj,many=True)
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pro_name):
+        # Use icontains for partial matching and case insensitivity
+        obj = Product.objects.filter(
+            items__status="approved",
+            product_name__icontains=pro_name
+        ).distinct()
+        
+        serializer = ProductSerializer(obj, many=True)
         return Response(serializer.data)
     
+
+
+# class FetchCategoryProduct(APIView):================================
+#     permission_classes=[IsAuthenticated]
+#     def get(self,request,pro_name):
+#         obj=ProductItem.objects.filter(product__product_name=pro_name)
+#         serializer=ProductViewSerializer(obj,many=True)
+#         return Response(serializer.data)
 
 
 from userapp.serializers import BannerShowSerializer

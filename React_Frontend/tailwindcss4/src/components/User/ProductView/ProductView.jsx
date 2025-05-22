@@ -138,20 +138,52 @@ function ProductView({ product }) {
                         Brand: <span className="text-green-600 font-bold">{product?.brand?.brand_name || ""}</span>
                     </h5>
                     <hr className="my-4" />
-                    <h3 className="text-xl font-semibold">
-                        <span className="text-green-600 text-2xl">₹ {selectedItem?.original_price || ""}</span>
-                        {/* {selectedItem?.sale_price && selectedItem?.sale_price !== selectedItem?.original_price && (
-                            <>
-                                <strike>₹{selectedItem?.sale_price}</strike>
-                                <span className="text-red-500 ml-2">
-                                    {Math.round(
-                                        ((parseFloat(selectedItem.sale_price) - parseFloat(selectedItem.original_price)) /
-                                        parseFloat(selectedItem.sale_price) * 100
-                                    )}% Off
-                                </span>
-                            </>
-                        )} */}
-                    </h3>
+                    <div className="space-y-2">
+  {/* Price display section */}
+  <div className="flex items-baseline gap-3 flex-wrap">
+    {/* Show original sale price with strikethrough when discounted */}
+    {product?.offers?.[0]?.discount_percentage > 0 && (
+      <strike className="text-gray-500 text-lg">
+        ₹{selectedItem?.sale_price || "N/A"}
+      </strike>
+    )}
+    
+    {/* Show current price (discounted if offer exists) */}
+    <span className="text-green-600 text-2xl font-semibold">
+      ₹{product?.offers?.[0]?.discount_percentage > 0
+        ? (
+            parseFloat(selectedItem?.sale_price) - 
+            (parseFloat(selectedItem?.sale_price) * 
+             parseFloat(product.offers[0].discount_percentage)/100)
+          ).toFixed(2)
+        : selectedItem?.sale_price || "N/A"
+      }
+    </span>
+    
+    {/* Offer badge */}
+    {product?.offers?.[0]?.discount_percentage > 0 && (
+      <span className="text-red-500 text-lg">
+        {Math.round(parseFloat(product.offers[0].discount_percentage))}% OFF
+      </span>
+    )}
+  </div>
+
+  {/* Optional offer tag */}
+  {product?.offers?.[0]?.discount_percentage > 0 && (
+    <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit">
+      <i className="fa-solid fa-tag text-sm"></i>
+      <span>Special Offer</span>
+    </div>
+  )}
+
+  {/* Color display */}
+  {selectedItem?.color && (
+    <div className="text-gray-700">
+      <span>Color: </span>
+      <span className="font-medium">{selectedItem.color.color_name}</span>
+    </div>
+  )}
+</div>
                     
                     {/* Color Selection */}
                     <div className="mt-4">

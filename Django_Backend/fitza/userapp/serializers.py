@@ -294,11 +294,30 @@ class ActiveOfferSerializer(serializers.ModelSerializer):
         fields = ['offer_title', 'discount_percentage', 'end_date']
         read_only_fields = fields
 
+
+from common.models import Color,Brand,SizeOption
+class ViewColorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Color
+        fields='__all__'
+
+class ViewSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=SizeOption
+        fields='__all__'
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Brand
+        fields='__all__'
+
 from common.models import ProductCategory
 
 class ProductItemSerializer3(serializers.ModelSerializer):
     images = ViewProductImageSerializer(many=True, read_only=True)
     final_price = serializers.SerializerMethodField()
+    color=ViewColorsSerializer(read_only=True)
+    size=ViewSizeSerializer(read_only=True)
 
     class Meta:
         model = ProductItem
@@ -322,6 +341,7 @@ class ProductSerializer(serializers.ModelSerializer):
     category = ProductCategorySerializer2(read_only=True)
     ratings = serializers.SerializerMethodField()
     offers = serializers.SerializerMethodField()
+    brand=BrandSerializer(read_only=True)
 
     class Meta:
         model = Product
@@ -410,13 +430,27 @@ class ProductDetaileViewSerializer(serializers.ModelSerializer):
     category=ViewCategorySerializer(read_only=True)
     brand=BrandSerializer(read_only=True)
     shop=ShopSellerSerializer(read_only=True)
+    ratings = serializers.SerializerMethodField()
+    offers = serializers.SerializerMethodField()
 
 
     class Meta:
         model=Product
         fields='__all__'
+    
+    def get_ratings(self, obj):
+        reviews = RatingsReview.objects.filter(product=obj, status='approved')  # Fetch approved reviews
+        average_rating = reviews.aggregate(average=Avg('rating'))['average']
+        return {
+            'average_rating': round(average_rating, 1) if average_rating else 0,
+            'total_reviews': reviews.count(),
+        }
 
 
+    def get_offers(self, obj):
+            """Retrieve active offers for the product."""
+            active_offers = obj.offers.filter(is_active=True, start_date__lte=timezone.now(), end_date__gte=timezone.now())
+            return ActiveOfferSerializer(active_offers, many=True).data
 
 
 
@@ -698,11 +732,11 @@ class ProductsDetailsSerializer(serializers.ModelSerializer):
 
 from sellerapp.models import ProductOffer
 class OfferProductsSerializer(serializers.ModelSerializer):
-    product=ProductsDetailsSerializer(read_only=True)
+    product=ProductDetaileViewSerializer(read_only=True)
 
     class Meta:
         model=ProductOffer
-        fields=['id','offer_title','offer_description','discount_percentage','start_date','end_date','product']
+        fields=['id','start_date','end_date','product']
 
 from common.models import OrderStatus,ShopOrder
 from userapp.models import OrderLine

@@ -49,7 +49,6 @@ const TopRelease = ({ topdata }) => {
                       <h4 className="text-sm font-semibold text-gray-800 mt-1">
                         {/* Example price, update with actual price from product */}
                         {product.items[0].sale_price}{" "}
-                        <span className="text-gray-500 text-xs line-through">$245.80</span>
                       </h4>
                     </div>
                   </div>

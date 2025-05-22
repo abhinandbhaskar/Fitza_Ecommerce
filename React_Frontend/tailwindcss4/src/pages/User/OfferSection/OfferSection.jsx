@@ -3,10 +3,12 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import Header from "../../../components/User/Header/Header";
 import Footer from "../../../components/User/Footer/Footer";
+import { useNavigate } from "react-router-dom";
 
-const OfferSection = ({countsN}) => {
+const OfferSection = ({ countsN }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   const fetchOfferProducts = async () => {
     try {
@@ -22,9 +24,48 @@ const OfferSection = ({countsN}) => {
     }
   };
 
+      const AddToCart = (id) => {
+        console.log("Yo Yo", id);
+        navigate(`/productview/${id}`);
+    };
+
   useEffect(() => {
     fetchOfferProducts();
   }, []);
+
+  // Filter products to only include those with active offers (current date between start and end dates)
+  const getActiveOfferProducts = () => {
+    const currentDate = new Date();
+    return products.filter(product => {
+      const startDate = new Date(product.start_date);
+      const endDate = new Date(product.end_date);
+      return currentDate >= startDate && currentDate <= endDate;
+    });
+  };
+
+  const activeOfferProducts = getActiveOfferProducts();
+
+
+
+    const AddToWishlist = async (id) => {
+        try {
+            const response = await axios.post(
+                `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    withCredentials: true,
+                }
+            );
+            console.log(response);
+            console.log("Wishlist Res", response.data);
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
+    };
 
   return (
     <>
@@ -39,76 +80,108 @@ const OfferSection = ({countsN}) => {
           </div>
         </div>
 
-        <div className="Featured-section">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 lg:px-20">
-            {products.map((product) => (
-              <div
-                key={product?.id}
-                className="w-[400px] p-14 bg-white shadow-lg rounded-xl overflow-hidden transition transform hover:scale-105 hover:shadow-2xl"
-              >
-                <div className="relative">
+        {activeOfferProducts.length > 0 ? (
+          <div className="Featured-section">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20 ">
+              {activeOfferProducts.map((product) => (
+                <div key={product.product.id} className="card">
+                  <div className="Tag">
+                    <h6>New</h6>
+                  </div>
                   <img
                     src={
                       product.product.items?.[0]?.images?.[0]?.main_image
                         ? `https://127.0.0.1:8000${product.product.items[0].images[0].main_image}`
-                        : "/path/to/default/image.jpg"
+                        : "/path/to/default/image.jpg" // Fallback image
                     }
-                    className="w-full h-64 object-cover"
                     alt={product.product.product_name}
+                    className="card-img-top"
                   />
-                  <div className="absolute top-2 left-2 bg-red-500 text-white text-xs uppercase font-bold px-2 py-1 rounded">
-                    New
-                  </div>
-                  <div className="absolute top-2 right-2 bg-green-500 text-white text-xs uppercase font-bold px-2 py-1 rounded">
-                    {product.discount_percentage}% OFF
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-semibold truncate">
-                    {product.offer_title}
-                  </h4>
-                  <p className="text-gray-600 text-sm mt-1">{product.offer_description}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="text-lg font-bold">
-                      ${product.product.sale_price}{" "}
-                      <span className="line-through text-gray-400 text-sm">
-                        ${product.product.original_price}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => AddToCart(product.product.id)}
-                      className="text-white bg-blue-500 p-3 rounded-full hover:bg-blue-600 transition"
-                    >
-                      <i className="fa-solid fa-cart-arrow-down"></i>
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="flex space-x-6">
-                      <button
-                        onClick={() => AddToCart(product.product.id)}
-                        className="text-gray-500 hover:text-blue-500 transition"
-                      >
+                  <div className="Cards-Options">
+                    <div className="Cards-Icons">
+                      <div onClick={() => AddToCart(product.product.id)} className="Eye-Icons">
                         <i className="fa-regular fa-eye"></i>
-                        <span className="sr-only">Quick View</span>
-                      </button>
-                      <button
-                        onClick={() => AddToWishlist(product.product.id)}
-                        className="text-gray-500 hover:text-red-500 transition"
-                      >
+                        <div className="tooltip1">Quick View</div>
+                      </div>
+                      <div onClick={() => AddToWishlist(product.product.id)} className="Heart-Icon">
                         <i className="fa-regular fa-heart"></i>
-                        <span className="sr-only">Add to Wishlist</span>
-                      </button>
-                      <button className="text-gray-500 hover:text-green-500 transition">
+                        <div className="tooltip2">Add To Wishlist</div>
+                      </div>
+                      <div className="Shuffle-Icon">
                         <i className="fa-solid fa-shuffle"></i>
-                        <span className="sr-only">Compare</span>
+                        <div className="tooltip3">Compare</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="card-body">
+                    <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
+                      {product.product.product_name}
+                    </h2>
+                    <h4 className="text-gray-700 leading-relaxed text-lg">
+                      {product.product.product_description.length > 28
+                        ? `${product.product.product_description.substring(0, 28)}...`
+                        : product.product.product_description}
+                    </h4>
+
+                    <div>
+                      {/* Price display - only shows sale_price with optional offer discount */}
+                      <div>
+                        {product?.product?.offers?.[0]?.discount_percentage > 0 ? (
+                          <>
+                            <span className="text-gray-400 line-through text-sm mr-2">
+                              ${product.product.items[0].sale_price}
+                            </span>
+                            <span className="text-xl font-bold text-green-600">
+                              $
+                              {(
+                                parseFloat(product.product.items[0].sale_price) *
+                                (1 - parseFloat(product.product.offers[0].discount_percentage) / 100)
+                              ).toFixed(2)}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xl font-bold">${product.product.items[0].sale_price}</span>
+                        )}
+                      </div>
+
+                      {/* Ratings and offer badge */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center">
+                          <span className="text-yellow-500 font-medium">
+                            {product.product.ratings.average_rating.toFixed(1)}
+                          </span>
+                          <span className="text-yellow-400 ml-1">★</span>
+                        </div>
+                        <span className="text-gray-500 text-sm">
+                          ({product.product.ratings.total_reviews} reviews)
+                        </span>
+
+                        {/* Only show offer badge when offer exists */}
+                        {product?.product?.offers?.[0]?.discount_percentage > 0 && (
+                          <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit font-bold">
+                            <i className="fa-solid fa-tag text-sm"></i>
+                            <span>{parseFloat(product.product.offers[0].discount_percentage)}% OFF</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="label-icon my-2">
+                      <button onClick={() => AddToCart(product.product.id)} className="Addcart-icon">
+                        <i className="fa-solid fa-cart-arrow-down"></i>
                       </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600">No active offers available at the moment.</p>
+          </div>
+        )}
       </div>
       <Footer />
     </>

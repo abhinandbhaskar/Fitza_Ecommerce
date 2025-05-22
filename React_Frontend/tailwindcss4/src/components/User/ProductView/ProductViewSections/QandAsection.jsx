@@ -12,7 +12,7 @@ const QandAsection = ({ product }) => {
 
     const handleAskQuestion = async () => {
         const questionData = {
-            pid: product?.product?.id,
+            pid: product?.id,
             question: newQuestion,
         };
         try {
@@ -33,7 +33,7 @@ const QandAsection = ({ product }) => {
     };
 
     const fetchQandA = async () => {
-        const pid=product?.product?.id;
+        const pid=product?.id;
         console.log("P",pid);
         try {
             const response = await axios.get(`https://127.0.0.1:8000/api/get_question_answer/${pid}/`, {

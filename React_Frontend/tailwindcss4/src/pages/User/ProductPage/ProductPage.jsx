@@ -31,15 +31,16 @@ const ProductPage = ({countsN}) => {
   }
 
 useEffect(()=>{
+  window.scrollTo(0, 0);
   fetchProductData();
 },[])
 
   return (
-    <div>
+    <>
     <Header countsN={countsN}/>
     <ProductView product={product}/>
     <Footer/>
-    </div>
+    </>
   )
 }
 

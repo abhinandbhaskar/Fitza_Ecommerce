@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
         const SubmitReview=async()=>{
 
           const fetchData={
-            "id":product.product.id,
+            "id":product.id,
             "rating":rating,
             "description":description
           }
@@ -28,6 +28,7 @@ import { useSelector } from "react-redux";
             console.log(response);
             console.log(response.data);
             alert(response.data.message);
+            fetchReview();
           }catch(errors){
             console.log(errors);
             console.log(errors.response.data);
@@ -40,7 +41,7 @@ import { useSelector } from "react-redux";
         };
 
         const fetchReview=async()=>{
-            const product_id=product.product.id;
+            const product_id=product.id;
             try{
                 const response=await axios.get(`https://127.0.0.1:8000/api/view_rating/${product_id}/`,{
                     headers:{
