@@ -19,7 +19,8 @@ const CartSection = ({ setCartView, setCartId }) => {
     const [discountValue, setDiscountValue] = useState(0);
     const [coupontype, setCouponType] = useState("");
     const [expiredate, setExpireDate] = useState("");
-    const [productDiscount,setProductDiscount]=useState(0);
+    const [productDiscount, setProductDiscount] = useState(0);
+    const [couponId,setCouponId]=useState(null);
 
     const [startPincode, setStartPincode] = useState("");
     const [endPincode, setEndPincode] = useState("");
@@ -62,31 +63,6 @@ const CartSection = ({ setCartView, setCartId }) => {
             const desinationpin = cartData[0].product_item.product.shop.user.addresses[0].postal_code;
             setEndPincode(desinationpin);
 
-            // const Price = cartData.reduce((total, item) => {
-            //     const productItem = item?.product_item;
-            //     console.log("kkkkkk", productItem.product.weight);
-            //     if (!productItem) return total;
-            //     let itemPrice = parseFloat(productItem.sale_price) || 0;
-
-            //     if (productItem.product?.offers?.length > 0) {
-            //         const offer = productItem.product.offers[0];
-            //         const now = new Date();
-            //         const startDate = new Date(offer.start_date);
-            //         const endDate = new Date(offer.end_date);
-
-            //         if (now >= startDate && now <= endDate) {
-            //             const originalPrice = parseFloat(productItem.sale_price) || 0;
-            //             console.log("Product Without Discount...",originalPrice);
-            //             const discountPercentage = parseFloat(offer.discount_percentage) || 0;
-            //             itemPrice = originalPrice * (1 - discountPercentage / 100);
-            //         }
-            //     }
-            //     return total + itemPrice * (item?.quantity || 0);
-            // }, 0);
-
-            // CalculatePlatformFee(Price);
-            // setTotalPrice(Price);
-
             const result = cartData.reduce(
                 (totals, item) => {
                     const productItem = item?.product_item;
@@ -120,7 +96,7 @@ const CartSection = ({ setCartView, setCartId }) => {
 
             console.log("Total Price:", result.totalPrice);
             console.log("Total Discount:", result.totalDiscount);
-             CalculatePlatformFee(result.totalPrice);
+            CalculatePlatformFee(result.totalPrice);
             setTotalPrice(result.totalPrice);
             setProductDiscount(result.totalDiscount);
 
@@ -345,6 +321,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             const type = response.data?.coupon?.discount_type;
             setCouponType(type);
             setExpireDate(response.data?.coupon?.end_date || "");
+            setCouponId(response.data?.coupon?.id);
             setCouponView(false);
         } catch (errors) {
             console.error("Error applying coupon:", errors);
@@ -358,26 +335,37 @@ const CartSection = ({ setCartView, setCartId }) => {
             return;
         }
 
-        const OrderData={
-            "totalMrp":totalPrice,
-            "productDiscount":productDiscount,
-            "shippingfee":shippingfee,
-            "platformfee":platformfee,
-            "couponapplied":discountValue,
-            "discountcard":discountPercentage,
-            "orderTotal":orderTotal,
+        if (!totalPrice || !orderTotal || !accessToken) {
+        alert("Missing essential order information. Please try again.");
+        return;
+    }
+
+        dispatch(
+            updateShopOrder({
+                totalmrp: totalPrice,
+                productdiscount: productDiscount,
+                shippingfee: shippingfee,
+                platformfee: platformfee,
+                couponapplied: discountValue,
+                discountcard: discountPercentage,
+                orderTotal: orderTotal,
+            })
+        );
+        
+       
+
+        const initialOrderData={
+            order_total: totalPrice,
+            final_total: orderTotal,
+            discount_amount: productDiscount,
+            coupon: couponId,
+            free_shipping_applied: shippingfee === 0 ? true : false, 
         }
-        console.log("DATATA",OrderData);
+        console.log("JACK",initialOrderData);
 
         try {
             const response = await axios.post(
-                "https://127.0.0.1:8000/api/initial_order/",
-                {
-                    order_total: totalPrice,
-                    final_total: orderTotal,
-                    discount_amount: discountValue,
-                    free_shipping_applied: false,
-                },
+                "https://127.0.0.1:8000/api/initial_order/",initialOrderData,
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
@@ -386,6 +374,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             );
 
             setCartId(response.data?.order_id);
+           
             setCartView("address");
         } catch (errors) {
             console.error("Error during checkout:", errors);
@@ -566,10 +555,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                                                     className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
                                                     onClick={() => handleDiscountPercentage(card.discount_percentage)}
                                                 >
-                                                    <div
-                                                      
-                                                        className="flex items-center space-x-3"
-                                                    >
+                                                    <div className="flex items-center space-x-3">
                                                         <i className="fa-solid fa-percent text-blue-600"></i>
                                                         <span className="font-medium text-gray-700">{card.card_name}</span>
                                                     </div>
@@ -596,40 +582,30 @@ const CartSection = ({ setCartView, setCartId }) => {
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Shipping Fee:</span>
-                                {shippingfee===0?(
-                                    <span>Free</span>
-                                ):(
-                                    <span> ₹ {shippingfee.toFixed(2)}</span>
-                                )}
-                                    
+                                    {shippingfee === 0 ? <span>Free</span> : <span> ₹ {shippingfee.toFixed(2)}</span>}
                                 </div>
 
                                 <div className="flex justify-between">
-                                    {
-                                    coupontype ==="fixed"&&(
-                                   <>
-                                    <span>Coupon Applied </span>
-                                    <span> ₹ -{discountValue} </span>
-                                   </>
-                                    )} 
-                                     {
-                                    coupontype ==="percentage"&&(
-                                   <>
-                                    <span>Coupon Applied </span>
-                                    <span> {discountValue} %</span>
-                                   </>
-                                    )} 
-                                    
+                                    {coupontype === "fixed" && (
+                                        <>
+                                            <span>Coupon Applied </span>
+                                            <span> ₹ -{discountValue} </span>
+                                        </>
+                                    )}
+                                    {coupontype === "percentage" && (
+                                        <>
+                                            <span>Coupon Applied </span>
+                                            <span> {discountValue} %</span>
+                                        </>
+                                    )}
                                 </div>
 
-                                {
-                                    discountPercentage>0 && (
-                                         <div className="flex justify-between">
-                                    <span>Discount Card : </span>
-                                    <span> {discountPercentage} %</span>
-                                </div>
-                                    )
-                                }
+                                {discountPercentage > 0 && (
+                                    <div className="flex justify-between">
+                                        <span>Discount Card : </span>
+                                        <span> {discountPercentage} %</span>
+                                    </div>
+                                )}
 
                                 <div className="flex justify-between">
                                     <span>Platform Fee (2%) : </span>

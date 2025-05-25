@@ -760,11 +760,10 @@ class OfferProductsSerializer(serializers.ModelSerializer):
 from common.models import OrderStatus,ShopOrder
 from userapp.models import OrderLine
 
-
-
 class AddInitialOrderSerializer(serializers.Serializer):
     order_total = serializers.DecimalField(max_digits=10, decimal_places=2)
     final_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+    coupon = serializers.CharField(required=False, allow_null=True)
     discount_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0.00)
     free_shipping_applied = serializers.BooleanField(default=False)
 
@@ -781,12 +780,22 @@ class AddInitialOrderSerializer(serializers.Serializer):
             if created:
                 print("Created 'Pending Payment' status")
 
-            # Create the order
+            # Create the order with optional coupon
+            coupon = None
+            discount_amount = self.validated_data.get("discount_amount", 0.00)
+            
+            if "coupon" in self.validated_data and self.validated_data["coupon"]:
+                try:
+                    coupon = Coupon.objects.get(id=self.validated_data["coupon"])
+                except Coupon.DoesNotExist:
+                    raise serializers.ValidationError("Invalid coupon")
+            
             order = ShopOrder.objects.create(
                 user=user,
                 order_status=pending_status,
                 order_total=self.validated_data["order_total"],
-                discount_amount=self.validated_data.get("discount_amount", 0.00),
+                discount_amount=discount_amount,
+                applied_coupon=coupon,
                 final_total=self.validated_data["final_total"],
                 free_shipping_applied=self.validated_data.get("free_shipping_applied", False),
             )
@@ -826,7 +835,6 @@ class AddInitialOrderSerializer(serializers.Serializer):
             raise serializers.ValidationError("Order status 'Pending Payment' is not configured.")
         except Exception as e:
             raise serializers.ValidationError(f"Failed to create order: {str(e)}")
-
 
 
 from rest_framework import serializers

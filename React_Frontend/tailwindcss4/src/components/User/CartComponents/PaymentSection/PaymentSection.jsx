@@ -5,6 +5,7 @@ const PaymentSection = ({cartId,setCartId}) => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [orderId, setOrderId] = useState(null);
   const{accessToken}=useSelector((state)=>state.auth);
+  const shopOrder = useSelector((state) => state.shoporder.order);
 
   const savePaymentDetails = async (paymentDetails) => {
     console.log("PAYMENT DETAILSSSSSSSSSSSSSSSSS", paymentDetails);
@@ -180,31 +181,63 @@ const PaymentSection = ({cartId,setCartId}) => {
         </div>
       </div>
 
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full lg:w-1/3">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Price Details</h2>
-        <div className="border-b pb-4 mb-4 space-y-3">
-          <div className="flex justify-between text-gray-600">
-            <span>Total MRP:</span>
-            <span>$100</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>Discount:</span>
-            <span>-$20</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>Shipping Fee:</span>
-            <span>$15</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>Platform Fee:</span>
-            <span>$10</span>
-          </div>
-        </div>
-        <div className="flex justify-between text-gray-800 text-lg font-bold">
-          <span>Order Total:</span>
-          <span>$105</span>
-        </div>
+<div className="bg-white shadow-lg rounded-lg p-6 w-full lg:w-1/3">
+  <h2 className="text-xl font-semibold text-gray-800 mb-4">Price Details</h2>
+  
+  <div className="border-b pb-4 mb-4 space-y-3">
+    {/* Total MRP - Always shown */}
+    <div className="flex justify-between">
+      <span className="text-gray-600">Total MRP</span>
+      <span className="text-gray-800 font-medium">₹{shopOrder.totalmrp.toFixed(2)}</span>
+    </div>
+
+    {/* Product Discount - Only shown if > 0 */}
+    {shopOrder.productdiscount > 0 && (
+      <div className="flex justify-between">
+        <span className="text-gray-600">Product Discount</span>
+        <span className="text-green-600 font-medium">- ₹{shopOrder.productdiscount.toFixed(2)}</span>
       </div>
+    )}
+
+    {/* Shipping Fee - Shows "FREE" if 0 */}
+    <div className="flex justify-between">
+      <span className="text-gray-600">Shipping Fee</span>
+      <span className="text-gray-800 font-medium">
+        {shopOrder.shippingfee > 0 ? `₹${shopOrder.shippingfee.toFixed(2)}` : "FREE"}
+      </span>
+    </div>
+
+    {/* Platform Fee - Always shown */}
+    <div className="flex justify-between">
+      <span className="text-gray-600">Platform Fee</span>
+      <span className="text-gray-800 font-medium">₹{shopOrder.platformfee.toFixed(1)}</span>
+    </div>
+
+    {/* Coupon Applied - Only shown if exists */}
+    {shopOrder.couponapplied === 0 ? (
+      <div></div>
+    ):(
+      <div className="flex justify-between">
+        <span className="text-gray-600">Coupon Applied</span>
+        <span className="text-green-600 font-medium">{shopOrder.couponapplied}</span>
+      </div>
+    )}
+
+    {/* Discount Card - Only shown if > 0 */}
+    {shopOrder.discountcard > 0 && (
+      <div className="flex justify-between">
+        <span className="text-gray-600">Card Discount</span>
+        <span className="text-green-600 font-medium">- ₹{shopOrder.discountcard.toFixed(2)}</span>
+      </div>
+    )}
+  </div>
+
+  {/* Order Total - Highlighted section */}
+  <div className="flex justify-between pt-4 border-t">
+    <span className="text-lg font-bold text-gray-800">Order Total</span>
+    <span className="text-lg font-bold text-gray-800">₹{shopOrder.orderTotal.toFixed(2)}</span>
+  </div>
+</div>
     </div>
   );
 };

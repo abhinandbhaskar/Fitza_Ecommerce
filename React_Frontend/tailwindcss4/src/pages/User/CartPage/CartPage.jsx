@@ -4,7 +4,6 @@ import Footer from "../../../components/User/Footer/Footer";
 import CartSection from "../../../components/User/CartComponents/CartSection/CartSection";
 import AddressSection from "../../../components/User/CartComponents/AddressSection/AddressSection";
 import PaymentSection from "../../../components/User/CartComponents/PaymentSection/PaymentSection";
-
 const CartPage = ({countsN}) => {
     const[cartView,setCartView]=useState("cart");
     const[cartId,setCartId]=useState(null);
@@ -43,7 +42,10 @@ const CartPage = ({countsN}) => {
 
         {
             cartView==="address"&&(
-                <AddressSection setCartView={setCartView}/>
+              
+                  <AddressSection cartId={cartId} setCartView={setCartView}/>
+                
+                
             )
         }
                 {

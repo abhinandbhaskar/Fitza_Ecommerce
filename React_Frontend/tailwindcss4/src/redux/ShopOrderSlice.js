@@ -4,7 +4,7 @@ const initialState={
     order: {
         totalmrp: 0.0,
         productdiscount: 0.0,
-        shippingfee: null,
+        shippingfee: 0.0,
         platformfee: 0.0,
         couponapplied: "",
         discountcard: 0,

@@ -25,12 +25,12 @@ const CartSection = ({ setCartView, setCartId }) => {
     const [weight, setWeight] = useState(0);
     const [weightfee, setWeightFee] = useState(0);
     const [travelfee, setTravelFee] = useState(0);
-    const [carddisplay,setCardDisplay]=useState(true);
+    const [carddisplay, setCardDisplay] = useState(true);
     const [discountCard, setDiscountCard] = useState([]);
 
-    const [discountPercentage,setDiscountPercentage]=useState(0);
+    const [discountPercentage, setDiscountPercentage] = useState(0);
 
-    const [checkFreeShip,setCheckFeeship]=useState(0);
+    const [checkFreeShip, setCheckFeeship] = useState(0);
 
     const dispatch = useDispatch();
 
@@ -146,25 +146,21 @@ const CartSection = ({ setCartView, setCartId }) => {
         }
     };
 
-      const fetchFetchFreeShip = async () => {
+    const fetchFetchFreeShip = async () => {
         try {
-          const response = await axios.get("https://127.0.0.1:8000/api/freeshipping_offer/",{
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-          console.log("Freeeeeeeeeeeeeeeeeeeeeeee",response.data[0]);
-          console.log("eeeeeeeeeeeeeeeeeeeeeeee",response.data[0].min_order_amount);
-          setCheckFeeship(response?.data[0]?.min_order_amount);
-       
+            const response = await axios.get("https://127.0.0.1:8000/api/freeshipping_offer/", {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            console.log("Freeeeeeeeeeeeeeeeeeeeeeee", response.data[0]);
+            console.log("eeeeeeeeeeeeeeeeeeeeeeee", response.data[0].min_order_amount);
+            setCheckFeeship(response?.data[0]?.min_order_amount);
         } catch (errors) {
-          console.error(errors.response || errors);
-          alert("Failed to fetch free shipping offers. Please try again.");
+            console.error(errors.response || errors);
+            alert("Failed to fetch free shipping offers. Please try again.");
         }
-      };
-
-
+    };
 
     useEffect(() => {
         fetchData();
@@ -201,12 +197,10 @@ const CartSection = ({ setCartView, setCartId }) => {
         const TempValue = totalPrice + shippingfee + platformfee;
         let totalValue = TempValue; // Default case
 
-        if(checkFreeShip<=totalValue)
-        {
-            totalValue=TempValue-shippingfee;
+        if (checkFreeShip <= totalValue) {
+            totalValue = TempValue - shippingfee;
             setShippingfee(0);
         }
-
 
         if (couponMinOrder > 0 && TempValue >= couponMinOrder && coupontype) {
             if (coupontype === "fixed") {
@@ -215,24 +209,29 @@ const CartSection = ({ setCartView, setCartId }) => {
                 totalValue = TempValue * (1 - discountValue / 100);
             }
         }
-        if(discountPercentage>0)
-        {
-            let value=0;
-            value=TempValue*discountPercentage/100;
-            totalValue=TempValue-value;
+        if (discountPercentage > 0) {
+            let value = 0;
+            value = (TempValue * discountPercentage) / 100;
+            totalValue = TempValue - value;
         }
-        
-        
-
 
         setOrderTotal(totalValue);
 
         console.log("Total Shipping Charge isssss:::", weightfee + travelfee);
         setShippingfee(weightfee + travelfee);
-        setTimeout(()=>{
-            console.log("G",checkFreeShip);
-        },4000);
-    }, [totalPrice, shippingfee, platformfee, couponMinOrder, discountValue, coupontype,discountPercentage,checkFreeShip]);
+        setTimeout(() => {
+            console.log("G", checkFreeShip);
+        }, 4000);
+    }, [
+        totalPrice,
+        shippingfee,
+        platformfee,
+        couponMinOrder,
+        discountValue,
+        coupontype,
+        discountPercentage,
+        checkFreeShip,
+    ]);
 
     const handleQuantity = async (e, id) => {
         const quantity = parseInt(e.target.value, 10) || 1;
@@ -331,12 +330,11 @@ const CartSection = ({ setCartView, setCartId }) => {
         );
     }
 
-    const handleDiscountPercentage=(discountprctg)=>{
+    const handleDiscountPercentage = (discountprctg) => {
         setCardDisplay(false);
-        console.log("dis",discountprctg);
+        console.log("dis", discountprctg);
         setDiscountPercentage(discountprctg);
-
-    }
+    };
 
     return (
         <div>
@@ -470,36 +468,36 @@ const CartSection = ({ setCartView, setCartId }) => {
                             </div>
 
                             {/* discount card */}
-      
-      {
-        discountCard?.length > 0 && carddisplay ? (
-  <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer">
-    <h6 className="text-md font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-      <i className="fa-solid fa-credit-card text-blue-500 text-lg"></i>
-      <span>Available Discount Cards</span>
-    </h6>
-    <div className="space-y-3">
-      {discountCard
-        .filter((item) => item.is_active === true)
-        .map((card, key) => (
-          <div 
-            key={key}
-            className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-          >
-            <div onClick={()=>handleDiscountPercentage(card.discount_percentage)} className="flex items-center space-x-3">
-              <i className="fa-solid fa-percent text-blue-600"></i>
-              <span className="font-medium text-gray-700">{card.card_name}</span>
-            </div>
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">
-              {card.discount_percentage}% OFF
-            </span>
-          </div>
-        ))}
-    </div>
-  </div>
-) : null
-      }
-                            
+
+                            {discountCard?.length > 0 && carddisplay ? (
+                                <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer">
+                                    <h6 className="text-md font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                                        <i className="fa-solid fa-credit-card text-blue-500 text-lg"></i>
+                                        <span>Available Discount Cards</span>
+                                    </h6>
+                                    <div className="space-y-3">
+                                        {discountCard
+                                            .filter((item) => item.is_active === true)
+                                            .map((card, key) => (
+                                                <div
+                                                    key={key}
+                                                    className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                                >
+                                                    <div
+                                                        onClick={() => handleDiscountPercentage(card.discount_percentage)}
+                                                        className="flex items-center space-x-3"
+                                                    >
+                                                        <i className="fa-solid fa-percent text-blue-600"></i>
+                                                        <span className="font-medium text-gray-700">{card.card_name}</span>
+                                                    </div>
+                                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">
+                                                        {card.discount_percentage}% OFF
+                                                    </span>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            ) : null}
 
                             {/* Price Breakdown Section */}
                             <div className="border-t pt-4 space-y-2 text-gray-600">
