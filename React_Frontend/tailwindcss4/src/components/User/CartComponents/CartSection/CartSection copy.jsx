@@ -18,8 +18,6 @@ const CartSection = ({ setCartView, setCartId }) => {
     const [couponMinOrder, setCouponMinOrder] = useState(0);
     const [discountValue, setDiscountValue] = useState(0);
     const [coupontype, setCouponType] = useState("");
-    const [expiredate, setExpireDate] = useState("");
-    const [productDiscount,setProductDiscount]=useState(0);
 
     const [startPincode, setStartPincode] = useState("");
     const [endPincode, setEndPincode] = useState("");
@@ -27,19 +25,14 @@ const CartSection = ({ setCartView, setCartId }) => {
     const [weight, setWeight] = useState(0);
     const [weightfee, setWeightFee] = useState(0);
     const [travelfee, setTravelFee] = useState(0);
-    const [carddisplay, setCardDisplay] = useState(true);
+    const [carddisplay,setCardDisplay]=useState(true);
     const [discountCard, setDiscountCard] = useState([]);
 
-    const [discountPercentage, setDiscountPercentage] = useState(0);
+    const [discountPercentage,setDiscountPercentage]=useState(0);
 
-    const [checkFreeShip, setCheckFeeship] = useState(0);
+    const [checkFreeShip,setCheckFeeship]=useState(0);
 
     const dispatch = useDispatch();
-
-    const CalculatePlatformFee = (Price) => {
-        const fee = Price * 0.02;
-        setPlatformfee(fee);
-    };
 
     const fetchData = async () => {
         try {
@@ -62,67 +55,29 @@ const CartSection = ({ setCartView, setCartId }) => {
             const desinationpin = cartData[0].product_item.product.shop.user.addresses[0].postal_code;
             setEndPincode(desinationpin);
 
-            // const Price = cartData.reduce((total, item) => {
-            //     const productItem = item?.product_item;
-            //     console.log("kkkkkk", productItem.product.weight);
-            //     if (!productItem) return total;
-            //     let itemPrice = parseFloat(productItem.sale_price) || 0;
+            const Price = cartData.reduce((total, item) => {
+                const productItem = item?.product_item;
+                console.log("kkkkkk", productItem.product.weight);
+                if (!productItem) return total;
+                let itemPrice = parseFloat(productItem.sale_price) || 0;
 
-            //     if (productItem.product?.offers?.length > 0) {
-            //         const offer = productItem.product.offers[0];
-            //         const now = new Date();
-            //         const startDate = new Date(offer.start_date);
-            //         const endDate = new Date(offer.end_date);
+                if (productItem.product?.offers?.length > 0) {
+                    const offer = productItem.product.offers[0];
+                    const now = new Date();
+                    const startDate = new Date(offer.start_date);
+                    const endDate = new Date(offer.end_date);
 
-            //         if (now >= startDate && now <= endDate) {
-            //             const originalPrice = parseFloat(productItem.sale_price) || 0;
-            //             console.log("Product Without Discount...",originalPrice);
-            //             const discountPercentage = parseFloat(offer.discount_percentage) || 0;
-            //             itemPrice = originalPrice * (1 - discountPercentage / 100);
-            //         }
-            //     }
-            //     return total + itemPrice * (item?.quantity || 0);
-            // }, 0);
-
-            // CalculatePlatformFee(Price);
-            // setTotalPrice(Price);
-
-            const result = cartData.reduce(
-                (totals, item) => {
-                    const productItem = item?.product_item;
-                    if (!productItem) return totals;
-
-                    const originalPrice = parseFloat(productItem.sale_price) || 0;
-                    let itemPrice = originalPrice;
-                    let discountAmount = 0;
-
-                    if (productItem.product?.offers?.length > 0) {
-                        const offer = productItem.product.offers[0];
-                        const now = new Date();
-                        const startDate = new Date(offer.start_date);
-                        const endDate = new Date(offer.end_date);
-
-                        if (now >= startDate && now <= endDate) {
-                            const discountPercentage = parseFloat(offer.discount_percentage) || 0;
-                            itemPrice = originalPrice * (1 - discountPercentage / 100);
-                            discountAmount = originalPrice - itemPrice; // Calculate discount per item
-                        }
+                    if (now >= startDate && now <= endDate) {
+                        const originalPrice = parseFloat(productItem.sale_price) || 0;
+                        const discountPercentage = parseFloat(offer.discount_percentage) || 0;
+                        itemPrice = originalPrice * (1 - discountPercentage / 100);
                     }
+                }
+                return total + itemPrice * (item?.quantity || 0);
+            }, 0);
 
-                    const quantity = item?.quantity || 0;
-                    return {
-                        totalPrice: totals.totalPrice + itemPrice * quantity, // Accumulate discounted price
-                        totalDiscount: totals.totalDiscount + discountAmount * quantity, // Accumulate discount amount
-                    };
-                },
-                { totalPrice: 0, totalDiscount: 0 }
-            );
-
-            console.log("Total Price:", result.totalPrice);
-            console.log("Total Discount:", result.totalDiscount);
-             CalculatePlatformFee(result.totalPrice);
-            setTotalPrice(result.totalPrice);
-            setProductDiscount(result.totalDiscount);
+            CalculatePlatformFee(Price);
+            setTotalPrice(Price);
 
             const TotalWeight = cartData.reduce((total, item) => {
                 const productItem = item?.product_item?.product?.weight || 0;
@@ -145,10 +100,16 @@ const CartSection = ({ setCartView, setCartId }) => {
             setWeightFee(shippingFee);
         } catch (errors) {
             console.error("Error fetching cart data:", errors);
+            setError("Failed to load cart data. Please try again.");
             setCartData([]);
         } finally {
             setLoading(false);
         }
+    };
+
+    const CalculatePlatformFee = (Price) => {
+        const fee = Price * 0.02;
+        setPlatformfee(fee);
     };
 
     const RemoveProduct = async (id) => {
@@ -185,21 +146,25 @@ const CartSection = ({ setCartView, setCartId }) => {
         }
     };
 
-    const fetchFetchFreeShip = async () => {
+      const fetchFetchFreeShip = async () => {
         try {
-            const response = await axios.get("https://127.0.0.1:8000/api/freeshipping_offer/", {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            console.log("Freeeeeeeeeeeeeeeeeeeeeeee", response.data[0]);
-            console.log("eeeeeeeeeeeeeeeeeeeeeeee", response.data[0].min_order_amount);
-            setCheckFeeship(response?.data[0]?.min_order_amount);
+          const response = await axios.get("https://127.0.0.1:8000/api/freeshipping_offer/",{
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+          console.log("Freeeeeeeeeeeeeeeeeeeeeeee",response.data[0]);
+          console.log("eeeeeeeeeeeeeeeeeeeeeeee",response.data[0].min_order_amount);
+          setCheckFeeship(response?.data[0]?.min_order_amount);
+       
         } catch (errors) {
-            console.error(errors.response || errors);
-            alert("Failed to fetch free shipping offers. Please try again.");
+          console.error(errors.response || errors);
+          alert("Failed to fetch free shipping offers. Please try again.");
         }
-    };
+      };
+
+
 
     useEffect(() => {
         fetchData();
@@ -207,81 +172,71 @@ const CartSection = ({ setCartView, setCartId }) => {
         fetchFetchFreeShip();
     }, []);
 
-    const fetchRoute = async () => {
-        try {
-            const response = await axios.get("https://127.0.0.1:8000/api/route/", {
-                params: {
-                    start_pincode: startPincode,
-                    end_pincode: endPincode,
-                },
-            });
-            console.log("Roooot KMMMMMM", response.data);
-            console.log("Route data Shipfee: ", response.data.shipping_fee);
-            const fees = response.data.shipping_fee;
-            setTravelFee(fees);
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    };
-
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (startPincode && endPincode) {
-                fetchRoute(); // Move the fetchRoute function outside the useEffect if needed
+        const fetchRoute = async () => {
+            if (!startPincode || !endPincode) {
+                setError("Please enter both PIN codes");
+                return;
             }
-        }, 300); // Adjust debounce delay as necessary
 
-        return () => clearTimeout(timer); // Cleanup previous timer on dependency change
+            try {
+                const response = await axios.get("https://127.0.0.1:8000/api/route/", {
+                    params: {
+                        start_pincode: startPincode,
+                        end_pincode: endPincode,
+                    },
+                });
+                console.log("Route data Shipfee: ", response.data.shipping_fee);
+                let fees = response.data.shipping_fee;
+                setTravelFee(fees);
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+
+        fetchRoute();
     }, [startPincode, endPincode]);
 
     useEffect(() => {
         const TempValue = totalPrice + shippingfee + platformfee;
         let totalValue = TempValue; // Default case
 
-        if (checkFreeShip <= totalValue) {
-            console.log("FreeShipping Applied...........................");
-            totalValue = TempValue - shippingfee;
+        if(checkFreeShip<=totalValue)
+        {
+            totalValue=TempValue-shippingfee;
             setShippingfee(0);
-            setTravelFee(0);
-            setWeightFee(0);
         }
 
-        if (coupontype && discountValue) {
+
+        if (couponMinOrder > 0 && TempValue >= couponMinOrder && coupontype) {
             if (coupontype === "fixed") {
-                totalValue = totalValue - discountValue;
+                totalValue = TempValue - discountValue;
             } else if (coupontype === "percentage") {
-                totalValue = totalValue * (1 - discountValue / 100);
+                totalValue = TempValue * (1 - discountValue / 100);
             }
         }
-
-        if (discountPercentage > 0) {
-            let value = 0;
-            value = (TempValue * discountPercentage) / 100;
-            totalValue = TempValue - value;
+        if(discountPercentage>0)
+        {
+            let value=0;
+            value=TempValue*discountPercentage/100;
+            totalValue=TempValue-value;
         }
+        
+        
+
 
         setOrderTotal(totalValue);
 
         console.log("Total Shipping Charge isssss:::", weightfee + travelfee);
         setShippingfee(weightfee + travelfee);
-        setTimeout(() => {
-            console.log("G", checkFreeShip);
-        }, 4000);
-    }, [
-        totalPrice,
-        shippingfee,
-        platformfee,
-        couponMinOrder,
-        discountValue,
-        coupontype,
-        discountPercentage,
-        checkFreeShip,
-        travelfee,
-        weightfee,
-    ]);
+        setTimeout(()=>{
+            console.log("G",checkFreeShip);
+        },4000);
+    }, [totalPrice, shippingfee, platformfee, couponMinOrder, discountValue, coupontype,discountPercentage,checkFreeShip]);
 
     const handleQuantity = async (e, id) => {
-        const quantity = parseInt(e.target.value);
+        const quantity = parseInt(e.target.value, 10) || 1;
+
         try {
             await axios.post(
                 `https://127.0.0.1:8000/api/cart_quantity/${id}/`,
@@ -297,8 +252,6 @@ const CartSection = ({ setCartView, setCartId }) => {
         } catch (err) {
             console.error("Error updating quantity:", err);
             alert("Failed to update quantity. Please try again.");
-        } finally {
-            console.log("Completed....");
         }
     };
 
@@ -319,32 +272,9 @@ const CartSection = ({ setCartView, setCartId }) => {
                 }
             );
 
-            // Get current total value for validation
-            const currentTotal = totalPrice + shippingfee + platformfee;
-
-            // Check coupon validity before applying
-            if (new Date(response.data?.coupon?.end_date) <= new Date()) {
-                alert("This coupon has expired");
-                return;
-            }
-
-            if (
-                response.data?.coupon?.minimum_order_amount > 0 &&
-                currentTotal < response.data?.coupon?.minimum_order_amount
-            ) {
-                alert(`Minimum order amount for this coupon is ${response.data?.coupon?.minimum_order_amount}`);
-                return;
-            }
-
-            console.log("ppppppppppppppppppppppppppppppppppppppppppppp", response.data?.coupon?.end_date);
-
-            // // Only set coupon values if all conditions are met
-            const discount = response.data?.coupon?.discount_value;
-            setDiscountValue(discount);
+            setDiscountValue(response.data?.coupon?.discount_value || 0);
             setCouponMinOrder(response.data?.coupon?.minimum_order_amount || 0);
-            const type = response.data?.coupon?.discount_type;
-            setCouponType(type);
-            setExpireDate(response.data?.coupon?.end_date || "");
+            setCouponType(response.data?.coupon?.discount_type || "");
             setCouponView(false);
         } catch (errors) {
             console.error("Error applying coupon:", errors);
@@ -357,17 +287,6 @@ const CartSection = ({ setCartView, setCartId }) => {
             alert("Your cart is empty");
             return;
         }
-
-        const OrderData={
-            "totalMrp":totalPrice,
-            "productDiscount":productDiscount,
-            "shippingfee":shippingfee,
-            "platformfee":platformfee,
-            "couponapplied":discountValue,
-            "discountcard":discountPercentage,
-            "orderTotal":orderTotal,
-        }
-        console.log("DATATA",OrderData);
 
         try {
             const response = await axios.post(
@@ -412,11 +331,12 @@ const CartSection = ({ setCartView, setCartId }) => {
         );
     }
 
-    const handleDiscountPercentage = (discountprctg) => {
+    const handleDiscountPercentage=(discountprctg)=>{
         setCardDisplay(false);
-        console.log("dis", discountprctg);
+        console.log("dis",discountprctg);
         setDiscountPercentage(discountprctg);
-    };
+
+    }
 
     return (
         <div>
@@ -503,7 +423,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                                         <div className="flex items-center space-x-4">
                                             Quantity:
                                             <input
-                                                onChange={(e) => handleQuantity(e, item.product_item?.id)}
+                                                onChange={(e) => handleQuantity(e, item.product_item?.product?.id)}
                                                 type="number"
                                                 min="1"
                                                 className="border border-gray-300 rounded-md w-16 px-2 py-1 h-10 text-xl"
@@ -550,37 +470,36 @@ const CartSection = ({ setCartView, setCartId }) => {
                             </div>
 
                             {/* discount card */}
-
-                            {discountCard?.length > 0 && carddisplay ? (
-                                <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer">
-                                    <h6 className="text-md font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                                        <i className="fa-solid fa-credit-card text-blue-500 text-lg"></i>
-                                        <span>Available Discount Cards</span>
-                                    </h6>
-                                    <div className="space-y-3">
-                                        {discountCard
-                                            .filter((item) => item.is_active === true)
-                                            .map((card, key) => (
-                                                <div
-                                                    key={key}
-                                                    className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-                                                    onClick={() => handleDiscountPercentage(card.discount_percentage)}
-                                                >
-                                                    <div
-                                                      
-                                                        className="flex items-center space-x-3"
-                                                    >
-                                                        <i className="fa-solid fa-percent text-blue-600"></i>
-                                                        <span className="font-medium text-gray-700">{card.card_name}</span>
-                                                    </div>
-                                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">
-                                                        {card.discount_percentage}% OFF
-                                                    </span>
-                                                </div>
-                                            ))}
-                                    </div>
-                                </div>
-                            ) : null}
+      
+      {
+        discountCard?.length > 0 && carddisplay ? (
+  <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer">
+    <h6 className="text-md font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+      <i className="fa-solid fa-credit-card text-blue-500 text-lg"></i>
+      <span>Available Discount Cards</span>
+    </h6>
+    <div className="space-y-3">
+      {discountCard
+        .filter((item) => item.is_active === true)
+        .map((card, key) => (
+          <div 
+            key={key}
+            className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+          >
+            <div onClick={()=>handleDiscountPercentage(card.discount_percentage)} className="flex items-center space-x-3">
+              <i className="fa-solid fa-percent text-blue-600"></i>
+              <span className="font-medium text-gray-700">{card.card_name}</span>
+            </div>
+            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">
+              {card.discount_percentage}% OFF
+            </span>
+          </div>
+        ))}
+    </div>
+  </div>
+) : null
+      }
+                            
 
                             {/* Price Breakdown Section */}
                             <div className="border-t pt-4 space-y-2 text-gray-600">
@@ -589,48 +508,13 @@ const CartSection = ({ setCartView, setCartId }) => {
                                     <span> ₹ {totalPrice.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span>Product Discount:</span>
-                                    {/* productDiscount */}
-                                    <span>- ₹ {productDiscount} </span>
-                                    {/* <span>- ₹ {discountValue} </span> */}
+                                    <span>Discount:</span>
+                                    <span>- ₹ {discountValue.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Shipping Fee:</span>
-                                {shippingfee===0?(
-                                    <span>Free</span>
-                                ):(
                                     <span> ₹ {shippingfee.toFixed(2)}</span>
-                                )}
-                                    
                                 </div>
-
-                                <div className="flex justify-between">
-                                    {
-                                    coupontype ==="fixed"&&(
-                                   <>
-                                    <span>Coupon Applied </span>
-                                    <span> ₹ -{discountValue} </span>
-                                   </>
-                                    )} 
-                                     {
-                                    coupontype ==="percentage"&&(
-                                   <>
-                                    <span>Coupon Applied </span>
-                                    <span> {discountValue} %</span>
-                                   </>
-                                    )} 
-                                    
-                                </div>
-
-                                {
-                                    discountPercentage>0 && (
-                                         <div className="flex justify-between">
-                                    <span>Discount Card : </span>
-                                    <span> {discountPercentage} %</span>
-                                </div>
-                                    )
-                                }
-
                                 <div className="flex justify-between">
                                     <span>Platform Fee (2%) : </span>
                                     <span> ₹ {platformfee.toFixed(2)}</span>

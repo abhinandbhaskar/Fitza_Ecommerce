@@ -587,32 +587,50 @@ class EditDiscountCardSerializer(serializers.Serializer):
 
 from sellerapp.models import FreeShippingOffer
 
+
+from datetime import datetime
+from rest_framework import serializers
+
 class AddFreeShippingSerializer(serializers.Serializer):
-    id=serializers.IntegerField()
-    minOrderAmount=serializers.IntegerField()
-    description=serializers.CharField()
-    startDate=serializers.CharField()
-    endDate=serializers.CharField()
-    isActive=serializers.BooleanField()
+    id = serializers.IntegerField()
+    minOrderAmount = serializers.IntegerField()
+    description = serializers.CharField()
+    startDate = serializers.CharField()
+    endDate = serializers.CharField()
+    isActive = serializers.BooleanField()
+
     def validate(self, data):
-        user=self.context["request"].user
+        user = self.context["request"].user
         if not CustomUser.objects.filter(id=user.id).exists():
-            raise serializers.ValidationError("UnAuthorized User...")
+            raise serializers.ValidationError("Unauthorized User...")
+
+        # Validate and parse the date strings
+        try:
+            data["startDate"] = datetime.strptime(data["startDate"], "%Y-%m-%d")
+            data["endDate"] = datetime.strptime(data["endDate"], "%Y-%m-%d")
+        except ValueError:
+            raise serializers.ValidationError("Invalid date format. Use 'YYYY-MM-DD'.")
+
+        # Ensure endDate is not before startDate
+        if data["endDate"] < data["startDate"]:
+            raise serializers.ValidationError("End date must be after start date.")
+
         return data
+
     def save(self):
         free_shipping_offer, created = FreeShippingOffer.objects.get_or_create(
-        min_order_amount=self.validated_data["minOrderAmount"],
-        description=self.validated_data["description"],
-        start_date=self.validated_data["startDate"],
-        end_date=self.validated_data["endDate"],
-        is_active=self.validated_data["isActive"],
+            min_order_amount=self.validated_data["minOrderAmount"],
+            description=self.validated_data["description"],
+            start_date=self.validated_data["startDate"],  # Already parsed to datetime
+            end_date=self.validated_data["endDate"],  # Already parsed to datetime
+            is_active=self.validated_data["isActive"],
         )
         if created:
             notifier = MarketingNotifier(group='all_users')
             notifier.free_shipping_offer(
                 min_order_amount=free_shipping_offer.min_order_amount,
-                expires_on=self.validated_data["endDate"]
-            ) 
+                expires_on=self.validated_data["endDate"]  # Already datetime
+            )
 
 
 
@@ -621,25 +639,44 @@ class GetFreeShipDataSerializer(serializers.ModelSerializer):
         model=FreeShippingOffer
         fields='__all__'
     
+
+from datetime import datetime
+from rest_framework import serializers
+
 class EditShippingOfferSerializer(serializers.Serializer):
-    id=serializers.IntegerField()
-    minOrderAmount=serializers.IntegerField()
-    description=serializers.CharField()
-    startDate=serializers.CharField()
-    endDate=serializers.CharField()
+    id = serializers.IntegerField()
+    minOrderAmount = serializers.IntegerField()
+    description = serializers.CharField()
+    startDate = serializers.CharField()
+    endDate = serializers.CharField()
+
     def validate(self, data):
-        user=self.context["request"].user
+        user = self.context["request"].user
         if not CustomUser.objects.filter(id=user.id).exists():
-            raise serializers.ValidationError("UnAuthorized User...")
+            raise serializers.ValidationError("Unauthorized User...")
+        
+        # Validate and parse the date strings
+        try:
+            data["startDate"] = datetime.strptime(data["startDate"], "%Y-%m-%d")
+            data["endDate"] = datetime.strptime(data["endDate"], "%Y-%m-%d")
+        except ValueError:
+            raise serializers.ValidationError("Invalid date format. Use 'YYYY-MM-DD'.")
+        
+        # Ensure endDate is not before startDate
+        if data["endDate"] < data["startDate"]:
+            raise serializers.ValidationError("End date must be after start date.")
+        
         return data
+
     def save(self):
-        id=self.context["id"]
-        obj=FreeShippingOffer.objects.get(id=id)
-        obj.min_order_amount=self.validated_data["minOrderAmount"]
-        obj.description=self.validated_data["description"]
-        obj.start_date=self.validated_data["startDate"]
-        obj.end_date=self.validated_data["endDate"]
+        id = self.validated_data["id"]
+        obj = FreeShippingOffer.objects.get(id=id)
+        obj.min_order_amount = self.validated_data["minOrderAmount"]
+        obj.description = self.validated_data["description"]
+        obj.start_date = self.validated_data["startDate"]  # Already a datetime object
+        obj.end_date = self.validated_data["endDate"]  # Already a datetime object
         obj.save()
+
 
 
 class ProductSelectSerializer(serializers.ModelSerializer):

@@ -4,10 +4,10 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct,MarksUserRead
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
-from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductSize,CartProductQuantity,ApplyCouponCode,GetDealsOfDay
+from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductQuantity,ApplyCouponCode,GetDealsOfDay,GetDiscountCard,FreeshipOffers
 
 from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack
-from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus,CustomerCancelOrder,ViewUserAllNotifications,UserUnreadNotifications
+from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus,CustomerCancelOrder,ViewUserAllNotifications,UserUnreadNotifications,test_pincode_distance
 
 urlpatterns = [
     path('register/',RegisterAPI.as_view(),name='register'),
@@ -36,7 +36,7 @@ urlpatterns = [
     path('add_to_cart/<int:itemId>/',AddToCart.as_view(),name="add_to_cart"),
     path('get_cart_data/',GetCartData.as_view(),name="get_cart_data"),
     path('remove_cart_product/<int:id>/',RemoveCartProduct.as_view(),name="remove_cart_product"),
-    path('cart_size/<int:id>/',CartProductSize.as_view(),name="cart_size"),
+
 
     path('deals_of_day/',GetDealsOfDay.as_view(),name="deals_of_day"),
     
@@ -62,7 +62,9 @@ urlpatterns = [
     path('view_user_all_notifications/',ViewUserAllNotifications.as_view(),name="view_user_all_notifications"),
     path('marks_user_read/<int:id>/',MarksUserRead.as_view(),name="marks_user_read"),
     path('user_unread_notifications/',UserUnreadNotifications.as_view(),name="user_unread_notifications"),
-
+    path('route/', test_pincode_distance , name='get_route'),
+    path('get_discount_card/',GetDiscountCard.as_view(),name='get_discount_card'),
+    path('freeshipping_offer/',FreeshipOffers.as_view(),name='freeshipping_offer'),
 
 ]
 

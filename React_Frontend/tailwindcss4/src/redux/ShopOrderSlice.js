@@ -2,16 +2,13 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState={
     order: {
-        name: null,
-        email: null,
-        phone: null,
-        ordertotal: 0.0,
-        discountamount: 0.0,
-        appliedcoupon: null,
-        finaltotal: 0.0,
-        shippingapplied: false,
-        quantity: 0,
+        totalmrp: 0.0,
+        productdiscount: 0.0,
+        shippingfee: null,
         platformfee: 0.0,
+        couponapplied: "",
+        discountcard: 0,
+        orderTotal: 0.0,
       },
 }
 
@@ -20,16 +17,13 @@ const ShopOrderSlice=createSlice({
     initialState,
     reducers:{
         updateShopOrder:(state,action)=>{
-            state.order.name=action.payload.name;
-            state.order.email=action.payload.email;
-            state.order.phone=action.payload.phone;
-            state.order.ordertotal=action.payload.ordertotal;
-            state.order.discountamount=action.payload.discountamount;
-            state.order.appliedcoupon=action.payload.appliedcoupon;
-            state.order.finaltotal=action.payload.finaltotal;
-            state.order.shippingapplied=action.payload.shippingapplied;
-            state.order.quantity=action.payload.quantity;
+            state.order.totalmrp=action.payload.totalmrp;
+            state.order.productdiscount=action.payload.productdiscount;
+            state.order.shippingfee=action.payload.shippingfee;
             state.order.platformfee=action.payload.platformfee;
+            state.order.couponapplied=action.payload.couponapplied;
+            state.order.discountcard=action.payload.discountcard;
+            state.order.orderTotal=action.payload.orderTotal;
 
         },
         clearShopOrder: (state) => {

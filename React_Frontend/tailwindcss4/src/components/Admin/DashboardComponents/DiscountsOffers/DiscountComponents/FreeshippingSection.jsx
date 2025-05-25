@@ -7,6 +7,8 @@ const FreeshippingSection = () => {
   const [minOrderAmount, setMinOrderAmount] = useState("");
   const [description, setDescription] = useState("");
   const [editOfferId, setEditOfferId] = useState(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const { accessToken } = useSelector((state) => state.auth);
 
 
@@ -34,8 +36,8 @@ const FreeshippingSection = () => {
           id:editOfferId,
           minOrderAmount,
           description,
-          startDate: formatDate(new Date()),
-          endDate: formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1))),
+          startDate: formatDate(new Date(startDate)),
+          endDate: formatDate(new Date(new Date(endDate).setFullYear(new Date().getFullYear() + 1))),
         };
         console.log("DDADDA",updatedOffer);
 
@@ -68,8 +70,8 @@ const FreeshippingSection = () => {
           id: freeShippingOffers.length + 1,
           minOrderAmount: parseFloat(minOrderAmount).toFixed(2),
           description,
-          startDate: formatDate(new Date()),
-          endDate: formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1))),
+          startDate: formatDate(new Date(startDate)),
+          endDate: formatDate(new Date(new Date(endDate).setFullYear(new Date().getFullYear() + 1))),
           isActive: true,
         };
         setFreeShippingOffers([...freeShippingOffers, newOffer]);
@@ -268,6 +270,20 @@ const FreeshippingSection = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+
+           <input
+            type="date"
+            className="border border-gray-300 rounded-md px-4 py-2 w-full md:w-1/4"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <input
+            type="date"
+            className="border border-gray-300 rounded-md px-4 py-2 w-full md:w-1/4"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+
           <button
             className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
             onClick={()=>handleAddOrUpdateFreeShipping(editOfferId)}

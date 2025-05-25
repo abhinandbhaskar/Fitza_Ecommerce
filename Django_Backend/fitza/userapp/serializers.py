@@ -611,8 +611,54 @@ class ProductItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'product','sale_price', 'color','size', 'images']  # Include `images` to access related ProductImage data
 
 
+from sellerapp.models import ProductOffer
+class CartProductOfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductOffer
+        fields=['id','discount_percentage','start_date','end_date']
+
+from common.models import CustomUser,UserAddress
+
+class UserAddressSerilizer2(serializers.ModelSerializer):
+    class Meta:
+        model=UserAddress
+        fields='__all__'
+
+class CartDataUserSerializer(serializers.ModelSerializer):
+    addresses=UserAddressSerilizer2(read_only=True,many=True)
+
+    class Meta:
+        model=CustomUser
+        fields=['id','addresses']
+
+class CartDataShopSerializer(serializers.ModelSerializer):
+    user=CartDataUserSerializer(read_only=True)
+
+    class Meta:
+        model=Seller
+        fields=['id','user']
+
+
+class CartDataProductSerializer(serializers.ModelSerializer):
+    offers=CartProductOfferSerializer(many=True)
+    shop=CartDataShopSerializer(read_only=True)
+
+    class Meta:
+        model=Product
+        fields='__all__'
+
+class CartProductItemSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True)
+    product=CartDataProductSerializer(read_only=True)
+    size=ViewSizeSerializer(read_only=True)
+
+    class Meta:
+        model=ProductItem
+        fields='__all__'
+
 class GetCartDataSerializer(serializers.ModelSerializer):
-    product_item = ProductItemSerializer()  # Include nested serializer for product item details
+    product_item = CartProductItemSerializer()  # Include nested serializer for product item details
+
 
     class Meta:
         model = ShoppingCartItem
@@ -624,39 +670,6 @@ class GetCartDataSerializer(serializers.ModelSerializer):
 
 
 
-class AddToCartSIzeSerializer(serializers.Serializer):
-    size = serializers.CharField()
-    # qnty = serializers.IntegerField()
-
-    def validate(self, data):
-        user = self.context["request"].user
-        if not user.is_authenticated:
-            raise serializers.ValidationError("Unauthorized user.")
-        product_id = self.context.get("id")
-        if not ProductItem.objects.filter(id=product_id).exists():
-            raise serializers.ValidationError("Invalid product ID.")
-        return data
-
-    def save(self, **kwargs):
-        user = self.context["request"].user
-        product_id = self.context["id"]
-
-        shopping_cart, created = ShoppingCart.objects.get_or_create(user=user)
-
-        product = ProductItem.objects.get(id=product_id)
-
-        cart_item, created = ShoppingCartItem.objects.get_or_create(
-            shopping_cart=shopping_cart,
-            product_item=product,
-            # defaults={"quantity": self.validated_data["qnty"]}
-        )
-
-        # if not created:
-        #     cart_item.quantity += self.validated_data["qnty"]
-        #     cart_item.save()
-
-
-
 class AddToCartQntySerializer(serializers.ModelSerializer):
     qnty = serializers.IntegerField(write_only=True)
 
@@ -665,21 +678,15 @@ class AddToCartQntySerializer(serializers.ModelSerializer):
         fields = ['qnty']
 
     def create(self, validated_data):
-        # Extracting user and product information from the context
         user = self.context["request"].user
-        product_id = self.context["id"]
-
-        # Fetching or creating the shopping cart for the user
+        itemid = self.context.get("id")
         shopping_cart, _ = ShoppingCart.objects.get_or_create(user=user)
-        product = ProductItem.objects.get(id=product_id)
-
-        # Checking if the item already exists in the cart
+        produstitemobj = ProductItem.objects.get(id=itemid)
+        
         cart_item, created = ShoppingCartItem.objects.get_or_create(
             shopping_cart=shopping_cart,
-            product_item=product
+            product_item=produstitemobj
         )
-
-        # Updating the quantity
         cart_item.quantity = validated_data["qnty"]
         cart_item.save()
 
@@ -692,24 +699,36 @@ from common.models import Coupon
 class CouponValueSerializer(serializers.ModelSerializer):
     class Meta:
         model=Coupon
-        fields=["discount_value","minimum_order_amount","code","discount_type"]
+        fields='__all__'
+
+
+from datetime import datetime
+from django.utils.timezone import now
 
 class ApplyCouponCodeSerializer(serializers.Serializer):
-    couponcode=serializers.CharField()
+    couponcode = serializers.CharField()
 
-    def validate(self,data):
-        user=self.context["request"].user
+    def validate(self, data):
+        user = self.context["request"].user
+
+        # Check if the user exists
         if not CustomUser.objects.filter(id=user.id).exists():
-            raise serializers.ValidationError("UnAuthorized User..")
-        couponcode=data["couponcode"]
-        if not Coupon.objects.filter(code=couponcode).exists():
-            raise serializers.ValidationError("Incorrect Coupon code...")
+            raise serializers.ValidationError("Unauthorized user.")
         
-        coupon=Coupon.objects.get(code=couponcode)
+        # Check if the coupon code exists
+        couponcode = data["couponcode"]
+        try:
+            coupon = Coupon.objects.get(code=couponcode)
+        except Coupon.DoesNotExist:
+            raise serializers.ValidationError("Incorrect coupon code.")
         
+        # Check if the coupon is expired
+        if coupon.end_date < now():  # Use Django's timezone-aware 'now'
+            raise serializers.ValidationError("The coupon code has expired.")
+        
+        # Add the coupon to the validated data
         data["coupon"] = coupon
         return data
-  
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -1095,3 +1114,16 @@ class ViewUserAllNotificationsSerializer(serializers.ModelSerializer):
         model=Notification
         fields='__all__'
        
+
+
+
+from sellerapp.models import DiscountCard,FreeShippingOffer
+class GetDiscountCardsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=DiscountCard
+        fields='__all__'
+
+class FreeShipDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FreeShippingOffer
+        fields='__all__'

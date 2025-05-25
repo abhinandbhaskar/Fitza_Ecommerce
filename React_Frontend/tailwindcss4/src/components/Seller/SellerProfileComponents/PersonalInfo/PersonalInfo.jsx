@@ -10,9 +10,18 @@ const PersonalInfo = ({ setCurrentView }) => {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [photo, setPhoto] = useState("");
-  const navigate=useNavigate();
+  
+  // Address fields
+  const [addressLine1, setAddressLine1] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [country, setCountry] = useState("");
+  const [addressPhone, setAddressPhone] = useState("");
+  
+  const navigate = useNavigate();
 
-  const fetchProfile = async () => {
+const fetchProfile = async () => {
     try {
       const response = await axios.get("https://127.0.0.1:8000/api/seller/seller_profile/", {
         withCredentials: true,
@@ -22,12 +31,28 @@ const PersonalInfo = ({ setCurrentView }) => {
       });
 
       const data = response.data;
-      console.log("OUrData",data);
-      setFullname(data.first_name || "No Value");
-      setEmail(data.email || "No Value");
-      setMobile(data.phone_number || "No Value");
-      const imageLink="https://127.0.0.1:8000"+data.userphoto
-      setPhoto(imageLink || "");
+      console.log("OurData", data);
+      
+      // Set basic user info
+      setFullname(data.first_name || "");
+      setEmail(data.email || "");
+      setMobile(data.phone_number || "");
+      
+      // Set photo if exists
+      if (data.userphoto) {
+        const imageLink = "https://127.0.0.1:8000" + data.userphoto;
+        setPhoto(imageLink || "");
+      }
+      
+      // Set address fields if they exist in the response
+      if (data.address) {
+        setAddressLine1(data.address.address_line1 || "");
+        setCity(data.address.city || "");
+        setState(data.address.state || "");
+        setPostalCode(data.address.postal_code || "");
+        setCountry(data.address.country || "");
+        setAddressPhone(data.address.phone || "");
+      }
     } catch (error) {
       console.error("Error fetching profile:", error);
       alert("Failed to load profile. Please try again.");
@@ -38,41 +63,44 @@ const PersonalInfo = ({ setCurrentView }) => {
     fetchProfile();
   }, []);
 
-  const updateData=async()=>{
-      const formData=new FormData();
-      formData.append("fullname",fullname.trim());
-      formData.append("email",email.trim());
-      formData.append("mobile",mobile.trim());
-      if (photo instanceof File) {
-        formData.append("photo", photo); // Add the photo file
+  const updateData = async () => {
+    const formData = new FormData();
+    formData.append("fullname", fullname.trim());
+    formData.append("email", email.trim());
+    formData.append("mobile", mobile.trim());
+    
+    // Address fields
+    formData.append("address_line1", addressLine1.trim());
+    formData.append("city", city.trim());
+    formData.append("state", state.trim());
+    formData.append("postal_code", postalCode.trim());
+    formData.append("country", country.trim());
+    formData.append("address_phone", addressPhone.trim());
+    formData.append("address_type", "shipping"); // Default to shipping address
+    
+    if (photo instanceof File) {
+      formData.append("photo", photo);
     }
-    // const imageLink="https://127.0.0.1:8000"+photo
-    // setPhoto(imageLink || "");
 
     console.log("FormData Content:");
     formData.forEach((value, key) => {
       console.log(key, value);
     });
     
-      try{
-        const response=await axios.post("https://127.0.0.1:8000/api/seller/update_profile/",formData,{
-          
-          headers:{
-            "Content-Type": "multipart/form-data",
-            "Authorization":`Bearer ${accessToken}`,
-          }
-        });
-        console.log(response);
-        console.log(response.data);
-        alert(response.data.message);
-        // navigate("/seller/landpage");
-
-      }
-      catch(errors)
-      {
-        console.log(errors);
-        console.log(errors.response.data);
-      }
+    try {
+      const response = await axios.post("https://127.0.0.1:8000/api/seller/update_profile/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${accessToken}`,
+        }
+      });
+      console.log(response);
+      console.log(response.data);
+      alert(response.data.message);
+    } catch (errors) {
+      console.log(errors);
+      console.log(errors.response.data);
+    }
   }
 
   return (
@@ -104,11 +132,11 @@ const PersonalInfo = ({ setCurrentView }) => {
           <div className="w-24 h-24 bg-gray-200 rounded-full mb-4 flex items-center justify-center">
             {photo ? (
               <img
-              src={
-                photo instanceof File
-                    ? URL.createObjectURL(photo) // Preview the selected file temporarily
-                    : photo // Show existing profile photo URL
-            }
+                src={
+                  photo instanceof File
+                    ? URL.createObjectURL(photo)
+                    : photo
+                }
                 alt="Profile"
                 className="rounded-full object-cover w-full h-full"
               />
@@ -119,7 +147,6 @@ const PersonalInfo = ({ setCurrentView }) => {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Upload Profile Picture
           </label>
-
           
           <input
             type="file"
@@ -129,18 +156,18 @@ const PersonalInfo = ({ setCurrentView }) => {
               file:text-sm file:font-semibold
               file:bg-blue-50 file:text-blue-700
               hover:file:bg-blue-100"
-
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) {
-                  setPhoto(file); // Set the selected file for submission
-                }
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                setPhoto(file);
+              }
             }}
           />
         </div>
 
-        {/* Form Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Personal Info Section */}
+        <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Full Name
@@ -181,15 +208,92 @@ const PersonalInfo = ({ setCurrentView }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Password
             </label>
-            <button onClick={()=>setCurrentView('changepassword')} className="bg-blue-600 px-3 py-2 rounded-md text-white">
+            <button onClick={() => setCurrentView('changepassword')} className="bg-blue-600 px-3 py-2 rounded-md text-white">
               Update Password
             </button>
           </div>
         </div>
 
+        {/* Address Section */}
+        <h2 className="text-xl font-semibold mb-4">Address Information</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Address Line 1
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your address"
+              value={addressLine1}
+              onChange={(e) => setAddressLine1(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              City
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              State/Province
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your state"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Postal Code
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your postal code"
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Country
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter your country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Phone (for address)
+            </label>
+            <input
+              type="text"
+              className="block w-full px-4 py-2 border rounded-lg text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter phone number for address"
+              value={addressPhone}
+              onChange={(e) => setAddressPhone(e.target.value)}
+            />
+          </div>
+        </div>
+
         {/* Save Button */}
         <div className="flex justify-end mt-6">
-          <button onClick={()=>updateData()}  className="px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600">
+          <button onClick={() => updateData()} className="px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600">
             Save Changes
           </button>
         </div>

@@ -196,12 +196,35 @@ class SellerTokenObtainPairSerializer(TokenObtainPairSerializer):
         data["photo"] = str(user.userphoto) if hasattr(user, "userphoto") else None
 
         return data
-    
+
+# class SellerFullAddressSerializer(serializers.ModelSerializer):
+
+#     class meta:
+#         model=UserAddress
+#         fields='__all__'
+
+# class ProfileSerializer(serializers.ModelSerializer):
+#     addresses=SellerFullAddressSerializer(read_only=True)
+#     class Meta:
+#         model=CustomUser
+#         fields=['first_name','email','phone_number','password','userphoto']
+
+
+
+from rest_framework import serializers
+from .models import UserAddress, CustomUser
+
+class SellerFullAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAddress
+        fields = ['address_type', 'address_line1', 'city', 'state', 'postal_code', 'country', 'phone']
 
 class ProfileSerializer(serializers.ModelSerializer):
+    address = SellerFullAddressSerializer(source='addresses.first', read_only=True)
+    
     class Meta:
-        model=CustomUser
-        fields=['first_name','email','phone_number','password','userphoto']
+        model = CustomUser
+        fields = ['first_name', 'email', 'phone_number', 'userphoto', 'address']
 
 class SellerShopSerializer(serializers.ModelSerializer):
     class Meta:
@@ -216,26 +239,74 @@ class SellerBankDetailsSerializer(serializers.ModelSerializer):
 
 
 
+from rest_framework import serializers
+from common.models import UserAddress, CustomUser
+
 class UpdateProfileSerializer(serializers.Serializer):
-    fullname=serializers.CharField()
-    email=serializers.CharField()
-    mobile=serializers.CharField()
-    photo=serializers.FileField(required=False)
-    print("PHOTO",photo)
-    def validate(self,data):
-        user=self.context["request"].user
+    fullname = serializers.CharField()
+    email = serializers.CharField()
+    mobile = serializers.CharField()
+    photo = serializers.FileField(required=False)
+    
+    # Address fields
+    address_line1 = serializers.CharField()
+    city = serializers.CharField()
+    state = serializers.CharField()
+    postal_code = serializers.CharField()
+    country = serializers.CharField()
+    address_phone = serializers.CharField()
+    address_type = serializers.CharField(default="shipping")
+
+    def validate(self, data):
+        user = self.context["request"].user
         if not CustomUser.objects.filter(id=user.id).exists():
             raise serializers.ValidationError("User credentials are invalid")
+        
+        # Validate email format
+        if '@' not in data['email']:
+            raise serializers.ValidationError("Enter a valid email address")
+            
         return data
     
-        
     def save(self):
-        user=self.context["request"].user
-        user.first_name=self.validated_data["fullname"]
-        user.email=self.validated_data["email"]
-        user.phone_number=self.validated_data["mobile"]
-        user.userphoto=self.validated_data["photo"]
+        user = self.context["request"].user
+        
+        # Update user fields
+        user.first_name = self.validated_data["fullname"]
+        user.email = self.validated_data["email"]
+        user.phone_number = self.validated_data["mobile"]
+        
+        if 'photo' in self.validated_data:
+            user.userphoto = self.validated_data["photo"]
+        
         user.save()
+
+        # Get or create user address
+        address, created = UserAddress.objects.get_or_create(
+            user=user,
+            address_type=self.validated_data["address_type"],
+            defaults={
+                'address_line1': self.validated_data["address_line1"],
+                'city': self.validated_data["city"],
+                'state': self.validated_data["state"],
+                'postal_code': self.validated_data["postal_code"],
+                'country': self.validated_data["country"],
+                'phone': self.validated_data["address_phone"],
+            }
+        )
+
+        # If address exists, update it
+        if not created:
+            address.address_line1 = self.validated_data["address_line1"]
+            address.city = self.validated_data["city"]
+            address.state = self.validated_data["state"]
+            address.postal_code = self.validated_data["postal_code"]
+            address.country = self.validated_data["country"]
+            address.phone = self.validated_data["address_phone"]
+            address.save()
+
+        return user
+
 
 class UpdateShopSerializer(serializers.Serializer):
         banner=serializers.FileField()

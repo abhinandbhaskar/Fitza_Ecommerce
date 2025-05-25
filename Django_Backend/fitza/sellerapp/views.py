@@ -174,6 +174,7 @@ class SellerLogout(APIView):
         return response
 
 from sellerapp.serializers import ProfileSerializer,SellerShopSerializer,SellerBankDetailsSerializer
+
 class SellerProfile(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):

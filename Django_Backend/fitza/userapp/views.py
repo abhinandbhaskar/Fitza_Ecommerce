@@ -458,9 +458,11 @@ class GetCartData(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
         user=self.request.user
+        address = UserAddress.objects.filter(user=user).first()
         obj=ShoppingCartItem.objects.filter(shopping_cart__user=user).order_by('-id')
         serializer=GetCartDataSerializer(obj,many=True)
-        return Response(serializer.data)
+        data={"cartdata":serializer.data,"postcode":address.postal_code}
+        return Response(data)
     
 
 from common.models import CustomUser
@@ -482,17 +484,8 @@ class RemoveCartProduct(APIView):
 
 # mission
 
-from userapp.serializers import AddToCartSIzeSerializer,AddToCartQntySerializer
+from userapp.serializers import AddToCartQntySerializer
 
-class CartProductSize(APIView):
-    permission_classes=[IsAuthenticated]
-    def post(self,request,id):
-        serializer=AddToCartSIzeSerializer(data=request.data,context={"request":request,"id":id})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message":"Size added to cart."},status=status.HTTP_201_CREATED)
-        return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
-    
 
 
 class CartProductQuantity(APIView):
@@ -899,3 +892,118 @@ class UserUnreadNotifications(APIView):
         obj=Notification.objects.filter(user=user,group='all_users',is_read=False)
         serializer={"notifications":len(obj)}
         return Response(serializer)
+
+
+
+#find location
+
+import requests
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+import requests
+from django.http import JsonResponse
+
+def test_pincode_distance(request):
+    import requests
+    from django.http import JsonResponse
+
+    start_pincode = request.GET.get('start_pincode')
+    end_pincode = request.GET.get('end_pincode')
+
+    try:
+        # Step 1: Geocode PIN codes to coordinates (using Nominatim/OSM)
+        def get_coordinates(pincode, country="India"):
+            response = requests.get(
+                "https://nominatim.openstreetmap.org/search",
+                params={
+                    "postalcode": pincode,
+                    "country": country,
+                    "format": "json",
+                    "limit": 1
+                },
+                headers={"User-Agent": "YourAppName"}  # Required by Nominatim
+            )
+            data = response.json()
+            if data:
+                return f"{data[0]['lon']},{data[0]['lat']}"
+            return None
+
+        start_coords = get_coordinates(start_pincode)
+        end_coords = get_coordinates(end_pincode)
+
+        if not start_coords or not end_coords:
+            return JsonResponse({"error": "Geocoding failed for one or both PIN codes"})
+
+        # Step 2: Calculate driving distance via OpenRouteService
+        OPENROUTE_API_KEY = "5b3ce3597851110001cf6248ea0e2aae29944a8ba4c48c397f55cd55"  # Replace with your actual key
+        route_response = requests.get(
+            "https://api.openrouteservice.org/v2/directions/driving-car",
+            params={
+                "api_key": OPENROUTE_API_KEY,
+                "start": start_coords,
+                "end": end_coords
+            },
+            headers={"Accept": "application/geo+json"}
+        )
+        route_data = route_response.json()
+
+        # Extract distance in kilometers
+        distance_km = route_data["features"][0]["properties"]["segments"][0]["distance"] / 1000
+
+        # Step 3: Calculate shipping fee based on distance
+        def calculate_shipping_fee(distance):
+            if distance < 30:
+                return 0
+            elif 30 <= distance <= 80:
+                return 15
+            elif 80 < distance <= 150:
+                return 30
+            elif 150 < distance <= 300:
+                return 50
+            elif 300 < distance <= 600:
+                return 75
+            elif 600 < distance <= 1000:
+                return 100
+            elif 1000 < distance <= 1500:
+                return 150
+            else:
+                return "Distance exceeds shipping limit."
+
+        shipping_fee = calculate_shipping_fee(distance_km)
+
+        return JsonResponse({
+            "start_pincode": start_pincode,
+            "end_pincode": end_pincode,
+            "distance_km": round(distance_km, 2),
+            "shipping_fee": shipping_fee,
+            "coordinates": {
+                "start": start_coords,
+                "end": end_coords
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)})
+
+from userapp.serializers import GetDiscountCardsSerializer
+from sellerapp.models import DiscountCard  
+class GetDiscountCard(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=DiscountCard.objects.all().order_by('-id')
+        serializer=GetDiscountCardsSerializer(obj,many=True)
+        return Response(serializer.data)
+
+
+   
+
+
+from sellerapp.models import FreeShippingOffer
+from userapp.serializers import FreeShipDataSerializer
+class FreeshipOffers(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        obj=FreeShippingOffer.objects.all().order_by('-id')
+        serializer=FreeShipDataSerializer(obj,many=True)
+        return Response(serializer.data)

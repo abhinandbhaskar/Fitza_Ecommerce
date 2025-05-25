@@ -1,617 +1,437 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import "./MyOrders.css";
-import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
-import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
+import { updateShopOrder } from "../../../../redux/ShopOrderSlice";
 
-const MyOrders = ({ setCurrentView, myorderview, setMyOrderView }) => {
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [orderinfo, setOrderInfo] = useState([]);
-  const [details, setDetails] = useState(null);
-  const [orderId, setOrderId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { accessToken } = useSelector((state) => state.auth);
+const CartSection = ({ setCartView, setCartId }) => {
+    const { accessToken } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    
+    // State management
+    const [cartData, setCartData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [couponState, setCouponState] = useState({
+        view: false,
+        code: "",
+        minOrder: 0,
+        discount: 0,
+        type: ""
+    });
+    const [shippingDetails, setShippingDetails] = useState({
+        fee: 0,
+        weightFee: 0,
+        travelFee: 0,
+        startPin: "",
+        endPin: ""
+    });
+    const [discountCard, setDiscountCard] = useState({
+        cards: [],
+        percentage: 0,
+        display: true
+    });
+    const [checkFreeShip, setCheckFreeShip] = useState(0);
 
-  // Safe data access helper
-  const safeGet = (obj, path, defaultValue = "Not Available") => {
-    return path.split('.').reduce((acc, part) => acc && acc[part], obj) || defaultValue;
-  };
+    // Memoized calculations
+    const { totalPrice, platformFee } = useMemo(() => {
+        const tp = cartData.reduce((total, item) => {
+            const productItem = item?.product_item;
+            if (!productItem) return total;
 
-  const fetchBill = async (orderId) => {
-    try {
-      const response = await axios.get(`https://127.0.0.1:8000/api/get_bill/${orderId}/`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        responseType: 'blob',
-      });
-      
-      if (response.status === 200) {
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `Invoice-${orderId}.pdf`;
-        link.click();
-      }
-    } catch (error) {
-      console.error("Error fetching bill:", error);
-      setError("Failed to download invoice");
-    }
-  };
+            let price = parseFloat(productItem.sale_price) || 0;
+            const offer = productItem.product?.offers?.[0];
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("https://127.0.0.1:8000/api/get_orders/", {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      setOrderInfo(response.data || []);
-    } catch (err) {
-      console.error("Error fetching orders:", err);
-      setError("Failed to load orders");
-    } finally {
-      setLoading(false);
-    }
-  };
+            if (offer && new Date(offer.end_date) > new Date()) {
+                price *= (1 - (parseFloat(offer.discount_percentage) || 0) / 100);
+            }
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+            return total + (price * (item?.quantity || 0));
+        }, 0);
 
-  const handleViewDetails = (order) => {
-    if (!order) return;
-    setMyOrderView("details");
-    setOrderId(order.id);
-    setDetails(order);
-  };
+        return {
+            totalPrice: tp,
+            platformFee: tp * 0.02
+        };
+    }, [cartData]);
 
-  if (loading && myorderview === "myorder") {
-    return <div className="p-6 text-center">Loading orders...</div>;
-  }
+    const orderTotal = useMemo(() => {
+        let shippingFee = shippingDetails.weightFee + shippingDetails.travelFee;
+        let subtotal = totalPrice + platformFee;
 
-  if (error) {
-    return <div className="p-6 text-red-500">{error}</div>;
-  }
+        // Apply free shipping
+        if (checkFreeShip <= subtotal) {
+            shippingFee = 0;
+        }
 
-  return (
-    <div className="h-full w-full p-6 flex flex-col bg-gray-50">
-      {/* Header Section */}
-      <div className="flex items-center gap-4 pb-4 border-b">
-        <i className="fa-solid fa-cart-shopping text-4xl text-blue-500"></i>
-        <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
-      </div>
+        // Apply coupon discount
+        if (couponState.minOrder > 0 && subtotal >= couponState.minOrder) {
+            if (couponState.type === "fixed") {
+                subtotal -= couponState.discount;
+            } else if (couponState.type === "percentage") {
+                subtotal *= (1 - couponState.discount / 100);
+            }
+        }
 
-      {myorderview === "myorder" && (
-        <>
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
-            <input
-              type="text"
-              placeholder="Search by Product Name or Order ID"
-              className="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <div className="flex flex-wrap gap-2">
-              {["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"].map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`py-2 px-4 rounded-lg shadow-md font-medium ${
-                    activeFilter === filter
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-          </div>
+        // Apply discount card
+        if (discountCard.percentage > 0) {
+            subtotal *= (1 - discountCard.percentage / 100);
+        }
 
-          {/* Orders Table */}
-          <div className="overflow-x-auto">
-            {orderinfo.length === 0 ? (
-              <div className="text-center py-10">No orders found</div>
+        return (subtotal + shippingFee).toFixed(2);
+    }, [totalPrice, platformFee, shippingDetails, couponState, discountCard, checkFreeShip]);
+
+    // Data fetching
+    const fetchInitialData = useCallback(async () => {
+        try {
+            const [cartRes, cardsRes, shippingRes] = await Promise.all([
+                axios.get("https://127.0.0.1:8000/api/get_cart_data/", {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }),
+                axios.get("https://127.0.0.1:8000/api/get_discount_card/", {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                }),
+                axios.get("https://127.0.0.1:8000/api/freeshipping_offer/", {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                })
+            ]);
+
+            processCartData(cartRes.data);
+            setDiscountCard(prev => ({ ...prev, cards: cardsRes.data }));
+            setCheckFreeShip(shippingRes.data[0]?.min_order_amount || 0);
+        } catch (error) {
+            handleDataError(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [accessToken]);
+
+    const processCartData = useCallback((data) => {
+        const cartItems = data.cartdata || [];
+        setCartData(cartItems);
+
+        const postcode = data.postcode || "";
+        const destinationPin = cartItems[0]?.product_item?.product?.shop?.user?.addresses?.[0]?.postal_code || "";
+
+        setShippingDetails(prev => ({
+            ...prev,
+            startPin: postcode,
+            endPin: destinationPin
+        }));
+
+        // Calculate weight fee
+        const totalWeight = cartItems.reduce((sum, item) => {
+            const weight = item.product_item?.product?.weight || 0;
+            return sum + (weight * item.quantity);
+        }, 0);
+
+        const weightFee = totalWeight > 200 ? Math.ceil((totalWeight - 200) / 200) * 5 : 0;
+        setShippingDetails(prev => ({ ...prev, weightFee }));
+    }, []);
+
+    // API interactions
+    const handleCartAction = async (url, method = 'get', data = {}) => {
+        try {
+            const config = {
+                method,
+                url,
+                headers: { Authorization: `Bearer ${accessToken}` },
+                data
+            };
+            await axios(config);
+            await fetchInitialData();
+        } catch (error) {
+            console.error("Operation failed:", error);
+            alert("Operation failed. Please try again.");
+        }
+    };
+
+    const handleQuantityChange = async (productId, quantity) => {
+        await handleCartAction(
+            `https://127.0.0.1:8000/api/cart_quantity/${productId}/`,
+            'post',
+            { qnty: quantity }
+        );
+    };
+
+    const removeProduct = async (productId) => {
+        await handleCartAction(
+            `https://127.0.0.1:8000/api/remove_cart_product/${productId}/`,
+            'post'
+        );
+    };
+
+    const applyCoupon = async () => {
+        if (!couponState.code.trim()) return alert("Please enter coupon code");
+
+        try {
+            const response = await axios.post(
+                "https://127.0.0.1:8000/api/apply_coupon_code/",
+                { couponcode: couponState.code.trim() },
+                { headers: { Authorization: `Bearer ${accessToken}` } }
+            );
+
+            const couponData = response.data?.coupon || {};
+            setCouponState(prev => ({
+                ...prev,
+                minOrder: couponData.minimum_order_amount || 0,
+                discount: couponData.discount_value || 0,
+                type: couponData.discount_type || "",
+                view: false
+            }));
+        } catch (error) {
+            alert(error.response?.data?.errors?.non_field_errors?.[0] || "Invalid coupon");
+        }
+    };
+
+    // Effects
+    useEffect(() => {
+        fetchInitialData();
+    }, [fetchInitialData]);
+
+    useEffect(() => {
+        const fetchRoute = async () => {
+            if (!shippingDetails.startPin || !shippingDetails.endPin) return;
+
+            try {
+                const response = await axios.get("https://127.0.0.1:8000/api/route/", {
+                    params: {
+                        start_pincode: shippingDetails.startPin,
+                        end_pincode: shippingDetails.endPin
+                    }
+                });
+                setShippingDetails(prev => ({ ...prev, travelFee: response.data.shipping_fee }));
+            } catch (error) {
+                console.error("Route error:", error);
+            }
+        };
+        fetchRoute();
+    }, [shippingDetails.startPin, shippingDetails.endPin]);
+
+    // UI components
+    if (loading) return <LoadingView />;
+    if (error) return <ErrorView error={error} retry={fetchInitialData} />;
+
+    return (
+        <div className="container mx-auto px-[200px] py-10">
+            <h3 className="text-3xl font-bold text-gray-800 mb-4">My Cart</h3>
+            
+            {cartData.length === 0 ? (
+                <EmptyCartView />
             ) : (
-              <table className="min-w-full table-auto bg-white shadow-lg rounded-lg border border-gray-200">
-                <thead className="bg-blue-500 text-white">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Product</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Order Status</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Order Date</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orderinfo.map((order) => (
-                    <tr key={order.id} className="border-t hover:bg-gray-100">
-                      <td className="px-6 py-4 text-sm text-gray-800">
-                        <span className="text-blue-500">#{order.id}</span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
-                        {order.order_lines?.[0]?.product_item?.product?.items?.[0]?.images?.[0]?.main_image && (
-                          <img
-                            src={`https://127.0.0.1:8000/${order.order_lines[0].product_item.product.items[0].images[0].main_image}`}
-                            alt="Product"
-                            className="w-10 h-10 rounded"
-                          />
-                        )}
-                        <span>
-                          {safeGet(order, 'order_lines.0.product_item.product.product_name')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-semibold">
-                        <span className="text-green-600">
-                          {safeGet(order, 'order_status.status')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800">
-                        {safeGet(order, 'order_date')}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800">
-                        Rs. {safeGet(order, 'order_total', 0)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
-                        <button 
-                          onClick={() => handleViewDetails(order)}
-                          className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md"
-                        >
-                          View
-                        </button>
-                        <button className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md">
-                          Track
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <div className="lg:col-span-2 space-y-6">
+                        {cartData.map(item => (
+                            <CartItem
+                                key={item.id}
+                                item={item}
+                                onRemove={removeProduct}
+                                onQuantityChange={handleQuantityChange}
+                            />
+                        ))}
+                    </div>
+
+                    <OrderSummary
+                        couponState={couponState}
+                        setCouponState={setCouponState}
+                        discountCard={discountCard}
+                        setDiscountCard={setDiscountCard}
+                        shippingFee={shippingDetails.fee}
+                        platformFee={platformFee}
+                        totalPrice={totalPrice}
+                        orderTotal={orderTotal}
+                        onApplyCoupon={applyCoupon}
+                        onCheckout={handleCheckout}
+                    />
+                </div>
             )}
-          </div>
-        </>
-      )}
-
-      {myorderview === "details" && details && (
-        <>
-          {/* Breadcrumb */}
-          <div className="py-2 text-gray-600 text-sm">
-            <button onClick={() => setMyOrderView("myorder")} className="hover:underline">
-              My Orders
-            </button>
-            <span> &gt; </span>
-            <span className="font-semibold text-blue-600">Order Details</span>
-          </div>
-
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-4 my-4">
-            <h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
-            <div className="mt-2 text-gray-600">
-              <p><span className="font-semibold">Order ID:</span> {details.id}</p>
-              <p><span className="font-semibold">Payment Method:</span> {safeGet(details, 'order_status.status')}</p>
-              <p><span className="font-semibold">Order Date:</span> {safeGet(details, 'order_date')}</p>
-              <p><span className="font-semibold">Estimated Delivery:</span> {safeGet(details, 'shipping_address.estimated_delivery_date')}</p>
-            </div>
-          </div>
-
-          {/* Product Details */}
-          <div className="bg-white rounded-lg shadow-md p-4 my-4">
-            <h2 className="text-xl font-semibold text-gray-800">Products Details</h2>
-            {details.order_lines?.map((product) => (
-              <div
-                key={product.id}
-                className="flex items-center justify-between p-2 mt-2 border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white md:flex-row flex-col gap-4 px-4"
-              >
-                <img
-                  src={`https://127.0.0.1:8000/${safeGet(product, 'product_item.product.items.0.images.0.main_image', '')}`}
-                  alt="Product"
-                  className="w-16 h-16 object-cover rounded-lg"
-                />
-                <div className="flex-1 text-sm md:text-base">
-                  <h3 className="font-semibold">{safeGet(product, 'product_item.product.product_name')}</h3>
-                  <p className="text-gray-600">{safeGet(product, 'product_item.product.product_description')}</p>
-                  <p><span className="font-semibold">Price:</span> Rs. {safeGet(product, 'price')}</p>
-                  <p><span className="font-semibold">Quantity:</span> {safeGet(product, 'quantity')}</p>
-                </div>
-                <div className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl transition-colors">
-                  <span className="px-8 font-bold text-2xl"> &gt; </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Rest of the details sections... */}
-
-          <div className="text-right mt-4">
-            <button
-              onClick={() => handleDownloadInvoice(details.id)}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-            >
-              Download Invoice
-            </button>
-          </div>
-        </>
-      )}
-
-      {myorderview === "returnrefund" && orderId && (
-        <AddReturnRefund orderId={orderId} />
-      )}
-
-      {myorderview === "returnrefundstatus" && orderId && (
-        <ReturnRefundStatus orderId={orderId} />
-      )}
-    </div>
-  );
+        </div>
+    );
 };
-export default MyOrders;
+
+// Sub-components
+const CartItem = ({ item, onRemove, onQuantityChange }) => {
+    const product = item.product_item?.product || {};
+    const offer = product.offers?.[0];
+    const price = calculateItemPrice(item);
+
+    return (
+        <div className="bg-white shadow-md rounded-lg p-6 flex flex-col sm:flex-row items-center gap-4">
+            <img
+                src={item.product_item?.images?.[0]?.main_image 
+                    ? `https://127.0.0.1:8000${item.product_item.images[0].main_image}`
+                    : "/default-product-image.jpg"}
+                alt={product.product_name}
+                className="w-24 h-24 rounded-md object-cover border"
+            />
+            <div className="flex-1">
+                <h2 className="text-lg font-semibold text-gray-800">
+                    {product.product_name || "Unknown Product"}
+                </h2>
+                <p className="text-gray-600">{product.product_description}</p>
+                <div className="mt-2">
+                    {offer && new Date(offer.end_date) > new Date() ? (
+                        <div className="flex items-center gap-2">
+                            <span className="text-gray-400 line-through">
+                                ₹{item.product_item.sale_price}
+                            </span>
+                            <span className="text-green-600">
+                                ₹{price.toFixed(2)}
+                            </span>
+                        </div>
+                    ) : (
+                        <span className="text-gray-600">
+                            ₹{item.product_item.sale_price}
+                        </span>
+                    )}
+                </div>
+                <div className="mt-2 flex items-center gap-4">
+                    <span>Size: {item.product_item.size?.size_name || "N/A"}</span>
+                    <div className="flex items-center gap-2">
+                        <span>Qty:</span>
+                        <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => onQuantityChange(item.product_item.product.id, e.target.value)}
+                            className="w-16 px-2 py-1 border rounded"
+                        />
+                    </div>
+                </div>
+            </div>
+            <button
+                onClick={() => onRemove(item.product_item.id)}
+                className="text-red-600 hover:text-red-800 self-start sm:self-center"
+            >
+                <i className="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    );
+};
 
 
+const OrderSummary = ({ 
+    couponState,
+    setCouponState,
+    discountCard,
+    setDiscountCard,
+    shippingFee,
+    platformFee,
+    totalPrice,
+    couponDiscount,
+    cardDiscount,
+    orderTotal,
+    onApplyCoupon,
+    onCheckout
+}) => (
+    <div className="bg-white shadow-lg rounded-lg p-6 space-y-6">
+        {/* Coupon Section */}
+        <div>
+            <h6 className="text-md font-semibold text-gray-800 flex items-center space-x-2">
+                <i className="fa-solid fa-tag text-red-500"></i>
+                <span>Apply Coupons:</span>
+            </h6>
+            {couponState.view ? (
+                <div className="mt-4 flex items-center space-x-2">
+                    <input
+                        type="text"
+                        placeholder="Enter Coupon Code"
+                        className="flex-grow border border-gray-300 rounded-md px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-red-500"
+                        value={couponState.code}
+                        onChange={(e) => setCouponState(prev => ({ ...prev, code: e.target.value }))}
+                    />
+                    <button
+                        onClick={onApplyCoupon}
+                        className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition"
+                    >
+                        Submit
+                    </button>
+                </div>
+            ) : (
+                <button
+                    onClick={() => setCouponState(prev => ({ ...prev, view: true }))}
+                    className="mt-2 px-3 py-1 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-md transition"
+                >
+                    Apply Coupon
+                </button>
+            )}
+        </div>
+
+        {/* Discount Cards */}
+        {discountCard.cards?.length > 0 && discountCard.display && (
+            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer">
+                <h6 className="text-md font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                    <i className="fa-solid fa-credit-card text-blue-500 text-lg"></i>
+                    <span>Available Discount Cards</span>
+                </h6>
+                <div className="space-y-3">
+                    {discountCard.cards
+                        .filter(item => item.is_active)
+                        .map((card) => (
+                            <div 
+                                key={card.id}
+                                className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                onClick={() => {
+                                    setDiscountCard(prev => ({
+                                        ...prev,
+                                        percentage: card.discount_percentage,
+                                        display: false
+                                    }));
+                                }}
+                            >
+                                <div className="flex items-center space-x-3">
+                                    <i className="fa-solid fa-percent text-blue-600"></i>
+                                    <span className="font-medium text-gray-700">{card.card_name}</span>
+                                </div>
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">
+                                    {card.discount_percentage}% OFF
+                                </span>
+                            </div>
+                        ))}
+                </div>
+            </div>
+        )}
+
+        {/* Price Breakdown */}
+        <div className="border-t pt-4 space-y-2 text-gray-600">
+            <div className="flex justify-between">
+                <span>Total MRP:</span>
+                <span>₹ {totalPrice.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+                <span>Coupon Discount:</span>
+                <span>- ₹ {couponDiscount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+                <span>Card Discount:</span>
+                <span>- ₹ {cardDiscount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+                <span>Shipping Fee:</span>
+                <span>₹ {shippingFee.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+                <span>Platform Fee (2%):</span>
+                <span>₹ {platformFee.toFixed(2)}</span>
+            </div>
+        </div>
+
+        {/* Order Total */}
+        <div className="flex justify-between text-gray-800 text-lg font-bold border-t pt-4">
+            <span>Order Total:</span>
+            <span>₹ {orderTotal}</span>
+        </div>
+
+        {/* Checkout Button */}
+        <button
+            onClick={onCheckout}
+            className="w-full bg-blue-600 text-white py-3 rounded-md shadow-md hover:bg-blue-700 transition font-semibold"
+        >
+            Proceed to Checkout
+        </button>
+    </div>
+);
 
 
+// Helper functions and views (same as previous example)
+export default CartSection;
 
-
-
-
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useSelector} from "react-redux";
-// import "./MyOrders.css";
-// import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
-// import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
-
-// const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
-//   const [activeFilter, setActiveFilter] = useState("All");
-//   const handleFilterClick = (filter) => setActiveFilter(filter);
-//   const { accessToken } = useSelector((state) => state.auth);
-//   const [orderinfo,setOrderInfo]=useState([]);
-//   const [details,setDetails]=useState("");
-//   const [orderId,setOrderId]=useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-
-//     // Safe data access helper
-//   const safeGet = (obj, path, defaultValue = "Not Available") => {
-//     return path.split('.').reduce((acc, part) => acc && acc[part], obj) || defaultValue;
-//   };
-
-
-//   const fetchBill = async (orderId) => {
-//   try {
-//     const response = await axios.get(`https://127.0.0.1:8000/api/get_bill/${orderId}/`, {
-//       headers: {
-//         Authorization: `Bearer ${accessToken}`,
-//       },
-//       responseType: 'blob',  // Set the response type to blob to handle PDF file
-//     });
-    
-//     if (response.status === 200) {
-//       // Create a Blob from the PDF response
-//       const blob = new Blob([response.data], { type: 'application/pdf' });
-//       const url = window.URL.createObjectURL(blob);
-      
-//       // Create a link to trigger the download
-//       const link = document.createElement('a');
-//       link.href = url;
-//       link.download = `Invoice-${orderId}.pdf`;  // Set the file name
-//       link.click();  // Trigger the download
-//     }
-//   } catch (error) {
-//     console.error("Error fetching bill:", error);
-//     setError("Failed to download invoice");
-//   }
-// };
-
-
-
-
-//   const handleDownloadInvoice=(oid)=>{
-//     console.log("))))",oid);
-//     fetchBill(oid);
-//   }
- 
-
-//   const fetchOrders = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.get("https://127.0.0.1:8000/api/get_orders/", {
-//         headers: { Authorization: `Bearer ${accessToken}` }
-//       });
-//       setOrderInfo(response.data || []);
-//     } catch (err) {
-//       console.error("Error fetching orders:", err);
-//       setError("Failed to load orders");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(()=>{
-//     fetchOrders();
-//   },[])
-
-
-//   const handleViewDetails = (order) => {
-//     if (!order) return;
-//     setMyOrderView("details");
-//     setOrderId(order.id);
-//     setDetails(order);
-//   };
-
-//   if (loading && myorderview === "myorder") {
-//     return <div className="p-6 text-center">Loading orders...</div>;
-//   }
-
-//   if (error) {
-//     return <div className="p-6 text-red-500">{error}</div>;
-//   }
-
-
-//   return (
-//     <div className="h-full w-full p-6 flex flex-col bg-gray-50">
-//       {/* Header Section */}
-//       <div className="flex items-center gap-4 pb-4 border-b">
-//         <i className="fa-solid fa-cart-shopping text-4xl text-blue-500"></i>
-//         <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
-//       </div>
-
-
-
-// {
-//   myorderview==="myorder" && (
-//     <>
-//       {/* Search and Filters */}
-//       <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
-//         {/* Search Bar */}
-//         <input
-//           type="text"
-//           placeholder="Search by Product Name or Order ID"
-//           className="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-//         />
-
-//         {/* Filter Buttons */}
-//             <div className="flex flex-wrap gap-2">
-//               {["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"].map((filter) => (
-//                 <button
-//                   key={filter}
-//                   onClick={() => setActiveFilter(filter)}
-//                   className={`py-2 px-4 rounded-lg shadow-md font-medium ${
-//                     activeFilter === filter
-//                       ? "bg-blue-500 text-white"
-//                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-//                   }`}
-//                 >
-//                   {filter}
-//                 </button>
-//           ))}
-//         </div>
-//       </div>
-
-//       {/* Orders Table */}
-//       <div className="overflow-x-auto">
-//         <table className="min-w-full table-auto bg-white shadow-lg rounded-lg border border-gray-200">
-//           <thead className="bg-blue-500 text-white">
-//             <tr>
-//               <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
-//               <th className="px-6 py-3 text-left text-sm font-semibold">Product</th>
-//               <th className="px-6 py-3 text-left text-sm font-semibold">Order Status</th>
-//               <th className="px-6 py-3 text-left text-sm font-semibold">Order Date</th>
-//               <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
-//               <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-
-//             {
-//               orderinfo.map((order,key)=>(
-//                 <tr key={key} className="border-t hover:bg-gray-100">
-//                 <td className="px-6 py-4 text-sm text-gray-800">
-//                   <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
-//                     #160{order.id}
-//                   </a>
-//                 </td>
-//                 <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
-//                         {order.order_lines?.[0]?.product_item?.product?.items?.[0]?.images?.[0]?.main_image && (
-//                           <img
-//                             src={`https://127.0.0.1:8000/${order.order_lines[0].product_item.product.items[0].images[0].main_image}`}
-//                             alt="Product"
-//                             className="w-10 h-10 rounded"
-//                           />
-//                         )}
-//                   <span>
-//                   {safeGet(order, 'order_lines.0.product_item.product.product_name')}
-//                     </span>
-//                 </td>
-//                 <td className="px-6 py-4 text-sm font-semibold">
-//                   <span className="text-green-600">
-//                      {safeGet(order, 'order_status.status')}
-//                     </span>
-//                 </td>
-//                 <td className="px-6 py-4 text-sm text-gray-800">
-//                    {safeGet(order, 'order_date')}
-//                   </td>
-//                 <td className="px-6 py-4 text-sm text-gray-800">
-//                     Rs. {safeGet(order, 'order_total', 0)}
-//                   </td>
-//                 <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
-//                   <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
-//                     View
-//                   </button>
-//                   <button className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md">
-//                     Track
-//                   </button>
-//                 </td>
-//               </tr>
-//               ))
-//             }
-       
-//           </tbody>
-//         </table>
-//       </div>
-
-// </>
-
-//   )
-// }
-
-// {
-//   myorderview==="details" && details && (
-    
-//     <>
-
-//     {/* Breadcrumb */}
-//           <div className="py-2 text-gray-600 text-sm">
-//             <button onClick={() => setMyOrderView("myorder")} className="hover:underline">
-//               My Orders
-//             </button>
-//             <span> &gt; </span>
-//             <span className="font-semibold text-blue-600">Order Details</span>
-//           </div>
-
-// {/* Order Summary */}
-// <div className="bg-white rounded-lg shadow-md p-4 my-4">
-// <h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
-// <div className="mt-2 text-gray-600">
-//   <p>
-//     <span className="font-semibold">Order ID:</span> {details.id || "Not Available.."}
-//   </p>
-//   <p>
-//     <span className="font-semibold">Payment Method:</span>  {safeGet(details, 'order_status.status')}
-//   </p>
-//   <p>
-//     <span className="font-semibold">Order Date:</span> {safeGet(details, 'order_date')}
-//   </p>
-//   <p>
-//     <span className="font-semibold">Estimated Delivery:</span> {safeGet(details, 'shipping_address.estimated_delivery_date')}
-//   </p>
-// </div>
-// </div>
-
-// {/* Product Details */}
-// <div className="bg-white rounded-lg shadow-md p-4 my-4 ">
-// <h2 className="text-xl font-semibold text-gray-800">Products Details</h2>
-
-// {
-//   details.order_lines.map((product,key)=>(
-// <div
-// key={product.id}
-//   className="flex items-center justify-between p-2 mt-2 border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white md:flex-row flex-col gap-4 px-4"
-//   onClick={() => {setCurrentView({ view: "productdetail", data: product });}}
-// >
-//   {/* Product Image */}
-//   <img
-//     src={`https://127.0.0.1:8000/${safeGet(product, 'product_item.product.items.0.images.0.main_image', '')}`}
-//     alt="Product"
-//     className="w-16 h-16 object-cover rounded-lg"
-//   />
-
-//   {/* Product Info */}
-//                 <div className="flex-1 text-sm md:text-base">
-//                   <h3 className="font-semibold">{safeGet(product, 'product_item.product.product_name')}</h3>
-//                   <p className="text-gray-600">{safeGet(product, 'product_item.product.product_description')}</p>
-//                   <p><span className="font-semibold">Price:</span> Rs. {safeGet(product, 'price')}</p>
-//                   <p><span className="font-semibold">Quantity:</span> {safeGet(product, 'quantity')}</p>
-//                 </div>
-
-//   {/* Action Icon */}
-//   <div className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl transition-colors">
-//    <span className="px-8 font-bold text-2xl"> &gt; </span>
-//   </div>
-// </div>
-
-//   ))
-// }
-
-
-// </div>
-
-// {/* Order Tracking */}
-// <div className="bg-white rounded-lg shadow-md p-4 my-4">
-// <h2 className="text-xl font-semibold text-gray-800">Order Tracking</h2>
-// <table className="w-full mt-4 text-left border-collapse">
-//   <thead className="bg-gray-100">
-//     <tr>
-//       <th className="p-2 border">Order ID</th>
-//       <th className="p-2 border">Order Date</th>
-//       <th className="p-2 border">Status</th>
-//     </tr>
-//   </thead>
-//   <tbody>
-//     <tr>
-//       <td className="p-2 border">127273382</td>
-//       <td className="p-2 border">12/03/2024</td>
-//       <td className="p-2 border text-yellow-600 font-semibold">Pending</td>
-//     </tr>
-//   </tbody>
-// </table>
-// </div>
-
-// {/* Shipping Address */}
-// <div className="bg-white rounded-lg shadow-md p-4 my-4">
-// <h2 className="text-xl font-semibold text-gray-800">Shipping Address</h2>
-// <p className="mt-2 text-gray-600">ABC Building, 123 Street, City, Country</p>
-// </div>
-
-// {/* Return and Refund */}
-// <div className="bg-white rounded-lg shadow-md p-4 my-4">
-// <h2 className="text-xl font-semibold text-gray-800">Return & Refund</h2>
-// <button onClick={()=>setMyOrderView("returnrefund")} className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-//   Initiate Return
-// </button>
-// <button onClick={()=>setMyOrderView("returnrefundstatus")} className="mt-2 ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-red-700">
-//   Return Refund Status
-// </button>
-// </div>
-
-// {/* Price Details */}
-// <div className="bg-white rounded-lg shadow-md p-4 my-4">
-// <h2 className="text-xl font-semibold text-gray-800">Price Details</h2>
-// <div className="mt-2 text-gray-600">
-//   <p>
-//     <span className="font-semibold">Item Total:</span> $50
-//   </p>
-//   <p>
-//     <span className="font-semibold">Shipping Charges:</span> $5
-//   </p>
-//   <p className="font-semibold mt-2">
-//     <span className="text-gray-800">Grand Total:</span> $55
-//   </p>
-// </div>
-// </div>
-
-// {/* Download Invoice */}
-// <div className="text-right mt-4">
-//  <button
-//     onClick={() => handleDownloadInvoice(details.id)} // Pass the order ID
-//     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-//   >
-//     Download Invoice
-//   </button>
-// </div>
-
-
-// </>
-
-//   )
-// }
-
-// {
-//   myorderview==="returnrefund" && (
-//     <AddReturnRefund orderId={orderId}/>
-//   )
-// }
-
-
-// {
-//   myorderview==="returnrefundstatus" && (
-//     <ReturnRefundStatus orderId={orderId}/>
-//   )
-// }
-
-
-
-//     </div>
-//   );
-// };
-
-// export default MyOrders;
