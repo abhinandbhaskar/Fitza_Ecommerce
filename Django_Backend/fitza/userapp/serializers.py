@@ -840,16 +840,22 @@ class AddInitialOrderSerializer(serializers.Serializer):
 from rest_framework import serializers
 from common.models import Payment, Shipping, UserAddress
 from notifications.notifiers import SellerNotifier
+import string
+import random
+
 class PaymentSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Payment.PAYMENT_STATUS_CHOICES)
-    transaction_id = serializers.CharField(max_length=50)  # Reduced length
+    transaction_id = serializers.CharField()  # Reduced length
     amount = serializers.DecimalField(max_digits=10, decimal_places=2)
     gateway_response = serializers.JSONField(required=False, default=dict)  # Simplified JSON
-    currency = serializers.CharField(max_length=3, default='USD')  # Currency codes are 3 characters
+    currency = serializers.CharField(max_length=3, default='INR')  # Currency codes are 3 characters
     payment_method = serializers.CharField(max_length=20, default='razorpay')  # Reduced length
     platform_fee = serializers.DecimalField(max_digits=7, decimal_places=2, default=0.00, required=False)
+    shipping_cost = serializers.DecimalField(max_digits=7, decimal_places=2, default=0.00, required=False)
     seller_payout = serializers.DecimalField(max_digits=7, decimal_places=2, default=0.00, required=False)
-    tracking_id = serializers.CharField(max_length=20, required=False, default="DEFAULT_TRACKING_ID")
+    tracking_id = serializers.CharField(required=False, default="DEFAULT_TRACKING_ID")
+
+
 
     def validate(self, data):
         # Validate and truncate data
@@ -870,10 +876,13 @@ class PaymentSerializer(serializers.Serializer):
         if not UserAddress.objects.filter(user=user).exists():
             print("Validation failed: User address not found.")
             raise serializers.ValidationError({"address": "User address not found."})
+        
+        print("TRANSAACTionId",self.initial_data["transaction_id"])
+        print("TRACKINGId...........................",self.initial_data["tracking_id"])
 
         # Truncate long fields
-        data['transaction_id'] = data['transaction_id'][:50]
-        data['tracking_id'] = data.get('tracking_id', 'DEFAULT_TRACKING_ID')[:20]
+        # data['transaction_id'] = data['transaction_id'][:50]
+        # data['tracking_id'] = data.get('tracking_id', 'DEFAULT_TRACKING_ID')[:20]
 
         # Simplify gateway_response
         gateway_response = data.get('gateway_response', {})
@@ -885,6 +894,19 @@ class PaymentSerializer(serializers.Serializer):
 
         print("Validation passed successfully.")
         return data
+    
+    def generate_unique_transaction_id(self):
+        prefix = "pay_"  # Your desired prefix
+        while True:
+            # Generate 7 random characters (letters and digits)
+            random_chars = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+            transaction_id = f"{prefix}{random_chars}"
+            
+            # Check if this ID already exists in your database
+            # You'll need to import your Payment model and check
+            from .models import Payment  # Adjust import path as needed
+            if not Payment.objects.filter(transaction_id=transaction_id).exists():
+                return transaction_id
 
     def save(self):
         try:
@@ -893,8 +915,8 @@ class PaymentSerializer(serializers.Serializer):
             order = ShopOrder.objects.get(id=self.context["cartId"])
             addressobj = UserAddress.objects.get(user=user, address_type='shipping')
             
-            transaction_id = "KJonkjssjaoioij"  # Ensure it fits the DB limit (100)
-            tracking_id = "kajas90oioina"  # Updated for consistency
+            transaction_id = self.generate_unique_transaction_id()
+            tracking_id = self.validated_data['tracking_id'] # Updated for consistency
 
             payment = Payment.objects.create(
                 order=order,
@@ -915,6 +937,8 @@ class PaymentSerializer(serializers.Serializer):
                 shipping_address=addressobj,
                 status="pending",
                 tracking_id=tracking_id,  # Ensure it's truncated if necessary
+                shipping_cost=self.validated_data.get('shipping_cost', 0.00),
+
             )
             
             print("Shipping created successfully.")
@@ -922,11 +946,12 @@ class PaymentSerializer(serializers.Serializer):
             order.shipping_address = shipping
             order.save()
 
-            if self.validated_data['status']=="completed":
-                notifier = SellerNotifier(seller_user=seller_instance,sender=user)
-                notifier.new_order_received(order_id=order.id, user_name=user, order_total=self.validated_data['amount'])
-            
-            return payment  # Return the created Payment object
+            shopping_cart = ShoppingCart.objects.get(user=user)
+            shopping_cart.cart_items.all().delete()
+            notifier = SellerNotifier(seller_user=seller_instance,sender=user)
+            notifier.new_order_received(order_id=order.id, user_name=user, order_total=self.validated_data['amount'])
+
+            return payment  
         except Exception as e:
             print("Error occurred while saving:", str(e))
             raise serializers.ValidationError({"detail": str(e)})
@@ -941,12 +966,10 @@ class AskQuestionSerializer(serializers.Serializer):
         user = self.context["request"].user
         if not user.is_authenticated:
             raise serializers.ValidationError("Unauthorized User.")
-      
         try:
             product = Product.objects.get(id=data["pid"])
         except Product.DoesNotExist:
             raise serializers.ValidationError("product not found.")
-        
         data["product"]=product
         return data
     

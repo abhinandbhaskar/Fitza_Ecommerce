@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import axiosInstance from "./utils/axiosInstance";
 import { loginSuccess } from "./redux/authSlice";
-
+import "./App.css"
 // Import pages
 import UserRoutes from "./routes/UserRoutes";
 import AdminRoutes from "./routes/AdminRoutes";

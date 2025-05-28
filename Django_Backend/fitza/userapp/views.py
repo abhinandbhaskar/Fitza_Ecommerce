@@ -543,25 +543,113 @@ import razorpay
 from common.models import ShopOrder  # Use your ShopOrder model
 from common.models import PaymentGatewayConfig
 
+# class CreateRazorpayOrder(APIView):
+#     def post(self, request, *args, **kwargs):
+#         amount = float(request.data.get('amount')) * 100  # Convert to paise (1 INR = 100 paise)
+#         razorpay_config = PaymentGatewayConfig.objects.get(gateway_name="Razorpay", enabled=True)
+#         api_key = razorpay_config.api_key
+#         api_secret = razorpay_config.api_secret
+#         client = razorpay.Client(auth=(api_key, api_secret))
+#         # Create the Razorpay order
+#         order_data = {
+#             'amount': amount,
+#             'currency': 'INR',
+#             'payment_capture': '1',  # Automatically capture payment
+#         }
+#         order = client.order.create(data=order_data)
+
+#         # Return the order ID to the frontend
+#         return Response({"order_id": order['id']}, status=status.HTTP_201_CREATED)
+
+
+
+import logging
+from django.core.exceptions import ObjectDoesNotExist
+
+logger = logging.getLogger(__name__)
+
 class CreateRazorpayOrder(APIView):
     def post(self, request, *args, **kwargs):
-        amount = float(request.data.get('amount')) * 100  # Convert to paise (1 INR = 100 paise)
-        razorpay_config = PaymentGatewayConfig.objects.get(gateway_name="Razorpay", enabled=True)
+        try:
+            amount = float(request.data.get('amount', 0))
+            if amount <= 0:
+                return Response(
+                    {"error": "Amount must be greater than zero"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Convert to paise (1 INR = 100 paise)
+            amount_in_paise = int(amount * 100)
+            
+            # Get Razorpay config
+            razorpay_config = PaymentGatewayConfig.objects.get(
+                gateway_name="Razorpay",
+                enabled=True
+            )
+            
+            # Initialize Razorpay client
+            client = razorpay.Client(auth=(
+                razorpay_config.api_key,
+                razorpay_config.api_secret
+            ))
+            
+            # Get user details (if authenticated)
+            user = request.user if request.user.is_authenticated else None
+            user_name = user.get_full_name() if user else None
+            user_email = user.email if user else None
+            user_phone = user.phone_number if user else None
+            
+            # Create order
+            order_data = {
+                'amount': amount_in_paise,
+                'currency': 'INR',
+                'payment_capture': '1',  # Auto-capture payment
+                'notes': {
+                    'user_id': user.id if user else None,
+                    'purpose': 'Payment for service'
+                }
+            }
+            
+            order = client.order.create(data=order_data)
+            logger.info(f"Razorpay order created: {order['id']} for amount: {amount}")
+            
+            # Return order details + user info for prefill
+            return Response(
+                {
+                    "order_id": order['id'],
+                    "amount": amount,
+                    "currency": "INR",
+                    "user": {
+                        "name": user_name,      # Full name (or username if no full name)
+                        "email": user_email,    # User's email
+                        "phone": user_phone,    # User's phone number
+                    }
+                },
+                status=status.HTTP_201_CREATED
+            )
+            
+        except ObjectDoesNotExist:
+            logger.error("Razorpay configuration not found or disabled")
+            return Response(
+                {"error": "Payment gateway currently unavailable"},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+            
+        except ValueError:
+            logger.error("Invalid amount received")
+            return Response(
+                {"error": "Invalid amount specified"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        except Exception as e:
+            logger.error(f"Error creating Razorpay order: {str(e)}", exc_info=True)
+            return Response(
+                {"error": "Unable to process payment"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
-        api_key = razorpay_config.api_key
-        api_secret = razorpay_config.api_secret
-        client = razorpay.Client(auth=(api_key, api_secret))
-        # Create the Razorpay order
-        order_data = {
-            'amount': amount,
-            'currency': 'INR',
-            'payment_capture': '1',  # Automatically capture payment
-        }
-        order = client.order.create(data=order_data)
-
-        # Return the order ID to the frontend
-        return Response({"order_id": order['id']}, status=status.HTTP_201_CREATED)
 
 class OrderPayment(APIView):
     def post(self, request, *args, **kwargs):
@@ -639,7 +727,6 @@ from userapp.serializers import PaymentSerializer
 
 class SavePaymentDetails(APIView):
     permission_classes = [IsAuthenticated]
-    
     def post(self, request, cartId):
         print("Received Data:", request.data)
         print("CARTIDAAAAAAAAD", cartId)
@@ -722,6 +809,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from userapp.models import Bill
 from common.models import Payment
+from django.db import IntegrityError
 
 class BillGenerator(APIView):
     def post(self, request):
@@ -731,31 +819,45 @@ class BillGenerator(APIView):
         
         try:
             payment_instance = Payment.objects.get(id=payment_id)
-            if payment_instance.status != 'completed':
-                return Response({"error": "Bill can only be generated for completed payments."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # if payment_instance.status != 'completed':
+            #     return Response({"error": "Bill can only be generated for completed payments."}, status=status.HTTP_400_BAD_REQUEST)
             
             shop_order = payment_instance.order
-            if hasattr(shop_order, 'bill'):
-                return Response({"error": "Bill already exists for this order."}, status=status.HTTP_400_BAD_REQUEST)
             
+            # Check if bill already exists (using reverse OneToOne relation)
+            if Bill.objects.filter(order=shop_order).exists():
+                return Response({"error": "Bill already exists for this order."}, status=status.HTTP_400_BAD_REQUEST)
+        
+            # Get billing address (if exists)
+            billing_address = shop_order.user.addresses.filter(address_type='billing').first()
+            
+            # Create the bill
             bill = Bill.objects.create(
                 order=shop_order,
                 total_amount=shop_order.final_total,
                 tax=shop_order.tax_amount,
                 discount=shop_order.discount_amount,
-                billing_address=shop_order.user.addresses.filter(address_type='billing').first(),
+                billing_address=billing_address,
                 payment_status='paid',
                 invoice_number=f"INV-{payment_instance.transaction_id}",
                 payment=payment_instance,
                 created_by=shop_order.user,
+                currency='INR',  # Explicitly set if needed
             )
             
-            return Response({"message": "Bill generated successfully.", "bill_id": bill.id}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "Bill generated successfully.", "bill_id": bill.id}, 
+                status=status.HTTP_201_CREATED
+            )
         
         except Payment.DoesNotExist:
             return Response({"error": "Invalid Payment ID."}, status=status.HTTP_404_NOT_FOUND)
+        except IntegrityError as e:
+            return Response({"error": "Invoice number conflict or duplicate bill."}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 from rest_framework.views import APIView

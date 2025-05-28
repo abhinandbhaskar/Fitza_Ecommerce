@@ -6,6 +6,35 @@ const PaymentSection = ({cartId,setCartId}) => {
   const [orderId, setOrderId] = useState(null);
   const{accessToken}=useSelector((state)=>state.auth);
   const shopOrder = useSelector((state) => state.shoporder.order);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
+
+    const handlePlaceOrder = async () => {
+    setIsPlacingOrder(true);
+    try {
+      const paymentDetails = {
+        transaction_id: "Cashondelivery",
+        status: "pending", // COD orders are initially pending
+        amount: shopOrder.orderTotal.toFixed(2),
+        currency: "INR",
+        payment_method: "cod",
+        tracking_id: `COD_${Date.now()}`,
+        gateway_response: {"payment_id":"cod1","order_id":"cod1","signature":"cod1"},
+        platform_fee: shopOrder.platformfee.toFixed(2),
+        shipping_cost: shopOrder.shippingfee.toFixed(2),
+        seller_payout: (shopOrder.orderTotal - (shopOrder.platformfee || 0)).toFixed(2),
+      };
+
+      await savePaymentDetails(paymentDetails);
+      // Additional success handling if needed
+    } catch (error) {
+      console.error("Error placing COD order:", error);
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
+
+
 
   const savePaymentDetails = async (paymentDetails) => {
     console.log("PAYMENT DETAILSSSSSSSSSSSSSSSSS", paymentDetails);
@@ -47,6 +76,7 @@ const PaymentSection = ({cartId,setCartId}) => {
 
 
     const generateBill = async (paymentId) => {
+      console.log("PYID",paymentId);
     try {
       const response = await fetch("https://127.0.0.1:8000/api/generate-bill/", {
         method: "POST",
@@ -67,57 +97,106 @@ const PaymentSection = ({cartId,setCartId}) => {
   
 
   // Function to handle Razorpay order creation
+
   const handleRazorpayPayment = async () => {
-    const response = await fetch("https://127.0.0.1:8000/api/create-razorpay-order/", {
+
+    try{
+          const response = await fetch("https://127.0.0.1:8000/api/create-razorpay-order/", {
       method: "POST",
       headers: {
         "Authorization":`Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        amount: 200, // The amount you want to pass from the state or input
+        amount: shopOrder.orderTotal.toFixed(2), // The amount you want to pass from the state or input
       }),
     });
 
     const data = await response.json();
+    console.log("OPOPOPOPOOOPPOOPOOPPOO",data);
     setOrderId(data.order_id);
 
     // Razorpay Payment integration logic
     if (orderId) {
       const options = {
         key: "rzp_test_i9OIDqpDUXsLFj", // Your Razorpay Key ID
-        amount: 200 * 100, // Amount in paise
-        currency: "INR",
+        amount: data.amount * 100, // Amount in paise
+        currency: data.currency,
         order_id: orderId, // The order ID created from Django
-        name: "Your Company Name",
+        name: "Fitza",
         description: "Payment for Order",
         handler: function (response) {
           console.log("Payment successful", response);
          
-          const paymentDetails = {
-            transaction_id: response.razorpay_payment_id,
-            order_id: response.razorpay_order_id,
-            status: "completed", // Assuming the payment is successful
-            amount: 200.00, // The amount paid
-            currency: "INR",
-            gateway_response: response, // Store the full response from Razorpay
-          };
+        
+
+        const paymentDetails = {
+          transaction_id: response.razorpay_payment_id,
+          status: "completed",
+          amount: data.amount,
+          currency: "INR",
+          payment_method: "razorpay",
+          tracking_id: "TRACK_" + response.razorpay_payment_id.slice(0, 10),
+          gateway_response: response,
+          platform_fee: shopOrder.platformfee === 0 ? 0 : shopOrder.platformfee.toFixed(2),
+          shipping_cost:shopOrder.shippingfee.toFixed(2),
+          seller_payout: data.amount - (shopOrder.platformfee || 0)
+        };
+
+
+          console.log("MYPAIseeee",paymentDetails);
         
           // Call the API to store payment details
           savePaymentDetails(paymentDetails);  
           
         },
-        prefill: {
-          name: "Customer Name",
-          email: "customer@example.com",
-          contact: "1234567890",
-        },
+       prefill: {
+                    name: data.user?.name || "Customer Name", // Fallback if no user
+                    email: data.user?.email || "customer@example.com",
+                    contact: data.user?.phone || "1234567890",
+                },
       };
 
       const razorpay = new window.Razorpay(options);
-      razorpay.open();
+
+ // Add all necessary event listeners
+    razorpay.on('close', function() {
+      resetScroll();
+    });
+
+    razorpay.on('payment.failed', function(response) {
+      resetScroll();
+    });
+
+    razorpay.open();
+
+    // Store the Razorpay instance in state if needed for later access
+    setRazorpayInstance(razorpay);
+
     }
+    }catch(error)
+    {
+      console.error("Payment error:", error);
+   // Ensure scroll is restored even on error
+    resetScroll();
+    }
+
   };
+
+  const resetScroll = () => {
+  // Solution 1: Direct DOM manipulation
+  document.body.style.overflow = 'auto';
+  document.documentElement.style.overflow = 'auto';
+  
+  // Solution 2: For React apps with CSS-in-JS (like styled-components)
+  const root = document.getElementById('root');
+  if (root) {
+    root.style.overflow = 'auto';
+  }
+  
+  // Solution 3: Trigger a re-render if needed
+  setForceUpdate(prev => !prev);
+};
 
 
   return (
@@ -127,7 +206,7 @@ const PaymentSection = ({cartId,setCartId}) => {
           Select Payment Method
         </h1>
         <div className="space-y-6">
-          <div
+ <div
             className={`flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition ${
               selectedPaymentMethod === "cod" ? "ring-2 ring-blue-500" : ""
             }`}
@@ -135,17 +214,29 @@ const PaymentSection = ({cartId,setCartId}) => {
           >
             <div>
               <h2 className="text-lg font-semibold text-gray-700">Cash On Delivery</h2>
-              <p className="text-gray-600 text-sm">Price: $200</p>
+              <p className="text-gray-600 text-sm">Price: ₹{shopOrder.orderTotal.toFixed(2)}</p>
             </div>
-            <input
-              type="radio"
-              name="payment-method"
-              className="w-5 h-5 accent-blue-600"
-              checked={selectedPaymentMethod === "cod"}
-              readOnly
-            />
+            {selectedPaymentMethod === "cod" ? (
+              <button
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePlaceOrder();
+                }}
+                disabled={isPlacingOrder}
+              >
+                {isPlacingOrder ? "Placing Order..." : "Place Order"}
+              </button>
+            ) : (
+              <input
+                type="radio"
+                name="payment-method"
+                className="w-5 h-5 accent-blue-600"
+                checked={selectedPaymentMethod === "cod"}
+                readOnly
+              />
+            )}
           </div>
-
           <div
             className={`flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition ${
               selectedPaymentMethod === "online" ? "ring-2 ring-blue-500" : ""
@@ -154,7 +245,7 @@ const PaymentSection = ({cartId,setCartId}) => {
           >
             <div>
               <h2 className="text-lg font-semibold text-gray-700">Pay Online</h2>
-              <p className="text-gray-600 text-sm">Price: $200</p>
+              <p className="text-gray-600 text-sm">Price: ₹{shopOrder.orderTotal.toFixed(2)}</p>
             </div>
             <input
               type="radio"
@@ -227,7 +318,7 @@ const PaymentSection = ({cartId,setCartId}) => {
     {shopOrder.discountcard > 0 && (
       <div className="flex justify-between">
         <span className="text-gray-600">Card Discount</span>
-        <span className="text-green-600 font-medium">- ₹{shopOrder.discountcard.toFixed(2)}</span>
+        <span className="text-green-600 font-medium">- ₹{shopOrder.discountcard}</span>
       </div>
     )}
   </div>
