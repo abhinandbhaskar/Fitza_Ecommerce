@@ -13,6 +13,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [details,setDetails]=useState("");
   const [orderId,setOrderId]=useState(null);
   const [cancellationReason, setCancellationReason] = useState("");
+  const [address,setAddress]=useState("");
 
 
    const handleOrderCancellation = async() => {
@@ -99,6 +100,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
         if (response.ok) {
             const data = await response.json();
             setOrderInfo(data);
+            console.log("Glloeeeoeoeo",data);
            
 
 
@@ -120,6 +122,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
     setOrderId(order.id);
     console.log("OPOPsssss",order.id);
     setDetails(order);
+    setAddress(order.shipping_address.shipping_address)
   }
 
   return (
@@ -198,14 +201,12 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
                   <span className="text-green-600">{order.order_status.status}</span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-800">{order.order_date}</td>
-                <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.order_total}</td>
+                <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.final_total}</td>
                 <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
                   <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
-                    View
+                    View Order
                   </button>
-                  <button className="py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md">
-                    Track
-                  </button>
+                
                 </td>
               </tr>
               ))
@@ -235,9 +236,10 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
             <h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
             <div className="mt-2 text-gray-600">
               <p><span className="font-semibold">Order ID:</span> {details.id}</p>
-              <p><span className="font-semibold">Payment Method:</span> {safeGet(details, 'order_status.status')}</p>
               <p><span className="font-semibold">Order Date:</span> {safeGet(details, 'order_date')}</p>
-              <p><span className="font-semibold">Estimated Delivery:</span> {safeGet(details, 'shipping_address.estimated_delivery_date')}</p>
+              <p><span className="font-semibold">Order Status:</span> {safeGet(details, 'order_status.status')}</p>
+              <p><span className="font-semibold">Payment Status:</span> {safeGet(details, 'payment_method.status')}</p>
+              <p><span className="font-semibold">Total Amount Paid:</span> {safeGet(details, 'final_total')}</p>
             </div>
           </div>
 
@@ -262,11 +264,12 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   <div className="flex-1 text-sm md:text-base">
     <h3 className="font-semibold truncate">{product.product_item.product.product_name || "Not Available.."}</h3>
     <p className="text-gray-600 truncate">{product.product_item.product.product_description || "Not Available.."}</p>
-    <p>
-      <span className="font-semibold">Price:</span> ${product.price || "Not Available.."}
-    </p>
+  
     <p>
       <span className="font-semibold">Quantity:</span> {product.quantity || "Not Available.."}
+    </p>
+    <p>
+      <span className="font-semibold">Price:</span> ${product.price || "Not Available.."}
     </p>
   </div>
 
@@ -305,8 +308,11 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 
 {/* Shipping Address */}
 <div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Shipping Address</h2>
-<p className="mt-2 text-gray-600">ABC Building, 123 Street, City, Country</p>
+<h2 className="text-xl font-semibold text-gray-800">Shipping & Delivery Information</h2>
+<h3 className="text-md font-bold text-gray-700">{address.user.first_name+address.user.last_name}</h3>
+<p className="mt-2 text-gray-600">{address.address_line1},{address.address_line2},pin {address.postal_code},{address.city},{address.state},{address.country}</p>
+<p>Estimated Delivery Date : {address.estimated_delivery_date|| "Not Available"}</p>
+<p>Delivery Updates : {details.shipping_address.status}</p>
 </div>
 
 {/* Return and Refund */}
@@ -322,16 +328,26 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 
 {/* Price Details */}
 <div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Price Details</h2>
+<h2 className="text-xl font-semibold text-gray-800">Payment Details</h2>
 <div className="mt-2 text-gray-600">
   <p>
-    <span className="font-semibold">Item Total:</span> $50
+    <span className="font-semibold">Payment Method Used:</span> {details.payment_method.payment_method}
   </p>
+
   <p>
-    <span className="font-semibold">Shipping Charges:</span> $5
+    <span className="font-semibold">Transaction ID :</span> {details.payment_method.transaction_id}
   </p>
   <p className="font-semibold mt-2">
-    <span className="text-gray-800">Grand Total:</span> $55
+    <span className="text-gray-800">Dress price:</span> {details.payment_method.amount}
+  </p>
+    <p className="font-semibold mt-2">
+    <span className="text-gray-800">Discount:</span> {details.payment_method.bills[0].discount}
+  </p>
+    <p className="font-semibold mt-2">
+    <span className="text-gray-800">Free shipping:</span> {details.free_shipping_applied?"Applied":"Not Applied"}
+  </p>
+    <p className="font-semibold mt-2">
+    <span className="text-gray-800">Platform fee:</span> {details.payment_method.platform_fee}
   </p>
 </div>
 </div>

@@ -991,9 +991,16 @@ class ShopSellerDetailsSerializer(serializers.ModelSerializer):
         model = Seller
         fields = ['id','shop_name','shop_logo','description','email']
 
+from common.models import Brand
+class BrandNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Brand
+        fields=['brand_name']
+
 class ProductsFullDetailsSerializer(serializers.ModelSerializer):
     items=ProductItemSerializer(many=True)
     shop=ShopSellerDetailsSerializer(read_only=True)
+    brand=BrandNameSerializer(read_only=True)
 
     class Meta:
         model=Product
@@ -1004,10 +1011,12 @@ class ProductsFullDetailsSerializer(serializers.ModelSerializer):
 
 class ProductItemssSerializer(serializers.ModelSerializer):
     product=ProductsFullDetailsSerializer(read_only=True)
+    size=ViewSizeSerializer(read_only=True)
+    color=ViewColorsSerializer(read_only=True)
 
     class Meta:
         model = ProductItem
-        fields = ['id','product','sale_price']
+        fields = ['id','product','sale_price','size','color']
 
 
 class OrderLineSerializer(serializers.ModelSerializer):
@@ -1022,16 +1031,56 @@ class OrderStatusgetSerializer(serializers.ModelSerializer):
         model=OrderStatus
         fields='__all__'
 
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','last_name']
+
+
+class UserAddressSerializer(serializers.ModelSerializer):
+    user=CustomUserSerializer(read_only=True)
+
+    class Meta:
+        model=UserAddress
+        fields='__all__'
+
+
 
 class ShippingDetailsSerializer(serializers.ModelSerializer):
+    shipping_address=UserAddressSerializer(read_only=True)
+
     class Meta:
         model=Shipping
         fields='__all__'
+
+
+from common.models import Payment
+from userapp.models import Bill
+class BillDetialsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Bill
+        fields=['id','discount']
+
+from common.models import ShopOrder
+class PaymentShopOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ShopOrder
+        fields=['free_shipping_applied']
+
+
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    bills=BillDetialsSerializer(read_only=True,many=True)
+    orders=PaymentShopOrderSerializer(read_only=True)
+
+    class Meta:
+        model=Payment
+        fields=['payment_method','status','transaction_id','bills','platform_fee','amount','orders']
 
 class GetUserOrdersSerializer(serializers.ModelSerializer):
     order_lines = OrderLineSerializer(many=True, read_only=True)  # Include related order lines
     order_status=OrderStatusgetSerializer(read_only=True)
     shipping_address=ShippingDetailsSerializer(read_only=True)
+    payment_method=PaymentMethodSerializer(read_only=True)
 
     class Meta:
         model = ShopOrder

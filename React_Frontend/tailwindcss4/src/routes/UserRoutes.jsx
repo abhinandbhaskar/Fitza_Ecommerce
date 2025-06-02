@@ -15,11 +15,13 @@ import CartPage from "../pages/User/CartPage/CartPage";
 import OfferSection from "../pages/User/OfferSection/OfferSection";
 import NotificationPage from "../pages/User/NotificationPage/NotificationPage";
 
+
 const UserRoutes = () => {
   const [countsN,setNcounts]=useState(0);
   return (
     <>
       <Routes>
+       
           <Route path="/" element={<HomePage countsN={countsN} setNcounts={setNcounts} />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -29,11 +31,14 @@ const UserRoutes = () => {
           <Route path="/changepassword" element={<ChangePassword />} />
           <Route path="/billingaddress" element={<BillingAddress />} />
           <Route path="/productview/:id" element={<ProductPage countsN={countsN} />} />
+         
           <Route path="/wishlistview" element={<WishlistPage countsN={countsN}/>}/>
+         
           <Route path="/categoryproduct/:pro_name" element={<CategoryProducts/>} />
           <Route path="/cartpage" element={<CartPage countsN={countsN}/>} />
           <Route path="/offerproduct" element={<OfferSection countsN={countsN} />} />
           <Route path="/notifications" element={<NotificationPage countsN={countsN} setNcounts={setNcounts}/>} />
+         
       </Routes>  
     </>
   )

@@ -47,6 +47,16 @@ const ProductsDetailView = ({ currentView,setCurrentView }) => {
               <p className="text-gray-600">
                 {product.product_item.product.product_description}
               </p>
+                       <p>
+      <span className="font-semibold">Brand:</span> ${product.product_item.product.brand.brand_name || "Not Available.."}
+    </p>
+                <p>
+      <span className="font-semibold">Size:</span> ${product.product_item.size.size_name || "Not Available.."}
+    </p>
+     <p>
+      <span className="font-semibold">Color:</span> ${product.product_item.color.color_name || "Not Available.."}
+    </p>
+
               <p className="mt-2">
                 <span className="font-semibold">Price:</span> {product.price}
               </p>

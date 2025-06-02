@@ -12,9 +12,8 @@ import { logoutUser } from "../../../redux/authActions";
 import { clearProfile } from "../../../redux/profileSlice";
 import ProductsDetailView from "../ProfileComponents/MyOrders/MyOrderComponents/ProductsDetailView";
 import SellerFeedBack from "../ProfileComponents/MyOrders/MyOrderComponents/SellerFeedBack";
-
-const MyProfile = () => {
-    const [currentView, setCurrentView] = useState("profile");
+import ErrorBoundary from "../../ErrorBoundary";
+const MyProfile = ({currentView,setCurrentView}) => {
     const [myorderview, setMyOrderView] = useState("myorder");
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
     const dispatch = useDispatch();
@@ -107,11 +106,14 @@ const MyProfile = () => {
                 {currentView === "billing" && <BillingAddress />}
                 {currentView === "shipping" && <ShippingAddress />}
                 {currentView === "myorders" && (
+                    <ErrorBoundary>
                     <MyOrders 
                         setCurrentView={setCurrentView} 
                         myorderview={myorderview} 
                         setMyOrderView={setMyOrderView} 
                     />
+                    </ErrorBoundary>
+                    
                 )}
                 {currentView.view === "productdetail" && (
                     <ProductsDetailView 

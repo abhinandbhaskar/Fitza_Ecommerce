@@ -19,6 +19,7 @@ const WishlistPage = ({countsN}) => {
                 }
             });
             // console.log(response);
+            console.log(response.data);
             console.log("EEEE",response.data[0].products);
             setFav(response.data[0].products);
             setItems((response.data[0].products).length)
@@ -77,6 +78,8 @@ const WishlistPage = ({countsN}) => {
                     <h3 className="text-2xl font-semibold text-gray-800">My Wishlist</h3>
                 <p className="text-gray-600">{items} item(s)</p>
                 </div>
+
+
                 <div className="Featured-section">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20">
                         {
@@ -90,22 +93,67 @@ const WishlistPage = ({countsN}) => {
                                     X
                                 </button>
                                 <img  src={`https://127.0.0.1:8000${value.items[0].images[0].main_image}`} />
-                                <div className="card-body">
-                                    <p className="my-4">Clothings</p>
-                                    <h4 className="card-title my-2">{value.product_name}</h4>
-                                    <h2 className="my-2">*******</h2>
-                                    <div className="label-icon my-2">
-                                        <h5 className="card-text">
-                                            {value.items[0].sale_price}
-                                            <span>
-                                                <strike> $20</strike>
+
+                            <div className="card-body">
+                                <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
+                                    {value.product_name}
+                                </h2>
+                                <h4 className="text-gray-700 leading-relaxed text-lg">
+                                    {value.product_description.length > 28
+                                        ? `${value.product_description.substring(0, 28)}...`
+                                        : value.product_description}
+                                </h4>
+
+                                <div>
+                                    {/* Price display - only shows sale_price with optional offer discount */}
+                                    <div>
+                                        {value?.offers?.[0]?.discount_percentage > 0 ? (
+                                            <>
+                                                <span className="text-gray-400 line-through text-sm mr-2">
+                                                    ${value.items[0].sale_price}
+                                                </span>
+                                                <span className="text-xl font-bold text-green-600">
+                                                    $
+                                                    {(
+                                                        parseFloat(value.items[0].sale_price) *
+                                                        (1 - parseFloat(value.offers[0].discount_percentage) / 100)
+                                                    ).toFixed(2)}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span className="text-xl font-bold">${value.items[0].sale_price}</span>
+                                        )}
+                                    </div>
+
+                                    {/* Ratings and offer badge */}
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="flex items-center">
+                                            <span className="text-yellow-500 font-medium">
+                                                {value.ratings.average_rating.toFixed(1)}
                                             </span>
-                                        </h5>
-                                        <button onClick={()=>AddToCart(value.id)}  className="Addcart-icon">
-                                            <i className="fa-solid fa-cart-arrow-down"></i>
-                                        </button>
+                                            <span className="text-yellow-400 ml-1">★</span>
+                                        </div>
+                                        <span className="text-gray-500 text-sm">
+                                            ({value.ratings.total_reviews} reviews)
+                                        </span>
+
+                                        {/* Only show offer badge when offer exists */}
+                                        {value?.offers?.[0]?.discount_percentage > 0 && (
+                                            <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit font-bold">
+                                                <i className="fa-solid fa-tag text-sm"></i>
+                                                <span>{parseFloat(value.offers[0].discount_percentage)}% OFF</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
+
+                                <div className="label-icon my-2">
+                                    <button onClick={() => AddToCart(value.id)} className="Addcart-icon">
+                                        <i className="fa-solid fa-cart-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+
                             </div>
                             ))
                         }
@@ -114,6 +162,8 @@ const WishlistPage = ({countsN}) => {
 
                     </div>
                 </div>
+
+
             </div>
             <Footer />
         </>
