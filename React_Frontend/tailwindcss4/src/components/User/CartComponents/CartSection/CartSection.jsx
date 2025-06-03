@@ -205,56 +205,71 @@ const CartSection = ({ setCartView, setCartId }) => {
             if (startPincode && endPincode) {
                 fetchRoute(); // Move the fetchRoute function outside the useEffect if needed
             }
-        }, 300); // Adjust debounce delay as necessary
+        }, 100); // Adjust debounce delay as necessary
 
         return () => clearTimeout(timer); // Cleanup previous timer on dependency change
     }, [startPincode, endPincode]);
 
+
     useEffect(() => {
-        const TempValue = totalPrice + shippingfee + platformfee;
-        let totalValue = TempValue; // Default case
+  // Calculate base subtotal after product discounts
+  let subtotal = totalPrice - productDiscount;
 
-        if (checkFreeShip <= totalValue) {
-            console.log("FreeShipping Applied...........................");
-            totalValue = TempValue - shippingfee;
-            setShippingfee(0);
-            setTravelFee(0);
-            setWeightFee(0);
-        }
+  // Apply coupon discount first (if any)
+  if (coupontype && discountValue) {
+    if (coupontype === "fixed") {
+      subtotal = Math.max(0, subtotal - discountValue); // Ensure subtotal doesn't go negative
+    } else if (coupontype === "percentage") {
+      subtotal *= (1 - discountValue / 100);
+    }
+  }
 
-        if (coupontype && discountValue) {
-            if (coupontype === "fixed") {
-                totalValue = totalValue - discountValue;
-            } else if (coupontype === "percentage") {
-                totalValue = totalValue * (1 - discountValue / 100);
-            }
-        }
+  // Apply discount card (if any) - should be on product value only
+  let discountCardValue = 0;
+  if (discountPercentage > 0) {
+    discountCardValue = subtotal * (discountPercentage / 100);
+    subtotal -= discountCardValue;
+  }
 
-        if (discountPercentage > 0) {
-            let value = 0;
-            value = (TempValue * discountPercentage) / 100;
-            totalValue = TempValue - value;
-        }
+  // Calculate platform fee (2% of discounted subtotal)
+  const calculatedPlatformFee = subtotal * 0.02;
+  setPlatformfee(calculatedPlatformFee);
 
-        setOrderTotal(totalValue);
+  // Calculate shipping fee
+  let finalShippingFee = 0;
+  if (checkFreeShip > subtotal) { // Only apply shipping if order doesn't qualify for free shipping
+    finalShippingFee = weightfee + travelfee;
+  }
 
-        console.log("Total Shipping Charge isssss:::", weightfee + travelfee);
-        setShippingfee(weightfee + travelfee);
-        setTimeout(() => {
-            console.log("G", checkFreeShip);
-        }, 4000);
-    }, [
-        totalPrice,
-        shippingfee,
-        platformfee,
-        couponMinOrder,
-        discountValue,
-        coupontype,
-        discountPercentage,
-        checkFreeShip,
-        travelfee,
-        weightfee,
-    ]);
+  // Calculate final total
+  const finalTotal = subtotal + calculatedPlatformFee + finalShippingFee;
+
+  // Update all states
+  setShippingfee(finalShippingFee);
+  setOrderTotal(finalTotal);
+
+  console.log("Calculation Breakdown:", {
+    originalPrice: totalPrice,
+    productDiscount,
+    afterProductDiscount: totalPrice - productDiscount,
+    afterCoupon: subtotal + discountCardValue, // Show value before card discount
+    discountCardValue,
+    afterDiscountCard: subtotal,
+    platformFee: calculatedPlatformFee,
+    shippingFee: finalShippingFee,
+    finalTotal
+  });
+}, [
+  totalPrice,
+  productDiscount,
+  weightfee,
+  travelfee,
+  couponMinOrder,
+  discountValue,
+  coupontype,
+  discountPercentage,
+  checkFreeShip
+]);
 
     const handleQuantity = async (e, id) => {
         const quantity = parseInt(e.target.value);
@@ -295,10 +310,8 @@ const CartSection = ({ setCartView, setCartId }) => {
                 }
             );
 
-            // Get current total value for validation
             const currentTotal = totalPrice + shippingfee + platformfee;
 
-            // Check coupon validity before applying
             if (new Date(response.data?.coupon?.end_date) <= new Date()) {
                 alert("This coupon has expired");
                 return;
@@ -381,6 +394,8 @@ const CartSection = ({ setCartView, setCartId }) => {
             alert("Failed to proceed to checkout. Please try again.");
         }
     };
+
+
 
     if (loading) {
         return (
@@ -570,10 +585,12 @@ const CartSection = ({ setCartView, setCartId }) => {
 
                             {/* Price Breakdown Section */}
                             <div className="border-t pt-4 space-y-2 text-gray-600">
-                                <div className="flex justify-between">
-                                    <span>Total MRP:</span>
-                                    <span> ₹ {totalPrice.toFixed(2)}</span>
-                                </div>
+                           <div className="flex justify-between">
+                            <span>Total MRP:</span>
+                            <span>
+                                {productDiscount > 0 ? "₹ " + (totalPrice + productDiscount).toFixed(2) : "₹ " + totalPrice.toFixed(2)}
+                            </span>
+                            </div>
                                 <div className="flex justify-between">
                                     <span>Product Discount:</span>
                                     {/* productDiscount */}
@@ -602,8 +619,13 @@ const CartSection = ({ setCartView, setCartId }) => {
 
                                 {discountPercentage > 0 && (
                                     <div className="flex justify-between">
-                                        <span>Discount Card : </span>
-                                        <span> {discountPercentage} %</span>
+                                        <span>Discount Card :({discountPercentage} %)</span>
+
+                                      
+
+                                        <span> {
+                                            discountPercentage>0 && coupontype ? ("₹-"+(totalPrice + productDiscount-discountValue)*discountPercentage/100):("₹-"+(totalPrice + productDiscount)*discountPercentage/100)
+                                        } </span>
                                     </div>
                                 )}
 

@@ -18,6 +18,9 @@ const CartSection = ({ setCartView, setCartId }) => {
     const [couponMinOrder, setCouponMinOrder] = useState(0);
     const [discountValue, setDiscountValue] = useState(0);
     const [coupontype, setCouponType] = useState("");
+    const [expiredate, setExpireDate] = useState("");
+    const [productDiscount, setProductDiscount] = useState(0);
+    const [couponId,setCouponId]=useState(null);
 
     const [startPincode, setStartPincode] = useState("");
     const [endPincode, setEndPincode] = useState("");
@@ -33,6 +36,11 @@ const CartSection = ({ setCartView, setCartId }) => {
     const [checkFreeShip, setCheckFeeship] = useState(0);
 
     const dispatch = useDispatch();
+
+    const CalculatePlatformFee = (Price) => {
+        const fee = Price * 0.02;
+        setPlatformfee(fee);
+    };
 
     const fetchData = async () => {
         try {
@@ -55,29 +63,42 @@ const CartSection = ({ setCartView, setCartId }) => {
             const desinationpin = cartData[0].product_item.product.shop.user.addresses[0].postal_code;
             setEndPincode(desinationpin);
 
-            const Price = cartData.reduce((total, item) => {
-                const productItem = item?.product_item;
-                console.log("kkkkkk", productItem.product.weight);
-                if (!productItem) return total;
-                let itemPrice = parseFloat(productItem.sale_price) || 0;
+            const result = cartData.reduce(
+                (totals, item) => {
+                    const productItem = item?.product_item;
+                    if (!productItem) return totals;
 
-                if (productItem.product?.offers?.length > 0) {
-                    const offer = productItem.product.offers[0];
-                    const now = new Date();
-                    const startDate = new Date(offer.start_date);
-                    const endDate = new Date(offer.end_date);
+                    const originalPrice = parseFloat(productItem.sale_price) || 0;
+                    let itemPrice = originalPrice;
+                    let discountAmount = 0;
 
-                    if (now >= startDate && now <= endDate) {
-                        const originalPrice = parseFloat(productItem.sale_price) || 0;
-                        const discountPercentage = parseFloat(offer.discount_percentage) || 0;
-                        itemPrice = originalPrice * (1 - discountPercentage / 100);
+                    if (productItem.product?.offers?.length > 0) {
+                        const offer = productItem.product.offers[0];
+                        const now = new Date();
+                        const startDate = new Date(offer.start_date);
+                        const endDate = new Date(offer.end_date);
+
+                        if (now >= startDate && now <= endDate) {
+                            const discountPercentage = parseFloat(offer.discount_percentage) || 0;
+                            itemPrice = originalPrice * (1 - discountPercentage / 100);
+                            discountAmount = originalPrice - itemPrice; // Calculate discount per item
+                        }
                     }
-                }
-                return total + itemPrice * (item?.quantity || 0);
-            }, 0);
 
-            CalculatePlatformFee(Price);
-            setTotalPrice(Price);
+                    const quantity = item?.quantity || 0;
+                    return {
+                        totalPrice: totals.totalPrice + itemPrice * quantity, // Accumulate discounted price
+                        totalDiscount: totals.totalDiscount + discountAmount * quantity, // Accumulate discount amount
+                    };
+                },
+                { totalPrice: 0, totalDiscount: 0 }
+            );
+
+            console.log("Total Price:", result.totalPrice);
+            console.log("Total Discount:", result.totalDiscount);
+            CalculatePlatformFee(result.totalPrice);
+            setTotalPrice(result.totalPrice);
+            setProductDiscount(result.totalDiscount);
 
             const TotalWeight = cartData.reduce((total, item) => {
                 const productItem = item?.product_item?.product?.weight || 0;
@@ -100,16 +121,10 @@ const CartSection = ({ setCartView, setCartId }) => {
             setWeightFee(shippingFee);
         } catch (errors) {
             console.error("Error fetching cart data:", errors);
-            setError("Failed to load cart data. Please try again.");
             setCartData([]);
         } finally {
             setLoading(false);
         }
-    };
-
-    const CalculatePlatformFee = (Price) => {
-        const fee = Price * 0.02;
-        setPlatformfee(fee);
     };
 
     const RemoveProduct = async (id) => {
@@ -168,29 +183,31 @@ const CartSection = ({ setCartView, setCartId }) => {
         fetchFetchFreeShip();
     }, []);
 
+    const fetchRoute = async () => {
+        try {
+            const response = await axios.get("https://127.0.0.1:8000/api/route/", {
+                params: {
+                    start_pincode: startPincode,
+                    end_pincode: endPincode,
+                },
+            });
+            console.log("Roooot KMMMMMM", response.data);
+            console.log("Route data Shipfee: ", response.data.shipping_fee);
+            const fees = response.data.shipping_fee;
+            setTravelFee(fees);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
     useEffect(() => {
-        const fetchRoute = async () => {
-            if (!startPincode || !endPincode) {
-                setError("Please enter both PIN codes");
-                return;
+        const timer = setTimeout(() => {
+            if (startPincode && endPincode) {
+                fetchRoute(); // Move the fetchRoute function outside the useEffect if needed
             }
+        }, 100); // Adjust debounce delay as necessary
 
-            try {
-                const response = await axios.get("https://127.0.0.1:8000/api/route/", {
-                    params: {
-                        start_pincode: startPincode,
-                        end_pincode: endPincode,
-                    },
-                });
-                console.log("Route data Shipfee: ", response.data.shipping_fee);
-                let fees = response.data.shipping_fee;
-                setTravelFee(fees);
-            } catch (error) {
-                console.error("Error:", error);
-            }
-        };
-
-        fetchRoute();
+        return () => clearTimeout(timer); // Cleanup previous timer on dependency change
     }, [startPincode, endPincode]);
 
     useEffect(() => {
@@ -198,17 +215,21 @@ const CartSection = ({ setCartView, setCartId }) => {
         let totalValue = TempValue; // Default case
 
         if (checkFreeShip <= totalValue) {
+            console.log("FreeShipping Applied...........................");
             totalValue = TempValue - shippingfee;
             setShippingfee(0);
+            setTravelFee(0);
+            setWeightFee(0);
         }
 
-        if (couponMinOrder > 0 && TempValue >= couponMinOrder && coupontype) {
+        if (coupontype && discountValue) {
             if (coupontype === "fixed") {
-                totalValue = TempValue - discountValue;
+                totalValue = totalValue - discountValue;
             } else if (coupontype === "percentage") {
-                totalValue = TempValue * (1 - discountValue / 100);
+                totalValue = totalValue * (1 - discountValue / 100);
             }
         }
+
         if (discountPercentage > 0) {
             let value = 0;
             value = (TempValue * discountPercentage) / 100;
@@ -231,11 +252,12 @@ const CartSection = ({ setCartView, setCartId }) => {
         coupontype,
         discountPercentage,
         checkFreeShip,
+        travelfee,
+        weightfee,
     ]);
 
     const handleQuantity = async (e, id) => {
-        const quantity = parseInt(e.target.value, 10) || 1;
-
+        const quantity = parseInt(e.target.value);
         try {
             await axios.post(
                 `https://127.0.0.1:8000/api/cart_quantity/${id}/`,
@@ -251,6 +273,8 @@ const CartSection = ({ setCartView, setCartId }) => {
         } catch (err) {
             console.error("Error updating quantity:", err);
             alert("Failed to update quantity. Please try again.");
+        } finally {
+            console.log("Completed....");
         }
     };
 
@@ -271,9 +295,31 @@ const CartSection = ({ setCartView, setCartId }) => {
                 }
             );
 
-            setDiscountValue(response.data?.coupon?.discount_value || 0);
+            const currentTotal = totalPrice + shippingfee + platformfee;
+
+            if (new Date(response.data?.coupon?.end_date) <= new Date()) {
+                alert("This coupon has expired");
+                return;
+            }
+
+            if (
+                response.data?.coupon?.minimum_order_amount > 0 &&
+                currentTotal < response.data?.coupon?.minimum_order_amount
+            ) {
+                alert(`Minimum order amount for this coupon is ${response.data?.coupon?.minimum_order_amount}`);
+                return;
+            }
+
+            console.log("ppppppppppppppppppppppppppppppppppppppppppppp", response.data?.coupon?.end_date);
+
+            // // Only set coupon values if all conditions are met
+            const discount = response.data?.coupon?.discount_value;
+            setDiscountValue(discount);
             setCouponMinOrder(response.data?.coupon?.minimum_order_amount || 0);
-            setCouponType(response.data?.coupon?.discount_type || "");
+            const type = response.data?.coupon?.discount_type;
+            setCouponType(type);
+            setExpireDate(response.data?.coupon?.end_date || "");
+            setCouponId(response.data?.coupon?.id);
             setCouponView(false);
         } catch (errors) {
             console.error("Error applying coupon:", errors);
@@ -287,15 +333,37 @@ const CartSection = ({ setCartView, setCartId }) => {
             return;
         }
 
+        if (!totalPrice || !orderTotal || !accessToken) {
+        alert("Missing essential order information. Please try again.");
+        return;
+    }
+
+        dispatch(
+            updateShopOrder({
+                totalmrp: totalPrice,
+                productdiscount: productDiscount,
+                shippingfee: shippingfee,
+                platformfee: platformfee,
+                couponapplied: discountValue,
+                discountcard: discountPercentage,
+                orderTotal: orderTotal,
+            })
+        );
+        
+       
+
+        const initialOrderData={
+            order_total: totalPrice,
+            final_total: orderTotal,
+            discount_amount: productDiscount,
+            coupon: couponId,
+            free_shipping_applied: shippingfee === 0 ? true : false, 
+        }
+        console.log("JACK",initialOrderData);
+
         try {
             const response = await axios.post(
-                "https://127.0.0.1:8000/api/initial_order/",
-                {
-                    order_total: totalPrice,
-                    final_total: orderTotal,
-                    discount_amount: discountValue,
-                    free_shipping_applied: false,
-                },
+                "https://127.0.0.1:8000/api/initial_order/",initialOrderData,
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
@@ -304,12 +372,15 @@ const CartSection = ({ setCartView, setCartId }) => {
             );
 
             setCartId(response.data?.order_id);
+           
             setCartView("address");
         } catch (errors) {
             console.error("Error during checkout:", errors);
             alert("Failed to proceed to checkout. Please try again.");
         }
     };
+
+    
 
     if (loading) {
         return (
@@ -421,7 +492,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                                         <div className="flex items-center space-x-4">
                                             Quantity:
                                             <input
-                                                onChange={(e) => handleQuantity(e, item.product_item?.product?.id)}
+                                                onChange={(e) => handleQuantity(e, item.product_item?.id)}
                                                 type="number"
                                                 min="1"
                                                 className="border border-gray-300 rounded-md w-16 px-2 py-1 h-10 text-xl"
@@ -482,11 +553,9 @@ const CartSection = ({ setCartView, setCartId }) => {
                                                 <div
                                                     key={key}
                                                     className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                                    onClick={() => handleDiscountPercentage(card.discount_percentage)}
                                                 >
-                                                    <div
-                                                        onClick={() => handleDiscountPercentage(card.discount_percentage)}
-                                                        className="flex items-center space-x-3"
-                                                    >
+                                                    <div className="flex items-center space-x-3">
                                                         <i className="fa-solid fa-percent text-blue-600"></i>
                                                         <span className="font-medium text-gray-700">{card.card_name}</span>
                                                     </div>
@@ -501,18 +570,45 @@ const CartSection = ({ setCartView, setCartId }) => {
 
                             {/* Price Breakdown Section */}
                             <div className="border-t pt-4 space-y-2 text-gray-600">
+                           <div className="flex justify-between">
+                            <span>Total MRP:</span>
+                            <span>
+                                {productDiscount > 0 ? "₹ " + (totalPrice + productDiscount).toFixed(2) : "₹ " + totalPrice.toFixed(2)}
+                            </span>
+                            </div>
                                 <div className="flex justify-between">
-                                    <span>Total MRP:</span>
-                                    <span> ₹ {totalPrice.toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Discount:</span>
-                                    <span>- ₹ {discountValue.toFixed(2)}</span>
+                                    <span>Product Discount:</span>
+                                    {/* productDiscount */}
+                                    <span>- ₹ {productDiscount} </span>
+                                    {/* <span>- ₹ {discountValue} </span> */}
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Shipping Fee:</span>
-                                    <span> ₹ {shippingfee.toFixed(2)}</span>
+                                    {shippingfee === 0 ? <span>Free</span> : <span> ₹ {shippingfee.toFixed(2)}</span>}
                                 </div>
+
+                                <div className="flex justify-between">
+                                    {coupontype === "fixed" && (
+                                        <>
+                                            <span>Coupon Applied </span>
+                                            <span> ₹ -{discountValue} </span>
+                                        </>
+                                    )}
+                                    {coupontype === "percentage" && (
+                                        <>
+                                            <span>Coupon Applied </span>
+                                            <span> {discountValue} %</span>
+                                        </>
+                                    )}
+                                </div>
+
+                                {discountPercentage > 0 && (
+                                    <div className="flex justify-between">
+                                        <span>Discount Card : </span>
+                                        <span> {discountPercentage} %</span>
+                                    </div>
+                                )}
+
                                 <div className="flex justify-between">
                                     <span>Platform Fee (2%) : </span>
                                     <span> ₹ {platformfee.toFixed(2)}</span>

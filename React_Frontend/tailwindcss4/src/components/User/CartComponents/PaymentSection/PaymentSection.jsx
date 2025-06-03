@@ -330,7 +330,7 @@ const PaymentSection = ({ cartId, setCartId }) => {
                     )}
                 </div>
             </div>
-
+            {/* Price Details Section */}
             <div className="bg-white shadow-lg rounded-lg p-6 w-full lg:w-1/3">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">Price Details</h2>
 
@@ -369,7 +369,8 @@ const PaymentSection = ({ cartId, setCartId }) => {
                     ) : (
                         <div className="flex justify-between">
                             <span className="text-gray-600">Coupon Applied</span>
-                            <span className="text-green-600 font-medium">{shopOrder.couponapplied}</span>
+
+                            <span className="text-green-600 font-medium">- {shopOrder.couponapplied}</span>
                         </div>
                     )}
 
@@ -377,8 +378,14 @@ const PaymentSection = ({ cartId, setCartId }) => {
                     {shopOrder.discountcard > 0 && (
                         <div className="flex justify-between">
                             <span className="text-gray-600">Card Discount</span>
-                            <span className="text-green-600 font-medium">- ₹{shopOrder.discountcard}</span>
-                        </div>
+
+                 
+
+                                        <span className="text-green-600 font-medium"> {
+                                            shopOrder.discountcard >0 && shopOrder.couponapplied ? ("₹-"+(shopOrder.totalmrp + shopOrder.productdiscount-shopOrder.couponapplied)*shopOrder.discountcard/100):("₹-"+(shopOrder.totalmrp + shopOrder.productdiscount)*shopOrder.discountcard/100)
+                                        } </span>
+                                
+                                    </div>
                     )}
                 </div>
 
