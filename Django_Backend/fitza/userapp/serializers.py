@@ -1,3 +1,4 @@
+from decimal import Decimal
 from rest_framework import serializers
 from common.models import CustomUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -760,6 +761,7 @@ class OfferProductsSerializer(serializers.ModelSerializer):
 from common.models import OrderStatus,ShopOrder
 from userapp.models import OrderLine
 
+
 class AddInitialOrderSerializer(serializers.Serializer):
     order_total = serializers.DecimalField(max_digits=10, decimal_places=2)
     final_total = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -825,16 +827,20 @@ class AddInitialOrderSerializer(serializers.Serializer):
                 # Add to calculated order total
                 calculated_order_total += cart_item.quantity * (cart_item.product_item.sale_price or cart_item.product_item.original_price)
 
-            # Ensure the calculated total matches the provided order total
-            if calculated_order_total != order.order_total:
-                raise serializers.ValidationError("Calculated order total does not match provided order total.")
-
+            # # Ensure the calculated total matches the provided order total
+            # if calculated_order_total != order.order_total:
+            #     raise serializers.ValidationError("Calculated order total does not match provided order total.")
             return order
 
         except OrderStatus.DoesNotExist:
             raise serializers.ValidationError("Order status 'Pending Payment' is not configured.")
         except Exception as e:
             raise serializers.ValidationError(f"Failed to create order: {str(e)}")
+
+
+
+
+
 
 
 from rest_framework import serializers
@@ -1076,11 +1082,17 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         model=Payment
         fields=['payment_method','status','transaction_id','bills','platform_fee','amount','orders']
 
+class AppliedCouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Coupon
+        fields=['discount_value','discount_type']
+
 class GetUserOrdersSerializer(serializers.ModelSerializer):
     order_lines = OrderLineSerializer(many=True, read_only=True)  # Include related order lines
     order_status=OrderStatusgetSerializer(read_only=True)
     shipping_address=ShippingDetailsSerializer(read_only=True)
     payment_method=PaymentMethodSerializer(read_only=True)
+    applied_coupon=AppliedCouponSerializer(read_only=True)
 
     class Meta:
         model = ShopOrder

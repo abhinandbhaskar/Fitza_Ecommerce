@@ -88,13 +88,16 @@ const AddressSection = ({ setCartView, cartId }) => {
                 setCity(data.city || "");
                 setState(data.state || "");
                 setMobile(data.phone || "");
-            
-            const hasRequiredFields = Boolean(
-                data.user?.first_name?.trim() && data.user?.last_name?.trim() && data.postal_code?.trim() && data.country?.trim() && data.phone?.trim()
-            );
-            setProceed(hasRequiredFields);
-          }
-            
+
+                const hasRequiredFields = Boolean(
+                    data.user?.first_name?.trim() &&
+                        data.user?.last_name?.trim() &&
+                        data.postal_code?.trim() &&
+                        data.country?.trim() &&
+                        data.phone?.trim()
+                );
+                setProceed(hasRequiredFields);
+            }
         } catch (errors) {
             console.log("Errors", errors);
         } finally {
@@ -171,12 +174,9 @@ const AddressSection = ({ setCartView, cartId }) => {
 
             alert(response.data.message);
 
-            if(proceed===true)
-            {
-               setCartView("payment");
+            if (proceed === true) {
+                setCartView("payment");
             }
-
-            
         } catch (errors) {
             console.log("errors", errors);
         } finally {
@@ -415,7 +415,11 @@ const AddressSection = ({ setCartView, cartId }) => {
                     {/* Total MRP - Always shown */}
                     <div className="flex justify-between">
                         <span className="text-gray-600">Total MRP</span>
-                        <span className="text-gray-800 font-medium">₹{shopOrder.totalmrp.toFixed(2)}</span>
+                        <span className="text-gray-800 font-medium">
+                            {shopOrder.productdiscount > 0
+                                ? `₹${(shopOrder.totalmrp + shopOrder.productdiscount).toFixed(2)}`
+                                : `₹${shopOrder.totalmrp.toFixed(2)}`}
+                        </span>
                     </div>
 
                     {/* Product Discount - Only shown if > 0 */}
@@ -456,13 +460,13 @@ const AddressSection = ({ setCartView, cartId }) => {
                         <div className="flex justify-between">
                             <span className="text-gray-600">Card Discount</span>
 
-                 
-
-                                        <span className="text-green-600 font-medium"> {
-                                            shopOrder.discountcard >0 && shopOrder.couponapplied ? ("₹-"+(shopOrder.totalmrp + shopOrder.productdiscount-shopOrder.couponapplied)*shopOrder.discountcard/100):("₹-"+(shopOrder.totalmrp + shopOrder.productdiscount)*shopOrder.discountcard/100)
-                                        } </span>
-                                
-                                    </div>
+                            <span className="text-green-600 font-medium">
+                                {" "}
+                                {shopOrder.discountcard > 0 && shopOrder.couponapplied
+                                    ? "₹-" +
+                                      ((shopOrder.totalmrp + shopOrder.productdiscount) * shopOrder.discountcard) /100 : "₹-" + ((shopOrder.totalmrp + shopOrder.productdiscount) * shopOrder.discountcard) /100}{" "}
+                            </span>
+                        </div>
                     )}
                 </div>
 

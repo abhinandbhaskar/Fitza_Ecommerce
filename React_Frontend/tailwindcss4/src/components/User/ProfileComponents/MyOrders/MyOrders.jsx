@@ -334,20 +334,26 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
     <span className="font-semibold">Payment Method Used:</span> {details.payment_method.payment_method}
   </p>
 
-  <p>
-    <span className="font-semibold">Transaction ID :</span> {details.payment_method.transaction_id}
+  <p>        
+    <span className="font-semibold">Transaction ID :</span> {safeGet(details,'payment_method.transaction_id')}
   </p>
   <p className="font-semibold mt-2">
-    <span className="text-gray-800">Dress price:</span> {details.payment_method.amount}
+    <span className="text-gray-800">SubTotal:</span> {safeGet(details,'order_total')}
   </p>
     <p className="font-semibold mt-2">
-    <span className="text-gray-800">Discount:</span> {details.payment_method.bills[0].discount}
+    <span className="text-gray-800">Discount:</span> - {safeGet(details,'discount_amount')}
   </p>
     <p className="font-semibold mt-2">
-    <span className="text-gray-800">Free shipping:</span> {details.free_shipping_applied?"Applied":"Not Applied"}
+    <span className="text-gray-800"> Shipping Fee:</span> {details.shipping_address.shipping_cost==0?"Free":details.shipping_address.shipping_cost}
   </p>
     <p className="font-semibold mt-2">
     <span className="text-gray-800">Platform fee:</span> {details.payment_method.platform_fee}
+  </p>
+  <p className="font-semibold mt-2">
+<span className="text-gray-800">Coupon:</span> {details.applied_coupon.discount_type === "fixed" ? `-${details.applied_coupon.discount_value}` : `${details.applied_coupon.discount_value}%`}
+  </p>
+    <p className="font-semibold mt-2">
+    <span className="text-gray-800">Total:</span> <span  className="text-green-600 font-bold text-md">{safeGet(details,'payment_method.amount')}</span>
   </p>
 </div>
 </div>

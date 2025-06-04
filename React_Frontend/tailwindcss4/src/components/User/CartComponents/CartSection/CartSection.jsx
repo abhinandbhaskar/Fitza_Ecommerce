@@ -24,8 +24,6 @@ const CartSection = ({ setCartView, setCartId }) => {
 
     const [startPincode, setStartPincode] = useState("");
     const [endPincode, setEndPincode] = useState("");
-    const [distance, setDistance] = useState(null);
-    const [weight, setWeight] = useState(0);
     const [weightfee, setWeightFee] = useState(0);
     const [travelfee, setTravelFee] = useState(0);
     const [carddisplay, setCardDisplay] = useState(true);
@@ -80,8 +78,13 @@ const CartSection = ({ setCartView, setCartId }) => {
 
                         if (now >= startDate && now <= endDate) {
                             const discountPercentage = parseFloat(offer.discount_percentage) || 0;
+                            console.log("originalPriceSOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",originalPrice);
+                            console.log("discountPercentageDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",discountPercentage);
+
                             itemPrice = originalPrice * (1 - discountPercentage / 100);
                             discountAmount = originalPrice - itemPrice; // Calculate discount per item
+                            console.log("DisamountOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",discountAmount);
+
                         }
                     }
 
@@ -213,7 +216,8 @@ const CartSection = ({ setCartView, setCartId }) => {
 
     useEffect(() => {
   // Calculate base subtotal after product discounts
-  let subtotal = totalPrice - productDiscount;
+//   let subtotal = totalPrice - productDiscount;
+  let subtotal = totalPrice;
 
   // Apply coupon discount first (if any)
   if (coupontype && discountValue) {
@@ -227,7 +231,13 @@ const CartSection = ({ setCartView, setCartId }) => {
   // Apply discount card (if any) - should be on product value only
   let discountCardValue = 0;
   if (discountPercentage > 0) {
-    discountCardValue = subtotal * (discountPercentage / 100);
+    console.log("SUBBBBBBBBTOTALLLLLLLLLLLLLL",subtotal);
+    console.log("totalPriceSUBBBBBBBBTOTALLLLLLLLLLLLLL",totalPrice);
+    console.log("productDiscountSUBBBBBBBBTOTALLLLLLLLLLLLLL",productDiscount);
+    console.log("DISCOUNTPPPPPPPPPPPPPPPPPPpppp",discountPercentage);
+    let TotalAmount=totalPrice+productDiscount;
+    console.log("TOTKKKKKKKKKKKKKKKKKKKKKKKKKKKK",TotalAmount);
+    discountCardValue = TotalAmount * (discountPercentage / 100);
     subtotal -= discountCardValue;
   }
 
@@ -365,12 +375,15 @@ const CartSection = ({ setCartView, setCartId }) => {
             })
         );
         
-       
+          
 
+       const conditionalDiscount = discountPercentage > 0 && coupontype ? (totalPrice + productDiscount) * discountPercentage / 100 : (totalPrice + productDiscount) * discountPercentage / 100;
+
+       let Total = productDiscount > 0 ? (totalPrice+productDiscount).toFixed(2) : totalPrice.toFixed(2);
         const initialOrderData={
-            order_total: totalPrice,
-            final_total: orderTotal,
-            discount_amount: productDiscount,
+            order_total: Total,
+            final_total: orderTotal.toFixed(2),
+            discount_amount:  (productDiscount + conditionalDiscount).toFixed(2),
             coupon: couponId,
             free_shipping_applied: shippingfee === 0 ? true : false, 
         }
@@ -589,6 +602,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                             <span>Total MRP:</span>
                             <span>
                                 {productDiscount > 0 ? "₹ " + (totalPrice + productDiscount).toFixed(2) : "₹ " + totalPrice.toFixed(2)}
+                                {/* {productDiscount > 0 ? "₹ " + (totalPrice).toFixed(2) : "₹ " + totalPrice.toFixed(2)} */}
                             </span>
                             </div>
                                 <div className="flex justify-between">
@@ -622,10 +636,17 @@ const CartSection = ({ setCartView, setCartId }) => {
                                         <span>Discount Card :({discountPercentage} %)</span>
 
                                       
-
+                                            {/* <h1>TotalPriceeeeeeee{totalPrice+productDiscount}</h1>
+                                            <h2>ProductDiscountttt{productDiscount}</h2>
+                                            <h3>DiscountValueeeee{discountValue}</h3>
+                                            <h4>discountPercentage{discountPercentage}</h4> */}
                                         <span> {
-                                            discountPercentage>0 && coupontype ? ("₹-"+(totalPrice + productDiscount-discountValue)*discountPercentage/100):("₹-"+(totalPrice + productDiscount)*discountPercentage/100)
+                                            discountPercentage>0 && coupontype ? ("₹-"+(totalPrice + productDiscount)*discountPercentage/100):("₹-"+(totalPrice + productDiscount)*discountPercentage/100)
                                         } </span>
+
+                                        {/* <span> {
+                                            discountPercentage>0 && coupontype ? ("₹-"+(totalPrice + productDiscount-discountValue)*discountPercentage/100):("₹-"+(totalPrice + productDiscount)*discountPercentage/100)
+                                        } </span> */}
                                     </div>
                                 )}
 

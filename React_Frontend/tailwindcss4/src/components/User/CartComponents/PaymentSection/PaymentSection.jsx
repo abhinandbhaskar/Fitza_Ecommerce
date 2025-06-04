@@ -338,7 +338,12 @@ const PaymentSection = ({ cartId, setCartId }) => {
                     {/* Total MRP - Always shown */}
                     <div className="flex justify-between">
                         <span className="text-gray-600">Total MRP</span>
-                        <span className="text-gray-800 font-medium">₹{shopOrder.totalmrp.toFixed(2)}</span>
+                        <span className="text-gray-800 font-medium">
+                            {shopOrder.productdiscount > 0
+                                ? `₹${(shopOrder.totalmrp + shopOrder.productdiscount).toFixed(2)}`
+                                : `₹${shopOrder.totalmrp.toFixed(2)}`}
+                        </span>
+                
                     </div>
 
                     {/* Product Discount - Only shown if > 0 */}
@@ -381,11 +386,14 @@ const PaymentSection = ({ cartId, setCartId }) => {
 
                  
 
-                                        <span className="text-green-600 font-medium"> {
-                                            shopOrder.discountcard >0 && shopOrder.couponapplied ? ("₹-"+(shopOrder.totalmrp + shopOrder.productdiscount-shopOrder.couponapplied)*shopOrder.discountcard/100):("₹-"+(shopOrder.totalmrp + shopOrder.productdiscount)*shopOrder.discountcard/100)
-                                        } </span>
+                            <span className="text-green-600 font-medium">
+                                {" "}
+                                {shopOrder.discountcard > 0 && shopOrder.couponapplied
+                                    ? "₹-" +
+                                      ((shopOrder.totalmrp + shopOrder.productdiscount) * shopOrder.discountcard) /100 : "₹-" + ((shopOrder.totalmrp + shopOrder.productdiscount) * shopOrder.discountcard) /100}{" "}
+                            </span>
                                 
-                                    </div>
+                    </div>
                     )}
                 </div>
 

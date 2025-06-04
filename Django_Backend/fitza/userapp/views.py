@@ -787,7 +787,7 @@ class GetUserOrders(APIView):
 
     def get(self, request):
         user = request.user
-        obj = ShopOrder.objects.filter(user=user)  # Filter orders for the logged-in user
+        obj = ShopOrder.objects.filter(user=user, bill__isnull=False)  # Filter orders for the logged-in user
         serializer = GetUserOrdersSerializer(obj, many=True)
         return Response(serializer.data)
 
@@ -1353,9 +1353,13 @@ class GetBillAPIView(APIView):
             # Discount
 
             pdf.drawString(350, y_position - 110, "Discount:")
-            pdf.drawString(450, y_position - 110, f"- {order.discount_amount:.2f}")
-            if order.applied_coupon:
-                pdf.drawString(350, y_position - 125, f"Coupon: {order.applied_coupon.code}")
+            pdf.drawString(450, y_position - 110, f"Rs. - {order.discount_amount:.2f}")
+            if order.applied_coupon.discount_type=="fixed":
+                pdf.drawString(350, y_position - 125, "Coupon:")
+                pdf.drawString(450, y_position - 125, f"Rs. -{order.applied_coupon.discount_value}")
+            if order.applied_coupon.discount_type=="percentage":
+                pdf.drawString(350, y_position - 125, "Coupon:")
+                pdf.drawString(450, y_position - 125, f" {order.applied_coupon.discount_value}%")
             
             # Grand Total
             pdf.line(350, y_position - 150, width - 50, y_position - 150)
