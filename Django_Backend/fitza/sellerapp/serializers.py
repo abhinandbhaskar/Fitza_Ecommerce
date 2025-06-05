@@ -920,3 +920,32 @@ class ViewSellerAllNotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model=Notification
         fields='__all__'
+
+from userapp.models import ReturnRefund
+class ReturnRefundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ReturnRefund
+        fields=['id','status','approved_refund_amount']
+
+
+class BillUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','last_name']
+
+class BillShopOrderSerializer(serializers.ModelSerializer):
+    user = BillUserSerializer(read_only=True)
+    returns = ReturnRefundSerializer(many=True, read_only=True)  
+
+    class Meta:
+        model = ShopOrder
+        fields = ['user', 'order_date', 'returns']
+
+
+
+from userapp.models import Bill
+class BillRevenueSerializer(serializers.ModelSerializer):
+    order=BillShopOrderSerializer(read_only=True)
+    class Meta:
+        model=Bill
+        fields=['id','invoice_number','payment_status','total_amount','order']

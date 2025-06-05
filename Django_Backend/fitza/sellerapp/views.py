@@ -580,3 +580,52 @@ class UnReadSellerNotifications(APIView):
         obj=Notification.objects.filter(group='all_sellers',is_read=False,user=user)
         serializer={"notifications":len(obj)}
         return Response(serializer)
+    
+
+from userapp.models import Bill
+from sellerapp.serializers import BillRevenueSerializer
+
+# class ViewSellerRevenue(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def get(self,request):
+#         user = request.user
+#         seller = CustomUser.objects.get(id=user.id)
+#         order_lineobj = OrderLine.objects.filter(seller=seller)
+#         obj=Bill.objects.filter(order__bill=order_lineobj.order_lines).filter(payment_status='paid')
+#         serializer=BillRevenueSerializer(obj,many=True)
+#         return Response(serializer.data)
+
+
+from django.db.models import Q
+
+class ViewSellerRevenue(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if not user.is_seller():
+            return Response({"error": "You are not authorized to view this data."}, status=403)
+        order_lines = OrderLine.objects.filter(seller=user)
+        seller_orders = ShopOrder.objects.filter(order_lines__in=order_lines).distinct()
+        # bills = Bill.objects.filter(order__in=seller_orders, payment_status='paid')
+        bills = Bill.objects.filter(order__in=seller_orders)
+        serializer = BillRevenueSerializer(bills, many=True)
+        return Response(serializer.data, status=200)
+
+    
+class SellerViewOrders(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        seller = CustomUser.objects.get(id=user.id)
+        processing = OrderLine.objects.filter(seller=seller,order__order_status__status="processing")
+        confirm = OrderLine.objects.filter(seller=seller,order__order_status__status="confirm")
+        readyfordispatch = OrderLine.objects.filter(seller=seller,order__order_status__status="ready-for-dispatch")
+        cancelled = OrderLine.objects.filter(seller=seller,order__order_status__status="cancelled")
+        delivered = OrderLine.objects.filter(seller=seller,order__order_status__status="delivered")
+        obj = OrderLine.objects.filter(seller=seller)
+        serializer=OrderLineMainSerializer(obj,many=True)
+        ordercount={"processing":len(processing),"confirm":len(confirm),"readyfordispatch":len(readyfordispatch),"cancelled":len(cancelled),"delivered":len(delivered)}
+        fetchdata={"orders":serializer.data,"counts":ordercount}
+        return Response(fetchdata)
