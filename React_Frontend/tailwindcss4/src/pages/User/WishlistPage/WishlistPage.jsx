@@ -4,6 +4,7 @@ import Footer from "../../../components/User/Footer/Footer";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { safe } from "../../../utils/safeAccess";
 const WishlistPage = ({countsN}) => {
 
     const {accessToken}=useSelector((state)=>state.auth);
@@ -96,7 +97,7 @@ const WishlistPage = ({countsN}) => {
 
                             <div className="card-body">
                                 <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
-                                    {value.product_name}
+                                    {safe(value,'product_name','Default Product Name')}
                                 </h2>
                                 <h4 className="text-gray-700 leading-relaxed text-lg">
                                     {value.product_description.length > 28
@@ -129,12 +130,12 @@ const WishlistPage = ({countsN}) => {
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="flex items-center">
                                             <span className="text-yellow-500 font-medium">
-                                                {value.ratings.average_rating.toFixed(1)}
+                                                {safe(value,'ratings.average_rating',0).toFixed(1)}
                                             </span>
                                             <span className="text-yellow-400 ml-1">★</span>
                                         </div>
                                         <span className="text-gray-500 text-sm">
-                                            ({value.ratings.total_reviews} reviews)
+                                            ({safe(value,'ratings.total_reviews',0)} reviews)
                                         </span>
 
                                         {/* Only show offer badge when offer exists */}

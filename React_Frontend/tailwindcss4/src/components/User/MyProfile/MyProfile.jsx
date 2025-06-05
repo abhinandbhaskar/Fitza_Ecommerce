@@ -12,7 +12,6 @@ import { logoutUser } from "../../../redux/authActions";
 import { clearProfile } from "../../../redux/profileSlice";
 import ProductsDetailView from "../ProfileComponents/MyOrders/MyOrderComponents/ProductsDetailView";
 import SellerFeedBack from "../ProfileComponents/MyOrders/MyOrderComponents/SellerFeedBack";
-import ErrorBoundary from "../../ErrorBoundary";
 const MyProfile = ({currentView,setCurrentView}) => {
     const [myorderview, setMyOrderView] = useState("myorder");
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
@@ -88,6 +87,7 @@ const MyProfile = ({currentView,setCurrentView}) => {
                             <span className="menu-icon">{item.icon}</span>
                             <span className="menu-label">{item.label}</span>
                         </button>
+
                     ))}
                     
                     <button 
@@ -106,13 +106,11 @@ const MyProfile = ({currentView,setCurrentView}) => {
                 {currentView === "billing" && <BillingAddress />}
                 {currentView === "shipping" && <ShippingAddress />}
                 {currentView === "myorders" && (
-                    <ErrorBoundary>
                     <MyOrders 
                         setCurrentView={setCurrentView} 
                         myorderview={myorderview} 
                         setMyOrderView={setMyOrderView} 
                     />
-                    </ErrorBoundary>
                     
                 )}
                 {currentView.view === "productdetail" && (

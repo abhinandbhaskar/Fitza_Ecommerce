@@ -8,10 +8,35 @@ const ComplaintSection = () => {
     const [complaints, setComplaints] = useState([]);
     const [filteredComplaints, setFilteredComplaints] = useState([]);
     const [solvedstatus, setSolvedStatus] = useState("All");
+    const [cid,setCid]=useState(null);
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async() => {
 
       console.log("MSG",newMessage);
+
+      const info={
+        "newMessage":newMessage,
+        "cid":cid,
+      }
+      console.log("K",info);
+
+      try {
+        const response = await axios.post("https://127.0.0.1:8000/api/admin/admin_reply/", info, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+            },
+        });
+        console.log(response);
+        console.log(response.data);
+        fetchComplaints();
+        // setNewMessage("");
+
+  
+    } catch (errors) {
+        console.log(errors);
+        console.log(errors.response.data);
+    }
 
         if (!newMessage.trim()) return;
 
@@ -66,10 +91,6 @@ const ComplaintSection = () => {
         setFilteredComplaints(filteredList);
     };
 
-    useEffect(() => {
-        fetchComplaints();
-    }, []);
-
     const fetchComplaints = async () => {
         try {
             const response = await axios.get("https://127.0.0.1:8000/api/admin/view_all_complaints/", {
@@ -80,11 +101,18 @@ const ComplaintSection = () => {
             console.log(response);
             console.log(response.data);
             setComplaints(response.data);
+            setFilteredComplaints(response.data);
+           
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
         }
     };
+
+    const handleSelectedComplaint=(index,id)=>{
+      setSelectedComplaint(index)
+      setCid(id);
+    }
 
     useEffect(() => {
         fetchComplaints();
@@ -106,6 +134,8 @@ const ComplaintSection = () => {
                             type="text"
                             placeholder="Search complaints..."
                             className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={searchTerm}
+                            onChange={(e)=>handleSearch(e.target.value)}
                         />
                         <select
                             onChange={(e) => handleStatus(e.target.value)}
@@ -124,7 +154,7 @@ const ComplaintSection = () => {
                                 className={`p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
                                     selectedComplaint === index ? "border-indigo-500 bg-indigo-50" : ""
                                 }`}
-                                onClick={() => setSelectedComplaint(index)}
+                                onClick={() => handleSelectedComplaint(index,complaint.id)}
                             >
                                 <div className="flex justify-between items-start">
                                     <h3 className="font-medium text-gray-800 truncate">{complaint.title}</h3>
@@ -209,18 +239,20 @@ const ComplaintSection = () => {
                         <div className="flex-grow mb-4 overflow-y-auto max-h-[300px] space-y-4">
                             <h4 className="font-medium text-gray-700">Conversation:</h4>
                             {complaints[selectedComplaint].messages.map((msg, index) => (
+          
                                 <div
                                     key={index}
-                                    className={`flex ${msg.sender === "admin1" ? "justify-end" : "justify-start"}`}
+                                    className={`flex ${msg.sender.user_type === "admin" ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
                                         className={`max-w-[80%] p-3 rounded-lg ${
-                                            msg.sender === "admin1"
+                                            msg.sender.user_type === "admin"
                                                 ? "bg-indigo-100 text-indigo-900"
                                                 : "bg-gray-200 text-gray-800"
                                         }`}
                                     >
-                                        <p className="font-medium text-sm">{msg.sender}</p>
+                                        <p className="font-medium text-sm">{msg.sender.user_type==="admin"?"admin": `(${msg.sender.user_type}) `+ msg.sender.first_name}</p>
+                                        {/* <h1 className="bg-red-400">{msg.sender.user_type}</h1> */}
                                         <p className="my-1">{msg.message}</p>
                                         <p className="text-xs text-gray-500 text-right">
                                             {new Date(msg.timestamp).toLocaleTimeString([], {

@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct,MarksUserRead
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
-from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductQuantity,ApplyCouponCode,GetDealsOfDay,GetDiscountCard,FreeshipOffers
+from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductQuantity,ApplyCouponCode,GetDealsOfDay,GetDiscountCard,FreeshipOffers,CompareProducts
 
 from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack
 from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus,CustomerCancelOrder,ViewUserAllNotifications,UserUnreadNotifications,test_pincode_distance
@@ -48,6 +48,8 @@ urlpatterns = [
     path('razorpay/callback/', RazorpayCallback.as_view(), name='razorpay_callback'),
 
     path('offer_products/',OfferProducts.as_view(),name="offer_products"),
+    path('compare_products/<int:id>/',CompareProducts.as_view(),name="compare_products"),
+
     path('initial_order/',AddInitialOrder.as_view(),name="initial_order"),
     path('save-payment-details/<int:cartId>/',SavePaymentDetails.as_view(),name="save-payment-details"),
     path('ask_question/',AskQuestion.as_view(),name="ask_question"),

@@ -29,6 +29,11 @@ const OfferSection = ({ countsN }) => {
         navigate(`/productview/${id}`);
     };
 
+    const CompareProduct = (id) =>{
+        console.log("Compare",id)
+        navigate(`/compareproducts/${id}`);
+    }
+
   useEffect(() => {
     fetchOfferProducts();
   }, []);
@@ -73,7 +78,7 @@ const OfferSection = ({ countsN }) => {
       <div className="collection-container h-auto w-screen">
         <div className="collection-header h-auto w-full text-center my-12">
           <div>
-            <h1 className="text-4xl font-bold py-2">Offer Products</h1>
+            <h1 className="text-4xl font-bold py-2">Offers Products</h1>
           </div>
           <div>
             <p className="text-2xl text-gray-600 py-2 font-medium">Exclusive Discounts</p>
@@ -107,7 +112,7 @@ const OfferSection = ({ countsN }) => {
                         <i className="fa-regular fa-heart"></i>
                         <div className="tooltip2">Add To Wishlist</div>
                       </div>
-                      <div className="Shuffle-Icon">
+                      <div onClick={()=>CompareProduct(product.product.id)} className="Shuffle-Icon">
                         <i className="fa-solid fa-shuffle"></i>
                         <div className="tooltip3">Compare</div>
                       </div>

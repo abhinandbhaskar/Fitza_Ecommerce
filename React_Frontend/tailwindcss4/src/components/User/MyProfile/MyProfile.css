@@ -96,7 +96,6 @@
 }
 
 .logout-button {
-    margin-top: auto;
     background: rgba(220, 53, 69, 0.1);
     color: #dc3545;
     border: 1px solid rgba(220, 53, 69, 0.2);

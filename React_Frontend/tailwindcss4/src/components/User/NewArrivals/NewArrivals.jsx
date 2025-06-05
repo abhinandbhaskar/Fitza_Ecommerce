@@ -46,6 +46,12 @@ const NewArrivals = ({ setTopData }) => {
         navigate(`/productview/${id}`);
     };
 
+    
+    const CompareProduct = (id) =>{
+        console.log("Compare",id)
+        navigate(`/compareproducts/${id}`);
+    }
+
     const AddToWishlist = async (id) => {
         try {
             const response = await axios.post(
@@ -105,7 +111,7 @@ const NewArrivals = ({ setTopData }) => {
                                         <i className="fa-regular fa-heart"></i>
                                         <div className="tooltip2">Add To Wishlist</div>
                                     </div>
-                                    <div className="Shuffle-Icon">
+                                    <div onClick={()=>CompareProduct(product.id)} className="Shuffle-Icon">
                                         <i className="fa-solid fa-shuffle"></i>
                                         <div className="tooltip3">Compare</div>
                                     </div>

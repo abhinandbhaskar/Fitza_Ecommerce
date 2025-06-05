@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+
 const ComplaintSection = () => {
     const [selectedComplaint, setSelectedComplaint] = useState(0);
     const [newMessage, setNewMessage] = useState("");
@@ -8,35 +9,32 @@ const ComplaintSection = () => {
     const [complaints, setComplaints] = useState([]);
     const [filteredComplaints, setFilteredComplaints] = useState([]);
     const [solvedstatus, setSolvedStatus] = useState("All");
-    const [cid,setCid]=useState(null);
+    const [cid, setCid] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
-    const handleSendMessage = async() => {
+    const handleSendMessage = async () => {
+        console.log("MSG", newMessage);
 
-      console.log("MSG",newMessage);
+        const info = {
+            "newMessage": newMessage,
+            "cid": cid,
+        }
+        console.log("K", info);
 
-      const info={
-        "newMessage":newMessage,
-        "cid":cid,
-      }
-      console.log("K",info);
-
-      try {
-        const response = await axios.post("https://127.0.0.1:8000/api/admin/admin_reply/", info, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-            },
-        });
-        console.log(response);
-        console.log(response.data);
-        fetchComplaints();
-        // setNewMessage("");
-
-  
-    } catch (errors) {
-        console.log(errors);
-        console.log(errors.response.data);
-    }
+        try {
+            const response = await axios.post("https://127.0.0.1:8000/api/admin/admin_reply/", info, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            console.log(response);
+            console.log(response.data);
+            fetchComplaints();
+        } catch (errors) {
+            console.log(errors);
+            console.log(errors.response.data);
+        }
 
         if (!newMessage.trim()) return;
 
@@ -52,7 +50,7 @@ const ComplaintSection = () => {
     };
 
     const toggleResolvedStatus = async (currentStatus, id) => {
-        const newStatus = !currentStatus; // Toggle the current status
+        const newStatus = !currentStatus;
         const resolvedata = { id, status: newStatus };
 
         try {
@@ -65,30 +63,20 @@ const ComplaintSection = () => {
 
             console.log("API Response:", response.data);
 
-            // Update the local state to reflect the change immediately
             const updatedComplaints = complaints.map((complaint) =>
                 complaint.id === id ? { ...complaint, resolved: newStatus } : complaint
             );
             setComplaints(updatedComplaints);
-            setFilteredComplaints(updatedComplaints);
+            filterComplaints(searchTerm, solvedstatus, updatedComplaints);
         } catch (error) {
             console.error("API Error:", error.response?.data || error.message);
         }
     };
+
     const handleStatus = (status) => {
         console.log("Selected Status:", status);
         setSolvedStatus(status);
-        let filteredList;
-
-        if (status === "All") {
-            filteredList = complaints;
-        } else if (status === "Resolved") {
-            filteredList = complaints.filter((complaint) => complaint.resolved);
-        } else if (status === "Unresolved") {
-            filteredList = complaints.filter((complaint) => !complaint.resolved);
-        }
-
-        setFilteredComplaints(filteredList);
+        filterComplaints(searchTerm, status);
     };
 
     const fetchComplaints = async () => {
@@ -101,18 +89,46 @@ const ComplaintSection = () => {
             console.log(response);
             console.log(response.data);
             setComplaints(response.data);
-            setFilteredComplaints(response.data);
-           
+            filterComplaints(searchTerm, solvedstatus, response.data);
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
         }
     };
 
-    const handleSelectedComplaint=(index,id)=>{
-      setSelectedComplaint(index)
-      setCid(id);
-    }
+    const handleSelectedComplaint = (index, id) => {
+        setSelectedComplaint(index)
+        setCid(id);
+    };
+
+    const handleSearch = (term) => {
+        setSearchTerm(term);
+        filterComplaints(term, solvedstatus);
+    };
+
+    const filterComplaints = (searchTerm = "", status = solvedstatus, complaintsList = complaints) => {
+        let filteredList = [...complaintsList];
+        
+        // Filter by search term
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filteredList = filteredList.filter(
+                (complaint) =>
+                    complaint.title.toLowerCase().includes(term) ||
+                    complaint.description.toLowerCase().includes(term) ||
+                    (complaint.seller?.first_name?.toLowerCase()?.includes(term) || "")
+            );
+        }
+
+        // Filter by status
+        if (status === "Resolved") {
+            filteredList = filteredList.filter((complaint) => complaint.resolved);
+        } else if (status === "Unresolved") {
+            filteredList = filteredList.filter((complaint) => !complaint.resolved);
+        }
+
+        setFilteredComplaints(filteredList);
+    };
 
     useEffect(() => {
         fetchComplaints();
@@ -134,6 +150,8 @@ const ComplaintSection = () => {
                             type="text"
                             placeholder="Search complaints..."
                             className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={searchTerm}
+                            onChange={(e)=>handleSearch(e.target.value)}
                         />
                         <select
                             onChange={(e) => handleStatus(e.target.value)}
@@ -249,8 +267,8 @@ const ComplaintSection = () => {
                                                 : "bg-gray-200 text-gray-800"
                                         }`}
                                     >
-                                        <p className="font-medium text-sm">{msg.sender.user_type==="admin"?"Admin": `(${msg.sender.user_type}) `+ msg.sender.first_name}</p>
-                                        <h1 className="bg-red-400">{msg.sender.user_type}</h1>
+                                        <p className="font-medium text-sm">{msg.sender.user_type==="admin"?"admin": `(${msg.sender.user_type}) `+ msg.sender.first_name}</p>
+                                        {/* <h1 className="bg-red-400">{msg.sender.user_type}</h1> */}
                                         <p className="my-1">{msg.message}</p>
                                         <p className="text-xs text-gray-500 text-right">
                                             {new Date(msg.timestamp).toLocaleTimeString([], {
@@ -289,3 +307,17 @@ const ComplaintSection = () => {
 };
 
 export default ComplaintSection;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

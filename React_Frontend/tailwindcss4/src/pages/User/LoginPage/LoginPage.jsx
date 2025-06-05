@@ -76,14 +76,14 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="h-screen w-full bg-white flex justify-center relative items-center">
+        <div className="h-screen w-full  flex justify-center relative items-center ">
             <Link to="/">
-                <button className="absolute top-2 left-3 border-1 border-red-400 px-2 text-red-500 h-7 hover:font-bold hover:border-3 rounded-4xl flex items-center justify-center">
+                <button className="absolute top-2 left-3 border-1 border-red-400 px-2 text-red-500 h-7 hover:font-bold hover:border-3 rounded-4xl flex items-center justify-center ">
                     <span>&lt;</span>Back
                 </button>
             </Link>
 
-            <div className="h-screen w-full md:w-1/2 flex items-center justify-center flex-col gap-2 md:gap-5 rounded-4xl shadow-2xl">
+            <div className="h-screen w-full md:w-[600px] flex items-center justify-center flex-col gap-2 md:gap-5 rounded-4xl shadow-2xl">
                 <h1 className="text-4xl font-bold">Sign In</h1>
                 {error && <p className="text-red-500">{error}</p>}
 
@@ -125,18 +125,20 @@ const LoginPage = () => {
                 </h4>
             </div>
 
-            <div className="welcome-container h-screen w-1/3 flex justify-center flex-col items-center">
-                <div className="flex w-[80%] flex-row py-2 items-center">
+            <div className="welcome-container h-screen w-[600px]  flex justify-center flex-col items-center">
+                <div className="flex w-[80%] flex-row py-2 items-center ">
                     <img src={fitza} className="h-24 w-24" alt="Fitza Logo" />
                     <h1 className="text-4xl font-bold p-1 text-gray-800">Welcome Back!</h1>
                 </div>
-                <img
+                <div className="flex w-[80%]">
+                      <img
                     src={img ? signupimg : ""}
-                    className={`rounded-2xl shadow-2xl transform transition-transform duration-1000 ${
-                        animate ? "translate-x-56" : ""
+                    className={`rounded-2xl shadow-2xl h-[300px] transform transition-transform duration-1000 ${
+                        animate ? "translate-x-30" : ""
                     }`}
-                    alt="Signup Illustration"
+                    alt=""
                 />
+                </div>
             </div>
         </div>
     );
