@@ -157,7 +157,8 @@ class SubCategory(models.Model):
 
 class Product(models.Model):
     category=models.ForeignKey(ProductCategory,on_delete=models.CASCADE,related_name='products')
-    # subcategory = models.ForeignKey(SubCategory,on_delete=models.CASCADE,related_name='products',null=True,blank=True)
+    #subcategory = models.ForeignKey(SubCategory,on_delete=models.CASCADE,related_name='products',null=True,blank=True)
+    # added_date = models.DateTimeField(auto_now_add=True)
     brand=models.ForeignKey(Brand,on_delete=models.SET_NULL,null=True,blank=True,related_name='products')
     shop=models.ForeignKey(Seller,on_delete=models.CASCADE,related_name='products')
     product_name=models.CharField(max_length=255)
@@ -167,7 +168,6 @@ class Product(models.Model):
     care_instructions=models.TextField(blank=True,null=True)
     about=models.TextField(blank=True,null=True)
     weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0.00, help_text="Product weight in kg")
-
 
     def __str__(self):
         return self.product_name
@@ -187,8 +187,6 @@ class ProductItem(models.Model):
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     product_code = models.CharField(max_length=100, unique=True)
     quantity_in_stock = models.PositiveIntegerField()
-    
-    # New fields for approval/rejection workflow
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     rejection_reason = models.TextField(blank=True, null=True)  # Optional, for rejection reasons
 

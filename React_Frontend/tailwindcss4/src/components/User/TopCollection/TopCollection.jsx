@@ -7,19 +7,33 @@ import { useNavigate } from "react-router-dom";
 const TopCollection = () => {
     const { accessToken } = useSelector((state) => state.auth);
     const [products, setProducts] = useState([]);
+    const [pagination, setPagination] = useState({
+        count: 0,
+        next: null,
+        previous: null,
+        currentPage: 1,
+        totalPages: 1
+    });
     const navigate = useNavigate();
     const [filtersts, setFilterSts] = useState("all");
 
-    const fetchTopCollections = async () => {
+    const fetchTopCollections = async (page = 1) => {
         try {
-            const response = await axios.get(`https://127.0.0.1:8000/api/top_collections/`, {
+            const response = await axios.get(`https://127.0.0.1:8000/api/top_collections/?page=${page}`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
             console.log(response);
-            console.log("Top Collections ArrivalsRRRRR", response.data);
-            setProducts(response.data);
+            console.log("Top Collections ArrivalsRRRRR", response.data.results);
+            setProducts(response.data.results);
+               setPagination({
+                count: response.data.count,
+                next: response.data.next,
+                previous: response.data.previous,
+                currentPage: page,
+                totalPages: Math.ceil(response.data.count / 12)
+            });
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
@@ -58,6 +72,11 @@ const TopCollection = () => {
     useEffect(() => {
         fetchTopCollections();
     }, []);
+
+    const handlePageChange = (page) => {
+        fetchTopCollections(page);
+    };
+
     return (
         <div className="collection-container h-auto width-screen">
             <div className="collection-header h-auto w-full text-center my-12">
@@ -193,6 +212,34 @@ const TopCollection = () => {
                         </div>
                     ))}
                 </div>
+            </div>
+
+                        <div className="flex justify-center my-8">
+                <nav className="inline-flex rounded-md shadow">
+                    <button
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={!pagination.previous}
+                        className={`px-4 py-2 rounded-l-md border ${!pagination.previous ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                    >
+                        Previous
+                    </button>
+                    {[...Array(pagination.totalPages)].map((_, index) => (
+                        <button
+                            key={index + 1}
+                            onClick={() => handlePageChange(index + 1)}
+                            className={`px-4 py-2 border-t border-b ${pagination.currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                        >
+                            {index + 1}
+                        </button>
+                    ))}
+                    <button
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={!pagination.next}
+                        className={`px-4 py-2 rounded-r-md border ${!pagination.next ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                    >
+                        Next
+                    </button>
+                </nav>
             </div>
 
 

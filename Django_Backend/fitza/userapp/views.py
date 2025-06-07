@@ -293,21 +293,28 @@ class GetDealsOfDay(APIView):
 
 
 from userapp.serializers import ProductSerializer
+from rest_framework.pagination import PageNumberPagination
+
+from rest_framework.pagination import PageNumberPagination
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 12 
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class ViewTopCollections(APIView):
-    permission_classes=[IsAuthenticated]
-    def get(self,request):
-        obj = Product.objects.filter(items__status="approved").distinct() 
-        serializer=ProductSerializer(obj,many=True)
-        return Response(serializer.data)
-
-
-# class ViewSellProduct(APIView):
-#     permission_classes=[IsAuthenticated]
-#     def get(self,request,id):
-#         obj=ProductItem.objects.filter(id=id)
-#         serializer=SellProductsSerializer(obj,many=True)
-#         return Response(serializer.data)
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+    
+    def get(self, request):
+        obj = Product.objects.filter(items__status="approved").distinct()
+        
+        # Set up pagination
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(obj, request)
+        
+        serializer = ProductSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 from userapp.serializers import ProductDetaileViewSerializer
