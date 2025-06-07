@@ -14,7 +14,6 @@ import CategoryProducts from "../pages/User/CategoryProducts/CategoryProducts";
 import CartPage from "../pages/User/CartPage/CartPage";
 import OfferSection from "../pages/User/OfferSection/OfferSection";
 import NotificationPage from "../pages/User/NotificationPage/NotificationPage";
-import ErrorBoundary from "../components/ErrorBoundary";
 import CompareProducts from "../pages/User/CompareProducts/CompareProducts";
 
 
@@ -42,7 +41,7 @@ const UserRoutes = () => {
           <Route path="/categoryproduct/:pro_name" element={<CategoryProducts/>} />
           <Route path="/cartpage" element={<CartPage countsN={countsN}/>} />
           <Route path="/offerproduct" element={<OfferSection countsN={countsN} />} />
-          <Route path="/compareproducts/:id" element={<ErrorBoundary><CompareProducts countsN={countsN}/> </ErrorBoundary>} />
+          <Route path="/compareproducts/:id" element={<CompareProducts countsN={countsN}/>} />
           <Route path="/notifications" element={<NotificationPage countsN={countsN} setNcounts={setNcounts}/>} />
          
       </Routes>  

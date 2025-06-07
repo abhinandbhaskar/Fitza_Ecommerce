@@ -43,10 +43,6 @@ from django.db.models import Q
 class ViewUsers(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        # users=CustomUser.objects.all()
-        # users = CustomUser.objects.filter(
-        #     ~Q(seller_profile__isnull=False) & ~Q(admin_profile__isnull=False)
-        # )
         users = CustomUser.objects.filter(seller_profile__isnull=True, admin_profile__isnull=True,user_type='user',is_superuser=False)
         serializer=ViewUsersSerializer(users,many=True)
         return Response(serializer.data)
@@ -1047,3 +1043,99 @@ class UpdateNewSubCategory(APIView):
             return Response({"message": "SubCategory Updated Successfully"}, status=status.HTTP_200_OK)
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+from adminapp.serializers import BillRevenueSerializer
+from userapp.models import Bill
+
+from collections import defaultdict
+from django.db.models import Q
+
+class ViewAdminRevenue(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"error": "You are not authorized to view this data."}, status=403)
+        
+        bills = Bill.objects.all()
+        serializer = BillRevenueSerializer(bills, many=True)
+        bills_data = serializer.data
+        
+        # Calculate overall stats
+        total_revenue = sum(float(bill['total_amount']) for bill in bills_data)
+        admin_earnings = sum(float(bill['payment']['platform_fee']) for bill in bills_data)
+        active_sellers = Seller.objects.filter(user__is_active=True).count()
+        
+        # Calculate refund amount
+        refund_amount = 0
+        for bill in bills_data:
+            returns = bill.get('order', {}).get('returns', [])
+            if returns:
+                refund_amount += sum(
+                    float(ret['approved_refund_amount']) 
+                    for ret in returns 
+                    if ret.get('status') == "completed"
+                )
+        
+        # Calculate seller-wise statistics
+        seller_stats = {}
+        
+        for bill in bills_data:
+            order_lines = bill.get('order', {}).get('order_lines', [])
+            for line in order_lines:
+                seller = line.get('seller')
+                if seller:
+                    seller_id = seller['id']
+                    if seller_id not in seller_stats:
+                        seller_stats[seller_id] = {
+                            'name': f"{seller.get('first_name', '')} {seller.get('last_name', '')}".strip(),
+                            'total_orders': 0,
+                            'total_revenue': 0,
+                            'total_refunds': 0,
+                            'total_commission': 0
+                        }
+                    
+                    # Update seller stats
+                    seller_stats[seller_id]['total_orders'] += 1
+                    seller_stats[seller_id]['total_revenue'] += float(bill['total_amount'])
+                    seller_stats[seller_id]['total_commission'] += float(bill['payment']['platform_fee'])
+                    
+                    # Calculate refunds for this seller in this order
+                    returns = bill.get('order', {}).get('returns', [])
+                    if returns:
+                        seller_refund = sum(
+                            float(ret['approved_refund_amount']) 
+                            for ret in returns 
+                            if ret.get('status') == "completed"
+                        )
+                        seller_stats[seller_id]['total_refunds'] += seller_refund
+        
+        # Convert seller_stats to a list
+        seller_details = [
+            {
+                'seller_id': seller_id,
+                'seller_name': stats['name'],
+                'total_orders': stats['total_orders'],
+                'gross_revenue': stats['total_revenue'],
+                'net_revenue': stats['total_revenue'] - stats['total_commission'],  # revenue after platform fee
+                'total_refunds': stats['total_refunds'],
+                'total_commission': stats['total_commission'],
+                'final_revenue': (stats['total_revenue'] - stats['total_refunds']) - stats['total_commission']  # (gross - refunds) - commission
+            }
+            for seller_id, stats in seller_stats.items()
+        ]
+        
+        response_data = {
+            "overview": {
+                "total_revenue": total_revenue,
+                "admin_earnings": admin_earnings,
+                "refund_amount": refund_amount,
+                "active_sellers": active_sellers
+            },
+            "seller_stats": seller_details,
+            "transactions": serializer.data,
+        }
+        
+        return Response(response_data)

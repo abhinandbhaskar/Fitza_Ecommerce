@@ -7,7 +7,8 @@ const SellerSection = () => {
     const [sellers, setSellers] = useState([]);
     const [approvals, setApprovals] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [currentView, setCurrentView] = useState(true);
+    const [currentView, setCurrentView] = useState("approved");
+    const[seller,setSeller]=useState(null);
 
 
     const fetchSellers = async () => {
@@ -28,6 +29,7 @@ const SellerSection = () => {
             console.log(errors.response.data);
         } finally {
             console.log("Completed....");
+            setLoading("approved");
             setLoading(false);
         }
     };
@@ -35,7 +37,7 @@ const SellerSection = () => {
 
 
     const pendingApplication = async () => {
-        setCurrentView(false);
+        setCurrentView("pending");
         try {
             const response = await fetch(`https://127.0.0.1:8000/api/admin/view_seller_approvals/`, {
                 method: "GET",
@@ -60,12 +62,11 @@ const SellerSection = () => {
 
 
     useEffect(() => {
-        if (currentView===true) {
+        if (currentView==="approved") {
             ourSellers();
-            console.log("True");
+            
         } else {
             pendingApplication();
-            console.log("False");
         }
     }, []);
 
@@ -73,7 +74,7 @@ const SellerSection = () => {
 
 
     const ourSellers = () => {
-        setCurrentView(true);
+        setCurrentView("approved");
         fetchSellers();
     };
 
@@ -134,6 +135,35 @@ const SellerSection = () => {
         }
     };
 
+    const ViewSellerDetails=async(id)=>{
+        setCurrentView("detailview");
+
+        try{
+      const response=await axios.get(`https://127.0.0.1:8000/api/admin/view_sellers_details/${id}/`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+      },
+      });
+      setSeller(response.data[0]);
+      console.log("OO",response.data[0]);
+    }
+    catch(errors)
+    {
+      console.log(errors);
+      if(errors.response)
+      {
+        console.log(errors.response?.data|| "Error occurred while fetching seller details.");
+      }
+      else{
+        console.log("Error occured...");
+      }
+    }
+
+    }
+
+
+
+
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
@@ -156,15 +186,19 @@ const SellerSection = () => {
                     Pending Application
                 </button>
             </div>
-            {currentView ? (
+
+
+            {currentView === "approved" && (
                  <div className="w-full bg-white shadow-md py-4 px-6">
                     <h1 className="p-2 text-blue-700 font-bold text-sm">Our Sellers</h1>
                 </div>
-            ) : (
-                <div className="w-full bg-white shadow-md py-4 px-6">
+            )}
+        { currentView ==="pending" && ( <div className="w-full bg-white shadow-md py-4 px-6">
                     <h1 className="p-2 text-red-700 font-bold text-sm"> Pending Approvals</h1>
                 </div>
             )}
+
+
 
             {/* Table Container */}
             <div className="p-6">
@@ -181,12 +215,12 @@ const SellerSection = () => {
                                     <th>Shop Name</th>
                                     <th>Registration Date</th>
                                     <th>View Profile</th>
-                                    <th>Status</th>
-                                    {currentView?(<></>):(<th>Approve Seller</th>)}
+                                    <th>Account Status</th>
+                                    {currentView==="approved"?(<></>):(<th>Approve Seller</th>)}
                                     <th>Remove Seller</th>
                                 </tr>
                             </thead>
-                            {currentView ? (
+                            {currentView === "approved" && (
                                 <tbody>
                                     {sellers.length > 0 ? (
                                         sellers.map((sellers) => (
@@ -204,18 +238,19 @@ const SellerSection = () => {
                                                     {sellers.shop_name}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300">
-                                                    20/05/2025
+                                                    {sellers.joining_date}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    <Link
+                                                    {/* <Link 
                                                         to={`/admin/viewseller/${sellers.id}`}
                                                         className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
                                                     >
                                                         View
-                                                    </Link>
+                                                    </Link> */}
+                                                    <button onClick={()=>ViewSellerDetails(sellers.id)}  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200" >View</button>
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    Approve
+                                                <td className={`px-6 py-4 text-sm ${sellers.user.is_active?"text-green-600":"text-red-600"} border-b border-gray-300`}>
+                                                    {sellers.user.is_active?"active":"Inactive"}
                                                 </td>
 
                                                 <td className="px-6 py-4 text-sm border-b border-gray-300">
@@ -239,7 +274,8 @@ const SellerSection = () => {
                                         </tr>
                                     )}
                                 </tbody>
-                            ) : (
+                            )} 
+                            { currentView === "pending" && (
                                 <tbody>
                                     {approvals.length > 0 ? (
                                         approvals.map((sellers) => (
@@ -256,19 +292,20 @@ const SellerSection = () => {
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                                     {sellers.shop_name}
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300">
-                                                    20/05/2025
+                                                 <td className="px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300">
+                                                    {sellers.joining_date}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    <Link
+                                                    {/* <Link
                                                         to={`/admin/viewseller/${sellers.id}`}
                                                         className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
                                                     >
                                                         View
-                                                    </Link>
+                                                    </Link> */}
+                                                <button onClick={()=>ViewSellerDetails(sellers.id)}  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200" >View</button>
                                                 </td>
-                                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    Approve
+                                                 <td className={`px-6 py-4 text-sm ${sellers.user.is_active?"text-green-600":"text-red-600"} border-b border-gray-300`}>
+                                                    {sellers.user.is_active?"active":"Inactive"}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                                     <button
@@ -302,6 +339,62 @@ const SellerSection = () => {
                             )}
                         </table>
                     )}
+
+                    {
+                        currentView === "detailview" && seller && (
+                            <div className="p-4 md:p-8 max-w-4xl mx-auto">
+                              {/* Seller Details Section */}
+                              <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
+                                <h2 className="text-xl font-bold mb-4">Seller Details</h2>
+                                <div className="flex items-center space-x-6">
+                                  <img
+                                    src={"https://127.0.0.1:8000" + seller.user.userphoto} // Replace with seller's photo URL
+                                    alt="Seller"
+                                    className="w-32 h-32 rounded-full object-cover"
+                                  />
+                                  <div>
+                                    <p className="text-lg font-semibold">Full Name: {seller.user?.first_name || "Not available"}</p>
+                                    <p>Email Address: {seller.user?.email||"Not available"}</p>
+                                    <p>Mobile Number: {seller.user?.contact_number || "Not available"}</p>
+                                  </div>
+                                </div>
+                              </div>
+                          
+                              {/* Shop Details Section */}
+                              <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
+                                <h2 className="text-xl font-bold mb-4">Shop Details</h2>
+                                <div className="space-y-2">
+                                  <p><strong>Shop Name:</strong>{seller.shop_name || "Not available"}</p>
+                                  <p><strong>Shop Address:</strong> {seller.shop_address || "Not available"}</p>
+                                  <p><strong>Contact Number:</strong> {seller.contact_number || "Not available"}</p>
+                                  <p><strong>Shop Email:</strong> {seller.email || "Not available"}</p>
+                                  <p><strong>Tax ID:</strong>{seller.tax_id || "Not available"}</p>
+                                  <p><strong>Business Registration Number:</strong>{seller.business_registration_number || "Not available"}</p>
+                                  <p><strong>Description:</strong> {seller.description || "Not available"}</p>
+                                </div>
+                              </div>
+                          
+                              {/* Bank Details Section */}
+                              <div className="bg-white rounded-2xl shadow-md p-6">
+                                <h2 className="text-xl font-bold mb-4">Bank Details</h2>
+                          {
+                            seller.bank_details?(
+                              <div className="space-y-2">
+                              <p><strong>Account Holder Name:</strong>{seller.bank_details.account_holder_name}</p>
+                              <p><strong>Bank Name:</strong> {seller.bank_details.bank_name}</p>
+                              <p><strong>Account Number:</strong> {seller.bank_details.account_number}</p>
+                              <p><strong>IFSC Code:</strong> {seller.bank_details.ifsc_code}</p>
+                              <p><strong>Branch Address:</strong> {seller.bank_details.branch_address}</p>
+                            </div>
+                            ):
+                            (
+                              <p>Bank details are not available.</p>
+                            )
+                          }
+                              </div>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
         </div>

@@ -29,7 +29,7 @@ class AdminTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model=CustomUser
-        fields=['first_name']
+        fields=['first_name','last_name','is_active']
 
 
 class ViewSellerSerializer(serializers.ModelSerializer):
@@ -1098,3 +1098,51 @@ class UpdateNewSubCategorySerializer(serializers.Serializer):
         obj.subcategory_name = self.validated_data["category"]
         obj.subcategory_description = self.validated_data["description"]
         obj.save()
+
+
+
+
+from userapp.models import ReturnRefund
+class ReturnRefundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ReturnRefund
+        fields=['id','status','approved_refund_amount']
+
+
+class BillUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['id','first_name','last_name']
+
+
+from userapp.models import OrderLine
+class OrderLineSerializer(serializers.ModelSerializer):
+    seller=BillUserSerializer(read_only=True)
+    class Meta:
+        model = OrderLine
+        fields = ['seller']
+
+class BillShopOrderSerializer(serializers.ModelSerializer):
+    user = BillUserSerializer(read_only=True)
+    returns = ReturnRefundSerializer(many=True, read_only=True)  
+    order_lines=OrderLineSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ShopOrder
+        fields = ['id','user', 'order_date', 'returns','order_lines']
+
+
+class BillPaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['platform_fee']
+
+
+from userapp.models import Bill
+class BillRevenueSerializer(serializers.ModelSerializer):
+    order=BillShopOrderSerializer(read_only=True)
+    payment=BillPaymentSerializer(read_only=True)
+    
+    class Meta:
+        model=Bill
+        fields=['id','invoice_number','payment_status','total_amount','order','payment']

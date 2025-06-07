@@ -598,19 +598,108 @@ from sellerapp.serializers import BillRevenueSerializer
 
 from django.db.models import Q
 
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+    
+
 class ViewSellerRevenue(APIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
 
     def get(self, request):
         user = request.user
         if not user.is_seller():
             return Response({"error": "You are not authorized to view this data."}, status=403)
+        
         order_lines = OrderLine.objects.filter(seller=user)
         seller_orders = ShopOrder.objects.filter(order_lines__in=order_lines).distinct()
-        # bills = Bill.objects.filter(order__in=seller_orders, payment_status='paid')
         bills = Bill.objects.filter(order__in=seller_orders)
+        
+        # Get all bills data for calculations
         serializer = BillRevenueSerializer(bills, many=True)
-        return Response(serializer.data, status=200)
+        bills_data = serializer.data
+
+        # Calculate totals in Python
+        total_revenue = sum(float(bill['total_amount']) for bill in bills_data)
+        
+        seller_earnings = sum(
+            float(bill['total_amount']) - float(bill['payment']['platform_fee']) 
+            for bill in bills_data 
+            if bill.get('payment', {}).get('platform_fee')
+        )
+        
+        refund_amount = 0
+        for bill in bills_data:
+            returns = bill.get('order', {}).get('returns', [])
+            if returns:
+                refund_amount += sum(
+                    float(ret['approved_refund_amount']) 
+                    for ret in returns 
+                    if ret.get('status') == "completed"
+                )
+
+        details = {
+            "total_revenue": total_revenue,
+            "seller_earnings": seller_earnings,
+            "refund_amount": refund_amount
+        }
+
+        # Paginate the results
+        paginator = self.pagination_class()
+        result_page = paginator.paginate_queryset(bills, request)
+        serializer = BillRevenueSerializer(result_page, many=True)
+        
+        # Combine paginated data with details
+        response_data = {
+            "details": details,
+            "transactions": serializer.data,
+            "pagination": {
+                "count": paginator.page.paginator.count,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link()
+            }
+        }
+        print("response_data",response_data["details"])
+        
+        return Response(response_data)
+
+
+
+
+# pagination 
+
+
+# from rest_framework.pagination import PageNumberPagination
+
+# class StandardResultsSetPagination(PageNumberPagination):
+#     page_size = 10
+#     page_size_query_param = 'page_size'
+#     max_page_size = 100
+
+# class ViewSellerRevenue(APIView):
+#     permission_classes = [IsAuthenticated]
+#     pagination_class = StandardResultsSetPagination
+
+#     def get(self, request):
+#         user = request.user
+#         if not user.is_seller():
+#             return Response({"error": "You are not authorized to view this data."}, status=403)
+        
+#         order_lines = OrderLine.objects.filter(seller=user)
+#         seller_orders = ShopOrder.objects.filter(order_lines__in=order_lines).distinct()
+#         bills = Bill.objects.filter(order__in=seller_orders)
+        
+#         # Add pagination
+#         paginator = self.pagination_class()
+#         result_page = paginator.paginate_queryset(bills, request)
+#         serializer = BillRevenueSerializer(result_page, many=True)
+        
+#         return paginator.get_paginated_response(serializer.data)
 
     
 class SellerViewOrders(APIView):

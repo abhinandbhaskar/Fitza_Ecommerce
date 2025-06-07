@@ -7,36 +7,6 @@ const UsersSection = () => {
     const [users, setUsers]=useState([]);
     const [loading, setLoading]=useState(true);
  
-    // const fetchUsers=async()=>{
-        
-    //     console.log(accessToken);
-    //     try{
-    //         const response=await fetch("https://127.0.0.1:8000/api/admin/view_users/",{
-    //             method:"GET",
-    //             headers:{
-    //                 Authorization:`Bearer ${accessToken}`,
-    //             }
-    //         })
-    //         if(response.ok)
-    //         {
-    //             const data=await response.json();
-    //             console.log("Kitti",data);
-    //             setUsers(data);
-    //         }
-    //         else{
-    //             console.log("Error Occured");
-    //         }
-    //     }
-    //     catch(errors)
-    //     {
-    //         console.log(errors);
-    //         console.log(errors.response.data);
-    //     }
-    //     finally{
-    //         console.log("Completed...")
-    //         setLoading(false);
-    //     }
-    // }
 
     const fetchUsers = async () => {
         setLoading(true); // Ensure loading state is properly managed
@@ -128,8 +98,6 @@ const UsersSection = () => {
                             <th>Phone</th>
                             <th>Account Status</th>
                             <th>Registration Date</th>
-                            <th>Last Login</th>
-                            <th>Total Orders</th>
                             <th>Remove User</th>
                         </tr>
                     </thead>
@@ -144,13 +112,13 @@ const UsersSection = () => {
                                     {users.id}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.full_name}
+                                    {users.first_name+users.last_name}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                     {users.email}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.phone}
+                                    {users.phone_number}
                                 </td>
                                 <td className={`px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300 ${users.is_active?"text-green-600":"text-red-600"}`}>
 
@@ -158,12 +126,6 @@ const UsersSection = () => {
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                     {users.date_joined}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.last_login}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    7
                                 </td>
                                 <td className="px-6 py-4 text-sm border-b border-gray-300">
                                     <button onClick={()=>handleRemove(users.id)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200">

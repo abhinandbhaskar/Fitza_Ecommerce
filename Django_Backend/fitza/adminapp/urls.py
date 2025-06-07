@@ -5,7 +5,7 @@ from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategor
 from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview,UpdateNewSubCategory
 from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon,fetchSubUpdateCategory
 from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData,AddFreeShippingOffer,GetFreeshipOffers,ShipOfferActiveDeactive,DeleteFreeShippingOffer,GetEditFreeShipOffer
-from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers,ViewAllComplaints,ResolveComplaint
+from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers,ViewAllComplaints,ResolveComplaint,ViewAdminRevenue
 from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned,ViewAllNotifications,AddSubCategory,ViewSubCategory,DeleteSubCategory
 
 urlpatterns = [
@@ -100,6 +100,7 @@ urlpatterns = [
     path('view_all_notifications/',ViewAllNotifications.as_view(),name="view_all_notifications"),
     path('marks_admin_read/<int:id>/',MarksAdminRead.as_view(),name="marks_admin_read"),
     path('unread_notifications/',UnReadNotifications.as_view(),name="unread_notifications"),
+    path('view_admin_revenue/',ViewAdminRevenue.as_view(),name="view_admin_revenue"),
 
 
 

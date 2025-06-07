@@ -939,13 +939,20 @@ class BillShopOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShopOrder
-        fields = ['user', 'order_date', 'returns']
+        fields = ['id','user', 'order_date', 'returns']
 
+
+class BillPaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['platform_fee']
 
 
 from userapp.models import Bill
 class BillRevenueSerializer(serializers.ModelSerializer):
     order=BillShopOrderSerializer(read_only=True)
+    payment=BillPaymentSerializer(read_only=True)
+    
     class Meta:
         model=Bill
-        fields=['id','invoice_number','payment_status','total_amount','order']
+        fields=['id','invoice_number','payment_status','total_amount','order','payment']

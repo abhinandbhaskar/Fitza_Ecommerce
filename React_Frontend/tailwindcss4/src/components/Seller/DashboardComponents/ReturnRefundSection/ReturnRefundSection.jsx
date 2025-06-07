@@ -295,8 +295,8 @@ const ReturnRefundSection = () => {
                                         rows={3}
                                         value={selectedReturn.return_date?"Returned":"Not Returned"}
                                         onChange={(e) => setNotes(e.target.value)}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md font-bold text-red-600 shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    />
+                                        className={`mt-1 block w-full border border-gray-300 rounded-md font-bold ${selectedReturn.return_date ? 'text-green-600' : 'text-red-600'} shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                                        />
                                     <button
                                         onClick={() => handleMarkReturned(selectedReturn.id)}
                                         className="mt-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
