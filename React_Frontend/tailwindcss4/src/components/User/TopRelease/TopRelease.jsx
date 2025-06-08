@@ -1,6 +1,5 @@
 import React from "react";
 import "./TopRelease.css";
-import productImg1 from "../../../assets/img/product-1-1.jpg";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 

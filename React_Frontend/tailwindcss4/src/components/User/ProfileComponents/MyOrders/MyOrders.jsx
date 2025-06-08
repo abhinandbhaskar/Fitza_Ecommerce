@@ -4,6 +4,12 @@ import { useSelector} from "react-redux";
 import "./MyOrders.css";
 import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
 import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
+import orderedImg from "../../../../assets/img/ordered.jpg"
+import shippedImg from "../../../../assets/img/shipped.jpg"
+import outfordeliveryImg from "../../../../assets/img/outfordelivery.jpg"
+import deliveredImg from "../../../../assets/img/delivered.jpg"
+
+"C:\Users\abhin\OneDrive\Desktop\Fitza_Ecommerce\React_Frontend\tailwindcss4\src\assets\img\ordered.jpg.jpg"
 
 const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -15,7 +21,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [cancellationReason, setCancellationReason] = useState("");
   const [address,setAddress]=useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [shipstatusImg,setShipStatusImg] = useState("");
 
 
   const filteredOrders = orderinfo
@@ -149,7 +155,52 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
     console.log("OPOPsssss",order.id);
     setDetails(order);
     setAddress(order.shipping_address.shipping_address)
+    ShippingProgress(order.shipping_address.status);
   }
+
+
+const formatDate = (dateString) => {
+  if (!dateString) return "Not Available";
+  
+  const date = new Date(dateString);
+  
+  // Format as "June 5, 2025" (or your preferred format)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+const calculateEstimatedDate = (orderDateString, daysToAdd = 5) => {
+  if (!orderDateString) return "Not Available";
+  
+  const orderDate = new Date(orderDateString);
+  orderDate.setDate(orderDate.getDate() + daysToAdd);
+  
+  return formatDate(orderDate);
+};
+
+
+const ShippingProgress=(status)=>{
+  
+  console.log("STATAUS",status);
+  if(status==="pending")
+  {
+  setShipStatusImg(orderedImg);
+  }else if(status==="shipped")
+  {
+    setShipStatusImg(shippedImg)
+  }else if(status==="out-for-delivery")
+  {
+    setShipStatusImg(outfordeliveryImg)
+  }
+  else if(status==="delivered")
+  {
+    setShipStatusImg(deliveredImg)
+  }
+
+}
 
   return (
     <div className="h-full w-full p-6 flex flex-col bg-gray-50">
@@ -262,7 +313,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
             <h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
             <div className="mt-2 text-gray-600">
               <p><span className="font-semibold">Order ID:</span> {details.id}</p>
-              <p><span className="font-semibold">Order Date:</span> {safeGet(details, 'order_date')}</p>
+            <p><span className="font-semibold">Order Date:</span> {formatDate(safeGet(details, 'order_date'))}</p>
               <p><span className="font-semibold">Order Status:</span> {safeGet(details, 'order_status.status')}</p>
               <p><span className="font-semibold">Payment Status:</span> {safeGet(details, 'payment_method.status')}</p>
               <p><span className="font-semibold">Total Amount Paid:</span> {safeGet(details, 'final_total')}</p>
@@ -332,12 +383,37 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 </table>
 </div>
 
+
+
+
+<div className="bg-white rounded-lg shadow-md p-4 my-4">
+<h2 className="text-xl font-semibold text-gray-800">Shipping Status </h2>
+{/* <img src={orderedImg} className="h-[200px] w-[300px]" alt="" /> */}
+
+<div className="flex justify-center">
+  <img src={shipstatusImg} className="h-[400px] w-[800px]" alt="" />
+</div>
+
+
+
+</div>
+
+
+
+
 {/* Shipping Address */}
 <div className="bg-white rounded-lg shadow-md p-4 my-4">
 <h2 className="text-xl font-semibold text-gray-800">Shipping & Delivery Information</h2>
 <h3 className="text-md font-bold text-gray-700">{address.user.first_name+address.user.last_name}</h3>
 <p className="mt-2 text-gray-600">{address.address_line1},{address.address_line2},pin {address.postal_code},{address.city},{address.state},{address.country}</p>
-<p>Estimated Delivery Date : {address.estimated_delivery_date|| "Not Available"}</p>
+
+<p>
+    <span className="font-semibold">Estimated Delivery Date:</span>{" "}
+    {address.estimated_delivery_date 
+      ? formatDate(address.estimated_delivery_date) 
+      : calculateEstimatedDate(details.order_date)}
+  </p>
+
 <p>Delivery Updates : {details.shipping_address.status}</p>
 </div>
 

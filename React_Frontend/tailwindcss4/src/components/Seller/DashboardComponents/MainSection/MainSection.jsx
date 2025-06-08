@@ -1,5 +1,8 @@
 import React from 'react'
 import profile from "../../../../assets/profile.jpg";
+import PerformanceMetrics from '../PerformanceMetrics/PerformanceMetrics';
+import OrderOverview from '../OrderOverview/OrderOverview';
+import InventoryManagement from '../InventoryManagement/InventoryManagement';
 const MainSection = () => {
   return (
     <>
@@ -35,166 +38,9 @@ const MainSection = () => {
             </div>
         </div>
     </div>
-
-
-    <div className="bg-white border border-gray-300 rounded-lg shadow-md p-4">
-        <h1 className="text-2xl font-bold mb-4">Best Selling Products</h1>
-        <div className="w-full h-[100px] flex flex-row gap-8">
-          <div className="flex flex-col">
-            <label htmlFor=" " className="text-sm font-bold">SHOW BY</label>
-           
-              <select name="" className="pr-32 pl-2 py-2 bg-gray-400 rounded-md" id="">
-                <option value="">10 Row</option>
-                <option value="">12 Row</option>
-                <option value="">14 Row</option>
-              </select>
-            
-          </div>
-
-          <div className="flex flex-col">
-            <label htmlFor=" " className="text-sm font-bold">CATEGORY BY</label>
-           
-              <select name="" className="pr-32 pl-2 py-2 bg-gray-400 rounded-md" id="">
-                <option value="">Mans</option>
-                <option value="">Womens</option>
-                <option value="">Childrens</option>
-              </select>
-            
-          </div>
-
-          <div className="flex flex-col">
-            <label htmlFor=" " className="text-sm font-bold">BRAND BY</label>
-           
-              <select name="" className="pr-32 pl-2 py-2 bg-gray-400 rounded-md" id="">
-                <option value="">Ecstasy</option>
-                <option value="">Zoodio</option>
-            
-              </select>
-            
-          </div>
-
-          <div className="flex flex-col">
-            <label htmlFor=" " className="text-sm font-bold">SEARCH BY</label>
-           
-           <input type="text" className="pr-22 pl-2 py-2 bg-gray-400 rounded-md" placeholder="id/name/category/brand" />
-            
-          </div>
-
-
-        </div>
-        <div className="overflow-x-auto">
-            <table className="table-auto w-full text-left border-collapse">
-                <thead>
-                    <tr className="bg-gray-100">
-                        {[
-                            "SellerId",
-                            "Seller Name",
-                            "Shop",
-                            "Email",
-                            "Phone",
-                            "Photo",
-                            "More Info",
-                            "Approve",
-                            "Reject",
-                        ].map((heading, index) => (
-                            <th
-                                key={index}
-                                className="px-4 py-2 text-sm font-semibold text-gray-600 border-b"
-                            >
-                                {heading}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border-b">#111</td>
-                        <td className="px-4 py-2 border-b">Ajitha</td>
-                        <td className="px-4 py-2 border-b">Lavanya Silks</td>
-                        <td className="px-4 py-2 border-b">aji@gmail.com</td>
-                        <td className="px-4 py-2 border-b">8848993973</td>
-                        <td className="px-4 py-2 border-b">
-                            <img
-                                src={profile}
-                                className="h-16 w-16 rounded-full object-cover"
-                                alt="Seller"
-                            />
-                        </td>
-                        <td className="px-4 py-2 border-b">More Info</td>
-                        <td className="px-4 py-2 border-b">
-                            <button className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600">
-                                Approve
-                            </button>
-                        </td>
-                        <td className="px-4 py-2 border-b">
-                            <button className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600">
-                                Reject
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border-b">#111</td>
-                        <td className="px-4 py-2 border-b">Ajitha</td>
-                        <td className="px-4 py-2 border-b">Lavanya Silks</td>
-                        <td className="px-4 py-2 border-b">aji@gmail.com</td>
-                        <td className="px-4 py-2 border-b">8848993973</td>
-                        <td className="px-4 py-2 border-b">
-                            <img
-                                src={profile}
-                                className="h-16 w-16 rounded-full object-cover"
-                                alt="Seller"
-                            />
-                        </td>
-                        <td className="px-4 py-2 border-b">More Info</td>
-                        <td className="px-4 py-2 border-b">
-                            <button className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600">
-                                Approve
-                            </button>
-                        </td>
-                        <td className="px-4 py-2 border-b">
-                            <button className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600">
-                                Reject
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border-b">#111</td>
-                        <td className="px-4 py-2 border-b">Ajitha</td>
-                        <td className="px-4 py-2 border-b">Lavanya Silks</td>
-                        <td className="px-4 py-2 border-b">aji@gmail.com</td>
-                        <td className="px-4 py-2 border-b">8848993973</td>
-                        <td className="px-4 py-2 border-b">
-                            <img
-                                src={profile}
-                                className="h-16 w-16 rounded-full object-cover"
-                                alt="Seller"
-                            />
-                        </td>
-                        <td className="px-4 py-2 border-b">More Info</td>
-                        <td className="px-4 py-2 border-b">
-                            <button className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600">
-                                Approve
-                            </button>
-                        </td>
-                        <td className="px-4 py-2 border-b">
-                            <button className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600">
-                                Reject
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div className="w-full px-4 border-1 border-gray-500 shadow-xl mb-2 mt-2 rounded-2xl">
-      <h1>Recent Orders</h1>
-    </div>
-
-    <div className="w-full px-4 border-1 border-gray-500 shadow-xl mb-2 mt-2 rounded-2xl" >
-      <h1>Platform Revenue & Report</h1>
-    </div>
+    <PerformanceMetrics/>
+    <OrderOverview/>
+    <InventoryManagement/>
 </>
   )
 }

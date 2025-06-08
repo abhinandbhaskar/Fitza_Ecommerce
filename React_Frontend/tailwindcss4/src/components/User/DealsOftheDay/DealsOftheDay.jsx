@@ -1,7 +1,6 @@
 import React,{useState,useEffect} from 'react'
 import { useSelector } from 'react-redux';
 import "./DealsOftheDay.css"
-import categoryImg1 from "../../../assets/img/category-1.jpg";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
