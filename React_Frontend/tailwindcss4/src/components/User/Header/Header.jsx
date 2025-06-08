@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const Header = ({countsN,setNcounts}) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
@@ -30,13 +32,7 @@ const Header = ({countsN,setNcounts}) => {
     const fetchDropDownData = async (cate_status) => {
         try {
             const response = await axios.get(
-                `https://127.0.0.1:8000/api/drop_down_category/${cate_status}/`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+                `https://127.0.0.1:8000/api/drop_down_category/${cate_status}/`,{});
             const categoryDescriptions = response.data.map(
                 (item) => item.category_description
             );
@@ -49,13 +45,7 @@ const Header = ({countsN,setNcounts}) => {
     const getAllProducts = async () => {
         try {
             const response = await axios.get(
-                "https://127.0.0.1:8000/api/fetch_drop_data/",
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+                "https://127.0.0.1:8000/api/fetch_drop_data/",{});
             setSubCate(response.data);
             setProducts(response.data);
         } catch (error) {
@@ -204,10 +194,13 @@ const Header = ({countsN,setNcounts}) => {
                                         {/* Notification Icon with Badge */}
                     <Link to="/notifications" className="relative">
                         <i className="fa-solid fa-bell text-red-400 text-xl md:text-3xl"></i>
-                       
+                            {!accessToken || accessToken.length === 0?
+                            <span></span>:
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                                 {countsN}
                             </span>
+                            }
+                           
                        
                     </Link>
                     
@@ -279,6 +272,7 @@ const Header = ({countsN,setNcounts}) => {
                     })}
                 </div>
             )}
+            <ToastContainer /> 
         </header>
     );
 };

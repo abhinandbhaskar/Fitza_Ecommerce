@@ -4,6 +4,8 @@ import Footer from "../../../components/User/Footer/Footer";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const CategoryProducts = () => {
     const { pro_name } = useParams();
@@ -77,11 +79,7 @@ const CategoryProducts = () => {
         setError(null);
 
         try {
-            const response = await axios.get(`https://127.0.0.1:8000/api/fetch_cate_products/${pro_name}/`, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            const response = await axios.get(`https://127.0.0.1:8000/api/fetch_cate_products/${pro_name}/`, {});
 
             setProducts(response.data);
             setFilteredProducts(response.data);
@@ -108,10 +106,18 @@ const CategoryProducts = () => {
     };
 
     const AddToCart = (id) => {
+        if(!accessToken || accessToken.length === 0) {
+            toast.error("You need to login first!");
+            return;
+        }
         navigate(`/productview/${id}`);
     };
 
     const AddToWishlist = async (id) => {
+            if(!accessToken || accessToken.length === 0) {
+                toast.error("You need to login first!");
+                return;
+            }
         try {
             const response = await axios.post(
                 `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
@@ -904,6 +910,7 @@ const CategoryProducts = () => {
                         </div>
                     </div>
                 </div>
+                <ToastContainer /> 
             </div>
             <Footer />
         </>

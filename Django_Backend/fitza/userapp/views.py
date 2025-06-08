@@ -251,13 +251,24 @@ class GetShippingAddress(APIView):
             return Response(serializer.data)
         return Response({"error":"Address not found"},status=status.HTTP_404_NOT_FOUND)    
 
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.mail import send_mail
+
 class AccountDeactivate(APIView):
-    permission_classes=[IsAuthenticated]
-    def post(self,request):
-        user=request.user
-        user.is_active=False
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        user.is_active = False
         user.save()
-        return Response({"message":"Account deactivated successfully."},status=status.HTTP_200_OK)
+
+        return Response(
+            {"message": "Account deactivated successfully."},
+            status=status.HTTP_200_OK
+        )
 
 
 from common.models import ProductItem
@@ -265,7 +276,7 @@ from userapp.serializers import SellProductsSerializer
 from userapp.serializers import ProductSerializer
 
 class ViewNewArrivals(APIView):
-    permission_classes=[IsAuthenticated]
+    # permission_classes=[IsAuthenticated]
     def get(self,request):
         obj = Product.objects.filter(items__status="approved").distinct() 
         serializer=ProductSerializer(obj,many=True)
@@ -275,7 +286,7 @@ class ViewNewArrivals(APIView):
 from userapp.serializers import DealsOfdayAllProducts
 
 class GetDealsOfDay(APIView):
-    permission_classes=[IsAuthenticated]
+    # permission_classes=[IsAuthenticated]
     def get(self,request):
         obj=ProductOffer.objects.all().order_by('-id')[:6]
         serializer=DealsOfdayAllProducts(obj,many=True)
@@ -303,7 +314,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 100
 
 class ViewTopCollections(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     
     def get(self, request):
@@ -418,8 +429,7 @@ class DropDownCategory(APIView):
 from userapp.serializers import ProductViewSerializer
 
 class FetchCategoryProduct(APIView):
-    permission_classes = [IsAuthenticated]
-    
+    # permission_classes = [IsAuthenticated]
     def get(self, request, pro_name):
         # Use icontains for partial matching and case insensitivity
         obj = Product.objects.filter(
@@ -443,7 +453,7 @@ class FetchCategoryProduct(APIView):
 from userapp.serializers import BannerShowSerializer
 from sellerapp.models import Banner
 class GetBanners(APIView):
-    permission_classes=[IsAuthenticated]
+    # permission_classes=[IsAuthenticated]
     def get(self,request):
         obj=Banner.objects.filter(is_active=True)
         serializer=BannerShowSerializer(obj,many=True)

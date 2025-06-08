@@ -35,13 +35,14 @@
   font-size: 3.8rem;
   font-weight: bold;
   margin: 0;
-  color: rgb(218, 17, 17); /* Adjust color for emphasis */
+ /* Adjust color for emphasis */
 }
 
 .banner-description {
   font-size: 1.6rem;
   margin: 0;
   line-height: 1.5;
+  color: rgb(218, 17, 17); 
 }
 
 .banner-offer {

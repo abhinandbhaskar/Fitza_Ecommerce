@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import "./DealsOftheDay.css"
 import categoryImg1 from "../../../assets/img/category-1.jpg";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 import axios from 'axios';
 const DealsOftheDay = () => {
@@ -34,11 +36,7 @@ const DealsOftheDay = () => {
   };
   const fetchDeals = async () => {
     try {
-      const response = await axios.get("https://127.0.0.1:8000/api/deals_of_day/", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const response = await axios.get("https://127.0.0.1:8000/api/deals_of_day/", {});
       console.log("Dealsssssssssss", response);
       setProducts(response.data);
       console.log("Dealsssssssssss", response.data[0].end_date);
@@ -55,6 +53,10 @@ const DealsOftheDay = () => {
   },[])
 
       const AddToCart=(id)=>{
+          if(!accessToken || accessToken.length === 0) {
+              toast.error("You need to login first!");
+              return;
+            }
         console.log("Yo Yo",id);
         navigate(`/productview/${id}`);
     }
@@ -127,6 +129,7 @@ const DealsOftheDay = () => {
               }
               </div>
         </div>
+      <ToastContainer /> 
     </div>
   )
 }

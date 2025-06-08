@@ -9,12 +9,18 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const BannerSection = () => {
   const [banner, setBanner] = useState([]);
   const navigate=useNavigate();
 
   const handleShopNow=()=>{
+     if(!accessToken || accessToken.length === 0) {
+            toast.error("You need to login first!");
+            return;
+        }
     navigate("/offerproduct");
   }
 
@@ -23,13 +29,7 @@ const BannerSection = () => {
   const fetchBanner = async () => {
     try {
       const response = await axios.get(
-        "https://127.0.0.1:8000/api/getbanners/",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+        "https://127.0.0.1:8000/api/getbanners/",{});
       setBanner(response.data);
     } catch (errors) {
       console.error("Error fetching banners:", errors);
@@ -89,6 +89,7 @@ const BannerSection = () => {
           </SwiperSlide>
         ))}
       </Swiper>
+      <ToastContainer />    
     </div>
   );
 };

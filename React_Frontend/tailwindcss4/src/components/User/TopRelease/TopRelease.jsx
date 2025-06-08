@@ -2,6 +2,8 @@ import React from "react";
 import "./TopRelease.css";
 import productImg1 from "../../../assets/img/product-1-1.jpg";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const sectionNames = ["Hot Releases", "Trending Products", "Top Picks", "Must-Have Styles"];
 
@@ -9,6 +11,10 @@ const TopRelease = ({ topdata }) => {
   const navigate=useNavigate();
 
   const AddToCart=(id)=>{
+     if(!accessToken || accessToken.length === 0) {
+            toast.error("You need to login first!");
+          return;
+        }
         console.log("Yo Yo",id);
         navigate(`/productview/${id}`);
     }
@@ -58,6 +64,7 @@ const TopRelease = ({ topdata }) => {
           </div>
         ))}
       </div>
+      <ToastContainer /> 
     </div>
   );
 };

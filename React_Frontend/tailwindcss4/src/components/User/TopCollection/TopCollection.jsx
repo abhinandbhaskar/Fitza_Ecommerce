@@ -3,6 +3,8 @@ import axios from "axios";
 import "./TopCollection.css";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const TopCollection = () => {
     const { accessToken } = useSelector((state) => state.auth);
@@ -17,12 +19,10 @@ const TopCollection = () => {
     const navigate = useNavigate();
     const [filtersts, setFilterSts] = useState("all");
 
+    
     const fetchTopCollections = async (page = 1) => {
         try {
             const response = await axios.get(`https://127.0.0.1:8000/api/top_collections/?page=${page}`, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
             });
             console.log(response);
             console.log("Top Collections ArrivalsRRRRR", response.data.results);
@@ -39,17 +39,34 @@ const TopCollection = () => {
             console.log(errors.response.data);
         }
     };
-    const AddToCart = (id) => {
-        console.log("Yo Yo", id);
-        navigate(`/productview/${id}`);
-    };
+
+const AddToCart = (id) => {
+    console.log("clicked");
+    if(!accessToken || accessToken.length === 0) {
+        toast.error("You need to login first!");
+        return;
+    }
+    
+    console.log("Yo Yo", id);
+    navigate(`/productview/${id}`);
+};
 
     const CompareProduct = (id) =>{
+    if(!accessToken || accessToken.length === 0) {
+        toast.error("You need to login first!");
+        return;
+    }
         console.log("Compare",id)
         navigate(`/compareproducts/${id}`);
     }
 
     const AddToWishlist = async (id) => {
+
+    if(!accessToken || accessToken.length === 0) {
+        toast.error("You need to login first!");
+        return;
+    }
+
         try {
             const response = await axios.post(
                 `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
@@ -242,8 +259,7 @@ const TopCollection = () => {
                 </nav>
             </div>
 
-
-            
+        <ToastContainer />    
         </div>
     );
 };

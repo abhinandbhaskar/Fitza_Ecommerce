@@ -14,6 +14,33 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
   const [orderId,setOrderId]=useState(null);
   const [cancellationReason, setCancellationReason] = useState("");
   const [address,setAddress]=useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+
+
+  const filteredOrders = orderinfo
+  .filter((order) => {
+    if (activeFilter !== "all" && order.order_status.status !== activeFilter) {
+      return false;
+    }
+    
+    if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      
+      const orderIdMatch = `#160${order.id}`.toLowerCase().includes(lowerSearchTerm);
+      
+      const productNameMatch = order.order_lines.some(line => {
+        const productName = line?.product_item?.product?.product_name?.toLowerCase() || '';
+        return productName.includes(lowerSearchTerm);
+      });
+      
+      return orderIdMatch || productNameMatch;
+    }
+    
+    return true;
+  });
+
+
 
 
    const handleOrderCancellation = async() => {
@@ -21,7 +48,7 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
       alert("Please provide a cancellation reason.");
       return;
     }
-    // Add your cancellation logic here
+   
     console.log("Order cancelled with reason:", cancellationReason);
     console.log("OrderId",orderId);
 
@@ -60,19 +87,18 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-      responseType: 'blob',  // Set the response type to blob to handle PDF file
+      responseType: 'blob', 
     });
     
     if (response.status === 200) {
-      // Create a Blob from the PDF response
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      
-      // Create a link to trigger the download
+
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Invoice-${orderId}.pdf`;  // Set the file name
-      link.click();  // Trigger the download
+      link.download = `Invoice-${orderId}.pdf`;  
+      link.click(); 
     }
   } catch (error) {
     console.error("Error fetching bill:", error);
@@ -138,18 +164,23 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
 {
   myorderview==="myorder" && (
     <>
-      {/* Search and Filters */}
+     
       <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search by Product Name or Order ID"
-          className="w-full md:w-1/2 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
+           
+          <input
+            type="text"
+            placeholder="Search by Product Name or Order ID"
+            className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={searchTerm}
+            onChange={(e) => {
+              console.log("Search term:", e.target.value); 
+              setSearchTerm(e.target.value);
+            }}
+          />
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2">
-          {["all","processing","pending", "confirmed","shipped", "delivered", "cancelled"].map((filter) => (
+          {["all","processing","pending", "confirmed","delivered", "cancelled"].map((filter) => (
             <button
               key={filter}
               onClick={() => handleFilterClick(filter)}
@@ -180,38 +211,33 @@ const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
             </tr>
           </thead>
           <tbody>
-
-            {
-              (activeFilter==="all"?orderinfo:orderinfo.filter((order)=>order.order_status.status===activeFilter)).map((order,key)=>(
-                <tr key={key} className="border-t hover:bg-gray-100">
-                <td className="px-6 py-4 text-sm text-gray-800">
-                  <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
-                    #160{order.id}
-                  </a>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
-                  <img
-                    src={"https://127.0.0.1:8000/"+order.order_lines[0].product_item.product.items[0].images[0].main_image}
-                    alt="Product"
-                    className="w-10 h-10 rounded"
-                  />
-                  <span>Product Name {order.order_lines[0].product_item.product.product_name}</span>
-                </td>
-                <td className="px-6 py-4 text-sm font-semibold">
-                  <span className="text-green-600">{order.order_status.status}</span>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-800">{order.order_date}</td>
-                <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.final_total}</td>
-                <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
-                  <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
-                    View Order
-                  </button>
-                
-                </td>
-              </tr>
-              ))
-            }
-       
+                {filteredOrders.map((order,key) => (
+                  <tr key={key} className="border-t hover:bg-gray-100">
+                    <td className="px-6 py-4 text-sm text-gray-800">
+                      <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
+                        #160{order.id}
+                      </a>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
+                      <img
+                        src={"https://127.0.0.1:8000/"+order.order_lines[0].product_item.product.items[0].images[0].main_image}
+                        alt="Product"
+                        className="w-10 h-10 rounded"
+                      />
+                      <span>{order.order_lines[0].product_item.product.product_name}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold">
+                      <span className="text-green-600">{order.order_status.status}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800">{order.order_date}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.final_total}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
+                      <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
+                        View Order
+                      </button>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
       </div>

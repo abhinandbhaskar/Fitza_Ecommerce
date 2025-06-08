@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { updateShopOrder } from "../../../../redux/ShopOrderSlice";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const CartSection = ({ setCartView, setCartId }) => {
     const { accessToken } = useSelector((state) => state.auth);
@@ -41,6 +43,11 @@ const CartSection = ({ setCartView, setCartId }) => {
     };
 
     const fetchData = async () => {
+          if(!accessToken || accessToken.length === 0) {
+              toast.error("You need to login first!");
+              return;
+            }
+
         try {
             setLoading(true);
             setError(null);
@@ -674,6 +681,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                     </div>
                 )}
             </div>
+            <ToastContainer />    
         </div>
     );
 };

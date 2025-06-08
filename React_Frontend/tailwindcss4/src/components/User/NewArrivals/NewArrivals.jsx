@@ -3,6 +3,8 @@ import axios from "axios";
 import "./NewArrivals.css";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const NewArrivals = ({ setTopData }) => {
     const [startIndex, setStartIndex] = useState(0);
@@ -26,11 +28,7 @@ const NewArrivals = ({ setTopData }) => {
 
     const fetchNewArrivals = async () => {
         try {
-            const response = await axios.get("https://127.0.0.1:8000/api/new_arrivals/", {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+            const response = await axios.get("https://127.0.0.1:8000/api/new_arrivals/", {});
             setProducts(response.data);
             setTopData(response.data);
         } catch (errors) {
@@ -43,16 +41,28 @@ const NewArrivals = ({ setTopData }) => {
     }, []);
 
     const AddToCart = (id) => {
+         if(!accessToken || accessToken.length === 0) {
+                toast.error("You need to login first!");
+                return;
+            }
         navigate(`/productview/${id}`);
     };
 
     
     const CompareProduct = (id) =>{
+         if(!accessToken || accessToken.length === 0) {
+                toast.error("You need to login first!");
+                return;
+            }
         console.log("Compare",id)
         navigate(`/compareproducts/${id}`);
     }
 
     const AddToWishlist = async (id) => {
+         if(!accessToken || accessToken.length === 0) {
+                toast.error("You need to login first!");
+                return;
+            }
         try {
             const response = await axios.post(
                 `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
@@ -182,6 +192,7 @@ const NewArrivals = ({ setTopData }) => {
                     ))}
                 </div>
             </div>
+            <ToastContainer />    
         </div>
     );
 };

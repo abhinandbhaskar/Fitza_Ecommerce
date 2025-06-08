@@ -1,243 +1,133 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./TopCollection.css";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useSelector} from "react-redux";
+import "./MyOrders.css";
+import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
+import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
 
-const TopCollection = () => {
-    const { accessToken } = useSelector((state) => state.auth);
-    const [products, setProducts] = useState([]);
-    const [pagination, setPagination] = useState({
-        count: 0,
-        next: null,
-        previous: null,
-        currentPage: 1,
-        totalPages: 1
+const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const handleFilterClick = (filter) => setActiveFilter(filter);
+  const { accessToken } = useSelector((state) => state.auth);
+  const [orderinfo,setOrderInfo]=useState([]);
+  const [details,setDetails]=useState("");
+  const [orderId,setOrderId]=useState(null);
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [address,setAddress]=useState("");
+
+  // Filter orders based on active filter and search term
+  const filteredOrders = orderinfo
+    .filter((order) => {
+      // Filter by active status first
+      if (activeFilter !== "all" && order.order_status.status !== activeFilter) {
+        return false;
+      }
+      
+      // Then filter by search term if it exists
+      if (searchTerm) {
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        const orderIdMatch = `#160${order.id}`.toLowerCase().includes(lowerSearchTerm);
+        const productNameMatch = order.order_lines.some(line => 
+          line.product_item.product.product_name.toLowerCase().includes(lowerSearchTerm)
+        );
+        return orderIdMatch || productNameMatch;
+      }
+      
+      return true;
     });
-    const navigate = useNavigate();
-    const [filtersts, setFilterSts] = useState("all");
 
-    const fetchTopCollections = async (page = 1) => {
-        try {
-            const response = await axios.get(`https://127.0.0.1:8000/api/top_collections/?page=${page}`, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-            console.log("Top Collections ArrivalsRRRRR", response.data);
-            setProducts(response.data.results);
-            setPagination({
-                count: response.data.count,
-                next: response.data.next,
-                previous: response.data.previous,
-                currentPage: page,
-                totalPages: Math.ceil(response.data.count / 12)
-            });
-        } catch (errors) {
-            console.log(errors);
-            console.log(errors.response.data);
-        }
-    };
+  // ... rest of your existing code ...
 
-    const AddToCart = (id) => {
-        console.log("Yo Yo", id);
-        navigate(`/productview/${id}`);
-    };
+  return (
+    <div className="h-full w-full p-6 flex flex-col bg-gray-50">
+      {/* Header Section */}
+      <div className="flex items-center gap-4 pb-4 border-b">
+        <i className="fa-solid fa-cart-shopping text-4xl text-blue-500"></i>
+        <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
+      </div>
 
-    const CompareProduct = (id) => {
-        console.log("Compare", id);
-        navigate(`/compareproducts/${id}`);
-    };
+      {myorderview==="myorder" && (
+        <>
+          {/* Search and Filters */}
+          <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
+            {/* Search Bar */}
+            <input
+              type="text"
+              placeholder="Search by Product Name or Order ID"
+              className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-    const AddToWishlist = async (id) => {
-        try {
-            const response = await axios.post(
-                `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    withCredentials: true,
-                }
-            );
-            console.log("Wishlist Res", response.data);
-        } catch (errors) {
-            console.log(errors);
-            console.log(errors.response.data);
-        }
-    };
-
-    useEffect(() => {
-        fetchTopCollections();
-    }, []);
-
-    const handlePageChange = (page) => {
-        fetchTopCollections(page);
-    };
-
-    return (
-        <div className="collection-container h-auto width-screen">
-            <div className="collection-header h-auto w-full text-center my-12">
-                <div>
-                    <h1 className="text-4xl font-bold py-2">Our Top Collection</h1>
-                </div>
-                <div>
-                    <p className="text-2xl text-gray-600 py-2 font-medium">Browse The Collection of Top Products</p>
-                </div>
-                <div className="py-6">
-                    <button
-                        onClick={() => setFilterSts("all")}
-                        className="py-2 px-4 text-sm md:text-base border-b-4 border-transparent hover:border-red-300 transition-all duration-200 mx-3 font-bold"
-                    >
-                        FOR ALL
-                    </button>
-                    <button
-                        onClick={() => setFilterSts("Men's Wear")}
-                        className="py-2 px-4 text-sm md:text-base border-b-4 border-transparent hover:border-red-300 transition-all duration-200 mx-3 font-bold"
-                    >
-                        FOR MEN
-                    </button>
-                    <button
-                        onClick={() => setFilterSts("Women's Wear")}
-                        className="py-2 px-4 text-sm md:text-base border-b-4 border-transparent hover:border-red-300 transition-all duration-200 mx-3 font-bold"
-                    >
-                        FOR WOMEN
-                    </button>
-                    <button
-                        onClick={() => setFilterSts("Kid's Wear")}
-                        className="py-2 px-4 text-sm md:text-base border-b-4 border-transparent hover:border-red-300 transition-all duration-200 mx-3 font-bold"
-                    >
-                        FOR CHILDREN
-                    </button>
-                </div>
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap gap-2">
+              {["all","processing","pending", "confirmed","delivered", "cancelled"].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => handleFilterClick(filter)}
+                  className={`py-2 px-4 rounded-lg shadow-md font-medium ${
+                    activeFilter === filter
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="Featured-section">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20 ">
-                    {(filtersts === "all"
-                        ? products
-                        : products.filter((item) => item.category.category_name === filtersts)
-                    ).map((product) => (
-                        <div key={product.id} className="card">
-                            <div className="Tag">
-                                <h6>New</h6>
-                            </div>
-                            <img
-                                src={
-                                    product.items?.[0]?.images?.[0]?.main_image
-                                        ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
-                                        : "/path/to/default/image.jpg"
-                                }
-                                alt={product.product_name}
-                                className="card-img-top"
-                            />
-                            <div className="Cards-Options">
-                                <div className="Cards-Icons">
-                                    <div onClick={() => AddToCart(product.id)} className="Eye-Icons">
-                                        <i className="fa-regular fa-eye"></i>
-                                        <div className="tooltip1">Quick View</div>
-                                    </div>
-                                    <div onClick={() => AddToWishlist(product.id)} className="Heart-Icon">
-                                        <i className="fa-regular fa-heart"></i>
-                                        <div className="tooltip2">Add To Wishlist</div>
-                                    </div>
-                                    <div onClick={() => CompareProduct(product.id)} className="Shuffle-Icon">
-                                        <i className="fa-solid fa-shuffle"></i>
-                                        <div className="tooltip3">Compare</div>
-                                    </div>
-                                </div>
-                            </div>
+          {/* Orders Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full table-auto bg-white shadow-lg rounded-lg border border-gray-200">
+              <thead className="bg-blue-500 text-white">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Product</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Order Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Order Date</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.map((order,key) => (
+                  <tr key={key} className="border-t hover:bg-gray-100">
+                    <td className="px-6 py-4 text-sm text-gray-800">
+                      <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
+                        #160{order.id}
+                      </a>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
+                      <img
+                        src={"https://127.0.0.1:8000/"+order.order_lines[0].product_item.product.items[0].images[0].main_image}
+                        alt="Product"
+                        className="w-10 h-10 rounded"
+                      />
+                      <span>Product Name {order.order_lines[0].product_item.product.product_name}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold">
+                      <span className="text-green-600">{order.order_status.status}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800">{order.order_date}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.final_total}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
+                      <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
+                        View Order
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
-                            <div className="card-body">
-                                <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
-                                    {product.product_name}
-                                </h2>
-                                <h4 className="text-gray-700 leading-relaxed text-lg">
-                                    {product.product_description.length > 28
-                                        ? `${product.product_description.substring(0, 28)}...`
-                                        : product.product_description}
-                                </h4>
-
-                                <div>
-                                    {product?.offers?.[0]?.discount_percentage > 0 ? (
-                                        <>
-                                            <span className="text-gray-400 line-through text-sm mr-2">
-                                                ${product.items[0].sale_price}
-                                            </span>
-                                            <span className="text-xl font-bold text-green-600">
-                                                $
-                                                {(
-                                                    parseFloat(product.items[0].sale_price) *
-                                                    (1 - parseFloat(product.offers[0].discount_percentage) / 100)
-                                                ).toFixed(2)}
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <span className="text-xl font-bold">${product.items[0].sale_price}</span>
-                                    )}
-                                </div>
-
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="flex items-center">
-                                        <span className="text-yellow-500 font-medium">
-                                            {product.ratings.average_rating.toFixed(1)}
-                                        </span>
-                                        <span className="text-yellow-400 ml-1">★</span>
-                                    </div>
-                                    <span className="text-gray-500 text-sm">
-                                        ({product.ratings.total_reviews} reviews)
-                                    </span>
-
-                                    {product?.offers?.[0]?.discount_percentage > 0 && (
-                                        <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit font-bold">
-                                            <i className="fa-solid fa-tag text-sm"></i>
-                                            <span>{parseFloat(product.offers[0].discount_percentage)}% OFF</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="label-icon my-2">
-                                <button onClick={() => AddToCart(product.id)} className="Addcart-icon">
-                                    <i className="fa-solid fa-cart-arrow-down"></i>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex justify-center my-8">
-                <nav className="inline-flex rounded-md shadow">
-                    <button
-                        onClick={() => handlePageChange(pagination.currentPage - 1)}
-                        disabled={!pagination.previous}
-                        className={`px-4 py-2 rounded-l-md border ${!pagination.previous ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                    >
-                        Previous
-                    </button>
-                    {[...Array(pagination.totalPages)].map((_, index) => (
-                        <button
-                            key={index + 1}
-                            onClick={() => handlePageChange(index + 1)}
-                            className={`px-4 py-2 border-t border-b ${pagination.currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                        >
-                            {index + 1}
-                        </button>
-                    ))}
-                    <button
-                        onClick={() => handlePageChange(pagination.currentPage + 1)}
-                        disabled={!pagination.next}
-                        className={`px-4 py-2 rounded-r-md border ${!pagination.next ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                    >
-                        Next
-                    </button>
-                </nav>
-            </div>
-        </div>
-    );
+      {/* ... rest of your existing view conditions ... */}
+    </div>
+  );
 };
 
-export default TopCollection;
+export default MyOrders;
