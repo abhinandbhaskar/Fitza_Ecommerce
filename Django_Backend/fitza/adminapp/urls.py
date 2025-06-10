@@ -5,8 +5,8 @@ from adminapp.views import SellerApprovals,ApproveSeller,AddCategory,ViewCategor
 from adminapp.views import ViewSize,SizeDelete,AddBrand,ViewBrand,ViewUpdateBrand,UpdateNewBrand,DeleteBrand,ViewPendingProduct,ApproveProduct,ViewAllProduct,RejectProduct,ViewProduct,ViewRatingReview,UpdateNewSubCategory
 from adminapp.views import ApproveReview,RejectReview,AddBanner,GetBanners,DeleteBanner,EditBannerData,UpdateBanner,ActivateBanner,DeactivateBanner,AddCoupon,GetCoupons,DeleteCoupon,GetEditCoupon,EditCoupon,fetchSubUpdateCategory
 from adminapp.views import AddDiscountCard,GetDiscountCards,ActiveDeactive,DeleteDiscountCard,GetEditDiscountCard,EditDiscountData,AddFreeShippingOffer,GetFreeshipOffers,ShipOfferActiveDeactive,DeleteFreeShippingOffer,GetEditFreeShipOffer
-from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers,ViewAllComplaints,ResolveComplaint,ViewAdminRevenue
-from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned,ViewAllNotifications,AddSubCategory,ViewSubCategory,DeleteSubCategory
+from adminapp.views import EditShippingOfferData,GetSelectAllProducts,AddProductOffer,GetProductsAllOffers,DeleteProductOffer,ProductOfferActiveDeactive,GetEditProductOffer,EditProductOffers,ViewAllComplaints,ResolveComplaint,ViewAdminRevenue,PendingActions
+from adminapp.views import ResolveComplaint,AdminReply,SellerFeedBacks,ViewPendingOrders,UpdateOrderStatus,VerifyPaymentAdmin,FetchAllReturnRefund,HandleMarkReturned,ViewAllNotifications,AddSubCategory,ViewSubCategory,DeleteSubCategory,FetchAdminDashboard
 
 urlpatterns = [
     path('login/',AdminTokenObtainPairView.as_view(), name='admin_token_obtain_pair'),
@@ -44,7 +44,7 @@ urlpatterns = [
     path('approve_product/<int:id>/',ApproveProduct.as_view(),name="approve_product"),
     path('reject_product/<int:id>/',RejectProduct.as_view(),name="reject_product"),
     path('view_product/<int:id>/',ViewProduct.as_view(),name="view_product"),
-    path('view_review_ratings/<str:filterreview>/',ViewRatingReview.as_view(),name="view_review_ratings"),
+    path('view_review_ratings/',ViewRatingReview.as_view(),name="view_review_ratings"),
     path('approve_review/<int:id>/',ApproveReview.as_view(),name="approve_review"),
     path('reject_review/<int:id>/',RejectReview.as_view(),name="reject_review"),
     path('add_banner/',AddBanner.as_view(),name="add_banner"),
@@ -101,6 +101,8 @@ urlpatterns = [
     path('marks_admin_read/<int:id>/',MarksAdminRead.as_view(),name="marks_admin_read"),
     path('unread_notifications/',UnReadNotifications.as_view(),name="unread_notifications"),
     path('view_admin_revenue/',ViewAdminRevenue.as_view(),name="view_admin_revenue"),
+    path('fetch_admin_dashboard/',FetchAdminDashboard.as_view(),name="fetch_admin_dashboard"),
+    path('admin_pendings_actions/',PendingActions.as_view(),name="admin_pendings_actions")
 
 
 

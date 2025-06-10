@@ -390,16 +390,8 @@ from userapp.models import RatingsReview
 from adminapp.serializers import RatingReviewSerializer  
 class ViewRatingReview(APIView):
     permission_classes=[IsAuthenticated]
-    def get(self,request,filterreview):
-        print("MMM",filterreview)
-        if filterreview=="All":
-            obj=RatingsReview.objects.all()
-        elif filterreview=="approved":
-            status="approved"
-            obj=RatingsReview.objects.filter(status=status)
-        elif filterreview=="rejected":
-            status="rejected"
-            obj=RatingsReview.objects.filter(status=status)
+    def get(self,request):
+        obj=RatingsReview.objects.all()
         serializer=RatingReviewSerializer(obj,many=True)
         return Response(serializer.data)
 
@@ -1139,3 +1131,116 @@ class ViewAdminRevenue(APIView):
         }
         
         return Response(response_data)
+    
+from adminapp.serializers import SalesTrendsSerializer 
+
+class FetchAdminDashboard(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"error": "You are not authorized to view this data."}, status=403)
+        total_users=CustomUser.objects.filter(user_type="user",is_active=True).count()
+        total_sellers=Seller.objects.filter(account_verified=True,user__user_type="seller",user__is_active=True).count()
+        order_excluded_status = ["completed", "canceled"]
+        total_orders=ShopOrder.objects.exclude(order_status__status__in=order_excluded_status).count()
+        total_products=Product.objects.all().count()
+        bills = Bill.objects.all()
+        serializer = BillRevenueSerializer(bills, many=True)
+        bills_data = serializer.data
+        total_revenue = sum(float(bill['total_amount']) for bill in bills_data)
+        total_ratingreview=RatingsReview.objects.all().count()
+        total_sales=Bill.objects.filter(payment_status="paid").count()
+        serializer=SalesTrendsSerializer(bills,many=True)
+        context={
+                "totalusers":total_users,
+                "totalsellers":total_sellers,
+                "totalorders":total_orders,
+                "totalproducts":total_products,
+                "totalrevenue":total_revenue,
+                "totalratingreview":total_ratingreview,
+                "total_sales":total_sales,
+                "data":serializer.data
+                }
+        return Response({"data":context,"message":"Completed"})
+    
+
+
+# class PendingActions(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def get(self,request):
+#         user=request.user
+#         if not CustomUser.objects.filter(id=user.id).exists():
+#             return Response({"error": "You are not authorized to view this data."}, status=403)
+
+#         obj=CustomUser.objects.filter(is_active=False).values_list('id', flat=True)
+#         sellers_count=Seller.objects.filter(account_verified=False,user_id__in=obj).count()
+#         products_count=ProductItem.objects.filter(status='pending').count()
+#         review_ratings=RatingsReview.objects.filter(status="pending").count()
+#         complaints=Complaint.objects.filter(resolved=False).count()
+#         return_refund=ReturnRefund.objects.filter(status="pending").count()
+#         bills=Bill.objects.all()
+#         serializer=TopSellersSerializer(bills,many=True)
+#         context={"sellerscount":sellers_count,"productscount":products_count,"reviewratings":review_ratings,"complaints":complaints,"returnrefund":return_refund,"topsellers":serializer.data}
+#         return Response({"data":context})
+
+
+
+
+
+from common.models import Seller
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Sum, Count
+# from .models import Seller, OrderLine, ShopOrder, Bill
+from adminapp.serializers import TopSellerSerializer
+
+class PendingActions(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"error": "You are not authorized to view this data."}, status=403)
+
+        # Get top 5 sellers by revenue
+
+        obj=CustomUser.objects.filter(is_active=False).values_list('id', flat=True)
+        sellers_count=Seller.objects.filter(account_verified=False,user_id__in=obj).count()
+        products_count=ProductItem.objects.filter(status='pending').count()
+        review_ratings=RatingsReview.objects.filter(status="pending").count()
+        complaints=Complaint.objects.filter(resolved=False).count()
+        return_refund=ReturnRefund.objects.filter(status="pending").count()
+
+
+        top_sellers = (
+            OrderLine.objects
+            .select_related('seller__seller_profile', 'order__bill')
+            .filter(order__bill__payment_status='paid')  # Only count paid orders
+            .values('seller')
+            .annotate(
+                total_revenue=Sum('order__bill__total_amount'),
+                total_orders=Count('order', distinct=True)
+            )
+            .order_by('-total_revenue')[:5]  # Get top 5 by revenue
+        )
+
+        # Get seller details for each top seller
+        seller_details = []
+        for seller_data in top_sellers:
+            seller_id = seller_data['seller']
+            try:
+                seller = Seller.objects.get(user_id=seller_id)
+                seller_details.append({
+                    'seller': seller,
+                    'total_revenue': seller_data['total_revenue'],
+                    'total_orders': seller_data['total_orders']
+                })
+            except Seller.DoesNotExist:
+                continue
+
+        # Serialize the data
+        serializer = TopSellerSerializer(seller_details, many=True)
+        context={"sellerscount":sellers_count,"productscount":products_count,"reviewratings":review_ratings,"complaints":complaints,"returnrefund":return_refund,"topsellers":serializer.data}
+        return Response(context)

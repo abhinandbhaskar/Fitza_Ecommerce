@@ -5,10 +5,11 @@ import { format } from "date-fns";
 const ReviewSection = () => {
   const { accessToken } = useSelector((state) => state.auth);
   const [reviews, setReviews] = useState([]);
+  const [filterstatus,setFilterStatus]=useState("all");
 
-  const fetchAllReview = async (filterreview) => {
+  const fetchAllReview = async () => {
     try {
-      const response = await axios.get(`https://127.0.0.1:8000/api/admin/view_review_ratings/${filterreview}/`, {
+      const response = await axios.get(`https://127.0.0.1:8000/api/admin/view_review_ratings/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -24,28 +25,9 @@ const ReviewSection = () => {
   };
 
   useEffect(() => {
-    const filterreview="All"
-    fetchAllReview(filterreview);
+    fetchAllReview();
+    console.log("HH",filterstatus);
   }, []);
-
-  const AllReview = () => {
-    const filterreview="All"
-    fetchAllReview(filterreview);
-    console.log("Fetching all reviews");
-  };
-
-  const AllApproved = () => {
-    const filterreview="approved"
-    fetchAllReview(filterreview);
-    console.log("Fetching approved reviews");
-  };
-
-  const AllRejected = () => {
-    const filterreview="rejected"
-    fetchAllReview(filterreview);
-    console.log("Fetching rejected reviews");
-  };
-
 
   const Approve=async(id)=>{
     console.log(id);
@@ -90,13 +72,16 @@ console.log(id);
 
       <div className="py-6 px-6">
         <div className="flex gap-4">
-          <button onClick={AllReview} className="px-4 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600">
+          <button onClick={()=>setFilterStatus("all")} className="px-4 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600">
             All Reviews
           </button>
-          <button onClick={AllApproved} className="px-4 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600">
+            <button onClick={()=>setFilterStatus("pending")} className="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-indigo-600">
+            Pending
+          </button>
+          <button onClick={()=>setFilterStatus("approved")} className="px-4 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600">
             Approved
           </button>
-          <button onClick={AllRejected} className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600">
+          <button onClick={()=>setFilterStatus("rejected")} className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600">
             Rejected
           </button>
         </div>

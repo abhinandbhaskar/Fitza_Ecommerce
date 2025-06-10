@@ -1146,3 +1146,93 @@ class BillRevenueSerializer(serializers.ModelSerializer):
     class Meta:
         model=Bill
         fields=['id','invoice_number','payment_status','total_amount','order','payment']
+    
+
+
+
+from rest_framework import serializers
+
+
+from rest_framework import serializers
+
+class OrderlinesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderLine
+        fields = ['id', 'quantity']
+
+
+class ShopOrdersSerializer(serializers.ModelSerializer):
+    order_lines = OrderlinesSerializer(many=True)
+
+    class Meta:
+        model = ShopOrder
+        fields = ['order_lines']
+
+
+class SalesTrendsSerializer(serializers.ModelSerializer):
+    category_sales = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
+    orders = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Bill
+        fields = ['id', 'bill_date', 'total_amount', 'category_sales', 'category_name', 'orders']
+
+    def get_orders(self, obj):
+        """
+        Retrieve related orders from the Bill instance.
+        Assumes a relationship between Bill and ShopOrder via an `order` field.
+        """
+        if hasattr(obj, 'order'):
+            return ShopOrdersSerializer(obj.order, many=False).data
+        return None
+
+    def get_category_sales(self, obj):
+        """
+        Calculate the number of sales (total quantity sold) grouped by product category.
+        """
+        category_sales = {}
+        if hasattr(obj, 'order'):
+            order_lines = obj.order.order_lines.select_related(
+                'product_item__product__category'
+            )
+            for order_line in order_lines:
+                category_name = order_line.product_item.product.category.category_name
+                category_sales[category_name] = (
+                    category_sales.get(category_name, 0) + order_line.quantity
+                )
+        return category_sales
+
+    def get_category_name(self, obj):
+        """
+        Get a list of unique category and product names from the order lines.
+        """
+        unique_names = {"categories": set(), "products": set()}
+        if hasattr(obj, 'order'):
+            order_lines = obj.order.order_lines.select_related(
+                'product_item__product__category'
+            )
+            for order_line in order_lines:
+                # Add category and product names to respective sets
+                unique_names["categories"].add(order_line.product_item.product.category.category_name)
+                unique_names["products"].add(order_line.product_item.product.product_name)
+        return {
+            "categories": list(unique_names["categories"]),
+            "products": list(unique_names["products"]),
+        }
+
+
+
+from common.models import Seller
+from rest_framework import serializers
+
+class SellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ['shop_name', 'rating', 'products_sold']
+
+class TopSellerSerializer(serializers.Serializer):
+    seller = SellerSerializer()
+    total_revenue = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_orders = serializers.IntegerField()
+    shop_name = serializers.CharField(source='seller.shop_name')

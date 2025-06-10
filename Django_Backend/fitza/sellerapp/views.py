@@ -718,3 +718,111 @@ class SellerViewOrders(APIView):
         ordercount={"processing":len(processing),"confirm":len(confirm),"readyfordispatch":len(readyfordispatch),"cancelled":len(cancelled),"delivered":len(delivered)}
         fetchdata={"orders":serializer.data,"counts":ordercount}
         return Response(fetchdata)
+    
+
+
+from common.models import Product,Payment
+from django.db.models import Sum
+from django.db.models import Sum, DecimalField
+from django.db.models.functions import Coalesce
+from userapp.models import RatingsReview
+
+# class FetchSellerDashboard(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+#         order_excluded_status = ["completed", "canceled"]
+
+#         # Single-query optimizations
+#         total_users = CustomUser.objects.filter(user_type="user", is_active=True).count()
+#         total_products = Product.objects.filter(shop__user=user).count()
+        
+#         total_orders = ShopOrder.objects.filter(
+#             order_lines__seller__user=user
+#         ).exclude(
+#             order_status__status__in=order_excluded_status
+#         ).distinct().count()
+
+#         total_sales = Bill.objects.filter(
+#             order__order_lines__seller__user=user,
+#             payment_status="paid"
+#         ).distinct().count()
+
+#         total_revenue = Bill.objects.filter(
+#             order__order_lines__seller__user=user
+#         ).aggregate(total=Sum('total_amount'))['total'] or 0
+
+#         total_platform_fee = Payment.objects.filter(
+#             order__order_lines__seller__user=user
+#         ).aggregate(total_fee=Sum('platform_fee'))['total_fee'] or 0
+
+#         refund_amount = (
+#             ReturnRefund.objects
+#             .filter(resolved_by=user, status='completed')
+#             .annotate(safe_refund=Coalesce('approved_refund_amount', 0, output_field=DecimalField()))
+#             .aggregate(total=Sum('safe_refund'))['total'] or 0
+#         )
+
+#         total_earnings = max(0, total_revenue - (total_platform_fee + refund_amount))  # Prevent negative
+#         total_reviews = RatingsReview.objects.filter(product__shop__user=user).count()
+
+#         context = {
+#             "totalusers": total_users,
+#             "totalproducts": total_products,
+#             "totalorders": total_orders,
+#             "totalsales": total_sales,
+#             "totalearnings": total_earnings,
+#             "totalreviews": total_reviews
+#         }
+#         return Response({"data": context, "message": "Success"})
+
+
+
+class FetchSellerDashboard(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request):
+        user=request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"error": "You are not authorized to view this data."}, status=403)
+        total_users=CustomUser.objects.filter(user_type="user",is_active=True).count()
+        total_products=Product.objects.filter(shop__user=user).count()
+        order_excluded_status = ["completed", "canceled"]
+        total_orders = ShopOrder.objects.exclude(order_status__status__in=order_excluded_status).filter(order_lines__seller=user).distinct().count()
+        total_sales = Bill.objects.filter(order__order_lines__seller=user, payment_status="paid").distinct().count()
+        total_revenue = Bill.objects.filter(order__order_lines__seller=user).aggregate(total=Sum('total_amount'))['total'] or 0
+        bills = Bill.objects.filter(order__order_lines__seller=user)
+        payments = Payment.objects.filter(order__in=bills.values_list('order', flat=True))
+        total_platform_fee = payments.aggregate(total_fee=Sum('platform_fee'))['total_fee'] or 0
+        refund_amount = (
+            ReturnRefund.objects
+            .filter(resolved_by=user, status='completed')
+            .annotate(
+                safe_refund=Coalesce('approved_refund_amount', 0, output_field=DecimalField())
+            )
+            .aggregate(total=Sum('safe_refund'))['total'] or 0
+        )
+        total_earnings=total_revenue-(total_platform_fee+refund_amount)
+        total_reviews=RatingsReview.objects.filter(product__shop__user=user).count()
+
+        # context={
+        #         "totalusers":total_users,
+        #         "totalproducts":total_products,
+        #         "totalorders":total_orders,
+        #         "total_sales":total_sales,
+        #         "totalearnings":total_earnings,
+        #         "totalreviews":total_reviews
+        #         }
+
+        context={
+                "totalusers":total_users,
+                "totalproducts":total_products,
+                "totalorders":total_orders,
+                "total_sales":total_sales,
+                "totalearnings":total_earnings,
+                "totalreviews":total_reviews
+               
+                }
+        
+        return Response({"data":context,"message":"Completed"})
+    

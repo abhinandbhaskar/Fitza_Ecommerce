@@ -1,7 +1,7 @@
 from django.urls import path
 # from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,CompleteSellerRegister
 from sellerapp.views import SellerRegisterAPI,VerifyOtp,ResendOtp,ShopRegister,SellerBankRegister,ViewSellerAllNotifications,UnReadSellerNotifications
-from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate,MarkSellerRead,ViewSellerRevenue
+from sellerapp.views import SellerTokenObtainPairView,SellerLogout,SellerProfile,SellerShop,BankDetails,UpdateProfile,UpdateShop,BankUpdate,MarkSellerRead,ViewSellerRevenue,FetchSellerDashboard
 from sellerapp.views import GetCategory,GetBrands,GetColor,GetSize,AddProducts,GetAllProducts,ViewStock,ViewUserReviews,ViewUserQuestions,UserAnswer,ViewAnsweredQues,AddSellerComplaint,ViewSellerComplaints
 from sellerapp.views import ViewUserComplaint,SellerReplyComplaint,ViewAllUserFeedbacks,AddSellerFeedBacks,ViewOrderedUsers,SellerViewOrders,UpdateOrderShipping,GetAllReturnRefund,HadleEscalation,HandleReturned
 
@@ -46,6 +46,7 @@ urlpatterns = [
     path('marks_seller_read/<int:id>/',MarkSellerRead.as_view(),name="marks_seller_read"),
     path('seller_unread_notifications/',UnReadSellerNotifications.as_view(),name="seller_unread_notifications"),
     path('view_seller_revenue/',ViewSellerRevenue.as_view(),name="view_seller_revenue"),
+    path('fetch_seller_dashboard/',FetchSellerDashboard.as_view(),name="fetch_seller_dashboard"),
 ]
 
 from django.conf import settings
