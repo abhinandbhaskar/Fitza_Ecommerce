@@ -956,3 +956,131 @@ class BillRevenueSerializer(serializers.ModelSerializer):
     class Meta:
         model=Bill
         fields=['id','invoice_number','payment_status','total_amount','order','payment']
+
+
+
+#working
+
+
+
+from rest_framework import serializers
+
+class OrderlinesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderLine
+        fields = ['id', 'quantity']
+
+
+class ShopOrdersSerializer(serializers.ModelSerializer):
+    order_lines = OrderlinesSerializer(many=True)
+
+    class Meta:
+        model = ShopOrder
+        fields = ['order_lines']
+
+
+class SalesTrendsSerializer(serializers.ModelSerializer):
+    category_sales = serializers.SerializerMethodField()
+    category_name = serializers.SerializerMethodField()
+    orders = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Bill
+        fields = ['id', 'bill_date', 'total_amount', 'category_sales', 'category_name', 'orders']
+
+    def get_orders(self, obj):
+        """
+        Retrieve related orders from the Bill instance.
+        Assumes a relationship between Bill and ShopOrder via an `order` field.
+        """
+        if hasattr(obj, 'order'):
+            return ShopOrdersSerializer(obj.order, many=False).data
+        return None
+
+    def get_category_sales(self, obj):
+        """
+        Calculate the number of sales (total quantity sold) grouped by product category.
+        """
+        category_sales = {}
+        if hasattr(obj, 'order'):
+            order_lines = obj.order.order_lines.select_related(
+                'product_item__product__category'
+            )
+            for order_line in order_lines:
+                category_name = order_line.product_item.product.category.category_name
+                category_sales[category_name] = (
+                    category_sales.get(category_name, 0) + order_line.quantity
+                )
+        return category_sales
+
+    def get_category_name(self, obj):
+        """
+        Get a list of unique category and product names from the order lines.
+        """
+        unique_names = {"categories": set(), "products": set()}
+        if hasattr(obj, 'order'):
+            order_lines = obj.order.order_lines.select_related(
+                'product_item__product__category'
+            )
+            for order_line in order_lines:
+                # Add category and product names to respective sets
+                unique_names["categories"].add(order_line.product_item.product.category.category_name)
+                unique_names["products"].add(order_line.product_item.product.product_name)
+        return {
+            "categories": list(unique_names["categories"]),
+            "products": list(unique_names["products"]),
+        }
+
+
+
+class ViewUserDashboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomUser
+        fields=['first_name','last_name']
+
+
+from common.models import ShopOrder
+class ShopOrdersDashboardSerializer(serializers.ModelSerializer):
+    user=ViewUserDashboardSerializer(read_only=True)
+    order_status=OrderStatusViewSerializer1(read_only=True)
+
+
+    class Meta:
+        model=ShopOrder
+        fields=['id','user','order_status','order_date']
+
+
+
+from userapp.models import OrderLine
+class OrderLineDashboardSerializer(serializers.ModelSerializer):
+    order=ShopOrdersDashboardSerializer(read_only=True)
+    seller=SellerSerializerss(read_only=True)
+
+    class Meta:
+        model=OrderLine
+        fields=['order','seller']
+
+
+
+
+from userapp.models import ReturnRefund
+class ReturnRefundDashboardSerializer(serializers.ModelSerializer):
+    requested_by=ViewUserDashboardSerializer(read_only=True)
+    
+    class Meta:
+        model=ReturnRefund
+        fields= ['order','status','request_date','requested_by','reason','refund_amount']
+
+
+
+class ProductItemInventorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ProductItem
+        fields=['sale_price','quantity_in_stock','status','product_code']
+
+
+class ProductsInventorySerializer(serializers.ModelSerializer):
+    items=ProductItemInventorySerializer(read_only=True,many=True)
+    class Meta:
+        model=Product
+        fields=['product_name','items']

@@ -479,9 +479,6 @@ class ViewOrderedUsers(APIView):
                 "OrderDate": max(data["order_dates"]),  
                 "TotalOrders": len(data["order_dates"])
             })
-
-        print("CCCCCCC",user_details)
-
         return Response(user_details)
 
 
@@ -664,7 +661,6 @@ class ViewSellerRevenue(APIView):
                 "previous": paginator.get_previous_link()
             }
         }
-        print("response_data",response_data["details"])
         
         return Response(response_data)
 
@@ -727,58 +723,9 @@ from django.db.models import Sum, DecimalField
 from django.db.models.functions import Coalesce
 from userapp.models import RatingsReview
 
-# class FetchSellerDashboard(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         user = request.user
-#         order_excluded_status = ["completed", "canceled"]
-
-#         # Single-query optimizations
-#         total_users = CustomUser.objects.filter(user_type="user", is_active=True).count()
-#         total_products = Product.objects.filter(shop__user=user).count()
-        
-#         total_orders = ShopOrder.objects.filter(
-#             order_lines__seller__user=user
-#         ).exclude(
-#             order_status__status__in=order_excluded_status
-#         ).distinct().count()
-
-#         total_sales = Bill.objects.filter(
-#             order__order_lines__seller__user=user,
-#             payment_status="paid"
-#         ).distinct().count()
-
-#         total_revenue = Bill.objects.filter(
-#             order__order_lines__seller__user=user
-#         ).aggregate(total=Sum('total_amount'))['total'] or 0
-
-#         total_platform_fee = Payment.objects.filter(
-#             order__order_lines__seller__user=user
-#         ).aggregate(total_fee=Sum('platform_fee'))['total_fee'] or 0
-
-#         refund_amount = (
-#             ReturnRefund.objects
-#             .filter(resolved_by=user, status='completed')
-#             .annotate(safe_refund=Coalesce('approved_refund_amount', 0, output_field=DecimalField()))
-#             .aggregate(total=Sum('safe_refund'))['total'] or 0
-#         )
-
-#         total_earnings = max(0, total_revenue - (total_platform_fee + refund_amount))  # Prevent negative
-#         total_reviews = RatingsReview.objects.filter(product__shop__user=user).count()
-
-#         context = {
-#             "totalusers": total_users,
-#             "totalproducts": total_products,
-#             "totalorders": total_orders,
-#             "totalsales": total_sales,
-#             "totalearnings": total_earnings,
-#             "totalreviews": total_reviews
-#         }
-#         return Response({"data": context, "message": "Success"})
 
 
-
+from sellerapp.serializers import SalesTrendsSerializer
 class FetchSellerDashboard(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
@@ -791,7 +738,7 @@ class FetchSellerDashboard(APIView):
         total_orders = ShopOrder.objects.exclude(order_status__status__in=order_excluded_status).filter(order_lines__seller=user).distinct().count()
         total_sales = Bill.objects.filter(order__order_lines__seller=user, payment_status="paid").distinct().count()
         total_revenue = Bill.objects.filter(order__order_lines__seller=user).aggregate(total=Sum('total_amount'))['total'] or 0
-        bills = Bill.objects.filter(order__order_lines__seller=user)
+        bills = Bill.objects.filter(order__order_lines__seller=user,payment_status="paid")
         payments = Payment.objects.filter(order__in=bills.values_list('order', flat=True))
         total_platform_fee = payments.aggregate(total_fee=Sum('platform_fee'))['total_fee'] or 0
         refund_amount = (
@@ -804,15 +751,8 @@ class FetchSellerDashboard(APIView):
         )
         total_earnings=total_revenue-(total_platform_fee+refund_amount)
         total_reviews=RatingsReview.objects.filter(product__shop__user=user).count()
-
-        # context={
-        #         "totalusers":total_users,
-        #         "totalproducts":total_products,
-        #         "totalorders":total_orders,
-        #         "total_sales":total_sales,
-        #         "totalearnings":total_earnings,
-        #         "totalreviews":total_reviews
-        #         }
+        serializer=SalesTrendsSerializer(bills,many=True)
+        
 
         context={
                 "totalusers":total_users,
@@ -820,9 +760,165 @@ class FetchSellerDashboard(APIView):
                 "totalorders":total_orders,
                 "total_sales":total_sales,
                 "totalearnings":total_earnings,
-                "totalreviews":total_reviews
-               
+                "totalreviews":total_reviews,
+                "data":serializer.data
                 }
         
         return Response({"data":context,"message":"Completed"})
+
+
+from sellerapp.serializers import OrderLineDashboardSerializer,ReturnRefundDashboardSerializer
+class SellerDashBoardOrders(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        seller = CustomUser.objects.get(id=user.id)
+        obj = OrderLine.objects.filter(seller=seller)
+        serializer=OrderLineDashboardSerializer(obj,many=True)
+        obj = ReturnRefund.objects.filter(order__order_lines__seller=user,status="pending").distinct()  
+        return_serializer = ReturnRefundDashboardSerializer(obj, many=True)
+
+        processing=[]
+        pending=[]
+        returnrefund=[]
+        for i in serializer.data:
+            if i["order"]["order_status"]["status"]=="Pending":
+                pending.append({
+                    "id":i["order"]["id"],
+                    "customer":i["order"]["user"]["first_name"],
+                    "status":i["order"]["order_status"]["status"],
+                    "date":i["order"]["order_date"]
+                })
+            elif i["order"]["order_status"]["status"]=="processing":
+                processing.append({
+                    "id":i["order"]["id"],
+                    "customer":i["order"]["user"]["first_name"],
+                    "status":i["order"]["order_status"]["status"],
+                    "date":i["order"]["order_date"]
+                })
+        for i in return_serializer.data:
+            returnrefund.append({
+                "id":i["order"],
+                "customer":i["requested_by"]["first_name"] ,
+                "reason": i["reason"] ,
+                "status": i["status"],
+                "amount": i["refund_amount"] ,
+            })
+
+        context={
+            "pendingorders":pending[:4],
+            "processingorders":processing[:4],
+            "returnrefund":returnrefund[:4]
+        }
+        print("Guys",return_serializer.data)
+        return Response(context)
     
+
+from sellerapp.serializers import ProductsInventorySerializer
+# class FetchInventory(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def get(self,request):
+#         user=request.user
+#         if not CustomUser.objects.filter(id=user.id).exists():
+#             return Response({"error": "You are not authorized to view this data."}, status=403)
+#         obj=Product.objects.filter(shop__user=user)
+#         serializer=ProductsInventorySerializer(obj,many=True)
+#         context={"data":serializer.data}
+#         return Response(context)
+
+
+from sellerapp.serializers import ProductsInventorySerializer
+from django.db.models import Sum
+from common.models import ProductCategory
+
+
+
+
+class FetchInventory(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        if not CustomUser.objects.filter(id=user.id).exists():
+            return Response({"error": "You are not authorized to view this data."}, status=403)
+        
+        # Get all products for the user
+        products = Product.objects.filter(shop__user=user).prefetch_related('items', 'category')
+        serializer = ProductsInventorySerializer(products, many=True)
+        
+        # Calculate inventory value data
+        inventory_value = self.calculate_inventory_value(products)
+        
+        # Get low stock products
+        low_stock_products = self.get_low_stock_products(products)
+        
+        context = {
+            "inventory_data": serializer.data,
+            "inventory_value": inventory_value,
+            "low_stock_products": low_stock_products
+        }
+        return Response(context)
+    
+    def calculate_inventory_value(self, products):
+        # Calculate total inventory value
+        total_value = 0
+        for product in products:
+            for item in product.items.all():
+                if item.sale_price and item.quantity_in_stock:
+                    total_value += float(item.sale_price) * item.quantity_in_stock
+        
+        # Calculate value by category
+        categories_data = []
+        # Get unique categories from the products to avoid querying all categories
+        category_ids = products.values_list('category', flat=True).distinct()
+        product_categories = ProductCategory.objects.filter(id__in=category_ids)
+        
+        for category in product_categories:
+            category_products = products.filter(category=category)
+            category_value = 0
+            for product in category_products:
+                for item in product.items.all():
+                    if item.sale_price and item.quantity_in_stock:
+                        category_value += float(item.sale_price) * item.quantity_in_stock
+            
+            if category_value > 0:  # Only include categories with inventory
+                # For trend, you might want to compare with previous period in a real implementation
+                trend = 'up' if category_value > 0 else 'down'  # Simplified for example
+                categories_data.append({
+                    'name': category.category_name,  # Using correct field name
+                    'value': round(category_value, 2),  # Round to 2 decimal places
+                    'trend': trend
+                })
+        
+        return {
+            'total': round(total_value, 2),
+            'categories': categories_data
+        }
+    
+    def get_low_stock_products(self, products):
+        low_stock_items = []
+        threshold = 10  # You can make this configurable or get from settings
+        
+        for product in products.prefetch_related('items'):
+            for item in product.items.all():
+                if item.quantity_in_stock <= threshold and item.status == 'approved':
+                    # Determine sales rate (simplified - implement your actual logic)
+                    if item.quantity_in_stock <= 2:
+                        sales_rate = 'Very High'
+                    elif item.quantity_in_stock <= 5:
+                        sales_rate = 'High'
+                    else:
+                        sales_rate = 'Medium'
+                    
+                    low_stock_items.append({
+                        'id': item.product_code,
+                        'name': f"{product.product_name} ({item.size.size_name if item.size else 'N/A'})",  # Include size for clarity
+                        'stock': item.quantity_in_stock,
+                        'threshold': threshold,
+                        'salesRate': sales_rate
+                    })
+        
+        # Sort by stock level (lowest first)
+        low_stock_items.sort(key=lambda x: x['stock'])
+        
+        return low_stock_items

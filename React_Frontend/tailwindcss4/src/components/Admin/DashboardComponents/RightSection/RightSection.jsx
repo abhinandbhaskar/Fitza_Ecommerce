@@ -19,13 +19,13 @@ import FeedBackSection from "../FeedBackSection/FeedBackSection";
 import ReturnRefundSection from "../ReturnRefundSection/ReturnRefundSection";
 import NotificationSection from "../NotificationSection/NotificationSection";
 
-const RightSection = ({currentView,setCurrentView,setCountN}) => {
+const RightSection = ({currentView,setCurrentView,setCountN,searchTerm}) => {
     return (
         <div className="h-screen w-8/10 bg-white p-4 overflow-y-auto relative ml-77 mt-20">
       {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
-      {currentView==="users"&&<UsersSection/>}
-      {currentView==="sellers"&&<SellerSection/>}
-      {currentView==="products"&&<ProductSection/>}
+      {currentView==="users"&&<UsersSection searchTerm={searchTerm}/>}
+      {currentView==="sellers"&&<SellerSection searchTerm={searchTerm}/>}
+      {currentView==="products"&&<ProductSection searchTerm={searchTerm}/>}
       {currentView==="orders"&&<OrdersSection/>}
       {currentView==="revenue"&&<RevenueSection/>}
       {currentView==="messages"&&<MessageSection/>}

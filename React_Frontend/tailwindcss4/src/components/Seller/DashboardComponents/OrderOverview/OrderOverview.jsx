@@ -1,23 +1,38 @@
-import React from 'react';
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
-const OrderOverview = () => {
+const OrderOverview = ({setCurrentView}) => {
+  const { accessToken } = useSelector((state) => state.auth);
+  const [ordersInProgress,setordersInProgress]=useState([]);
+  const [pendingOrders,setpendingOrders]=useState([]);
+  const [returnedOrders,setreturnedOrders]=useState([]);
+
   // Sample data - replace with your actual data
-  const ordersInProgress = [
-    { id: '#ORD-7841', customer: 'Alex Johnson', items: 3, status: 'Packaging', days: 1 },
-    { id: '#ORD-7839', customer: 'Sarah Miller', items: 5, status: 'Processing', days: 2 },
-    { id: '#ORD-7836', customer: 'Michael Chen', items: 2, status: 'Shipping', days: 1 },
-  ];
 
-  const pendingOrders = [
-    { id: '#ORD-7842', customer: 'David Wilson', issue: 'Payment verification', date: '2023-06-15' },
-    { id: '#ORD-7840', customer: 'Emily Davis', issue: 'Address confirmation', date: '2023-06-14' },
-  ];
 
-  const returnedOrders = [
-    { id: '#ORD-7825', customer: 'Robert Brown', reason: 'Wrong item shipped', status: 'Refunded', amount: '$89.99' },
-    { id: '#ORD-7821', customer: 'Jessica Lee', reason: 'Product damaged', status: 'Replacement sent', amount: '$45.50' },
-    { id: '#ORD-7818', customer: 'Daniel Kim', reason: 'Changed mind', status: 'Refund processed', amount: '$120.00' },
-  ];
+      const fetchOrders = async () => {
+        try {
+            const response = await axios.get(`https://127.0.0.1:8000/api/seller/seller_dashboard_orders/`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            console.log("EEE", response.data);
+            setordersInProgress(response.data.processingorders)
+            setpendingOrders(response.data.pendingorders)
+            setreturnedOrders(response.data.returnrefund);
+          
+        } catch (errors) {
+            console.log(errors);
+        }
+    };
+
+    useEffect(()=>{
+      fetchOrders();
+    },[])
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
@@ -42,7 +57,7 @@ const OrderOverview = () => {
               <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{order.id}</p>
+                    <p className="text-sm font-medium text-gray-900">#ORD-{order.id}</p>
                     <p className="text-xs text-gray-500 mt-1">{order.customer}</p>
                   </div>
                   <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
@@ -51,17 +66,17 @@ const OrderOverview = () => {
                 </div>
                 <div className="flex justify-between mt-3">
                   <span className="text-xs text-gray-500 flex items-center">
-                    <i className="fa-regular fa-clock mr-1"></i> {order.days}d ago
+                    <i className="fa-regular fa-clock mr-1"></i> {order.date}d ago
                   </span>
                   <span className="text-xs font-medium">
-                    {order.items} item{order.items !== 1 ? 's' : ''}
+                    {/* {order.items} item{order.items !== 1 ? 's' : ''} */}
                   </span>
                 </div>
               </div>
             ))}
           </div>
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-right">
-            <button className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            <button onClick={()=>setCurrentView("orders")} className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
               View all in-progress orders →
             </button>
           </div>
@@ -81,7 +96,7 @@ const OrderOverview = () => {
               <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{order.id}</p>
+                    <p className="text-sm font-medium text-gray-900">#ORD-{order.id}</p>
                     <p className="text-xs text-gray-500 mt-1">{order.customer}</p>
                   </div>
                   <span className="text-xs px-2 py-1 bg-amber-100 text-amber-800 rounded-full">
@@ -89,7 +104,7 @@ const OrderOverview = () => {
                   </span>
                 </div>
                 <div className="mt-3">
-                  <p className="text-xs text-gray-700 font-medium">{order.issue}</p>
+                  <p className="text-xs text-gray-700 font-medium">{order.status}</p>
                   <div className="flex justify-between mt-2">
                     <span className="text-xs text-gray-500">{order.date}</span>
                     <button className="text-xs font-medium text-amber-600 hover:text-amber-800">
@@ -101,7 +116,7 @@ const OrderOverview = () => {
             ))}
           </div>
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-right">
-            <button className="text-sm font-medium text-amber-600 hover:text-amber-800">
+            <button onClick={()=>setCurrentView("orders")} className="text-sm font-medium text-amber-600 hover:text-amber-800">
               View all pending orders →
             </button>
           </div>
@@ -121,7 +136,7 @@ const OrderOverview = () => {
               <div key={index} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{order.id}</p>
+                    <p className="text-sm font-medium text-gray-900">#ORD-{order.id}</p>
                     <p className="text-xs text-gray-500 mt-1">{order.customer}</p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
@@ -135,7 +150,7 @@ const OrderOverview = () => {
                 <div className="mt-3">
                   <p className="text-xs text-gray-700">Reason: {order.reason}</p>
                   <div className="flex justify-between mt-2 items-center">
-                    <span className="text-xs font-medium">{order.amount}</span>
+                    <span className="text-xs font-medium">Rs.{order.amount}</span>
                     <div className="flex space-x-2">
                       <button className="text-xs p-1 text-gray-500 hover:text-gray-700">
                         <i className="fa-solid fa-check"></i>
@@ -150,40 +165,9 @@ const OrderOverview = () => {
             ))}
           </div>
           <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-right">
-            <button className="text-sm font-medium text-red-600 hover:text-red-800">
+            <button onClick={()=>setCurrentView("returnrefund")} className="text-sm font-medium text-red-600 hover:text-red-800">
               View all returns →
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-          <div className="flex items-center">
-            <i className="fa-solid fa-box-open text-blue-600 text-xl mr-3"></i>
-            <div>
-              <p className="text-sm text-gray-500">Total Orders Today</p>
-              <p className="text-xl font-bold text-gray-800">24</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-          <div className="flex items-center">
-            <i className="fa-solid fa-circle-check text-green-600 text-xl mr-3"></i>
-            <div>
-              <p className="text-sm text-gray-500">Completed Today</p>
-              <p className="text-xl font-bold text-gray-800">18</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
-          <div className="flex items-center">
-            <i className="fa-solid fa-rotate text-purple-600 text-xl mr-3"></i>
-            <div>
-              <p className="text-sm text-gray-500">Avg. Processing Time</p>
-              <p className="text-xl font-bold text-gray-800">1.2 days</p>
-            </div>
           </div>
         </div>
       </div>

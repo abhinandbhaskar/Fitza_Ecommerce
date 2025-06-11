@@ -2,13 +2,14 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-const SellerSection = () => {
+const SellerSection = ({searchTerm}) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [sellers, setSellers] = useState([]);
     const [approvals, setApprovals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentView, setCurrentView] = useState("approved");
     const[seller,setSeller]=useState(null);
+    const [filteredSellers, setFilteredSellers] = useState([]);
 
 
     const fetchSellers = async () => {
@@ -21,7 +22,7 @@ const SellerSection = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
+                console.log("Grrook",data);
                 setSellers(data);
             }
         } catch (errors) {
@@ -60,8 +61,23 @@ const SellerSection = () => {
     };
 
 
+    useEffect(()=>{
+    console.log("seller",searchTerm);
+    if (searchTerm.trim() === "") {
+            setFilteredSellers(sellers);
+        } else {
+            const filtered = sellers.filter(seller => {
+                const sellerName = `${seller.user.first_name} ${seller.user.last_name}`.toLowerCase();
+                const shopName = seller.shop_name.toLowerCase();
+                const search = searchTerm.toLowerCase();
+                return sellerName.includes(search) || shopName.includes(search);
+            });
+            setFilteredSellers(filtered);
+        }
+    },[searchTerm,sellers])
 
     useEffect(() => {
+        
         if (currentView==="approved") {
             ourSellers();
             
@@ -222,8 +238,8 @@ const SellerSection = () => {
                             </thead>
                             {currentView === "approved" && (
                                 <tbody>
-                                    {sellers.length > 0 ? (
-                                        sellers.map((sellers) => (
+                                    {filteredSellers.length > 0 ? (
+                                        filteredSellers.map((sellers) => (
                                             <tr key={sellers.id} className="hover:bg-gray-100 transition duration-200">
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                                     {sellers.id}

@@ -2,10 +2,11 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-const AllProducts = () => {
+const AllProducts = ({searchTerm}) => {
 
   const [productarr, setProductarr] = useState([]);
   const { accessToken } = useSelector((state) => state.auth);
+  const [filteredProducts,setFilteredProducts]=useState([]);
 
   const fetchAllProducts = async () => {
     try {
@@ -28,6 +29,24 @@ const AllProducts = () => {
     fetchAllProducts();
   }, []);
 
+  useEffect(()=>{
+    console.log("Product",searchTerm);
+
+    if(searchTerm.trim()==="")
+    {
+      setFilteredProducts(productarr)
+    }else{
+      const filtered=productarr.filter(product=>{
+        const productName = product.product.product_name.toLowerCase();
+        const search = searchTerm.toLowerCase();
+        return productName.includes(search);
+      });
+      setFilteredProducts(filtered);
+
+    }
+
+  },[searchTerm])
+
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -49,7 +68,7 @@ const AllProducts = () => {
               </tr>
             </thead>
             <tbody>
-              {productarr.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr
                   key={product.id}
                   className="hover:bg-gray-100 text-sm text-gray-700"

@@ -2,10 +2,11 @@ import axios from "axios";
 import React, { useEffect,useState } from "react";
 import { useSelector } from "react-redux";
 
-const UsersSection = () => {
+const UsersSection = ({searchTerm}) => {
     const { accessToken }=useSelector((state)=>state.auth);
     const [users, setUsers]=useState([]);
     const [loading, setLoading]=useState(true);
+    const [filteredUsers,setFilteredUsers]=useState([]);
  
 
     const fetchUsers = async () => {
@@ -73,6 +74,23 @@ const UsersSection = () => {
         }
     }
 
+    useEffect(()=>{
+        console.log("Users",searchTerm);
+        if(searchTerm.trim() === "")
+        {
+            setFilteredUsers(users);
+        }else{
+            const filtered = users.filter(user=>{
+                const userName = `${user.first_name} ${user.last_name}`.toLowerCase();
+                const search = searchTerm.toLowerCase();
+                return userName.includes(search);
+            });
+            setFilteredUsers(filtered);
+        }
+
+
+    },[searchTerm,users])
+
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
@@ -103,10 +121,10 @@ const UsersSection = () => {
                     </thead>
                         <tbody>
                     {
-                        users.length > 0 ?
+                        filteredUsers.length > 0 ?
                         (
                             
-                            users.map((users)=>(
+                            filteredUsers.map((users)=>(
                                 <tr key={users.id} className="hover:bg-gray-100 transition duration-200">
                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                     {users.id}

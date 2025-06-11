@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React,{ useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import AllProducts from "./ProductSectionComponents/AllProducts/AllProducts";
 import PendingApprovals from "./ProductSectionComponents/PendingApprovals/PendingApprovals";
@@ -7,8 +7,8 @@ import ProductsInsights from "./ProductSectionComponents/ProductsInsights/Produc
 import ProductAttributes from "./ProductSectionComponents/ProductAttributes/ProductAttributes";
 
 
-const ProductSection = () => {
-    const [currentView,setCurrentView]=useState("mainsection");
+const ProductSection = ({searchTerm}) => {
+    const [newCurrentView,setnewCurrentView]=useState("mainsection");
   // Sample data for the chart
   const data = [
     { name: "Category A", sales: 400 },
@@ -17,6 +17,12 @@ const ProductSection = () => {
     { name: "Category D", sales: 278 },
     { name: "Category E", sales: 189 },
   ];
+
+  useEffect(()=>{
+    if(searchTerm){
+   setnewCurrentView("allproducts");
+    }
+  },[searchTerm])
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -30,30 +36,30 @@ const ProductSection = () => {
       {/* Navigation Buttons */}
       <div className="w-full max-w-7xl mx-auto mt-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          <button onClick={()=>setCurrentView('allproducts')} className="flex flex-col items-center justify-center p-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700">
+          <button onClick={()=>setnewCurrentView('allproducts')} className="flex flex-col items-center justify-center p-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700">
             <span className="text-sm font-semibold">View All Products</span>
             <span className="text-xs opacity-80">Manage existing products</span>
           </button>
-          <button  onClick={()=>setCurrentView('pending')} className="flex flex-col items-center justify-center p-2 bg-yellow-500 text-white rounded-md shadow-md hover:bg-yellow-600">
+          <button  onClick={()=>setnewCurrentView('pending')} className="flex flex-col items-center justify-center p-2 bg-yellow-500 text-white rounded-md shadow-md hover:bg-yellow-600">
             <span className="text-sm font-semibold">Pending Approvals</span>
             <span className="text-xs opacity-80">Approve or reject products</span>
           </button>
-          <button  onClick={()=>setCurrentView('categories')} className="flex flex-col items-center justify-center p-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700">
+          <button  onClick={()=>setnewCurrentView('categories')} className="flex flex-col items-center justify-center p-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700">
             <span className="text-sm font-semibold">Manage Categories</span>
             <span className="text-xs opacity-80">Add or edit categories</span>
           </button>
-          <button  onClick={()=>setCurrentView('insights')} className="flex flex-col items-center justify-center p-2 bg-purple-600 text-white rounded-md shadow-md hover:bg-purple-700">
+          <button  onClick={()=>setnewCurrentView('insights')} className="flex flex-col items-center justify-center p-2 bg-purple-600 text-white rounded-md shadow-md hover:bg-purple-700">
             <span className="text-sm font-semibold">Product Insights</span>
             <span className="text-xs opacity-80">View analytics</span>
           </button>
-          <button  onClick={()=>setCurrentView('attribute')} className="flex flex-col items-center justify-center p-2 bg-gray-600 text-white rounded-md shadow-md hover:bg-gray-700">
+          <button  onClick={()=>setnewCurrentView('attribute')} className="flex flex-col items-center justify-center p-2 bg-gray-600 text-white rounded-md shadow-md hover:bg-gray-700">
             <span className="text-sm font-semibold">Product Attributes</span>
             <span className="text-xs opacity-80">Manage colors, sizes, etc.</span>
           </button>
         </div>
       </div>
 
-{ currentView ==="mainsection" && 
+{ newCurrentView ==="mainsection" && 
 (<div>
       {/* Product Stats */}
       <div className="w-full max-w-7xl mx-auto mt-6">
@@ -91,11 +97,11 @@ const ProductSection = () => {
       </div>
 </div>)
 }
-{ currentView ==="allproducts" && <AllProducts/> }
-{currentView==="pending" && <PendingApprovals/>}
-{currentView==="categories" && <Categories/>}
-{currentView==="insights" && <ProductsInsights/>}
-{currentView==="attribute"&& <ProductAttributes/>}
+{ newCurrentView ==="allproducts" && <AllProducts searchTerm={searchTerm}/> }
+{newCurrentView==="pending" && <PendingApprovals/>}
+{newCurrentView==="categories" && <Categories/>}
+{newCurrentView==="insights" && <ProductsInsights/>}
+{newCurrentView==="attribute"&& <ProductAttributes/>}
 
     </div>
   );

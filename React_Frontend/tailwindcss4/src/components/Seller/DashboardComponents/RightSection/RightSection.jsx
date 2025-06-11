@@ -26,7 +26,7 @@ const RightSection = ({currentView,setCurrentView,setCountN,countN}) => {
     const [yourcomplaint,setYourComplaint]=useState("");
     return (
         <div className="h-screen w-full bg-gray-800  overflow-y-auto">
-      {currentView==="mainsection"&&<MainSection/>}
+      {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
       {currentView==="users"&&<UsersSection/>}
       {currentView==="ratings" && <ReviewSection/> }
       {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView} setYourComplaint={setYourComplaint}/> }
