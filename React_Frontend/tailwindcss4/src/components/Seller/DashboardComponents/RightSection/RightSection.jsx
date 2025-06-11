@@ -22,12 +22,12 @@ import NotificationSection from "../NotificationSection/NotificationSection";
 
 
 
-const RightSection = ({currentView,setCurrentView,setCountN,countN}) => {
+const RightSection = ({currentView,setCurrentView,setCountN,countN,searchTerm}) => {
     const [yourcomplaint,setYourComplaint]=useState("");
     return (
         <div className="h-screen w-full bg-gray-800  overflow-y-auto">
       {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
-      {currentView==="users"&&<UsersSection/>}
+      {currentView==="users"&&<UsersSection searchTerm={searchTerm}/>}
       {currentView==="ratings" && <ReviewSection/> }
       {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView} setYourComplaint={setYourComplaint}/> }
       {currentView==="followup" && <FollowUpPage yourcomplaint={yourcomplaint}/>}
@@ -39,7 +39,7 @@ const RightSection = ({currentView,setCurrentView,setCountN,countN}) => {
     
 
 
-      {currentView==="products"&& <ProductsSection setCurrentView={setCurrentView} />}
+      {currentView==="products"&& <ProductsSection setCurrentView={setCurrentView} searchTerm={searchTerm} />}
       {currentView==="add1"&& <AddProducts1  setCurrentView={setCurrentView} />}
       {currentView==="add2"&& <AddProducts2  setCurrentView={setCurrentView} />}
       {currentView==="add3"&& <AddProducts3 setCurrentView={setCurrentView} />}

@@ -2,12 +2,13 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {useSelector} from "react-redux";
 
-const ProductsSection = ({setCurrentView}) => {
+const ProductsSection = ({setCurrentView,searchTerm}) => {
   const {accessToken}=useSelector((state)=>state.auth);
   const[products,setProducts]=useState([]);
   const[productDetails,setProductDetails]=useState([]);
   const[pageView,setPageView]=useState(false);
   const[stock,setStock]=useState("");
+  const [filteredProducts,setFilteredProducts]=useState([]);
   const AllProducts=async(id)=>{
     console.log("Get Start...");
     try{
@@ -95,6 +96,23 @@ const ProductsSection = ({setCurrentView}) => {
       fetchStocks();
     },[])
 
+    useEffect(()=>{
+        console.log("Use",searchTerm)
+        if(searchTerm.trim()==="")
+        {
+            setFilteredProducts(products);
+        }else{
+            const filtered=products.filter(product=>{
+                const ProductName =`${product.product.product_name}`.toLowerCase();
+                const search = searchTerm.toLowerCase();
+                return ProductName.includes(search);
+            });
+            setFilteredProducts(filtered);
+        }
+
+    },[searchTerm,products]);
+    
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -169,7 +187,7 @@ const ProductsSection = ({setCurrentView}) => {
           </thead>
           <tbody>
           {
-            products.map((value,key)=>(
+            filteredProducts.map((value,key)=>(
               <tr className="hover:bg-gray-50">
               <td className="px-4 py-2 border-t">{value.id}</td>
               <td className="px-4 py-2 border-t">

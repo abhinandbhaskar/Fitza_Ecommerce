@@ -1,9 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from 'react-redux'
-const UsersSection = () => {
+const UsersSection = ({searchTerm}) => {
     const {accessToken}=useSelector((state)=>state.auth);
     const [users,setUsers]=useState([]);
+    const [filteredUsers,setFilteredUsers]=useState([]);
     const fetchOrderedUsers=async()=>{
 
         try{
@@ -26,6 +27,22 @@ const UsersSection = () => {
     useEffect(()=>{
         fetchOrderedUsers();
     },[])
+
+    useEffect(()=>{
+        console.log("Use",searchTerm)
+        if(searchTerm.trim()==="")
+        {
+            setFilteredUsers(users)
+        }else{
+            const filtered=users.filter(user=>{
+                const UserName =`${user.FullName}`.toLowerCase();
+                const search = searchTerm.toLowerCase();
+                return UserName.includes(search);
+            });
+            setFilteredUsers(filtered);
+        }
+
+    },[searchTerm,users]);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -57,7 +74,7 @@ const UsersSection = () => {
                     </thead>
                         <tbody>
                             {
-                                users.map((user,key)=>(
+                                filteredUsers.map((user,key)=>(
                                     <tr className="hover:bg-gray-100 transition duration-200">
                                     <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                         {key+1}

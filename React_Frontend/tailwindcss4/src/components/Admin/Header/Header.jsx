@@ -127,12 +127,6 @@ const Header = ({ setCurrentView, countN, setCountN ,setSearchTerm,searchTerm })
                                 />
                             </svg>
                         </button>
-                          <button
-                                onClick={() => setSearchTerm("")}
-                                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                            >
-                        ✕
-                        </button>
                         
                     </div>
                    

@@ -7,7 +7,7 @@ import { logout } from "../../../redux/authSlice";
 import { clearProfile } from "../../../redux/profileSlice";
 import { useNavigate } from "react-router-dom";
 
-const Header = ({ setCurrentView, countN, setCountN }) => {
+const Header = ({ setCurrentView, countN, setCountN,setSearchTerm,searchTerm }) => {
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
     const { accessToken } = useSelector((state) => state.auth);
     const navigate = useNavigate();
@@ -64,6 +64,24 @@ const Header = ({ setCurrentView, countN, setCountN }) => {
         fetchNotificationCount();
     }, []);
 
+    const setSection=async(e)=>{
+        console.log("se",e);
+        if(e==="users")
+        {
+        setCurrentView("users");
+        }
+        else if(e==="products")
+        {
+        setCurrentView("products");
+        }else{
+        setCurrentView("mainsection");
+        }
+    }
+
+    const handleSearch=(e)=>{
+        setSearchTerm(e.target.value);
+    }
+
     return (
         <div className="w-full bg-gray-900 flex flex-col md:flex-row fixed border-b-1 z-10 mb-10">
             <div className="w-full md:w-[390px] bg-gray-800 border-b md:border-r border-gray-800 flex items-center justify-center p-2">
@@ -75,14 +93,15 @@ const Header = ({ setCurrentView, countN, setCountN }) => {
                 <div className="w-full md:w-2/5 p-2 flex items-center justify-center"></div>
                 <div className="w-full md:w-2/5 p-2 flex items-center justify-center">
                     <div className="flex items-center border border-gray-300 rounded-2xl shadow-sm bg-white px-3 py-2 w-full max-w-md">
-                        <select className="text-sm text-gray-700 bg-white outline-none border-none mr-2">
-                            <option>User</option>
-                            <option>Seller</option>
-                            <option>Product</option>
+                        <select onClick={(e)=>setSection(e.target.value)} className="text-sm text-gray-700 bg-white outline-none border-none mr-2">
+                            <option value="products">Products</option>
+                            <option value="users">Users</option>
                         </select>
                         <input
                             type="text"
                             placeholder="Search..."
+                            value={searchTerm}
+                            onChange={handleSearch}
                             className="flex-1 text-sm px-2 py-1 outline-none bg-transparent text-gray-800"
                         />
                         <button className="text-gray-500 hover:text-gray-700">
