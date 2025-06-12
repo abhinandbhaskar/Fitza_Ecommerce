@@ -18,7 +18,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-const RevenueSection = () => {
+const RevenueSection = ({setCurrentView}) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [totalrevenue,setTotalRevenue]=useState(0);
   const [refundAmount,setRefundAmount]=useState(0);
@@ -89,9 +89,10 @@ const RevenueSection = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="w-full bg-white shadow-md py-4 px-6">
-        <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
-          Dashboard &gt; <span className="text-indigo-600">Revenue</span>
-        </h1>
+        
+          <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700 hover:text-gray-800">
+                    Dashboard &gt; <span className="text-indigo-600">Revenue</span>
+                </h1>
       </div>
 
       <div className="container mx-auto px-4 py-6">

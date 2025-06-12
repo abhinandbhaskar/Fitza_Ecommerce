@@ -251,18 +251,46 @@ const ReturnRefundSection = () => {
                                     <p className="mt-1 text-sm text-gray-900">${selectedReturn.refund_amount}</p>
                                 </div>
 
-                                {selectedReturn.supporting_files && (
-                                    <div>
-                                        <h3 className="text-sm font-medium text-gray-500">Supporting Documents</h3>
-                                        <a
-                                            href={selectedReturn.supporting_files}
-                                            className="mt-1 inline-flex items-center text-sm text-indigo-600 hover:text-indigo-900"
-                                            download
-                                        >
-                                            [Download] File
-                                        </a>
-                                    </div>
-                                )}
+                                 <img
+                        src={
+                            selectedReturn.supporting_files && selectedReturn.supporting_files.length > 0 && `https://127.0.0.1:8000/${selectedReturn.supporting_files}`
+                        }
+                        className="h-34 w-34 border-2 border-gray-700"
+                        alt="Profile"
+                    />
+                                
+
+                               
+                    {selectedReturn.supporting_files && (
+    <div>
+        <h3 className="text-sm font-medium text-gray-500">Supporting Documents</h3>
+        <div className="mt-1 space-y-1">
+
+
+
+            {selectedReturn.supporting_files.split(',').map((filePath, index) => {
+                // Extract filename from path
+                selectedReturn.supporting_files.split(',').map(filePath => filePath.trim())
+                const fileName = filePath.split('/').pop();
+                return (
+                    <div key={index} className="flex items-center">
+                        <a
+                            href={filePath}
+                            className="text-sm text-indigo-600 hover:text-indigo-900 flex items-center"
+                            download={fileName}
+                        >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            {fileName}
+                        </a>
+                    </div>
+                );
+            })}
+        </div>
+    </div>
+)}
+
                             </div>
 
                             {/* Right Column - Seller Actions */}

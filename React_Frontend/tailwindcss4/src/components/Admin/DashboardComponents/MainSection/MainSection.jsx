@@ -142,7 +142,7 @@ const MainSection = ({setCurrentView}) => {
            {/* Header Section */}
       <div className="bg-amber-500 rounded-lg shadow-md mb-4">
           <div className="bg-white border border-gray-300 flex items-center px-6 py-3 rounded-t-lg">
-              <h1 className="text-xl font-semibold text-gray-800">Dashboard &gt;</h1>
+              <h1 onClick={()=>setCurrentView("mainsection")} className="text-xl font-semibold text-gray-800">Dashboard &gt;</h1>
           </div>
 
           {/* Stats Section */}
@@ -185,11 +185,7 @@ const MainSection = ({setCurrentView}) => {
               <i className="fas fa-chart-line mr-2 text-blue-500"></i>
               Sales Trends
             </h2>
-            <select className="border border-gray-300 rounded px-2 py-1 text-sm">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-              <option>Last 90 Days</option>
-            </select>
+           
           </div>
           <div className="h-64">
             {salesData.length > 0 ? (

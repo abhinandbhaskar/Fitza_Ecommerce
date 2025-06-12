@@ -1,8 +1,9 @@
 import axios from "axios";
 import React, { useEffect,useState } from "react";
 import { useSelector } from "react-redux";
+import { safe, safeNumber, safeString } from "../../../../utils/safeAccess";
 
-const UsersSection = ({searchTerm}) => {
+const UsersSection = ({searchTerm,setCurrentView}) => {
     const { accessToken }=useSelector((state)=>state.auth);
     const [users, setUsers]=useState([]);
     const [loading, setLoading]=useState(true);
@@ -95,7 +96,7 @@ const UsersSection = ({searchTerm}) => {
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
             <div className="w-full bg-white shadow-md py-4 px-6">
-                <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
+                <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700 hover:text-gray-800">
                     Dashboard &gt; <span className="text-indigo-600">Users</span>
                 </h1>
             </div>
@@ -110,7 +111,7 @@ const UsersSection = ({searchTerm}) => {
                     <table className="min-w-full border-collapse border border-gray-200">
                     <thead>
                         <tr>
-                            <th>User ID</th>
+                            <th>No.</th>
                             <th>Full Name</th>
                             <th>Email</th>
                             <th>Phone</th>
@@ -120,50 +121,47 @@ const UsersSection = ({searchTerm}) => {
                         </tr>
                     </thead>
                         <tbody>
-                    {
-                        filteredUsers.length > 0 ?
-                        (
-                            
-                            filteredUsers.map((users)=>(
-                                <tr key={users.id} className="hover:bg-gray-100 transition duration-200">
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.id}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.first_name+users.last_name}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.email}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.phone_number}
-                                </td>
-                                <td className={`px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300 ${users.is_active?"text-green-600":"text-red-600"}`}>
+{
+    filteredUsers.length > 0 ? (
+        filteredUsers.map((users,key) => (
+            <tr key={safe(users, 'id', 'N/A')} className="hover:bg-gray-100 transition duration-200">
+                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                    {key+1}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                    {safe(users, 'first_name', '') + ' ' + safe(users, 'last_name', '')}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                    {safe(users, 'email', 'Not provided')}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                    {safe(users, 'phone_number', 'No phone number')}
+                </td>
+                <td className={`px-6 py-4 text-sm font-semibold border-b border-gray-300 ${safe(users, 'is_active', false) ? "text-green-600" : "text-red-600"}`}>
+                    {safe(users, 'is_active', false) ? "Active" : "Inactive"}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                       {safe(users, 'date_joined') ? new Date(safe(users, 'date_joined')).toLocaleString() : 'N/A'}
+                </td>
+                <td className="px-6 py-4 text-sm border-b border-gray-300">
+                    <button
+                        onClick={() => handleRemove(safe(users, 'id', null))}
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200"
+                    >
+                        Remove
+                    </button>
+                </td>
+            </tr>
+        ))
+    ) : (
+        <tr>
+            <td colSpan="9" className="text-center px-6 py-4 text-sm text-gray-600 border-b border-gray-300">
+                No users found.
+            </td>
+        </tr>
+    )
+}
 
-                                    {users.is_active ? "Active":"Inactive"}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    {users.date_joined}
-                                </td>
-                                <td className="px-6 py-4 text-sm border-b border-gray-300">
-                                    <button onClick={()=>handleRemove(users.id)} className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-200">
-                                        Remove
-                                    </button>
-                                </td>
-                            </tr>
-                            ))
-                            
-                        ):(
-                            <tr>
-                            <td
-                                colSpan="9"
-                                className="text-center px-6 py-4 text-sm text-gray-600 border-b border-gray-300"
-                            >
-                                No users found.
-                            </td>
-                        </tr>
-                        )
-                    }
                         </tbody>
                     </table>
                 )

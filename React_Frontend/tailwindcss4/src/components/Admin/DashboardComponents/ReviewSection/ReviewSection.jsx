@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
-const ReviewSection = () => {
+const ReviewSection = ({setCurrentView}) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [reviews, setReviews] = useState([]);
   const [filterstatus,setFilterStatus]=useState("all");
@@ -27,7 +27,7 @@ const ReviewSection = () => {
   useEffect(() => {
     fetchAllReview();
     console.log("HH",filterstatus);
-  }, []);
+  }, [filterstatus]);
 
   const Approve=async(id)=>{
     console.log(id);
@@ -62,12 +62,17 @@ console.log(id);
     }
   }
 
+  useEffect(()=>{
+  console.log("Po",filterstatus);
+  },[filterstatus])
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-md py-4 px-6">
-        <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
-          Dashboard &gt; <span className="text-indigo-600">Review & Ratings</span>
-        </h1>
+ 
+                        <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700 hover:text-gray-800">
+                    Dashboard &gt; <span className="text-indigo-600">Review & Ratings</span>
+                </h1>
       </div>
 
       <div className="py-6 px-6">
@@ -102,7 +107,7 @@ console.log(id);
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {reviews.map((review, key) => (
+            {reviews.filter((item)=>(filterstatus==="all")? item : item.status===filterstatus).map((review, key) => (
               <tr key={key} className="hover:bg-gray-50">
                 <td className="px-4 py-3">{key + 1}</td>
                 <td className="px-4 py-3">{review.shop_name}</td>

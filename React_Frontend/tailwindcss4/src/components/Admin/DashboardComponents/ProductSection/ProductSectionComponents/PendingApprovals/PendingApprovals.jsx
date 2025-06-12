@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { safe } from '../../../../../../utils/safeAccess';
 
 const PendingApprovals = () => {
   const [productarr, setProductarr] = useState([]);
@@ -121,27 +122,27 @@ const PendingApprovals = () => {
             <table className="min-w-full border-collapse border border-gray-200">
               <thead>
                 <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                  <th className="border border-gray-200 px-4 py-2">ID</th>
+                  <th className="border border-gray-200 px-4 py-2">No.</th>
                   <th className="border border-gray-200 px-4 py-2">Image</th>
                   <th className="border border-gray-200 px-4 py-2">Product</th>
-                  <th className="border border-gray-200 px-4 py-2">Product price</th>
-                  <th className="border border-gray-200 px-4 py-2">Quantity</th>
+                <th className="border border-gray-200 px-4 py-2">Description</th>
+                <th className="border border-gray-200 px-4 py-2">Sale Price</th>
                   <th className="border border-gray-200 px-4 py-2">Product Info</th>
                 </tr>
               </thead>
               <tbody>
-                {productarr.map((product) => (
+                {productarr.map((product,key) => (
                   <tr
                     key={product.id}
                     className="hover:bg-gray-100 text-sm text-gray-700"
                   >
                     <td className="border border-gray-200 px-4 py-2">
-                      #{product.id}
+                      {key+1}
                     </td>
                     <td className="border border-gray-200 px-4 py-2">
                       <img
                         src={
-                          product.images &&
+                          safe(product,'images') &&
                           product.images.length > 0 &&
                           `https://127.0.0.1:8000${product.images[0].main_image}`
                         }
@@ -150,13 +151,13 @@ const PendingApprovals = () => {
                       />
                     </td>
                     <td className="border border-gray-200 px-4 py-2">
-                      {product.product.product_name}
+                      {safe(product,'product.product_name','Not Added')}
                     </td>
                     <td className="border border-gray-200 px-4 py-2">
-                      {product.product.product_name}
+                      {safe(product,'product.product_description')}
                     </td>
                     <td className="border border-gray-200 px-4 py-2">
-                      {product.product.product_name}
+                      {safe(product,'original_price')}
                     </td>
                     <td className="border border-gray-200 px-4 py-2">
                     <button onClick={()=>ViewProduct(product.id)} className="px-3 py-1 text-white bg-blue-500 rounded-lg shadow hover:bg-blue-600">
@@ -261,7 +262,7 @@ const PendingApprovals = () => {
       <input
         type="text"
         placeholder={field.placeholder}
-        value={field.value}
+        value={safe(field,'value')}
         className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         readOnly
       />

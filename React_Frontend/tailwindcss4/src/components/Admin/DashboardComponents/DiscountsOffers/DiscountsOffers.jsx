@@ -8,9 +8,10 @@ const DiscountsOffers = ({setCurrentView}) => {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <div className="w-full bg-white shadow-md py-4 px-6">
-        <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
-          Dashboard &gt; <span className="text-indigo-600">Discounts & Offers</span>
-        </h1>
+      
+           <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700 hover:text-gray-800">
+                    Dashboard &gt; <span className="text-indigo-600">Discounts & Offers</span>
+            </h1>
       </div>
 
       {/* Grid Section */}

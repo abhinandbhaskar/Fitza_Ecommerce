@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import {safe} from "../../../../utils/safeAccess";
 const SellerSection = ({searchTerm}) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [sellers, setSellers] = useState([]);
@@ -206,7 +207,7 @@ const SellerSection = ({searchTerm}) => {
 
             {currentView === "approved" && (
                  <div className="w-full bg-white shadow-md py-4 px-6">
-                    <h1 className="p-2 text-blue-700 font-bold text-sm">Our Sellers</h1>
+                    <h1 className="p-2 text-blue-700 font-bold text-sm">Our Sellers </h1>
                 </div>
             )}
         { currentView ==="pending" && ( <div className="w-full bg-white shadow-md py-4 px-6">
@@ -223,9 +224,11 @@ const SellerSection = ({searchTerm}) => {
                         <p className="text-center text-gray-600 py-4">Loading users...</p>
                     ) : (
                         <table className="min-w-full border-collapse border border-gray-200">
-                            <thead>
+                           { currentView !== "detailview"  && 
+                            (
+                                 <thead>
                                 <tr>
-                                    <th>Seller ID</th>
+                                    <th>No.</th>
                                     <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Shop Name</th>
@@ -236,37 +239,34 @@ const SellerSection = ({searchTerm}) => {
                                     <th>Remove Seller</th>
                                 </tr>
                             </thead>
+                            )
+                           }
                             {currentView === "approved" && (
                                 <tbody>
                                     {filteredSellers.length > 0 ? (
-                                        filteredSellers.map((sellers) => (
+                                        filteredSellers.map((sellers,key) => (
                                             <tr key={sellers.id} className="hover:bg-gray-100 transition duration-200">
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.id}
+                                                    {key+1}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.user.first_name}
+                                                    {safe(sellers,'user.first_name')}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.email}
+                                                    {safe(sellers,'email')}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.shop_name}
+                                                    {safe(sellers,'shop_name')}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300">
-                                                    {sellers.joining_date}
+                                                    {safe(sellers,'joining_date')}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {/* <Link 
-                                                        to={`/admin/viewseller/${sellers.id}`}
-                                                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-                                                    >
-                                                        View
-                                                    </Link> */}
+                                                   
                                                     <button onClick={()=>ViewSellerDetails(sellers.id)}  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200" >View</button>
                                                 </td>
                                                 <td className={`px-6 py-4 text-sm ${sellers.user.is_active?"text-green-600":"text-red-600"} border-b border-gray-300`}>
-                                                    {sellers.user.is_active?"active":"Inactive"}
+                                                    {safe(sellers,'user.is_active')?"active":"Inactive"}
                                                 </td>
 
                                                 <td className="px-6 py-4 text-sm border-b border-gray-300">
@@ -294,33 +294,28 @@ const SellerSection = ({searchTerm}) => {
                             { currentView === "pending" && (
                                 <tbody>
                                     {approvals.length > 0 ? (
-                                        approvals.map((sellers) => (
+                                        approvals.map((sellers,key) => (
                                             <tr key={sellers.id} className="hover:bg-gray-100 transition duration-200">
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.id}
+                                                    {key+1}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.user.first_name}
+                                                    {safe(sellers,'user.first_name')}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.email}
+                                                    {safe(sellers,'email')}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {sellers.shop_name}
+                                                    {safe(sellers,'shop_name',"Not Added")}
                                                 </td>
                                                  <td className="px-6 py-4 text-sm text-green-600 font-semibold border-b border-gray-300">
-                                                    {sellers.joining_date}
+                                                    {safe(sellers,'joining_date',"Not Added")}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                                    {/* <Link
-                                                        to={`/admin/viewseller/${sellers.id}`}
-                                                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-                                                    >
-                                                        View
-                                                    </Link> */}
+                                                    
                                                 <button onClick={()=>ViewSellerDetails(sellers.id)}  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200" >View</button>
                                                 </td>
-                                                 <td className={`px-6 py-4 text-sm ${sellers.user.is_active?"text-green-600":"text-red-600"} border-b border-gray-300`}>
+                                                 <td className={`px-6 py-4 text-sm ${safe(sellers,'user.is_active')?"text-green-600":"text-red-600"} border-b border-gray-300`}>
                                                     {sellers.user.is_active?"active":"Inactive"}
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
@@ -364,14 +359,14 @@ const SellerSection = ({searchTerm}) => {
                                 <h2 className="text-xl font-bold mb-4">Seller Details</h2>
                                 <div className="flex items-center space-x-6">
                                   <img
-                                    src={"https://127.0.0.1:8000" + seller.user.userphoto} // Replace with seller's photo URL
+                                    src={"https://127.0.0.1:8000" + safe(seller,'user.userphoto')} // Replace with seller's photo URL
                                     alt="Seller"
                                     className="w-32 h-32 rounded-full object-cover"
                                   />
                                   <div>
-                                    <p className="text-lg font-semibold">Full Name: {seller.user?.first_name || "Not available"}</p>
-                                    <p>Email Address: {seller.user?.email||"Not available"}</p>
-                                    <p>Mobile Number: {seller.user?.contact_number || "Not available"}</p>
+                                    <p className="text-lg font-semibold">Full Name: {safe(seller,'user.first_name') || "Not available"}</p>
+                                    <p>Email Address: {safe(seller,'user.email')||"Not available"}</p>
+                                    <p>Mobile Number: {safe(seller,'user.phone_number') || "Not available"}</p>
                                   </div>
                                 </div>
                               </div>
@@ -380,13 +375,13 @@ const SellerSection = ({searchTerm}) => {
                               <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
                                 <h2 className="text-xl font-bold mb-4">Shop Details</h2>
                                 <div className="space-y-2">
-                                  <p><strong>Shop Name:</strong>{seller.shop_name || "Not available"}</p>
-                                  <p><strong>Shop Address:</strong> {seller.shop_address || "Not available"}</p>
-                                  <p><strong>Contact Number:</strong> {seller.contact_number || "Not available"}</p>
-                                  <p><strong>Shop Email:</strong> {seller.email || "Not available"}</p>
-                                  <p><strong>Tax ID:</strong>{seller.tax_id || "Not available"}</p>
-                                  <p><strong>Business Registration Number:</strong>{seller.business_registration_number || "Not available"}</p>
-                                  <p><strong>Description:</strong> {seller.description || "Not available"}</p>
+                                  <p><strong>Shop Name:</strong>{safe(seller,'shop_name') || "Not available"}</p>
+                                  <p><strong>Shop Address:</strong> {safe(seller,'shop_address') || "Not available"}</p>
+                                  <p><strong>Contact Number:</strong> {safe(seller,'contact_number') || "Not available"}</p>
+                                  <p><strong>Shop Email:</strong> {safe(seller,'email') || "Not available"}</p>
+                                  <p><strong>Tax ID:</strong>{safe(seller,'tax_id') || "Not available"}</p>
+                                  <p><strong>Business Registration Number:</strong>{safe(seller,'business_registration_number') || "Not available"}</p>
+                                  <p><strong>Description:</strong> {safe(seller,'description') || "Not available"}</p>
                                 </div>
                               </div>
                           
@@ -396,11 +391,11 @@ const SellerSection = ({searchTerm}) => {
                           {
                             seller.bank_details?(
                               <div className="space-y-2">
-                              <p><strong>Account Holder Name:</strong>{seller.bank_details.account_holder_name}</p>
-                              <p><strong>Bank Name:</strong> {seller.bank_details.bank_name}</p>
-                              <p><strong>Account Number:</strong> {seller.bank_details.account_number}</p>
-                              <p><strong>IFSC Code:</strong> {seller.bank_details.ifsc_code}</p>
-                              <p><strong>Branch Address:</strong> {seller.bank_details.branch_address}</p>
+                              <p><strong>Account Holder Name:</strong>{safe(seller,'bank_details.account_holder_name')}</p>
+                              <p><strong>Bank Name:</strong> {safe(seller,'bank_details.bank_name')}</p>
+                              <p><strong>Account Number:</strong> {safe(seller,'bank_details.account_number')}</p>
+                              <p><strong>IFSC Code:</strong> {safe(seller,'bank_details.ifsc_code')}</p>
+                              <p><strong>Branch Address:</strong> {safe(seller,'bank_details.branch_address')}</p>
                             </div>
                             ):
                             (

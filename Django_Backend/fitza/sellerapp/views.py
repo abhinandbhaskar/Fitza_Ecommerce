@@ -709,7 +709,7 @@ class SellerViewOrders(APIView):
         readyfordispatch = OrderLine.objects.filter(seller=seller,order__order_status__status="ready-for-dispatch")
         cancelled = OrderLine.objects.filter(seller=seller,order__order_status__status="cancelled")
         delivered = OrderLine.objects.filter(seller=seller,order__order_status__status="delivered")
-        obj = OrderLine.objects.filter(seller=seller)
+        obj = OrderLine.objects.filter(seller=seller).exclude(order__order_status__status="Pending")
         serializer=OrderLineMainSerializer(obj,many=True)
         ordercount={"processing":len(processing),"confirm":len(confirm),"readyfordispatch":len(readyfordispatch),"cancelled":len(cancelled),"delivered":len(delivered)}
         fetchdata={"orders":serializer.data,"counts":ordercount}

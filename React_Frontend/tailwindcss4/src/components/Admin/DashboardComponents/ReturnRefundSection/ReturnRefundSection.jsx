@@ -72,7 +72,11 @@ const ReturnRefundSection = () => {
           </div>
 
           <div className='px-10'>
-            <button onClick={()=>setView("table")} className='px-2 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white'>View Return Refund </button>
+            {
+              view==="form"&&(
+            <button onClick={()=>setView("table")} className='px-2 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white'>View All Return Refund </button>
+              )
+            }
           </div>
 
       

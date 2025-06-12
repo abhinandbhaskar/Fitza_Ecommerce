@@ -6,7 +6,6 @@ import SellerSection from "../SellerSection/SellerSection";
 import ProductSection from "../ProductSection/ProductSection";
 import OrdersSection from "../OrdersSection/OrdersSection";
 import RevenueSection from "../RevenueSection/RevenueSection";
-import MessageSection from "../MessageSection/MessageSection";
 import ComplaintSection from "../ComplaintSection/ComplaintSection";
 import ReviewSection from "../ReviewSection/ReviewSection";
 import BannerSection from "../BannerSection/BannerSection";
@@ -21,24 +20,23 @@ import NotificationSection from "../NotificationSection/NotificationSection";
 
 const RightSection = ({currentView,setCurrentView,setCountN,searchTerm}) => {
     return (
-        <div className="h-screen w-8/10 bg-white p-4 overflow-y-auto relative ml-77 mt-20">
+      <div className="h-screen w-8/10 bg-white p-4 overflow-y-auto relative ml-77 mt-20">
       {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
-      {currentView==="users"&&<UsersSection searchTerm={searchTerm}/>}
+      {currentView==="users"&&<UsersSection setCurrentView={setCurrentView} searchTerm={searchTerm}/>}
       {currentView==="sellers"&&<SellerSection searchTerm={searchTerm}/>}
-      {currentView==="products"&&<ProductSection searchTerm={searchTerm}/>}
+      {currentView==="products"&&<ProductSection searchTerm={searchTerm} setCurrentView={setCurrentView}/>}
       {currentView==="orders"&&<OrdersSection/>}
-      {currentView==="revenue"&&<RevenueSection/>}
-      {currentView==="messages"&&<MessageSection/>}
-      {currentView==="complaints"&&<ComplaintSection/>}
-      {currentView==="reviews"&&<ReviewSection/>}
-      {currentView==="banner"&&<BannerSection/>}
+      {currentView==="revenue"&&<RevenueSection setCurrentView={setCurrentView}/>}
+      {currentView==="complaints"&&<ComplaintSection setCurrentView={setCurrentView}/>}
+      {currentView==="reviews"&&<ReviewSection setCurrentView={setCurrentView}/>}
+      {currentView==="banner"&&<BannerSection setCurrentView={setCurrentView}/>}
       {currentView==="discounts"&&<DiscountsOffers setCurrentView={setCurrentView}/>}
-      {currentView==="coupon" && <CouponsSection/>}
-      {currentView==="discountcard" && <DiscountCardSection/>}
-      {currentView==="freeship"&&<FreeshippingSection/>}
-      {currentView==="productoffer"&&<ProductsOfferSection/>}
-      {currentView==="feedback"&&<FeedBackSection/>}
-      {currentView==="returnrefund"&&<ReturnRefundSection/>}
+      {currentView==="coupon" && <CouponsSection setCurrentView={setCurrentView}/>}
+      {currentView==="discountcard" && <DiscountCardSection setCurrentView={setCurrentView}/>}
+      {currentView==="freeship"&&<FreeshippingSection setCurrentView={setCurrentView}/>}
+      {currentView==="productoffer"&&<ProductsOfferSection setCurrentView={setCurrentView}/>}
+      {currentView==="feedback"&&<FeedBackSection setCurrentView={setCurrentView}/>}
+      {currentView==="returnrefund"&&<ReturnRefundSection setCurrentView={setCurrentView}/>}
       {currentView==="notification"&&<NotificationSection setCountN={setCountN} />}
 
       <Footer/>

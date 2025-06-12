@@ -43,7 +43,7 @@ from django.db.models import Q
 class ViewUsers(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        users = CustomUser.objects.filter(seller_profile__isnull=True, admin_profile__isnull=True,user_type='user',is_superuser=False)
+        users = CustomUser.objects.filter(seller_profile__isnull=True, admin_profile__isnull=True,user_type='user',is_superuser=False).order_by('-id')
         serializer=ViewUsersSerializer(users,many=True)
         return Response(serializer.data)
 
@@ -169,7 +169,7 @@ class ViewCategory(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
         try:
-            categories=ProductCategory.objects.all()
+            categories=ProductCategory.objects.all().order_by('-id')
             serializer=ViewCategorySerializer(categories,many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
@@ -337,7 +337,7 @@ from common.models import ProductItem
 class ViewPendingProduct(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=ProductItem.objects.filter(status='pending')
+        obj=ProductItem.objects.filter(status='pending').order_by('-id')
         serializer=ViewPendingProductSerializer(obj,many=True)
         return Response(serializer.data)
     
@@ -346,7 +346,7 @@ class ViewPendingProduct(APIView):
 class ViewAllProduct(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=ProductItem.objects.filter(status="approved")
+        obj=ProductItem.objects.filter(status="approved").order_by('-id')
         serializer=ViewPendingProductSerializer(obj,many=True)
         return Response(serializer.data)
 
@@ -381,7 +381,7 @@ class RejectProduct(APIView):
 class ViewProduct(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request,id):
-        obj=ProductItem.objects.filter(id=id)
+        obj=ProductItem.objects.filter(id=id).order_by('-id')
         serializer=IndividualProductsSerializer(obj,many=True)
         return Response(serializer.data)
     
@@ -990,7 +990,7 @@ class ViewSubCategory(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
         try:
-            categories=SubCategory.objects.all()
+            categories=SubCategory.objects.all().order_by('-id')
             serializer=ViewSubCategorySerializer(categories,many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Exception as e:
@@ -1133,6 +1133,7 @@ class ViewAdminRevenue(APIView):
         return Response(response_data)
     
 from adminapp.serializers import SalesTrendsSerializer 
+from common.models import Brand
 
 class FetchAdminDashboard(APIView):
     permission_classes=[IsAuthenticated]
@@ -1144,7 +1145,10 @@ class FetchAdminDashboard(APIView):
         total_sellers=Seller.objects.filter(account_verified=True,user__user_type="seller",user__is_active=True).count()
         order_excluded_status = ["completed", "canceled"]
         total_orders=ShopOrder.objects.exclude(order_status__status__in=order_excluded_status).count()
-        total_products=Product.objects.all().count()
+        total_products=Product.objects.filter(items__status="approved").count()
+        pending_products=Product.objects.filter(items__status="pending").count()
+        product_categories=ProductCategory.objects.all().count()
+        product_brands=Brand.objects.all().count()
         bills = Bill.objects.all()
         serializer = BillRevenueSerializer(bills, many=True)
         bills_data = serializer.data
@@ -1157,6 +1161,9 @@ class FetchAdminDashboard(APIView):
                 "totalsellers":total_sellers,
                 "totalorders":total_orders,
                 "totalproducts":total_products,
+                "pending_products":pending_products,
+                "product_categories":product_categories,
+                "product_brands":product_brands,
                 "totalrevenue":total_revenue,
                 "totalratingreview":total_ratingreview,
                 "total_sales":total_sales,

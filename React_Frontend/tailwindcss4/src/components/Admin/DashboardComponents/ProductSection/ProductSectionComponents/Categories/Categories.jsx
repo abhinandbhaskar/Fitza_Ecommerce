@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { safe } from "../../../../../../utils/safeAccess";
 
 const Categories = () => {
     const { accessToken } = useSelector((state) => state.auth);
@@ -221,13 +222,8 @@ const Categories = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            console.log("ooooooooooooo", response.data);
             setViewSubCategory(response.data);
-            // setViewCategory(response.data);
-
-            // const categoryNames = response.data.map((item) => item.category_name); // Extract category names
-            // setCategories(categoryNames); // Update the state with only category names
-            // console.log("asasaasaasasasasassass", categoryNames);
+           
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
@@ -363,17 +359,17 @@ const Categories = () => {
                             <tbody>
                                 {viewcategory.map((category, key) => (
                                     <tr value={key} className="hover:bg-gray-100 text-sm text-gray-700">
-                                        <td className="border border-gray-200 px-4 py-2">#{category.id}</td>
+                                        <td className="border border-gray-200 px-4 py-2">#{safe(category,'id')}</td>
                                         <td className="border border-gray-200 px-4 py-2">
                                             <img
-                                                src={"https://127.0.0.1:8000" + category.category_image}
+                                                src={"https://127.0.0.1:8000" + safe(category,'category_image')}
                                                 alt="category"
                                                 className="h-16 w-16 object-cover rounded-full"
                                             />
                                         </td>
-                                        <td className="border border-gray-200 px-4 py-2">{category.category_name}</td>
+                                        <td className="border border-gray-200 px-4 py-2">{safe(category,'category_name')}</td>
                                         <td className="border border-gray-200 px-4 py-2">
-                                            {category.category_description}
+                                            {safe(category,'category_description')}
                                         </td>
                                         <td className="border border-gray-200 px-4 py-2">
                                             <button
@@ -417,14 +413,14 @@ const Categories = () => {
                             <tbody>
                                 {viewSubCategory.map((category, key) => (
                                     <tr value={key} className="hover:bg-gray-100 text-sm text-gray-700">
-                                        <td className="border border-gray-200 px-4 py-2">#{category.id}</td>
+                                        <td className="border border-gray-200 px-4 py-2">#{safe(category,'id')}</td>
                                         <td className="border border-gray-200 px-4 py-2">
-                                            {category.category.category_name}
+                                            {safe(category,'category.category_name')}
                                             
                                         </td>
-                                        <td className="border border-gray-200 px-4 py-2">{category.subcategory_name}</td>
+                                        <td className="border border-gray-200 px-4 py-2">{safe(category,'subcategory_name')}</td>
                                         <td className="border border-gray-200 px-4 py-2">
-                                            {category.subcategory_description}
+                                            {safe(category,'subcategory_description')}
                                         </td>
                                         <td className="border border-gray-200 px-4 py-2">
                                             <button
@@ -453,6 +449,7 @@ const Categories = () => {
 
             {/* Add Categories Section */}
             {view === "add" && (
+
                 <div className="w-full max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
                     <h2 className="text-lg font-semibold text-gray-700 mb-4">Add New Category</h2>
                     <form className="space-y-4">
@@ -488,37 +485,40 @@ const Categories = () => {
                             <label htmlFor="image" className="block text-sm font-medium text-gray-600">
                                 Image
                             </label>
-
                             <div className="relative inline-block">
-                                <input
-                                    type="file"
-                                    id="fileInput"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    onChange={(e) => {
-                                        const file = e.target.files[0];
-                                        if (file) {
-                                            setImage(file); // Set the selected file for submission
-                                        }
-                                    }}
-                                />
-                                <label
-                                    htmlFor="fileInput"
-                                    className="bg-gradient-to-r from-gray-500 to-gray-700 flex items-center justify-center w-[120px] m-2 p-1 rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer"
-                                >
-                                    <img
-                                        className="h-[60px] w-[60px] rounded-full border-2 border-white"
-                                        src={
-                                            image instanceof File
-                                                ? URL.createObjectURL(image) // Preview the selected file temporarily
-                                                : image // Show existing profile photo URL
-                                        }
-                                        alt="Profile Picture"
-                                    />
-                                    <div className="ml-3 flex items-center justify-center bg-white text-amber-700 rounded-full h-[40px] w-[40px] shadow-md hover:bg-amber-300 transition-colors duration-300">
-                                        <i class="fa-solid fa-square-plus"></i>
-                                    </div>
-                                </label>
-                            </div>
+    <input
+        type="file"
+        id="fileInput"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+                setImage(file); // Set the selected file for submission
+            }
+        }}
+    />
+    <label
+        htmlFor="fileInput"
+        className="bg-gradient-to-r from-gray-500 to-gray-700 flex flex-col items-center justify-center w-[240px] h-[260px] m-4 p-4 rounded-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer"
+    >
+        <img
+            className="h-[160px] w-[160px] rounded-lg border-4 border-white shadow-md"
+            src={
+                image instanceof File
+                    ? URL.createObjectURL(image) // Preview the selected file temporarily
+                    : image // Show existing profile photo URL
+            }
+            alt="Profile Preview"
+        />
+        <div className="mt-4 flex items-center justify-center bg-white text-amber-700 rounded-full h-[50px] w-[50px] shadow-md hover:bg-amber-300 transition-colors duration-300">
+            <i className="fa-solid fa-square-plus text-xl"></i>
+        </div>
+        <p className="text-white text-sm mt-2">Click to upload a new image</p>
+    </label>
+</div>
+
+
+                          
                         </div>
                         <button
                             onClick={AddCategory}
@@ -529,6 +529,8 @@ const Categories = () => {
                         </button>
                     </form>
                 </div>
+
+
             )}
 
             {/* Add Categories Section */}
