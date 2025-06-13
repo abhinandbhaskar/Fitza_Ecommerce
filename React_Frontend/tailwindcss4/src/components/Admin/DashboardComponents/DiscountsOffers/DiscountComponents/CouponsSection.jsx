@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { safe } from "../../../../../utils/safeAccess";
 const CouponsSection = () => {
   const [coupons, setCoupons] = useState([]);
   const [couponData, setCouponData] = useState({
@@ -255,13 +256,13 @@ const CouponsSection = () => {
             {coupons.length > 0 ? (
               coupons.map((coupon, index) => (
                 <tr key={index} className="text-center">
-                  <td className="border border-gray-300 px-4 py-2">{coupon.code}</td>
-                  <td className="border border-gray-300 px-4 py-2">{coupon.discount_type}</td>
-                  <td className="border border-gray-300 px-4 py-2">{coupon.discount_value}</td>
-                  <td className="border border-gray-300 px-4 py-2">{coupon.minimum_order_amount}</td>
-                  <td className="border border-gray-300 px-4 py-2">{coupon.start_date}</td>
-                  <td className="border border-gray-300 px-4 py-2">{coupon.end_date}</td>
-                  <td className="border border-gray-300 px-4 py-2">{coupon.usage_limit}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(coupon,'code')}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(coupon,'discount_type')}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(coupon,'discount_value')}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(coupon,'minimum_order_amount')}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(coupon, 'start_date') ? new Date(safe(coupon, 'start_date')).toLocaleString() : 'N/A'}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(coupon, 'end_date') ? new Date(safe(coupon, 'end_date')).toLocaleString() : 'N/A'}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(coupon,'usage_limit')}</td>
                   <td className="border border-gray-300 px-4 py-2">
                     <button
                       onClick={() => handleEditCoupon(coupon.id)}

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { safe } from '../../../../utils/safeAccess';
 const FeedBackSection = () => {
     const {accessToken}=useSelector((state)=>state.auth);
     const [currentView,setCurrentView]=useState("seller");
@@ -89,23 +90,24 @@ const handleUserFeedback=()=>{
                                 feedbacks.map((feedback,key)=>(
                                     <tr key="" className="hover:bg-gray-100 transition duration-200">
                                     <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                        {feedback.id}
+                                        {key+1}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                        {feedback.user.first_name}
+                                        {safe(feedback,'user.first_name')}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                        {feedback.user.email}
+                                        {safe(feedback,'user.email')}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                        {feedback.rating}
+                                        {safe(feedback,'rating')}
                                     </td>
                   
                                     <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                        {feedback.comment}
+                                        {safe(feedback,'comment')}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                        {feedback.created_at}
+                                        {safe(feedback, 'created_at') ? new Date(safe(feedback, 'created_at')).toLocaleString() : 'N/A'}
+                                        
                                     </td>
                                    
                                   
@@ -118,64 +120,6 @@ const handleUserFeedback=()=>{
                         </tbody>
       </table>
     </div>
-
-      
-
-
-{/* {
-    currentView==="user" && (
-        <div>
-        <h3 className='text-red-600'>User FeedBack About Seller</h3>
-    <table className="min-w-full border-collapse border border-gray-200">
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Account Status</th>
-                            <th>Registration Date</th>
-                            <th>Last Login</th>
-                            <th>Total Orders</th>
-                        
-                        </tr>
-                    </thead>
-                        <tbody>
-                            
-                          
-                                <tr key="" className="hover:bg-gray-100 transition duration-200">
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    users
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    full_name
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    email
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    phone
-                                </td>
-              
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    date_joined
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    users.last_login
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
-                                    7
-                                </td>
-                              
-                            </tr>
-                        
-                        </tbody>
-      </table>
-    </div>
-
-      
-    )
-} */}
     </div>
   )
 }

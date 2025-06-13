@@ -11,6 +11,8 @@ const SellerSection = ({searchTerm}) => {
     const [currentView, setCurrentView] = useState("approved");
     const[seller,setSeller]=useState(null);
     const [filteredSellers, setFilteredSellers] = useState([]);
+    const [approvedSellers,setApprovedSellers]=useState(0);
+    const [pendingSellers,setPendingSellers]=useState(0);
 
 
     const fetchSellers = async () => {
@@ -23,8 +25,11 @@ const SellerSection = ({searchTerm}) => {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log("Grrook",data);
-                setSellers(data);
+                console.log("Grrook",data.data);
+                setSellers(data.data);
+                // setFilteredSellers(data.data);
+                setApprovedSellers(data.approve);
+                setPendingSellers(data.pending);
             }
         } catch (errors) {
             console.log(errors);
@@ -50,7 +55,7 @@ const SellerSection = ({searchTerm}) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log(data);
-                setApprovals(data);
+                setApprovals(data.data);
             }
         } catch (errors) {
             console.log(errors);
@@ -111,7 +116,6 @@ const SellerSection = ({searchTerm}) => {
             if(response.status===200)
             {
                 alert("Seller Approved successfully...");
-                // fetchSellers();
                 pendingApplication();
             }
         }
@@ -136,7 +140,6 @@ const SellerSection = ({searchTerm}) => {
                 }
             );
             if (response.status === 200) {
-                alert("Seller Removed..");
                 fetchSellers();
             }
         } catch (errors) {
@@ -189,20 +192,27 @@ const SellerSection = ({searchTerm}) => {
                     Dashboard &gt; <span className="text-indigo-600">Seller</span>
                 </h1>
             </div>
-            <div className="w-full bg-white shadow-md py-4 px-6">
-                <button
-                    onClick={() => ourSellers()}
-                    className="px-2 py-1 bg-green-500 rounded-md text-white m-1 hover:bg-green-600 border-1 border-gray-400 shadow-xl"
-                >
-                    Approved Sellers
-                </button>
-                <button
-                    onClick={() => pendingApplication()}
-                    className="px-2 py-1 bg-orange-500 rounded-md text-white m-1 hover:bg-orange-600 border-1 border-gray-400 shadow-xl"
-                >
-                    Pending Application
-                </button>
-            </div>
+           <div className="w-full bg-white shadow-md py-4 px-6 flex gap-4 items-center">
+  <button
+    onClick={() => ourSellers()}
+    className="flex items-center gap-2 px-4 py-2 bg-green-600 rounded-lg text-white font-medium shadow-md transition-all hover:bg-green-700 hover:shadow-lg focus:ring-2 focus:ring-green-400"
+  >
+    <span className="bg-white text-green-600 rounded-full px-3 py-1 font-bold text-sm shadow-md">
+      {approvedSellers}
+    </span>
+    Approved Sellers
+  </button>
+  <button
+    onClick={() => pendingApplication()}
+    className="flex items-center gap-2 px-4 py-2 bg-orange-600 rounded-lg text-white font-medium shadow-md transition-all hover:bg-orange-700 hover:shadow-lg focus:ring-2 focus:ring-orange-400"
+  >
+    <span className="bg-white text-orange-600 rounded-full px-3 py-1 font-bold text-sm shadow-md">
+      {pendingSellers}
+    </span>
+    Pending Applications
+  </button>
+</div>
+
 
 
             {currentView === "approved" && (
@@ -243,7 +253,7 @@ const SellerSection = ({searchTerm}) => {
                            }
                             {currentView === "approved" && (
                                 <tbody>
-                                    {filteredSellers.length > 0 ? (
+                                    {filteredSellers && filteredSellers.length > 0 ? (
                                         filteredSellers.map((sellers,key) => (
                                             <tr key={sellers.id} className="hover:bg-gray-100 transition duration-200">
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
@@ -293,7 +303,7 @@ const SellerSection = ({searchTerm}) => {
                             )} 
                             { currentView === "pending" && (
                                 <tbody>
-                                    {approvals.length > 0 ? (
+                                    {approvals && approvals.length > 0 ? (
                                         approvals.map((sellers,key) => (
                                             <tr key={sellers.id} className="hover:bg-gray-100 transition duration-200">
                                                 <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">

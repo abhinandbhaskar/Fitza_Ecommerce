@@ -2,20 +2,22 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import AdminOrderDetails from "./OrderSectionComponents/AdminOrderDetails";
+import { safe } from "../../../../utils/safeAccess";
 const OrdersSection = () => {
     const [currentView, setCurrentView] = useState("pending");
     const { accessToken } = useSelector((state) => state.auth);
     const [pendingOrder,setPendingOrder]=useState([]);
     const [label,setLabel]=useState("pending");
     const [statuscounts,setStatuscounts]=useState([]);
+    const [orderfilter,setOrderFilter]=useState("pending");
 
 
 
-    const fetchPendingOrders=async(status)=>{
-        console.log("STA",status);
+    const fetchPendingOrders=async()=>{
+        
 
       try{
-        const response=await axios.get(`https://127.0.0.1:8000/api/admin/view_pending_orders/${status}/`,{
+        const response=await axios.get(`https://127.0.0.1:8000/api/admin/view_pending_orders/`,{
           headers:{
             Authorization: `Bearer ${accessToken}`,
             "Content-Type":'application/json',
@@ -33,28 +35,24 @@ const OrdersSection = () => {
     }
 
     useEffect(()=>{
-      const status="pending";
-      fetchPendingOrders(status);
+      fetchPendingOrders();
     },[])
 
     const handlePendingView=()=>{
-      const status="pending";
-      fetchPendingOrders(status);
+        setOrderFilter("pending");
         setLabel("pending");
         setCurrentView("pending");
     }
 
     const handleOngoingView=()=>{
-        const status="processing";
-        fetchPendingOrders(status);
+        setOrderFilter("processing")
         setLabel("ongoing");
         setCurrentView("pending");
 
     }
 
     const handleCompletedView=()=>{
-        const status="completed";
-        fetchPendingOrders(status);
+        setOrderFilter("completed")
         setLabel("completed");
         setCurrentView("pending");
 
@@ -131,22 +129,22 @@ const OrdersSection = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {pendingOrder.map((order, index) => (
+                                {pendingOrder.filter(items=>items?.order_status?.status===orderfilter).map((order, index) => (
                                         <tr key={index} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border">{order.id}</td>
-                                            <td className="px-4 py-2 border">{order.user.email}</td>
+                                            <td className="px-4 py-2 border">#ORD-{safe(order,'id')}</td>
+                                            <td className="px-4 py-2 border">{safe(order,'user.email')}</td>
                                             <td className="px-4 py-2 border"> <ul>
                                                 {
                                                     order.order_lines.map((value,key)=>(
-                                                        <li>{value.seller.email}</li>
+                                                        <li>{safe(value,'seller.email')}</li>
                                                     ))
                                                 }
                                                 </ul> </td>
                                             <td className="px-4 py-2 border">
-                                                {order?.order_status?.status||"Pending"}
+                                                {safe(order,'order_status.status')||"Pending"}
                                             </td>
                                             <td className="px-4 py-2 border"><button onClick={()=>setCurrentView({view:"orderdetails1",data:order})} className="px-2 py-1 bg-blue-600 rounded-md hover:bg-blue-700 text-white">View Order</button></td>
-                                            <td className="px-4 py-2 border">{order?.payment_method?.status||"Pending"}</td>
+                                            <td className="px-4 py-2 border">{safe(order,'payment_method.status')||"Pending"}</td>
                                         </tr>
                                     ))}
                                 </tbody>

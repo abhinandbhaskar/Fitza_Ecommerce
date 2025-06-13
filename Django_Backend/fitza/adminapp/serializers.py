@@ -798,7 +798,7 @@ from adminapp.models import Complaint,ComplaintMessage
 
 class UserNameSerializer(serializers.ModelSerializer):
     class Meta:
-        model=CustomUser
+        model=CustomUserfi
         fields=['first_name','user_type']
 
 class ComplaintMessageSerializer(serializers.ModelSerializer):

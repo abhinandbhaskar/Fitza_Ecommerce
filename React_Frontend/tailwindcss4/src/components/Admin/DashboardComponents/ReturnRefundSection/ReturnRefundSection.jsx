@@ -2,12 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector} from "react-redux";
 import AdminReturnRefund from "./AdminReturnRefund";
-// Mock Data (In real-world scenario, data would be fetched from an API)
-// const returnRefunds = [
-//   { id: 1, orderId: '12345', reason: 'Damaged product', refundAmount: 100, status: 'pending' },
-//   { id: 2, orderId: '12346', reason: 'Wrong size', refundAmount: 50, status: 'completed' },
-//   { id: 3, orderId: '12347', reason: 'Late delivery', refundAmount: 150, status: 'rejected' },
-// ];
+import { safe } from "../../../../utils/safeAccess";
 
 const ReturnRefundSection = () => {
   const { accessToken } = useSelector((state) => state.auth);
@@ -88,7 +83,7 @@ const ReturnRefundSection = () => {
             <table className="min-w-full bg-white shadow-md">
               <thead>
                 <tr className="border-b">
-                  <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Order ID</th>
+                  <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">No.</th>
                   <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Reason</th>
                   <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Refund Amount</th>
                   <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Status</th>
@@ -96,11 +91,11 @@ const ReturnRefundSection = () => {
                 </tr>
               </thead>
               <tbody>
-                {returnrefund.map((refund) => (
+                {returnrefund.map((refund,key) => (
                   <tr key={refund.id} className="border-b">
-                    <td className="py-3 px-6 text-sm">{refund.id}</td>
-                    <td className="py-3 px-6 text-sm">{refund.reason}</td>
-                    <td className="py-3 px-6 text-sm">${refund.refund_amount}</td>
+                    <td className="py-3 px-6 text-sm">{key+1}</td>
+                    <td className="py-3 px-6 text-sm">{safe(refund,'reason')}</td>
+                    <td className="py-3 px-6 text-sm">Rs.{safe(refund,'refund_amount')}</td>
                     <td className="py-3 px-6 text-sm">
                       <span
                         className={`px-3 py-1 rounded-full text-white ${
@@ -111,7 +106,7 @@ const ReturnRefundSection = () => {
                             : 'bg-red-500'
                         }`}
                       >
-                        {refund.status}
+                        {safe(refund,'status')}
                       </span>
                     </td>
                     <td className="py-3 px-6 text-sm">

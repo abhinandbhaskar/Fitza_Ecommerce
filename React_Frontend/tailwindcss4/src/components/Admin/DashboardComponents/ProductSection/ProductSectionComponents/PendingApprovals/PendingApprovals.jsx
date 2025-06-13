@@ -80,6 +80,7 @@ const PendingApprovals = () => {
       fetchApprovals();
     }catch(errors)
     {
+      alert(errors.response.data.errors);
       console.log(errors);
       console.log(errors.response);
     }
@@ -121,7 +122,7 @@ const PendingApprovals = () => {
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse border border-gray-200">
               <thead>
-                <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
+                <tr className="bg-gray-50 text-left text-sm font-semibold text-black">
                   <th className="border border-gray-200 px-4 py-2">No.</th>
                   <th className="border border-gray-200 px-4 py-2">Image</th>
                   <th className="border border-gray-200 px-4 py-2">Product</th>

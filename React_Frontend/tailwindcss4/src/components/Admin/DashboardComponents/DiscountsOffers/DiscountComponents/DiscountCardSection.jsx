@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { safe } from "../../../../../utils/safeAccess";
 
 const DiscountCardSection = () => {
   const [discountCards, setDiscountCards] = useState([]);
@@ -257,12 +258,12 @@ const DiscountCardSection = () => {
               {discountCards.map((card, index) => (
                 <tr key={card.id}>
                   <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
-                  <td className="border border-gray-300 px-4 py-2">{card.card_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{card.discount_percentage}%</td>
-                  <td className="border border-gray-300 px-4 py-2">{card.start_date}</td>
-                  <td className="border border-gray-300 px-4 py-2">{card.end_date}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(card,'card_name')}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(card,'discount_percentage')}%</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(card,'start_date') ? new Date(safe(card, 'start_date')).toLocaleString() : 'N/A'}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(card,'end_date') ? new Date(safe(card, 'end_date')).toLocaleString() : 'N/A'}</td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {card.is_active ? "Yes" : "No"}
+                    {safe(card,'is_active') ? "Yes" : "No"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 space-x-2">
                     <button

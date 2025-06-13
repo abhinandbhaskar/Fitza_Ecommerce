@@ -17,13 +17,13 @@ import ProductsOfferSection from "../DiscountsOffers/DiscountComponents/Products
 import FeedBackSection from "../FeedBackSection/FeedBackSection";
 import ReturnRefundSection from "../ReturnRefundSection/ReturnRefundSection";
 import NotificationSection from "../NotificationSection/NotificationSection";
-
+import ErrorBoundary from "../../../ErrorBoundary";
 const RightSection = ({currentView,setCurrentView,setCountN,searchTerm}) => {
     return (
       <div className="h-screen w-8/10 bg-white p-4 overflow-y-auto relative ml-77 mt-20">
       {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
       {currentView==="users"&&<UsersSection setCurrentView={setCurrentView} searchTerm={searchTerm}/>}
-      {currentView==="sellers"&&<SellerSection searchTerm={searchTerm}/>}
+      {currentView==="sellers"&& <ErrorBoundary><SellerSection searchTerm={searchTerm}/></ErrorBoundary>}
       {currentView==="products"&&<ProductSection searchTerm={searchTerm} setCurrentView={setCurrentView}/>}
       {currentView==="orders"&&<OrdersSection/>}
       {currentView==="revenue"&&<RevenueSection setCurrentView={setCurrentView}/>}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { safe } from "../../../../utils/safeAccess";
 
 const AdminReturnRefund = ({ refundobj }) => {
     const [returnRefund, setReturnRefund] = useState(null);
@@ -68,20 +69,20 @@ const AdminReturnRefund = ({ refundobj }) => {
                 {/* Request Details */}
                 <div className="border p-4 rounded-md bg-gray-50">
                     <h3 className="font-semibold text-gray-700">Request Details</h3>
-                    <p><strong>Order ID:</strong> {returnRefund.order}</p>
-                    <p><strong>Requested Refund Amount:</strong> {returnRefund.refund_amount}</p>
-                    <p><strong>Refund Method:</strong> {returnRefund.refund_method}</p>
-                    <p><strong>Reason:</strong> {returnRefund.reason}</p>
-                    <p><strong>Escalation Reason</strong> {returnRefund.escalation_reason || "Not Added"}</p>
+                    <p><strong>Order ID:</strong> {safe(returnRefund,'order')}</p>
+                    <p><strong>Requested Refund Amount:</strong> {safe(returnRefund,'refund_amount')}</p>
+                    <p><strong>Refund Method:</strong> {safe(returnRefund,'refund_method')}</p>
+                    <p><strong>Reason:</strong> {safe(returnRefund,'reason')}</p>
+                    <p><strong>Escalation Reason</strong> {safe(returnRefund,'escalation_reason') || "Not Added"}</p>
                    <img
                         src={
-                            returnRefund.supporting_files && returnRefund.supporting_files.length > 0 && `https://127.0.0.1:8000/${returnRefund.supporting_files}`
+                            safe(returnRefund,'supporting_files') && returnRefund.supporting_files.length > 0 && `https://127.0.0.1:8000/${returnRefund.supporting_files}`
                         }
                         className="h-34 w-34 border-2 border-gray-700"
                         alt="Profile"
                     />
 
-                    {returnRefund.supporting_files && (
+                    {safe(returnRefund,'supporting_files') && (
     <div>
         <h3 className="text-sm font-medium text-gray-500">Supporting Documents</h3>
         <div className="mt-1 space-y-1">

@@ -122,8 +122,10 @@ const Categories = () => {
             setImage1(response.data[0].category_image);
             setCateId(response.data[0].id);
         } catch (errors) {
-            console.log(errors);
-            console.log(errors.response.data);
+            console.log("r",errors);
+            console.log("b",errors.response.data);
+        }finally{
+            console.log("Com");
         }
     };
 
@@ -161,6 +163,7 @@ const Categories = () => {
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+            alert("Add Image");
         }
     };
 
@@ -254,6 +257,7 @@ const Categories = () => {
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+    
         }
 
     }
@@ -290,6 +294,7 @@ const Categories = () => {
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+            console.log("pp");
         }
 
     }
@@ -304,41 +309,71 @@ const Categories = () => {
             </div>
 
             {/* Buttons for View/Add Categories */}
-            <div className="flex justify-center my-4 space-x-4">
-                <button
-                    onClick={() => ViewCategorys()}
-                    className={`px-4 py-2 text-white font-medium rounded-lg shadow ${
-                        view === "view" ? "bg-indigo-600" : "bg-blue-500 hover:bg-blue-600"
-                    }`}
-                >
-                    View Main Categories
-                </button>
-                  <button
-                    onClick={() => ViewSubCategorys()}
-                    className={`px-4 py-2 text-white font-medium rounded-lg shadow ${
-                        view === "viewsub" ? "bg-indigo-600" : "bg-blue-500 hover:bg-blue-600"
-                    }`}
-                >
-                    View SubCategories
-                </button>
-                <button
-                    onClick={() => setView("add")}
-                    className={`px-4 py-2 text-white font-medium rounded-lg shadow ${
-                        view === "add" ? "bg-indigo-600" : "bg-blue-500 hover:bg-blue-600"
-                    }`}
-                >
-                    Add Categories
-                </button>
+<div className="flex flex-wrap justify-center gap-4 my-6">
+    <button
+        onClick={() => ViewCategorys()}
+        className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+            view === "view" 
+                ? "bg-indigo-600 text-white shadow-md hover:bg-indigo-700" 
+                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+        }`}
+    >
+        <div className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+            Main Categories
+        </div>
+    </button>
 
-                <button
-                    onClick={() => handleAddSubCategory()}
-                    className={`px-4 py-2 text-white font-medium rounded-lg shadow ${
-                        view === "add" ? "bg-indigo-600" : "bg-blue-500 hover:bg-blue-600"
-                    }`}
-                >
-                    Add SubCategories
-                </button>
-            </div>
+    <button
+        onClick={() => ViewSubCategorys()}
+        className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+            view === "viewsub" 
+                ? "bg-indigo-600 text-white shadow-md hover:bg-indigo-700" 
+                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+        }`}
+    >
+        <div className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            Subcategories
+        </div>
+    </button>
+
+    <button
+        onClick={() => setView("add")}
+        className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+            view === "add" 
+                ? "bg-indigo-600 text-white shadow-md hover:bg-indigo-700" 
+                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+        }`}
+    >
+        <div className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Category
+        </div>
+    </button>
+
+    <button
+        onClick={() => handleAddSubCategory()}
+        className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+            view === "add" 
+                ? "bg-indigo-600 text-white shadow-md hover:bg-indigo-700" 
+                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+        }`}
+    >
+        <div className="flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Subcategory
+        </div>
+    </button>
+</div>
 
             {/* View Categories Section */}
             {view === "view" && (
@@ -347,8 +382,8 @@ const Categories = () => {
                     <div className="overflow-x-auto">
                         <table className="min-w-full border-collapse border border-gray-200">
                             <thead>
-                                <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                                    <th className="border border-gray-200 px-4 py-2">ID</th>
+                                <tr className="bg-gray-50 text-left text-sm font-semibold text-black">
+                                    <th className="border border-gray-200 px-4 py-2">No.</th>
                                     <th className="border border-gray-200 px-4 py-2">Image</th>
                                     <th className="border border-gray-200 px-4 py-2">Category Name</th>
                                     <th className="border border-gray-200 px-4 py-2">Description</th>
@@ -359,7 +394,7 @@ const Categories = () => {
                             <tbody>
                                 {viewcategory.map((category, key) => (
                                     <tr value={key} className="hover:bg-gray-100 text-sm text-gray-700">
-                                        <td className="border border-gray-200 px-4 py-2">#{safe(category,'id')}</td>
+                                        <td className="border border-gray-200 px-4 py-2">{key+1}</td>
                                         <td className="border border-gray-200 px-4 py-2">
                                             <img
                                                 src={"https://127.0.0.1:8000" + safe(category,'category_image')}
@@ -401,8 +436,8 @@ const Categories = () => {
                     <div className="overflow-x-auto">
                         <table className="min-w-full border-collapse border border-gray-200">
                             <thead>
-                                <tr className="bg-gray-50 text-left text-sm font-semibold text-gray-600">
-                                    <th className="border border-gray-200 px-4 py-2">ID</th>
+                                <tr className="bg-gray-50 text-left text-sm font-semibold text-black">
+                                    <th className="border border-gray-200 px-4 py-2">No.</th>
                                     <th className="border border-gray-200 px-4 py-2">Main Category</th>
                                     <th className="border border-gray-200 px-4 py-2">Sub Category</th>
                                     <th className="border border-gray-200 px-4 py-2">Description</th>
@@ -413,7 +448,7 @@ const Categories = () => {
                             <tbody>
                                 {viewSubCategory.map((category, key) => (
                                     <tr value={key} className="hover:bg-gray-100 text-sm text-gray-700">
-                                        <td className="border border-gray-200 px-4 py-2">#{safe(category,'id')}</td>
+                                        <td className="border border-gray-200 px-4 py-2">{key+1}</td>
                                         <td className="border border-gray-200 px-4 py-2">
                                             {safe(category,'category.category_name')}
                                             

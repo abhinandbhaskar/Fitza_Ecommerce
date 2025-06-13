@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from "axios";
 import {useSelector} from "react-redux"
+import { safe } from '../../../../../../../utils/safeAccess';
 const ColorOptions = () => {
   const[color,setColor]=useState("");
   const {accessToken}=useSelector((state)=>state.auth);
@@ -75,14 +76,14 @@ const ColorOptions = () => {
   }
 
   return (
-    <div className="h-screen w-full bg-gray-100 p-4 flex flex-col md:flex-row gap-4">
+    <div className="h-auto w-full bg-green-100 p-4 flex flex-col md:flex-row gap-4">
       {/* Table Section */}
       <div className="bg-white shadow-md rounded-lg p-4 flex-1">
         <h2 className="text-xl font-semibold mb-4">Color Options</h2>
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-200 text-left">
-              <th className="p-2 border-b">#</th>
+              <th className="p-2 border-b">No.</th>
               <th className="p-2 border-b">Color</th>
               <th className="p-2 border-b text-right">Action</th>
             </tr>
@@ -91,8 +92,9 @@ const ColorOptions = () => {
 {
   colorarr.map((colors,key)=>(
     <tr value={key}>
-    <td className="p-2 border-b">#{colors.id}</td>
-    <td className="p-2 border-b">{colors.color_name}</td>
+    <td className="p-2 border-b">{key+1}</td>
+    <td className="p-2 border-b">{safe(colors,'color_name')}</td>
+
     <td className="p-2 border-b text-right">
       <button onClick={()=>handleDelete(colors.id)} className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
         Delete

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import { safe } from "../../../../../utils/safeAccess";
 
 const FreeshippingSection = () => {
   const [freeShippingOffers, setFreeShippingOffers] = useState([]);
@@ -319,19 +320,21 @@ const FreeshippingSection = () => {
                     {index + 1}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    ${offer.minOrderAmount}
+                    ${safe(offer,'minOrderAmount')}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {offer.description || "N/A"}
+                    {safe(offer,'description') || "N/A"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {offer.startDate}
+                   
+                    {safe(offer, 'startDate') ? new Date(safe(offer, 'startDate')).toLocaleString() : 'N/A'}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {offer.endDate}
+                    
+                    {safe(offer, 'endDate') ? new Date(safe(offer, 'endDate')).toLocaleString() : 'N/A'}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {offer.isActive ? "Yes" : "No"}
+                    {safe(offer,'isActive') ? "Yes" : "No"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2 flex gap-2">
                     <button

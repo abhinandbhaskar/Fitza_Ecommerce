@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Select from "react-select"; // Install this library using: npm install react-select
 import { useSelector } from "react-redux";
+import { safe } from "../../../../../utils/safeAccess";
 const ProductsOfferSection = () => {
   const [offers, setOffers] = useState([]);
   const [products, setProducts] = useState([]); // Holds the product list
@@ -336,18 +337,23 @@ const ProductsOfferSection = () => {
               {offers.map((offer, index) => (
                 <tr key={offer.id}>
                   <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
-                  <td className="border border-gray-300 px-4 py-2">{offer.product.product_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{offer.offer_title}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(offer,'product.product_name')}</td>
+                  <td className="border border-gray-300 px-4 py-2">{safe(offer,'offer_title')}</td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {offer.offer_description || "N/A"}
+                    {safe(offer,'offer_description') || "N/A"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    {offer.discount_percentage}%
+                    {safe(offer,'discount_percentage')}%
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">{offer.start_date}</td>
-                  <td className="border border-gray-300 px-4 py-2">{offer.end_date}</td>
                   <td className="border border-gray-300 px-4 py-2">
-                  {offer.is_active ? "Yes" : "No"}
+                                        {safe(offer, 'start_date') ? new Date(safe(offer, 'start_date')).toLocaleString() : 'N/A'}
+                    
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                                        {safe(offer, 'end_date') ? new Date(safe(offer, 'end_date')).toLocaleString() : 'N/A'}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                  {safe(offer,'is_active') ? "Yes" : "No"}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                   <button

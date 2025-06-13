@@ -9,7 +9,7 @@ const DashboardPage = () => {
   return (
     <div>
       <Header countN={countN} setCountN={setCountN} setSearchTerm={setSearchTerm} searchTerm={searchTerm} setCurrentView={setCurrentView}/>
-      <Dashboard setCountN={setCountN} currentView={currentView} searchTerm={searchTerm} setCurrentView={setCurrentView}/>
+              <Dashboard setCountN={setCountN} currentView={currentView} searchTerm={searchTerm} setCurrentView={setCurrentView}/>
     </div>
   )
 }

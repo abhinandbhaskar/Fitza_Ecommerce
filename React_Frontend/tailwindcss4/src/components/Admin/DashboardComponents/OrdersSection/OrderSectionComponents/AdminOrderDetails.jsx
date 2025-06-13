@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { safe } from "../../../../../utils/safeAccess";
 const AdminOrderDetails = ({currentView}) => {
     const [orderData, setOrderData] = useState(null);
     const { accessToken } = useSelector((state) => state.auth);
@@ -69,19 +70,19 @@ const AdminOrderDetails = ({currentView}) => {
                 <h2 className="font-semibold text-xl">Order Details</h2>
                 <p className="mt-2">
                     <strong>Order ID: </strong>
-                    {orderData?.id}
+                    #ORD-{safe(orderData,'id')}
                 </p>
                 <p>
                     <strong>User: </strong> 
-                     {orderData?.user?.first_name} ({orderData?.user?.email})
+                     {safe(orderData,'user.first_name')} ({safe(orderData,'user.email')})
                 </p>
                 <p>
                     <strong>Order Date: </strong>
-                    {new Date(orderData?.order_date).toLocaleString()}
+                    {new Date(safe(orderData,'order_date')).toLocaleString()}
                 </p>
                 <p>
                     <strong>Order Status:</strong>
-                    {orderData?.order_status?.status}
+                    {safe(orderData,'order_status.status')}
                 </p>
              
             </div>
@@ -91,23 +92,23 @@ const AdminOrderDetails = ({currentView}) => {
                 <h2 className="font-semibold text-xl">Order Summary</h2>
                 <p>
                     <strong>Order Total:</strong>
-                    ${orderData?.order_total}
+                    Rs.{safe(orderData,'order_total')}
                 </p>
                 <p>
                     <strong>Discount Applied:</strong>
-                    ${orderData?.discount_amount}
+                    Rs.{safe(orderData,'discount_amount')}
                 </p>
                 <p>
                     <strong>Coupon Code: </strong>
-                    {orderData?.applied_coupon?.code || "Not Applied.."}
+                    {safe(orderData,'applied_coupon.code') || "Not Applied.."}
                 </p>
                 <p>
                     <strong>Final Total:</strong>
-                    ${orderData?.final_total}
+                    Rs.{safe(orderData,'final_total')}
                 </p>
                 <p>
                     <strong>Free Shipping:</strong>
-                    {orderData?.free_shipping_applied ? "Yes" : "No"}
+                    {safe(orderData,'free_shipping_applied') ? "Yes" : "No"}
                 </p>
             </div>
 
@@ -128,13 +129,13 @@ const AdminOrderDetails = ({currentView}) => {
                         
                         {
                             orderData?.order_lines.map((item,key)=>(
-                                                        <tr key="" className="border-b">
-                            <td className="p-2">{item.product_item.product.product_name}</td>
-                            <td className="p-2">{item.seller.first_name}</td>
-                            <td className="p-2">{item.quantity}</td>
+                            <tr key="" className="border-b">
+                            <td className="p-2">{safe(item,'product_item.product.product_name')}</td>
+                            <td className="p-2">{safe(item,'seller.first_name')}</td>
+                            <td className="p-2">{safe(item,'quantity')}</td>
                             {/* <td className="p-2">${item.price.toFixed(2)}</td> */}
-                            <td className="p-2">{item.price}</td>
-                            <td className="p-2">${(item.quantity * item.price)}</td>
+                            <td className="p-2">{safe(item,'price')}</td>
+                            <td className="p-2">Rs.{(item.quantity * item.price)}</td>
                         </tr>
                             ))
                         }
@@ -157,11 +158,11 @@ const AdminOrderDetails = ({currentView}) => {
                 </p>
                 <p>
                     {/* <strong>Amount Paid:</strong> ${paymentDetails.amount.toFixed(2)} */}
-                    <strong>Amount Paid:</strong> $ {orderData?.payment_method?.amount||"0.00"}
+                    <strong>Amount Paid:</strong> Rs.{orderData?.payment_method?.amount||"0.00"}
                 </p>
                 <p>
                     {/* <strong>Platform Fee:</strong> ${paymentDetails.platformFee.toFixed(2)} */}
-                    <strong>Platform Fee:</strong> $ {orderData?.payment_method?.platform_fee||"pending"}
+                    <strong>Platform Fee:</strong> Rs.{orderData?.payment_method?.platform_fee||"pending"}
                 </p>
             </div>
 
@@ -174,12 +175,7 @@ const AdminOrderDetails = ({currentView}) => {
         Assign Order to Seller
     </button>
     
-    {/* Update Order Status */}
-    {/* <button className="bg-green-500 text-white px-4 py-2 rounded-lg mr-2">
-        Update Order Status (Processing)
-    </button> */}
-    
-    {/* Verify Payment Status */}
+
 
     {
         orderData?.payment_method?.id? (

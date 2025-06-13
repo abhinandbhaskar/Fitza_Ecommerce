@@ -93,8 +93,12 @@ class ViewSellers(APIView):
     def get(self,request):
         active_users=CustomUser.objects.filter(is_active=True).values_list('id', flat=True)
         sellers=Seller.objects.filter(account_verified=True,user_id__in=active_users)
+        approve_sellers=Seller.objects.filter(account_verified=True,user_id__in=active_users).count()
+        obj=CustomUser.objects.filter(is_active=False).values_list('id', flat=True)
+        pending_sellers=Seller.objects.filter(account_verified=False,user_id__in=obj).count()
         serializer=ViewSellerSerializer(sellers,many=True)
-        return Response(serializer.data)
+        context={"data":serializer.data,"approve":approve_sellers,"pending":pending_sellers}
+        return Response(context)
 
 
 class SellerApprovals(APIView):
@@ -230,7 +234,7 @@ from common.models import Color
 class ViewColors(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=Color.objects.all()
+        obj=Color.objects.all().order_by('-id')
         serializer=ViewColorsSerializer(obj,many=True)
         return Response(serializer.data)
 
@@ -266,7 +270,7 @@ from common.models import SizeOption,Brand
 class ViewSize(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        size=SizeOption.objects.all()
+        size=SizeOption.objects.all().order_by('-id')
         serializer=ViewSizeSerializer(size,many=True)
         return Response(serializer.data)
 
@@ -300,7 +304,7 @@ class AddBrand(APIView):
 class ViewBrand(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=Brand.objects.all()
+        obj=Brand.objects.all().order_by('-id')
         serializer=BrandSerializer(obj,many=True)
         return Response(serializer.data)
     
@@ -833,7 +837,7 @@ class SellerFeedBacks(APIView):
         else:
             platformstatus=False
         print("NK",platformstatus)
-        obj=Feedback.objects.filter(platform=platformstatus)
+        obj=Feedback.objects.filter(platform=platformstatus).order_by('-id')
         serializer=ViewSellerFeedbacksSerializer(obj,many=True)
         return Response(serializer.data)
 
@@ -844,10 +848,9 @@ from common.models import ShopOrder
 class ViewPendingOrders(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request,status):
-        print("STATUS",status)
+    def get(self, request):
         user = request.user
-        obj = ShopOrder.objects.filter(order_status__status=status).order_by('id')
+        obj = ShopOrder.objects.all().order_by('-id')
         serializer=ViewPendingOrdersSerializer(obj,many=True)
         pdata = ShopOrder.objects.filter(order_status__status="pending")
         odata = ShopOrder.objects.filter(order_status__status="processing")
@@ -917,7 +920,7 @@ from userapp.models import ReturnRefund
 class FetchAllReturnRefund(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=ReturnRefund.objects.all()
+        obj=ReturnRefund.objects.all().order_by('-id')
         serializer=FetchAllReturnRefundSerializer(obj,many=True)
         return Response(serializer.data)
     

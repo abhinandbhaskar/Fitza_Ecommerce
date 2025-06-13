@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {useSelector} from "react-redux"
+import { safe } from "../../../../../../../utils/safeAccess";
 const SizeOptions = () => {
   const[size,setSize]=useState("");
   const[sortOrder,setSortOrder]=useState("");
@@ -75,14 +76,14 @@ const SizeOptions = () => {
   }
 
   return (
-    <div className="h-screen w-full bg-gray-100 p-4 flex flex-col md:flex-row gap-4">
+    <div className="h-auto w-full bg-blue-100 p-4 flex flex-col md:flex-row gap-4">
       {/* Table Section */}
       <div className="bg-white shadow-md rounded-lg p-4 flex-1">
         <h2 className="text-xl font-semibold mb-4">Size Options</h2>
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-200 text-left">
-              <th className="p-2 border-b">#</th>
+              <th className="p-2 border-b">No.</th>
               <th className="p-2 border-b">Size</th>
               <th className="p-2 border-b">Priority</th>
               <th className="p-2 border-b text-right">Action</th>
@@ -93,8 +94,8 @@ const SizeOptions = () => {
               sizearr.map((size,key)=>(
                 <tr>
                 <td className="p-2 border-b">{key+1}</td>
-                <td className="p-2 border-b">{size.size_name}</td>
-                <td className="p-2 border-b">{size.sort_order}</td>
+                <td className="p-2 border-b">{safe(size,'size_name')}</td>
+                <td className="p-2 border-b">{safe(size,'sort_order')}</td>
                 <td className="p-2 border-b text-right">
                   <button onClick={()=>handleDelete(size.id)} className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
                     Delete

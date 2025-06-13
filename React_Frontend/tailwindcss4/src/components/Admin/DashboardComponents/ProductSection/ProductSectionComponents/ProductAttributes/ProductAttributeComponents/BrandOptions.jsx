@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import {useSelector} from "react-redux";
+import { safe } from '../../../../../../../utils/safeAccess';
 const BrandOptions = () => {
   const[view,setView]=useState("add");
   const[brand,setBrand]=useState("");
@@ -131,7 +132,7 @@ const BrandOptions = () => {
   }
 
   return (
-    <div className="h-screen w-full bg-gray-100 p-4 flex flex-col md:flex-row gap-4">
+    <div className="h-auto w-full bg-violet-100 p-4 flex flex-col md:flex-row gap-4">
     
       {/* Table Section */}
       <div className="bg-white shadow-md rounded-lg p-4 flex-1">
@@ -152,7 +153,7 @@ const BrandOptions = () => {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-200 text-left">
-              <th className="p-2 border-b">#</th>
+              <th className="p-2 border-b">No.</th>
               <th className="p-2 border-b">Brand</th>
               <th className="p-2 border-b">Brand Description</th>
               <th className="p-2 border-b text-right">Action</th>
@@ -163,9 +164,9 @@ const BrandOptions = () => {
           {
             brandarr.map((brand,key)=>(
             <tr>
-              <td className="p-2 border-b">{brand.id}</td>
-              <td className="p-2 border-b">{brand.brand_name}</td>
-              <td className="p-2 border-b">{brand.brand_description}</td>
+              <td className="p-2 border-b">{key+1}</td>
+              <td className="p-2 border-b">{safe(brand,'brand_name')}</td>
+              <td className="p-2 border-b">{safe(brand,'brand_description')}</td>
               <td className="p-2 border-b text-right">
                 <button onClick={()=>handleUpdate(brand.id)} className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
                   Update
