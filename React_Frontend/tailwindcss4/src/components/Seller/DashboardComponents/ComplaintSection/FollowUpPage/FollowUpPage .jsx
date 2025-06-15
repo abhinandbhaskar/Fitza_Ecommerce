@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-const FollowUpPage = ({ yourcomplaint }) => {
+const FollowUpPage = ({ yourcomplaint,setCurrentView }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -126,8 +126,14 @@ className={`flex ${msg.sender.user_type === "admin" ? "justify-start" : "justify
               onChange={(e) => setNewMessage(e.target.value)}
             ></textarea>
             <button
+              onClick={()=>setCurrentView("complaints")}
+              className="mt-2 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 mr-3"
+            >
+              &lt; Back 
+            </button>
+             <button
               onClick={()=>handleSendMessage()}
-              className="mt-2 px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700"
+              className="mt-2 px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700"
             >
               Send
             </button>

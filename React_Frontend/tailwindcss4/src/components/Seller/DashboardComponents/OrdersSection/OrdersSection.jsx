@@ -68,21 +68,28 @@ const OrdersSection = () => {
                 </h1>
             </div>
 
-            {/* Overview Cards */}
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-6">
-                {[
-                    { title: "New Orders", count: statuscount.processing, color: "bg-blue-500" },
-                    { title: "Confirm Orders", count: statuscount.confirm, color: "bg-green-400" },
-                    { title: "Shipped Orders", count: statuscount.readyfordispatch, color: "bg-orange-500" },
-                    { title: "Delivered Orders", count: statuscount.delivered, color: "bg-green-600" },
-                    { title: "Cancelled Orders", count: statuscount.cancelled, color: "bg-red-500" },
-                ].map((card, index) => (
-                    <div key={index} className={`rounded-lg shadow-md p-4 ${card.color} text-white`}>
-                        <h3 className="text-lg font-medium">{card.title}</h3>
-                        <p className="text-2xl font-bold">{card.count}</p>
-                    </div>
-                ))}
-            </div>
+{/* Overview Cards - Professional with Colored Labels */}
+<div className="p-6 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
+    {[
+        { title: "New Orders", count: statuscount.processing, color: "border-blue-500 text-blue-600" },
+        { title: "Confirmed", count: statuscount.confirm, color: "border-green-500 text-green-600" },
+        { title: "Shipped", count: statuscount.readyfordispatch, color: "border-orange-500 text-orange-600" },
+        { title: "Delivered", count: statuscount.delivered, color: "border-teal-500 text-teal-600" },
+        { title: "Cancelled", count: statuscount.cancelled, color: "border-red-500 text-red-600" },
+    ].map((card, index) => (
+        <div 
+            key={index} 
+            className="rounded-lg border border-gray-300 shadow-md p-4 bg-white hover:shadow-md transition-all"
+        >
+            <h3 className={`text-sm font-medium uppercase tracking-wider border-l-4 pl-2 ${card.color}`}>
+                {card.title}
+            </h3>
+            <p className={`text-2xl font-semibold mt-3 ${card.color.split(' ')[1]}`}>
+                {card.count}
+            </p>
+        </div>
+    ))}
+</div>
 
             {/* Filters and Actions */}
             <div className="p-6 bg-white shadow-md rounded-lg mb-6">
@@ -94,63 +101,63 @@ const OrdersSection = () => {
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
-                    <div className="w-full flex flex-col md:flex-row items-center gap-4">
-                        {/* Order Status Select Box */}
-                        <select
-                            onChange={(e) => setOrderstatus(e.target.value)}
-                            className="w-full md:w-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-md shadow-md focus:ring-blue-500 focus:border-blue-500 block p-2.5"
-                        >
-                            <option value="all" className="bg-blue-500 text-white">
-                                All Orders
-                            </option>
-                            <option value="processing" className="bg-blue-500 text-white">
-                                New Orders
-                            </option>
-                            <option value="confirm" className="bg-green-400 text-white">
-                                Confirm Orders
-                            </option>
-                            <option value="ready-for-dispatch" className="bg-orange-500 text-white">
-                                Shipped Orders
-                            </option>
-                            <option value="delivered" className="bg-green-600 text-white">
-                                Delivered Orders
-                            </option>
-                            <option value="cancelled" className="bg-red-500 text-white">
-                                Cancelled Orders
-                            </option>
-                        </select>
-                    </div>
+<div className="w-full flex flex-col md:flex-row items-center gap-4">
+    {/* Order Status Select Box - Professional */}
+    <select
+        onChange={(e) => setOrderstatus(e.target.value)}
+        className="w-full md:w-64 bg-white border border-gray-300 text-gray-700 text-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm transition-all"
+    >
+        <option value="all">All Orders</option>
+        <option value="processing">New Orders</option>
+        <option value="confirm">Confirmed Orders</option>
+        <option value="ready-for-dispatch">Shipped Orders</option>
+        <option value="delivered">Delivered Orders</option>
+        <option value="cancelled">Cancelled Orders</option>
+    </select>
+</div>
                 </div>
             </div>
 
+           {
+            currentView !== "neworders" && (
+                 <div className="mt-4 bg-blue-50 p-4 px-6 rounded-lg shadow-sm flex items-center gap-4">
+                <p className="text-gray-600 flex items-center text-base md:text-lg">
+                    <span onClick={()=>setCurrentView("neworders")} className="text-gray-500 text-sm font-medium mr-2">&lt;Back </span>
+                </p>
+            </div>
+            )
+           }
+
             {currentView === "neworders" && (
                 <div className="p-6 bg-white shadow-md rounded-lg">
-                    <table className="w-full text-left table-auto border-collapse">
+                    <table className="min-w-full border-collapse border border-gray-200">
                         <thead>
-                            <tr className="bg-gray-200">
-                                <th className="p-4 border">Order ID</th>
-                                <th className="p-4 border">Customer Name</th>
-                                <th className="p-4 border">Order Date</th>
-                                <th className="p-4 border">Status</th>
-                                <th className="p-4 border">Amount</th>
-                                <th className="p-4 border">Actions</th>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
+                                <th>Order Date</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredOrders
                                 .filter((item) => orderstatus === "all" ? item : item.order.order_status.status === orderstatus)
                                 .map((item, index) => (
-                                    <tr key={index} className="hover:bg-gray-50">
-                                        <td className="p-4 border">ORD-{safe(item,'order.id')}</td>
-                                        <td className="p-4 border">{safe(item,'order.user.first_name')}</td>
-                                        <td className="p-4 border">{safe(item,'order.order_date')}</td>
-                                        <td className="p-4 border">
+                                    <tr key={index}  className="hover:bg-gray-100 transition duration-200">
+                                        <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">ORD-{safe(item,'order.id')}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">{safe(item,'order.user.first_name')}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
+                                             {safe(item, "order.order_date") ? new Date(safe(item, "order.order_date")).toLocaleString() : "N/A"}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                                             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
                                                 {safe(item,'order.order_status.status')}
                                             </span>
                                         </td>
-                                        <td className="p-4 border">${safe(item,'price') * safe(item,'quantity')}</td>
-                                        <td className="p-4 border">
+                                        <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">Rs.{safe(item,'price') * safe(item,'quantity')}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300 text-center">
                                             <button
                                                 onClick={() => setCurrentView({ view: "shippedorders", data: item })}
                                                 className="px-2 py-1 bg-blue-600 rounded-md hover:bg-blue-700 text-white"

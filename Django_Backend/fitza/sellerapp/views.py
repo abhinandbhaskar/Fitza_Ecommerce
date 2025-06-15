@@ -704,14 +704,14 @@ class SellerViewOrders(APIView):
     def get(self, request):
         user = request.user
         seller = CustomUser.objects.get(id=user.id)
-        processing = OrderLine.objects.filter(seller=seller,order__order_status__status="processing")
-        confirm = OrderLine.objects.filter(seller=seller,order__order_status__status="confirm")
-        readyfordispatch = OrderLine.objects.filter(seller=seller,order__order_status__status="ready-for-dispatch")
-        cancelled = OrderLine.objects.filter(seller=seller,order__order_status__status="cancelled")
-        delivered = OrderLine.objects.filter(seller=seller,order__order_status__status="delivered")
-        obj = OrderLine.objects.filter(seller=seller).exclude(order__order_status__status="Pending")
+        processing = OrderLine.objects.filter(seller=seller,order__order_status__status="processing").count()
+        confirm = OrderLine.objects.filter(seller=seller,order__order_status__status="confirm").count()
+        readyfordispatch = OrderLine.objects.filter(seller=seller,order__order_status__status="ready-for-dispatch").count()
+        cancelled = OrderLine.objects.filter(seller=seller,order__order_status__status="cancelled").count()
+        delivered = OrderLine.objects.filter(seller=seller,order__order_status__status="delivered").count()
+        obj = OrderLine.objects.filter(seller=seller).exclude(order__order_status__status="pending")
         serializer=OrderLineMainSerializer(obj,many=True)
-        ordercount={"processing":len(processing),"confirm":len(confirm),"readyfordispatch":len(readyfordispatch),"cancelled":len(cancelled),"delivered":len(delivered)}
+        ordercount={"processing":processing,"confirm":confirm,"readyfordispatch":readyfordispatch,"cancelled":cancelled,"delivered":delivered}
         fetchdata={"orders":serializer.data,"counts":ordercount}
         return Response(fetchdata)
     

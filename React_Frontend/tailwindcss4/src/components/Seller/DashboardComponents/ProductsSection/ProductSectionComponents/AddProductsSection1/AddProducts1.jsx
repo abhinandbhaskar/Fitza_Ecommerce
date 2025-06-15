@@ -350,7 +350,7 @@ const AddProducts1 = ({ setCurrentView }) => {
           </div>
         </form>
       </section>
-       <ToastContainer />
+       <ToastContainer/>
     </div>
   );
 };

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-
+import { safe } from "../../../../../utils/safeAccess";
+import { toast } from "react-toastify"; // For showing error messages
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const ViewDetailedOrder = ({ currentView }) => {
     const [orderData, setOrderData] = useState(null);
     const [orderStatus,setOrderStatus]=useState("");
@@ -10,8 +13,8 @@ const ViewDetailedOrder = ({ currentView }) => {
 
     const [addressType, setAddressType] = useState("shipping");
 
-    const shippingDetails = orderData?.order?.shipping_address.shipping_address || {};
-    const billingDetails = orderData?.order?.shipping_address.shipping_address || {};
+    const shippingDetails = safe(orderData,'order.shipping_address.shipping_address') || {};
+    const billingDetails = safe(orderData,'order.shipping_address.shipping_address') || {};
     const addressDetails = addressType === "shipping" ? shippingDetails : billingDetails;
 
     useEffect(() => {
@@ -27,8 +30,8 @@ const ViewDetailedOrder = ({ currentView }) => {
  useEffect(() => {
         if (orderData) {
             console.log("Full orderData structure:", orderData); 
-            const orderStatusFromData = orderData?.order?.order_status?.status;
-            const shippingStatusFromData = orderData?.order?.shipping_address?.status;
+            const orderStatusFromData = safe(orderData,'order.order_status.status');
+            const shippingStatusFromData = safe(orderData,'order.shipping_address.status');
             setOrderStatus(orderStatusFromData || "");
             setShippingStatus(shippingStatusFromData || ""); 
 
@@ -57,10 +60,13 @@ const ViewDetailedOrder = ({ currentView }) => {
                 }
             });
               console.log(response.data);
+              toast.success("Status Updated Successfully...");
+
         }catch(errors)
         {
             console.log(errors);
             console.log(errors.response.data);
+            toast.error("Error While Update Status..");
         }
 
     }
@@ -77,19 +83,19 @@ const ViewDetailedOrder = ({ currentView }) => {
                 <h2 className="font-semibold text-xl">Order Details</h2>
                 <p className="mt-2">
                     <strong>Order ID:</strong>
-                     {orderData?.order?.id || "Not Available"}
+                     #ORD-{safe(orderData,'order.id') || "Not Available"}
                 </p>
                 <p>
                     <strong>User:</strong> 
-                    {orderData?.order?.user?.first_name || "Not Available"} ({orderData?.order?.user?.email || "Not Available" })
+                    {safe(orderData,'order.user.first_name') || "Not Available"} ({orderData?.order?.user?.email || "Not Available" })
                 </p>
                 <p>
                     <strong>Order Date:</strong> 
-                    {new Date(orderData?.order?.order_date).toLocaleString()}
+                    {new Date(safe(orderData,'order.order_date')).toLocaleString()}
                 </p>
                 <p>
                     <strong>Order Status:</strong> 
-                    {orderData?.order?.order_status?.status||"processing"}
+                    {safe(orderData,'order.order_status.status')||"processing"}
                 </p>
             </div>
 
@@ -97,17 +103,17 @@ const ViewDetailedOrder = ({ currentView }) => {
             <div className="mt-5 bg-gray-100 p-4 rounded-lg shadow-md">
                 <h2 className="font-semibold text-xl">Order Summary</h2>
                 <p>
-                    <strong>Order Total:</strong>
-                     {orderData?.product_item?.original_price*orderData?.quantity}
+                    <strong>Order Total : </strong>
+                     Rs.{safe(orderData,'product_item.original_price') * safe(orderData,'quantity')}
                     
                 </p>
                 <p>
-                    <strong>Final Total:</strong> 
-                    {orderData?.price*orderData?.quantity}
+                    <strong>Final Total : </strong> 
+                    Rs.{safe(orderData,'price') * safe(orderData,'quantity')}
                 </p>
                 <p>
                     <strong>Free Shipping:</strong> 
-                    {orderData?.order?.free_shipping_applied ? "Yes" : "No"}
+                    {safe(orderData,'order.free_shipping_applied') ? "Yes" : "No"}
                 </p>
             </div>
 
@@ -127,11 +133,11 @@ const ViewDetailedOrder = ({ currentView }) => {
                     <tbody>
                        
                             <tr key="" className="border-b">
-                                <td className="p-2">{orderData?.product_item?.product?.product_name || "Not Available"}</td>
-                                <td className="p-2 flex flex-col"> <span>{orderData?.seller?.first_name || "N/A"}</span> <span>{orderData?.seller?.email  || "N/A"}</span></td>
-                                <td className="p-2">{orderData?.quantity || "Not Available"}</td>
-                                <td className="p-2">${orderData?.price || "Not Available"}</td>
-                                <td className="p-2">${orderData?.price*orderData?.quantity || "Not Available"}</td>
+                                <td className="p-2">{safe(orderData,'product_item.product.product_name') || "Not Available"}</td>
+                                <td className="p-2 flex flex-col"> <span> {safe(orderData,'seller.first_name') || "N/A"}</span> <span>{orderData?.seller?.email  || "N/A"}</span></td>
+                                <td className="p-2">{safe(orderData,'quantity') || "Not Available"}</td>
+                                <td className="p-2">Rs.{safe(orderData,'price') || "Not Available"}</td>
+                                <td className="p-2">Rs.{safe(orderData,'price')*safe(orderData,'quantity') || "Not Available"}</td>
                             </tr>
                        
                     </tbody>
@@ -142,13 +148,15 @@ const ViewDetailedOrder = ({ currentView }) => {
             <div className="mt-5 bg-gray-100 p-4 rounded-lg shadow-md">
                 <h2 className="font-semibold text-xl">Payment Information</h2>
                 <p>
-                    <strong>Payment Status : </strong> {orderData?.order?.payment_method?.status || "Not Available"}
+                    <strong>Payment Status : </strong> {safe(orderData,'order.payment_method.status') || "Not Available"}
                 </p>
                 <p>
-                    <strong>Payment Date : </strong> {orderData?.order?.payment_method?.payment_date || "Not Available"}
+                    <strong>Payment Date : </strong>
+                    {safe(orderData,'order.payment_method.payment_date') ? new Date(safe(orderData, 'order.payment_method.payment_date')).toLocaleString() : "N/A"}
+                     
                 </p>
                 <p>
-                    <strong>Amount Earned : </strong> $ {orderData?.price*orderData?.quantity || "Not Available"}
+                    <strong>Amount Earned : </strong> Rs.{safe(orderData,'price')*safe(orderData,'quantity') || "Not Available"}
                 </p>
             
             </div>
@@ -172,31 +180,31 @@ const ViewDetailedOrder = ({ currentView }) => {
             </button>
         </div>
         <p>
-            <strong>Address Line 1:</strong> {addressDetails?.address_line1 || "Not Available"}
+            <strong>Address Line 1:</strong> {safe(addressDetails,'address_line1') || "Not Available"}
         </p>
         <p>
-            <strong>Address Line 2:</strong> {addressDetails?.address_line2 || "Not Available"}
+            <strong>Address Line 2:</strong> {safe(addressDetails,'address_line2') || "Not Available"}
         </p>
         <p>
-            <strong>City:</strong> {addressDetails?.city || "Not Available"}
+            <strong>City:</strong> {safe(addressDetails,'city') || "Not Available"}
         </p>
         <p>
-            <strong>State:</strong> {addressDetails?.state || "Not Available"}
+            <strong>State:</strong> {safe(addressDetails,'state') || "Not Available"}
         </p>
         <p>
-            <strong>Postal Code:</strong> {addressDetails?.postal_code || "Not Available"}
+            <strong>Postal Code:</strong> {safe(addressDetails,'postal_code') || "Not Available"}
         </p>
         <p>
-            <strong>Country:</strong> {addressDetails?.country || "Not Available"}
+            <strong>Country:</strong> {safe(addressDetails,'country') || "Not Available"}
         </p>
         <p>
-            <strong>Phone:</strong> {addressDetails?.phone || "Not Available"}
+            <strong>Phone:</strong> {safe(addressDetails,'phone') || "Not Available"}
         </p>
         <p>
-            <strong>Status:</strong> {orderData?.order?.shipping_address?.status || "Not Available"}
+            <strong>Status:</strong> {safe(orderData,'order.shipping_address.status') || "Not Available"}
         </p>
         <p>
-            <strong>Tracking ID:</strong> {orderData?.order?.shipping_address?.tracking_id || "N/A"}
+            <strong>Tracking ID:</strong> {safe(orderData,'order.shipping_address.tracking_id') || "N/A"}
         </p>
     </div>
 
@@ -248,6 +256,7 @@ const ViewDetailedOrder = ({ currentView }) => {
         </button>
     </div>
 </div>
+ <ToastContainer/>
         </div>
     );
 };

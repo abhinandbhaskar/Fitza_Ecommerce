@@ -75,7 +75,7 @@ const RevenueSection = () => {
         { title: "Total Revenue", value: sellerRevenue - refundAmount },
         { title: "Seller Earnings", value: sellerEarnings - refundAmount },
         { title: "Refunds Issued", value: refundAmount },
-        { title: "Pending Payments", value: "$2,154.00" },
+        { title: "Pending Payments", value: "not give 2,154.00" },
     ];
 
     const handleDateChange = (event) => {
@@ -110,9 +110,9 @@ const RevenueSection = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {metrics.map((metric, index) => (
                         <div key={index} className="bg-white rounded-lg shadow p-6">
-                            <h3 className="text-gray-500 text-sm font-medium">{metric.title}</h3>
+                            <h3 className="text-gray-500 text-sm font-medium">{safe(metric,'title')}</h3>
                             <div className="mt-2 flex items-baseline justify-between">
-                                <p className="text-2xl font-semibold text-gray-900">₹{metric.value}</p>
+                                <p className="text-2xl font-semibold text-gray-900">₹{safe(metric,'value')}</p>
                             </div>
                         </div>
                     ))}
@@ -208,40 +208,40 @@ const RevenueSection = () => {
                                     .map((order, index) => (
                                         <tr key={index} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {order.invoice_number}
+                                                {safe(order,'invoice_number')}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {order.order.id}
+                                                {safe(order,'order.id')}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {new Date(order.order.order_date).toLocaleDateString("en-GB", {
+                                                {new Date(safe(order,'order.order_date')).toLocaleDateString("en-GB", {
                                                     day: "2-digit",
                                                     month: "short",
                                                     year: "numeric",
                                                 })}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {order.order.user.first_name + order.order.user.last_name}
+                                                {safe(order,'order.user.first_name') + safe(order,'order.user.last_name')}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                Rs.{order.total_amount}
+                                                Rs.{safe(order,'total_amount')}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
                                                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                     ${
-                                                        order.payment_status === "paid"
+                                                        safe(order,'payment_status') === "paid"
                                                             ? "bg-green-100 text-green-800"
-                                                            : order.payment_status === "pending"
+                                                            : safe(order,'payment_status') === "pending"
                                                             ? "bg-yellow-100 text-yellow-800"
                                                             : "bg-red-100 text-red-800"
                                                     }`}
                                                 >
-                                                    {order.payment_status}
+                                                    {safe(order,'payment_status')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {order.returns?.[0]?.status || "No Returns"}
+                                                {safe(order,'returns.[0].status') || "No Returns"}
                                             </td>
                                         </tr>
                                     ))}

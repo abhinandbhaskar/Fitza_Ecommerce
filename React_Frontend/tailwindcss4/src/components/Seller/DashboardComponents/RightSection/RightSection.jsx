@@ -30,7 +30,7 @@ const RightSection = ({currentView,setCurrentView,setCountN,countN,searchTerm}) 
       {currentView==="users"&&<UsersSection searchTerm={searchTerm}/>}
       {currentView==="ratings" && <ReviewSection/> }
       {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView} setYourComplaint={setYourComplaint}/> }
-      {currentView==="followup" && <FollowUpPage yourcomplaint={yourcomplaint}/>}
+      {currentView==="followup" && <FollowUpPage setCurrentView={setCurrentView} yourcomplaint={yourcomplaint}/>}
       {currentView==="qanda" && <QandaSection/>}
       {currentView==="feedback" && <FeedBackSection/>}
       {currentView==="orders" && <OrdersSection/>}

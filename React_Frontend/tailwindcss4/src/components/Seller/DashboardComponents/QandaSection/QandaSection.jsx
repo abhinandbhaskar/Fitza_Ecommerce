@@ -162,9 +162,7 @@ const QandaSection = () => {
          
               <button
                 key=""
-                className={`py-2 px-4 rounded-lg ${
-                  filter === "Unanswered" ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
+                className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
                 onClick={() => fetchQuestions()}
               >
                 Unanswered
@@ -172,9 +170,7 @@ const QandaSection = () => {
 
               <button
               key=""
-              className={`py-2 px-4 rounded-lg ${
-                filter === "Answered" ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
+              className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
               onClick={() => fetchAnsweredQuestions()}
               >
               Answered
