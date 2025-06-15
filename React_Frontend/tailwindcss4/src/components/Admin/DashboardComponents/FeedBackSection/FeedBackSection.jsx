@@ -60,18 +60,28 @@ const handleUserFeedback=()=>{
     </div>
     
     <div className="py-6 px-6">
-        <div className="flex gap-4">
-          <button onClick={()=>handleSellerFeedback()} className="px-4 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600">
-            Seller FeedBack
-          </button>
-          <button onClick={()=>handleUserFeedback()} className="px-4 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600">
-           User FeedBack About Seller
-          </button>
-        </div>
+
+        <div className="flex gap-2 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+  <button 
+    onClick={() => handleSellerFeedback()}
+    className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+  >
+    Seller Feedback
+  </button>
+  <button 
+    onClick={() => handleUserFeedback()}
+    className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+  >
+    User Feedback About Seller
+  </button>
+</div>
+
       </div>
 
         <div>
-        <h3 className='text-blue-600'>{currentView==="seller"?<span className='text-red-600'>Seller FeedBack</span>:(" User FeedBack About Seller")}</h3>
+            <div className='p-2'>
+                        <h3 className='text-blue-600 font-bold'>{currentView==="seller"?<span className='text-red-600 font-bold'>Seller FeedBack</span>:(" User FeedBack About Seller")}</h3>
+            </div>
     <table className="min-w-full border-collapse border border-gray-200">
                     <thead>
                         <tr>

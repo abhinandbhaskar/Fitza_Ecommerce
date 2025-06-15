@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { safe } from "../../../../utils/safeAccess";
 const NotificationSection = ({setCountN}) => {
     // Sample notification data
     const { accessToken } = useSelector((state) => state.auth);
@@ -148,19 +149,19 @@ const NotificationSection = ({setCountN}) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
                         <h3 className="text-sm font-medium text-gray-500">Critical Alerts</h3>
-                        <p className="text-2xl font-semibold text-gray-900">{counts.critical}</p>
+                        <p className="text-2xl font-semibold text-gray-900">{safe(counts,'critical')}</p>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
                         <h3 className="text-sm font-medium text-gray-500">Seller Approvals</h3>
-                        <p className="text-2xl font-semibold text-gray-900">{counts.seller}</p>
+                        <p className="text-2xl font-semibold text-gray-900">{safe(counts,'seller')}</p>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-purple-500">
                         <h3 className="text-sm font-medium text-gray-500">Product Approvals</h3>
-                        <p className="text-2xl font-semibold text-gray-900">{counts.products}</p>
+                        <p className="text-2xl font-semibold text-gray-900">{safe(counts,'products')}</p>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
                         <h3 className="text-sm font-medium text-gray-500">Unread Notifications</h3>
-                        <p className="text-2xl font-semibold text-gray-900">{counts.unread}</p>
+                        <p className="text-2xl font-semibold text-gray-900">{safe(counts,'unread')}</p>
                     </div>
                 </div>
 

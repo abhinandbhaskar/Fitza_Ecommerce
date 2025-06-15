@@ -1,88 +1,129 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useSelector,useDispatch } from "react-redux";
-import {updateProducts} from "../../../../../../redux/ProductsSlice";
-const AddProducts1 = ({setCurrentView}) => {
-  const {accessToken} = useSelector((state)=>state.auth);
-  const dispatch=useDispatch();
-  // get data
-  const [catename,setCategoryname]=useState([]);
-  const[brandname,setBrandname]=useState([]);
-  // post datas
+import { useSelector, useDispatch } from "react-redux";
+import { updateProducts } from "../../../../../../redux/ProductsSlice";
+import { toast } from "react-toastify"; // For showing error messages
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-  const[product,setProduct]=useState("");
-  const[description,setDescription]=useState("");
-  const[category,setCategory]=useState("");
-  const[brand,setBrand]=useState("");
-  const[modelheight,setModelheight]=useState("");
-  const[wearing,setWearing]=useState("");
-  const[instruction,setInstruction]=useState("");
-  const[about,setAbout]=useState("");
+const AddProducts1 = ({ setCurrentView }) => {
+  const { accessToken } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  
+  // State for form data
+  const [formData, setFormData] = useState({
+    product: "",
+    description: "",
+    category: "",
+    brand: "",
+    modelheight: "",
+    wearing: "",
+    instruction: "",
+    about: "",
+    weight:""
+  });
+  
+  // State for errors
+  const [errors, setErrors] = useState({});
+  
+  // Dropdown options
+  const [catename, setCategoryname] = useState([]);
+  const [brandname, setBrandname] = useState([]);
 
-
-
-  const fetchCategory=async()=>{
-    try{
-      const response=await axios.get("https://127.0.0.1:8000/api/seller/get_category/",{
-        headers:{
-          Authorization:`Bearer ${accessToken}`
+  const fetchCategory = async () => {
+    try {
+      const response = await axios.get("https://127.0.0.1:8000/api/seller/get_category/", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
       });
-      console.log(response.data);
       setCategoryname(response.data);
-    }
-    catch(errors)
-    {
+    } catch (errors) {
       console.log(errors);
-      console.log(errors.response.data);
     }
-  }
+  };
 
-  const fetchBrands=async()=>{
-    try{
-      const response=await axios.get("https://127.0.0.1:8000/api/seller/get_brands/",{
-        headers:{
-          Authorization:`Bearer ${accessToken}`
+  const fetchBrands = async () => {
+    try {
+      const response = await axios.get("https://127.0.0.1:8000/api/seller/get_brands/", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
         }
       });
-      console.log(response.data);
       setBrandname(response.data);
-    }
-    catch(errors)
-    {
+    } catch (errors) {
       console.log(errors);
-      console.log(errors.response.data);
     }
-  }
+  };
 
-  useEffect(()=>{
-  fetchCategory();
-  fetchBrands();
-  },[])
+  useEffect(() => {
+    fetchCategory();
+    fetchBrands();
+  }, []);
 
-  const handleAddproduct1=async()=>{
-    setCurrentView("add2");
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: null
+      });
+    }
+  };
 
+  // Validate form
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.product.trim()) newErrors.product = "Product name is required";
+    if (!formData.description.trim()) newErrors.description = "Description is required";
+    if (!formData.category) newErrors.category = "Category is required";
+    if (!formData.brand) newErrors.brand = "Brand is required";
+    if (!formData.modelheight.trim()) newErrors.modelheight = "Model height is required";
+    if (!formData.wearing.trim()) newErrors.wearing = "Model wearing is required";
+    if (!formData.instruction.trim()) newErrors.instruction = "Care instructions are required";
+    if (!formData.about.trim()) newErrors.about = "About information is required";
+    if (!formData.weight.trim()) newErrors.weight = "Weight information is required";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddproduct1 = async () => {
+    // Validate before proceeding
+    if (!validateForm()) {
+      toast.error("Please fill all required fields");
+      return;
+    }
 
     try {
       dispatch(updateProducts({
-        products: product,
-        description: description,
-        cateid: category,
-        brandid: brand,
-        modelheight: modelheight,
-        modelwearing: wearing,
-        instruction: instruction,
-        about: about,
+        products: formData.product,
+        description: formData.description,
+        cateid: formData.category,
+        brandid: formData.brand,
+        modelheight: formData.modelheight,
+        modelwearing: formData.wearing,
+        instruction: formData.instruction,
+        about: formData.about,
+        weight: formData.weight,
       }));
-      console.log("Product data updated successfully");
+       toast.success("Product basic details saved");
+      setTimeout(() => {
+        setCurrentView("add2");
+      }, 3000);
     } catch (error) {
       console.error("Error updating product data:", error);
+      toast.error("Failed to save product data");
     }
-    
-  
-    // console.log("productsData1",productsData1);
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -93,142 +134,208 @@ const AddProducts1 = ({setCurrentView}) => {
         </h1>
       </header>
 
- 
       <section className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg">
         <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">
           Product Details
         </h2>
 
         <form className="space-y-6">
-         
+          {/* Product Name */}
           <div>
-            <label htmlFor="productName" className="block text-gray-600 font-medium mb-1">
-              Product Name
+            <label htmlFor="product" className="block text-gray-600 font-medium mb-1">
+              Product Name *
             </label>
             <input
               type="text"
-              id="productName"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+              id="product"
+              name="product"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.product ? "border-red-500" : ""
+              }`}
               placeholder="Enter product name"
-              value={product}
-              onChange={(e)=>setProduct(e.target.value)}
+              value={formData.product}
+              onChange={handleChange}
             />
+            {errors.product && (
+              <p className="mt-1 text-sm text-red-600">{errors.product}</p>
+            )}
           </div>
 
-     
+          {/* Product Description */}
           <div>
-            <label htmlFor="productDescription" className="block text-gray-600 font-medium mb-1">
-              Product Description
+            <label htmlFor="description" className="block text-gray-600 font-medium mb-1">
+              Product Description *
             </label>
             <textarea
-              id="productDescription"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+              id="description"
+              name="description"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.description ? "border-red-500" : ""
+              }`}
               placeholder="Enter product description"
               rows="4"
-              value={description}
-              onChange={(e)=>setDescription(e.target.value)}
+              value={formData.description}
+              onChange={handleChange}
             ></textarea>
+            {errors.description && (
+              <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+            )}
           </div>
 
-       
+          {/* Category */}
           <div>
             <label htmlFor="category" className="block text-gray-600 font-medium mb-1">
-              Category
+              Category *
             </label>
             <select
               id="category"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-              value={category} onChange={(e)=>setCategory(e.target.value)}
-           >
-              <option>Select a category</option>
-              {
-                catename.map((cate,key)=>(
-                  <option key={cate.id} value={cate.id}>{cate.category_name} <span className="text-red-500 text-sm pl-10"> {cate.category_description}</span></option>
-                ))
-              }
-      
+              name="category"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.category ? "border-red-500" : ""
+              }`}
+              value={formData.category}
+              onChange={handleChange}
+            >
+              <option value="">Select a category</option>
+              {catename.map((cate) => (
+                <option key={cate.id} value={cate.id}>
+                  {cate.category_name} 
+                  <span className="text-red-500 text-sm pl-10"> {cate.category_description}</span>
+                </option>
+              ))}
             </select>
+            {errors.category && (
+              <p className="mt-1 text-sm text-red-600">{errors.category}</p>
+            )}
           </div>
 
-         {/* brand */}
+          {/* Brand */}
           <div>
             <label htmlFor="brand" className="block text-gray-600 font-medium mb-1">
-              Brand
+              Brand *
             </label>
             <select
               id="brand"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-              value={brand} onChange={(e)=>setBrand(e.target.value)}
+              name="brand"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.brand ? "border-red-500" : ""
+              }`}
+              value={formData.brand}
+              onChange={handleChange}
             >
-              <option>Select a brand</option>
-              {
-                brandname.map((brand,key)=>(
-                  <option key={brand.id} value={brand.id}>{brand.brand_name}</option>
-                ))
-              }
-      
+              <option value="">Select a brand</option>
+              {brandname.map((brand) => (
+                <option key={brand.id} value={brand.id}>{brand.brand_name}</option>
+              ))}
             </select>
+            {errors.brand && (
+              <p className="mt-1 text-sm text-red-600">{errors.brand}</p>
+            )}
           </div>
 
           {/* Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="modelHeight" className="block text-gray-600 font-medium mb-1">
-                Model Height
+              <label htmlFor="modelheight" className="block text-gray-600 font-medium mb-1">
+                Model Height *
               </label>
               <input
                 type="text"
-                id="modelHeight"
-                className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                id="modelheight"
+                name="modelheight"
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                  errors.modelheight ? "border-red-500" : ""
+                }`}
                 placeholder="Enter model height"
-                value={modelheight}
-                onChange={(e)=>setModelheight(e.target.value)}
+                value={formData.modelheight}
+                onChange={handleChange}
               />
+              {errors.modelheight && (
+                <p className="mt-1 text-sm text-red-600">{errors.modelheight}</p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="modelWearing" className="block text-gray-600 font-medium mb-1">
-                Model Wearing
+              <label htmlFor="wearing" className="block text-gray-600 font-medium mb-1">
+                Model Wearing *
               </label>
               <input
                 type="text"
-                id="modelWearing"
-                className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                id="wearing"
+                name="wearing"
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                  errors.wearing ? "border-red-500" : ""
+                }`}
                 placeholder="Enter model wearing"
-                value={wearing}
-                onChange={(e)=>setWearing(e.target.value)}
+                value={formData.wearing}
+                onChange={handleChange}
               />
+              {errors.wearing && (
+                <p className="mt-1 text-sm text-red-600">{errors.wearing}</p>
+              )}
             </div>
+          </div>
+
+                    <div>
+            <label htmlFor="product" className="block text-gray-600 font-medium mb-1">
+              Product Weight *
+            </label>
+            <input
+              type="number"
+              id="weight"
+              name="weight"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.product ? "border-red-500" : ""
+              }`}
+              placeholder="Enter product weight"
+              value={formData.weight}
+              onChange={handleChange}
+            />
+            {errors.weight && (
+              <p className="mt-1 text-sm text-red-600">{errors.weight}</p>
+            )}
           </div>
 
           {/* Care Instructions */}
           <div>
-            <label htmlFor="careInstructions" className="block text-gray-600 font-medium mb-1">
-              Care Instructions
+            <label htmlFor="instruction" className="block text-gray-600 font-medium mb-1">
+              Care Instructions *
             </label>
             <textarea
-              id="careInstructions"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+              id="instruction"
+              name="instruction"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.instruction ? "border-red-500" : ""
+              }`}
               placeholder="Enter care instructions"
               rows="4"
-              value={instruction}
-              onChange={(e)=>setInstruction(e.target.value)}
+              value={formData.instruction}
+              onChange={handleChange}
             ></textarea>
+            {errors.instruction && (
+              <p className="mt-1 text-sm text-red-600">{errors.instruction}</p>
+            )}
           </div>
 
           {/* About */}
           <div>
             <label htmlFor="about" className="block text-gray-600 font-medium mb-1">
-              About
+              About *
             </label>
             <textarea
               id="about"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+              name="about"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
+                errors.about ? "border-red-500" : ""
+              }`}
               placeholder="Enter additional product information"
               rows="4"
-              value={about}
-              onChange={(e)=>setAbout(e.target.value)}
+              value={formData.about}
+              onChange={handleChange}
             ></textarea>
+            {errors.about && (
+              <p className="mt-1 text-sm text-red-600">{errors.about}</p>
+            )}
           </div>
 
           {/* Submit Button */}
@@ -236,7 +343,6 @@ const AddProducts1 = ({setCurrentView}) => {
             <button
               type="button"
               onClick={handleAddproduct1}
-              
               className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:ring focus:ring-indigo-300"
             >
               Continue &gt;
@@ -244,6 +350,7 @@ const AddProducts1 = ({setCurrentView}) => {
           </div>
         </form>
       </section>
+       <ToastContainer />
     </div>
   );
 };

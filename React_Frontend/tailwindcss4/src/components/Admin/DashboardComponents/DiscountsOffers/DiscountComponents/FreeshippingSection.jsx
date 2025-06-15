@@ -344,7 +344,7 @@ const FreeshippingSection = () => {
                       {offer.isActive ? "Deactivate" : "Activate"}
                     </button>
                     <button
-                      className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+                      className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
                       onClick={() => handleEdit(offer.id)}
                     >
                       Edit

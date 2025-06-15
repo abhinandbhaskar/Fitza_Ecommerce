@@ -100,15 +100,13 @@ const UsersSection = ({ searchTerm, setCurrentView }) => {
                     Dashboard &gt; <span className="text-indigo-600">Users</span>
                 </h1>
                 <div className="mt-4 bg-blue-50 p-4 rounded-lg shadow-sm flex items-center gap-4">
-    <p className="text-gray-600 flex items-center text-base md:text-lg">
-        <span className="text-green-500 text-sm font-medium mr-2">Total Users : </span>
-        <span className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full text-lg font-semibold">
-            {userCount}
-        </span>
-    </p>
-</div>
-
-              
+                    <p className="text-gray-600 flex items-center text-base md:text-lg">
+                        <span className="text-green-500 text-sm font-medium mr-2">Total Users : </span>
+                        <span className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full text-lg font-semibold">
+                            {userCount}
+                        </span>
+                    </p>
+                </div>
             </div>
 
             {/* Table Container */}

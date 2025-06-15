@@ -319,10 +319,10 @@ const ProductsOfferSection = () => {
       {offers.length > 0 && (
         <div className="mt-6">
           <h2 className="text-lg font-semibold text-gray-600">Product Offers</h2>
-          <table className="w-full border-collapse border border-gray-300 mt-4">
+          <table className="min-w-full border-collapse border border-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="border border-gray-300 px-4 py-2">#</th>
+                <th className="border border-gray-300 px-4 py-2">No.</th>
                 <th className="border border-gray-300 px-4 py-2">Product Name</th>
                 <th className="border border-gray-300 px-4 py-2">Offer Title</th>
                 <th className="border border-gray-300 px-4 py-2">Description</th>
@@ -355,30 +355,35 @@ const ProductsOfferSection = () => {
                   <td className="border border-gray-300 px-4 py-2">
                   {safe(offer,'is_active') ? "Yes" : "No"}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                  <button
-                      className={`text-white px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 ${
-                        offer.is_active
-                          ? "bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:ring-gray-300"
-                          : "bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300"
-                      }`}
-                      onClick={() => handleToggleActive(offer.id,offer.is_active)}
-                    >
-                      {offer.is_active ? "Deactivate" : "Activate"}
-                    </button>
-                    <button
-                      className="bg-yellow-500 text-white px-2 py-1 rounded-md mr-2 hover:bg-yellow-600"
-                      onClick={() => handleEditOffer(offer.id)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600"
-                      onClick={() => handleDeleteOffer(offer.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  <td className="border border-gray-200 px-4 py-3 whitespace-nowrap">
+  <div className="flex items-center justify-end gap-2">
+    <button
+      className={`px-3 py-1.5 text-sm font-medium rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+        offer.is_active
+          ? "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500"
+          : "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
+      }`}
+      onClick={() => handleToggleActive(offer.id, offer.is_active)}
+    >
+      {offer.is_active ? "Deactivate" : "Activate"}
+    </button>
+    
+    <button
+      className="px-3 py-1.5 bg-amber-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-amber-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+      onClick={() => handleEditOffer(offer.id)}
+    >
+      Edit
+    </button>
+    
+    <button
+      className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+      onClick={() => handleDeleteOffer(offer.id)}
+    >
+      Delete
+    </button>
+  </div>
+</td>
+
                 </tr>
               ))}
             </tbody>

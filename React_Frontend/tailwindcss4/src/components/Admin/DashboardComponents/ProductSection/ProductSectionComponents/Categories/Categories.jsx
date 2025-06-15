@@ -409,7 +409,7 @@ const Categories = () => {
                                         <td className="border border-gray-200 px-4 py-2">
                                             <button
                                                 onClick={() => updateCategory(category.id)}
-                                                className="px-3 py-1 text-white bg-yellow-500 rounded-lg shadow hover:bg-yellow-600"
+                                                className="px-3 py-1 text-white bg-blue-500 rounded-lg shadow hover:bg-blue-600"
                                             >
                                                 Update
                                             </button>
@@ -460,7 +460,7 @@ const Categories = () => {
                                         <td className="border border-gray-200 px-4 py-2">
                                             <button
                                                 onClick={() => updateSubCategory(category.id)}
-                                                className="px-3 py-1 text-white bg-yellow-500 rounded-lg shadow hover:bg-yellow-600"
+                                                className="px-3 py-1 text-white bg-blue-500 rounded-lg shadow hover:bg-blue-600"
                                             >
                                                 Update
                                             </button>

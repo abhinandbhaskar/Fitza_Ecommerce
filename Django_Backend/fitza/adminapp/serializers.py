@@ -377,11 +377,17 @@ from userapp.models import RatingsReview
 class ViewUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['first_name']
+        fields = ['id','first_name']
+
+class ProductNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['product_name']
 
 class RatingReviewSerializer(serializers.ModelSerializer):
     user = ViewUserSerializer(read_only=True)
     shop_name = serializers.SerializerMethodField()
+    product = ProductNameSerializer(read_only=True)
 
     class Meta:
         model = RatingsReview
@@ -798,7 +804,7 @@ from adminapp.models import Complaint,ComplaintMessage
 
 class UserNameSerializer(serializers.ModelSerializer):
     class Meta:
-        model=CustomUserfi
+        model=CustomUser
         fields=['first_name','user_type']
 
 class ComplaintMessageSerializer(serializers.ModelSerializer):
@@ -1010,6 +1016,7 @@ class AddSubCategorySerializer(serializers.Serializer):
             raise serializers.ValidationError("You don't have permission to add a category.")
         
         # Check if the main category exists
+        print("CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",data["category"])
         if not ProductCategory.objects.filter(category_name=data["category"]).exists():
             raise serializers.ValidationError("Main Category does not exist.")
         

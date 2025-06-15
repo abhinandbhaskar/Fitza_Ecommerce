@@ -263,20 +263,22 @@ const CouponsSection = () => {
                   <td className="border border-gray-300 px-4 py-2">{safe(coupon, 'start_date') ? new Date(safe(coupon, 'start_date')).toLocaleString() : 'N/A'}</td>
                   <td className="border border-gray-300 px-4 py-2">{safe(coupon, 'end_date') ? new Date(safe(coupon, 'end_date')).toLocaleString() : 'N/A'}</td>
                   <td className="border border-gray-300 px-4 py-2">{safe(coupon,'usage_limit')}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      onClick={() => handleEditCoupon(coupon.id)}
-                      className="bg-yellow-500 text-white px-4 py-1 rounded mr-2 hover:bg-yellow-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCoupon(coupon.id)}
-                      className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
+                 <td className="border border-gray-200 px-4 py-3 whitespace-nowrap">
+  <div className="flex items-center justify-end space-x-2">
+    <button
+      onClick={() => handleEditCoupon(coupon.id)}
+      className="px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+    >
+      Edit
+    </button>
+    <button
+      onClick={() => handleDeleteCoupon(coupon.id)}
+      className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+    >
+      Delete
+    </button>
+  </div>
+</td>
                 </tr>
               ))
             ) : (

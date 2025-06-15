@@ -20,7 +20,7 @@ import NotificationSection from "../NotificationSection/NotificationSection";
 import ErrorBoundary from "../../../ErrorBoundary";
 const RightSection = ({currentView,setCurrentView,setCountN,searchTerm}) => {
     return (
-      <div className="h-screen w-8/10 bg-white p-4 overflow-y-auto relative ml-77 mt-20">
+      <div className="h-screen w-8/10  bg-white p-4 overflow-y-auto ml-77 fixed mt-20">
       {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
       {currentView==="users"&&<UsersSection setCurrentView={setCurrentView} searchTerm={searchTerm}/>}
       {currentView==="sellers"&& <ErrorBoundary><SellerSection searchTerm={searchTerm}/></ErrorBoundary>}

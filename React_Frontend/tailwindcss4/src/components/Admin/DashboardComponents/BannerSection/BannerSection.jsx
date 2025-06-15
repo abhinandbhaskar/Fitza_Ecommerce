@@ -216,11 +216,12 @@ const BannerSection = () => {
             <div className="flex flex-row pl-28 pt-10 gap-4">
                 <button
                     onClick={() => setCurrentView("add")}
-                    className="px-2 py-1 bg-blue-500 rounded-md hover:bg-blue-700 ml-5"
+                     className="px-4 py-2  bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
                 >
                     Add Banner
                 </button>
-                <button onClick={() => ViewBanners()} className="px-2 py-1 bg-blue-500 rounded-md hover:bg-blue-700 ml-2">
+                <button onClick={() => ViewBanners()}
+                  className="px-4 py-2  bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">
                     View Banners
                 </button>
             </div>
@@ -327,14 +328,14 @@ const BannerSection = () => {
                                 />
                             </label>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center p-4">
                             <button
                                 type="submit"
                                 onClick={(event) => {
                                     event.preventDefault();
                                     AddBanner();
                                 }}
-                                className="bg-indigo-600 text-white font-semibold px-8 py-3 rounded-lg hover:bg-indigo-700 transition shadow-md"
+                                className="bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 transition shadow-md"
                             >
                                 Submit Banner
                             </button>
@@ -387,20 +388,32 @@ const BannerSection = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="w-[80%] p-4 mt-6 border border-gray-300 shadow-md flex justify-end gap-4 rounded-lg bg-gray-100">
-                                <button onClick={()=>ClickActivate(value.id)} className="px-4 py-2 bg-green-500 text-white font-medium rounded-lg shadow hover:bg-green-600 transition-all">
-                                    Activate
-                                </button>
-                                <button onClick={()=>ClickDeactivate(value.id)} className="px-4 py-2 bg-yellow-500 text-white font-medium rounded-lg shadow hover:bg-yellow-600 transition-all">
-                                    Deactivate
-                                </button>
-                                <button onClick={()=>EditBannersData(value.id)} className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg shadow hover:bg-blue-600 transition-all">
-                                    Edit
-                                </button>
-                                <button onClick={()=>DeleteBanner(value.id)} className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg shadow hover:bg-red-600 transition-all">
-                                    Delete
-                                </button>
-                            </div>
+      <div className="w-3/4 p-4 mt-6 border border-gray-200 shadow-sm flex justify-end gap-3 rounded-md bg-white">
+    <button 
+        onClick={() => ClickActivate(value.id)} 
+        className="px-4 py-2 bg-green-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+    >
+        Activate
+    </button>
+    <button 
+        onClick={() => ClickDeactivate(value.id)} 
+        className="px-4 py-2 bg-amber-500 text-white font-medium text-sm rounded-md shadow-sm hover:bg-amber-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+    >
+        Deactivate
+    </button>
+    <button 
+        onClick={() => EditBannersData(value.id)} 
+        className="px-4 py-2 bg-blue-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+    >
+        Edit
+    </button>
+    <button 
+        onClick={() => DeleteBanner(value.id)} 
+        className="px-4 py-2 bg-red-600 text-white font-medium text-sm rounded-md shadow-sm hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+    >
+        Delete
+    </button>
+</div>
                         </div>
                     </>
             ))}

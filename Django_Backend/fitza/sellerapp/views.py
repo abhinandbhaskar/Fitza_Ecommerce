@@ -309,7 +309,7 @@ class GetAllProducts(APIView):
         filters = {"product__shop": seller}
         if statusvalue is not None:  
             filters["status"] = statusvalue
-        product_items = ProductItem.objects.filter(**filters)
+        product_items = ProductItem.objects.filter(**filters).order_by('-id')
         serializer=GetAllProductsSerializer(product_items,many=True)
         return Response(serializer.data)
 
@@ -452,7 +452,7 @@ class ViewOrderedUsers(APIView):
     def get(self, request):
         user = request.user
         seller = CustomUser.objects.get(id=user.id)
-        obj = OrderLine.objects.filter(seller=seller)
+        obj = OrderLine.objects.filter(seller=seller).order_by('-id')
         serializer = ViewOrderedUsersSerializer(obj, many=True)
         
         user_data = {}

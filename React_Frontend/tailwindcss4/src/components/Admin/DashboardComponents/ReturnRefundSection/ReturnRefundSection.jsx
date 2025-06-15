@@ -69,7 +69,7 @@ const ReturnRefundSection = () => {
           <div className='px-10'>
             {
               view==="form"&&(
-            <button onClick={()=>setView("table")} className='px-2 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white'>View All Return Refund </button>
+            <button onClick={()=>setView("table")}  className="px-4 py-2  bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1">View All Return Refund </button>
               )
             }
           </div>
@@ -80,23 +80,23 @@ const ReturnRefundSection = () => {
           view==="table" && (
 
             <div className="overflow-x-auto p-6">
-            <table className="min-w-full bg-white shadow-md">
+            <table  className="min-w-full border-collapse border border-gray-200">
               <thead>
-                <tr className="border-b">
-                  <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">No.</th>
-                  <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Reason</th>
-                  <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Refund Amount</th>
-                  <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Status</th>
-                  <th className="py-3 px-6 text-left text-sm font-medium text-gray-600">Actions</th>
+                <tr>
+                  <th>No.</th>
+                  <th>Reason</th>
+                  <th>Refund Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {returnrefund.map((refund,key) => (
-                  <tr key={refund.id} className="border-b">
-                    <td className="py-3 px-6 text-sm">{key+1}</td>
-                    <td className="py-3 px-6 text-sm">{safe(refund,'reason')}</td>
-                    <td className="py-3 px-6 text-sm">Rs.{safe(refund,'refund_amount')}</td>
-                    <td className="py-3 px-6 text-sm">
+                  <tr key={refund.id}  className="hover:bg-gray-100 transition duration-200">
+                    <td  className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">{key+1}</td>
+                    <td  className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">{safe(refund,'reason')}</td>
+                    <td  className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300 text-center">Rs.{safe(refund,'refund_amount')}</td>
+                    <td  className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300 text-center">
                       <span
                         className={`px-3 py-1 rounded-full text-white ${
                           refund.status === 'pending'
@@ -109,7 +109,7 @@ const ReturnRefundSection = () => {
                         {safe(refund,'status')}
                       </span>
                     </td>
-                    <td className="py-3 px-6 text-sm">
+                    <td  className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300 text-center">
                       <button
                         className="text-blue-600"
                         onClick={() => handleViewDetails(refund)}

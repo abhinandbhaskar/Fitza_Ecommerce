@@ -415,6 +415,7 @@ class AddProductsSerializer(serializers.Serializer):
     modelwearing = serializers.CharField()
     instruction = serializers.CharField()
     about = serializers.CharField()
+    weight = serializers.IntegerField() 
     attributes = serializers.CharField()
     photo=serializers.FileField()
     img1=serializers.FileField()
@@ -475,7 +476,8 @@ class AddProductsSerializer(serializers.Serializer):
             model_height=self.validated_data["modelheight"],
             model_wearing=self.validated_data["modelwearing"],
             care_instructions=self.validated_data["instruction"],
-            about=self.validated_data["about"]
+            about=self.validated_data["about"],
+            weight=self.validated_data["weight"]
         )
 
         attributes = self.validated_data["parsed_attributes"]

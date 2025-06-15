@@ -13,7 +13,7 @@ import promotions from "../../../../assets/Icons/Promotions.png"
 import offers from "../../../../assets/Icons/Offers.png"
 const SideBar = ({setCurrentView}) => {
   return (
-    <div className="h-auto w-1/5 bg-gray-800 text-white shadow-lg top-20 p-1">
+    <div className="h-[620px] w-[390px] bg-gray-800 text-white shadow-lg top-20 p-1">
 
       <div className="mt-1 bg-gray-700 top-[100px] h-[calc(100vh-120px)] overflow-y-auto hidden-scrollbar">
         <button onClick={()=>setCurrentView("mainsection")} className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
@@ -66,11 +66,7 @@ const SideBar = ({setCurrentView}) => {
           <span className="flex-1">FeedBack</span>
           <span className="text-gray-400">&gt;</span>
         </button>
-        {/* <button className="flex items-center px-4 py-3 w-full text-xl font-semibold border-b border-gray-800 hover:bg-gray-800 hover:border-gray-700 transition duration-200">
-        <img src={offers} className="h-10 w-10 mr-4" alt="" />
-          <span className="flex-1">Discounts & Offers</span>
-          <span className="text-gray-400">&gt;</span>
-        </button> */}
+     
       </div>
     </div>
   );

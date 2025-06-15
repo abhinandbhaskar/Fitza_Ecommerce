@@ -8,12 +8,12 @@ const Dashboard = ({currentView, setCurrentView,setCountN,countN,searchTerm}) =>
   return (
 <div className="h-auto w-full absolute top-[100px] flex flex-row ">
       <SideBar setCurrentView={setCurrentView} />
-      <div className="h-auto w-8/10 m-1">
+   
       <RightSection  setCountN={setCountN} countN={countN} setCurrentView={setCurrentView} currentView={currentView} searchTerm={searchTerm} />
-     
-      </div>
-    
+
+
 </div>
+
   );
 };
 

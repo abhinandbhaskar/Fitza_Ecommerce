@@ -15,7 +15,7 @@ const ReviewSection = ({ setCurrentView }) => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            console.log(response);
+            console.log("fetchhhhh",response.data);
             setReviews(response.data);
         } catch (errors) {
             console.error(errors);
@@ -85,6 +85,27 @@ const ReviewSection = ({ setCurrentView }) => {
 
     }
 
+    
+    const renderRatingStars = (rating) => {
+        const numericRating = parseFloat(rating);
+        const fullStars = Math.floor(numericRating);
+        const hasHalfStar = numericRating % 1 >= 0.5;
+        
+        return (
+            <div className="flex items-center">
+                {[...Array(5)].map((_, i) => {
+                    if (i < fullStars) {
+                        return <span key={i} className="text-yellow-400">★</span>;
+                    } else if (i === fullStars && hasHalfStar) {
+                        return <span key={i} className="text-yellow-400">½</span>;
+                    }
+                    return <span key={i} className="text-gray-300">★</span>;
+                })}
+                <span className="ml-1 text-sm text-gray-600">({rating})</span>
+            </div>
+        );
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="bg-white shadow-md py-4 px-6">
@@ -97,37 +118,37 @@ const ReviewSection = ({ setCurrentView }) => {
             </div>
 
             <div className="py-6 px-6">
-                <div className="flex gap-4">
-                    <button
-                        onClick={() => setFilterStatus("all")}
-                        className="px-4 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600"
-                    >
-                        All Reviews
-                    </button>
-                    <button
-                        onClick={() => setFilterStatus("pending")}
-                        className="px-4 py-2 bg-orange-500 text-white font-medium rounded-lg hover:bg-indigo-600"
-                    >
-                        Pending
-                    </button>
-                    <button
-                        onClick={() => setFilterStatus("approved")}
-                        className="px-4 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600"
-                    >
-                        Approved
-                    </button>
-                    <button
-                        onClick={() => setFilterStatus("rejected")}
-                        className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600"
-                    >
-                        Rejected
-                    </button>
-                </div>
+<div className="flex flex-wrap gap-2 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+    <button
+        onClick={() => setFilterStatus("all")}
+        className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+    >
+        All Reviews
+    </button>
+    <button
+        onClick={() => setFilterStatus("pending")}
+        className="px-4 py-2  bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+    >
+        Pending
+    </button>
+    <button
+        onClick={() => setFilterStatus("approved")}
+        className="px-4 py-2  bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+    >
+        Approved
+    </button>
+    <button
+        onClick={() => setFilterStatus("rejected")}
+        className="px-4 py-2  bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+    >
+        Rejected
+    </button>
+</div>
             </div>
 
             <div className="overflow-x-auto px-6">
-                <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-                    <thead className="bg-black text-white">
+                <table className="min-w-full border-collapse border border-gray-200">
+                    <thead>
                         <tr>
                             <th className="px-4 py-3 text-left">No.</th>
                             <th className="px-4 py-3 text-left">Shop Name</th>
@@ -146,8 +167,11 @@ const ReviewSection = ({ setCurrentView }) => {
                                 <tr key={key} className="hover:bg-gray-50">
                                     <td className="px-4 py-3">{key + 1}</td>
                                     <td className="px-4 py-3">{safe(review,'shop_name')}</td>
-                                    <td className="px-4 py-3">{safe(review,'product')}</td>
-                                    <td className="px-4 py-3">{safe(review,'rating')}</td>
+                                    <td className="px-4 py-3">{safe(review,'product.product_name')}</td>
+                                     <td className="px-6 py-4 whitespace-nowrap">
+                                            {renderRatingStars(review.rating)}
+                                        </td>
+                                   
                                     <td className="px-4 py-3">{safe(review,'review_content')}</td>
                                     <td className="px-4 py-3">
                                         {" "}
@@ -178,3 +202,5 @@ const ReviewSection = ({ setCurrentView }) => {
 };
 
 export default ReviewSection;
+
+

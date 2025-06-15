@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ViewDetailedOrder from "./OrderComponents/ViewDetailedOrder";
+import {safe} from "../../../../utils/safeAccess";
 
 const OrdersSection = () => {
     const { accessToken } = useSelector((state) => state.auth);
@@ -140,15 +141,15 @@ const OrdersSection = () => {
                                 .filter((item) => orderstatus === "all" ? item : item.order.order_status.status === orderstatus)
                                 .map((item, index) => (
                                     <tr key={index} className="hover:bg-gray-50">
-                                        <td className="p-4 border">ORD-{item.order.id}</td>
-                                        <td className="p-4 border">{item.order.user.first_name}</td>
-                                        <td className="p-4 border">{item.order.order_date}</td>
+                                        <td className="p-4 border">ORD-{safe(item,'order.id')}</td>
+                                        <td className="p-4 border">{safe(item,'order.user.first_name')}</td>
+                                        <td className="p-4 border">{safe(item,'order.order_date')}</td>
                                         <td className="p-4 border">
                                             <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                                                {item.order.order_status.status}
+                                                {safe(item,'order.order_status.status')}
                                             </span>
                                         </td>
-                                        <td className="p-4 border">${item.price * item.quantity}</td>
+                                        <td className="p-4 border">${safe(item,'price') * safe(item,'quantity')}</td>
                                         <td className="p-4 border">
                                             <button
                                                 onClick={() => setCurrentView({ view: "shippedorders", data: item })}

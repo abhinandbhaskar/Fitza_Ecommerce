@@ -25,7 +25,7 @@ import NotificationSection from "../NotificationSection/NotificationSection";
 const RightSection = ({currentView,setCurrentView,setCountN,countN,searchTerm}) => {
     const [yourcomplaint,setYourComplaint]=useState("");
     return (
-        <div className="h-screen w-full bg-gray-800  overflow-y-auto">
+      <div className="h-[630px] w-screen bg-white overflow-y-auto p-2">
       {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
       {currentView==="users"&&<UsersSection searchTerm={searchTerm}/>}
       {currentView==="ratings" && <ReviewSection/> }

@@ -448,7 +448,7 @@ from sellerapp.models import Banner
 class GetBanners(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=Banner.objects.all()
+        obj=Banner.objects.all().order_by('-id')
         serializer=GetBannersSerializer(obj,many=True)
         return Response(serializer.data)
 
@@ -519,7 +519,7 @@ class AddCoupon(APIView):
 class GetCoupons(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=Coupon.objects.all()
+        obj=Coupon.objects.all().order_by('-id')
         serializer=GetCouponsSerializer(obj,many=True)
         return Response(serializer.data)
 

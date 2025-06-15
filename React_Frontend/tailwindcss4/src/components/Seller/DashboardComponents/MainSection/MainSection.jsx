@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import profile from "../../../../assets/profile.jpg";
 import OrderOverview from '../OrderOverview/OrderOverview';
 import InventoryManagement from '../InventoryManagement/InventoryManagement';
+import { safe } from '../../../../utils/safeAccess';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { Line, Bar } from 'react-chartjs-2';
@@ -252,7 +253,7 @@ const MainSection = ({setCurrentView}) => {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white mb-4 border border-gray-200  rounded-xl shadow-sm overflow-hidden">
         {/* Section Header */}
         <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between bg-gray-50">
           <h2 className="text-lg font-semibold text-gray-800">Performance Metrics</h2>

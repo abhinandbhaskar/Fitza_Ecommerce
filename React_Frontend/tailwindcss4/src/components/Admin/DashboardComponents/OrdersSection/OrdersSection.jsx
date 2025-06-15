@@ -82,71 +82,77 @@ const OrdersSection = () => {
             </div>
 
             {/* Filter Buttons */}
-            <div className="flex justify-center space-x-4 p-6">
-                <button
-                    key=""
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition"
-                    onClick={() => handlePendingView()}
-                >
-                    Pending Orders
-                </button>
-                <button
-                    key=""
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition"
-                    onClick={() => handleOngoingView()}
-                >
-                    Ongoing Orders
-                </button>
-                <button
-                    key=""
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition"
-                    onClick={() => handleCompletedView()}
-                >
-                    Completed Orders
-                </button>
-            </div>
+<div className="flex justify-center space-x-6 p-6 bg-white rounded-lg shadow-sm">
+    <button
+        className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 font-medium text-sm"
+        onClick={() => handlePendingView()}
+    >
+        Pending Orders
+    </button>
+    <button
+        className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 font-medium text-sm"
+        onClick={() => handleOngoingView()}
+    >
+        Ongoing Orders
+    </button>
+    <button
+        className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 font-medium text-sm"
+        onClick={() => handleCompletedView()}
+    >
+        Completed Orders
+    </button>
+</div>
 
             {/* Orders Table */}
 
             {currentView === "pending" && (
                 <>
                     <div className="w-full p-5">
-                        {label==="pending" && (<h1 className="font-bold text-2xl text-yellow-500">Pending Orders</h1>)}
-                        {label==="ongoing" && (<h1 className="font-bold text-2xl text-blue-600">Ongoing Orders</h1>)}
-                        {label==="completed" && (<h1 className="font-bold text-2xl text-green-500">Completed Orders</h1>)}
+                        {label==="pending" && (<h1 className="font-bold text-md text-yellow-500">Pending Orders</h1>)}
+                        {label==="ongoing" && (<h1 className="font-bold text-md text-blue-600">Ongoing Orders</h1>)}
+                        {label==="completed" && (<h1 className="font-bold text-md text-green-500">Completed Orders</h1>)}
                     </div>
                     <div className="p-6">
                         <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-                            <table className="table-auto w-full text-left border-collapse">
+                            <table className="min-w-full border-collapse border border-gray-200">
                                 <thead>
-                                    <tr className="bg-gray-100 text-gray-700">
-                                        <th className="px-4 py-2 border">Order ID</th>
-                                        <th className="px-4 py-2 border">User</th>
-                                        <th className="px-4 py-2 border">Seller</th>
-                                        <th className="px-4 py-2 border">Order Status</th>
-                                        <th className="px-4 py-2 border">View Orders</th>
-                                        <th className="px-4 py-2 border">Payment Status</th>
+                                    <tr className="bg-gray-100 text-black">
+                                        <th >Order ID</th>
+                                        <th >User</th>
+                                        <th >Seller</th>
+                                        <th >Order Status</th>
+                                        <th >View Orders</th>
+                                        <th >Payment Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {pendingOrder.filter(items=>items?.order_status?.status===orderfilter).map((order, index) => (
-                                        <tr key={index} className="hover:bg-gray-50">
-                                            <td className="px-4 py-2 border">#ORD-{safe(order,'id')}</td>
-                                            <td className="px-4 py-2 border">{safe(order,'user.email')}</td>
-                                            <td className="px-4 py-2 border"> <ul>
+                                { pendingOrder.length>0 ? (pendingOrder.filter(items=>items?.order_status?.status===orderfilter).map((order, index) => (
+                                        <tr key={index} className="hover:bg-gray-100 transition duration-200">
+                                            <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300" >#ORD-{safe(order,'id')}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300" >{safe(order,'user.email')}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300" > <ul>
                                                 {
                                                     order.order_lines.map((value,key)=>(
                                                         <li>{safe(value,'seller.email')}</li>
                                                     ))
                                                 }
                                                 </ul> </td>
-                                            <td className="px-4 py-2 border">
+                                            <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300" >
                                                 {safe(order,'order_status.status')||"Pending"}
                                             </td>
-                                            <td className="px-4 py-2 border"><button onClick={()=>setCurrentView({view:"orderdetails1",data:order})} className="px-2 py-1 bg-blue-600 rounded-md hover:bg-blue-700 text-white">View Order</button></td>
-                                            <td className="px-4 py-2 border">{safe(order,'payment_method.status')||"Pending"}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300" ><button onClick={()=>setCurrentView({view:"orderdetails1",data:order})} className="px-2 py-1 bg-blue-600 rounded-md hover:bg-blue-700 text-white">View Order</button></td>
+                                            <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300" >{safe(order,'payment_method.status')||"Pending"}</td>
                                         </tr>
-                                    ))}
+                                    ))):(
+<tr>
+                                        <td
+                                            colSpan="9"
+                                            className="text-center px-6 py-4 text-sm text-gray-600 border-b border-gray-300"
+                                        >
+                                            No users found.
+                                        </td>
+                                    </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

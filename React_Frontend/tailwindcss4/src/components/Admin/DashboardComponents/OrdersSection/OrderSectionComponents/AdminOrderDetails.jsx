@@ -182,7 +182,7 @@ const AdminOrderDetails = ({currentView}) => {
             
     <div className="inline-block mr-2">
         <div>
-               <button onClick={()=>VerifyPayment(orderData?.payment_method?.id,orderData?.id)} className="bg-yellow-500 text-white px-4 py-2 rounded-lg dropdown-trigger">
+               <button onClick={()=>VerifyPayment(orderData?.payment_method?.id,orderData?.id)} className="bg-green-500 text-white px-4 py-2 rounded-lg dropdown-trigger">
             Verify Payment Status
         </button>
         <div className="dropdown-menu hidden mt-2 bg-white border rounded shadow-md">
@@ -208,10 +208,8 @@ const AdminOrderDetails = ({currentView}) => {
         (<div> </div>)
     }
 
-    {/* Notify Seller or Customer */}
-    <button className="bg-purple-500 text-white px-4 py-2 rounded-lg">
-        Notify Seller/Customer
-    </button>
+   
+   
 </div>
 
         </div>

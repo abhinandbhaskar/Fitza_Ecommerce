@@ -65,7 +65,7 @@ const InventoryManagement = () => {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white mt-4 border border-gray-200 rounded-xl shadow-sm overflow-hidden">
       {/* Section Header */}
       <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
         <h2 className="text-lg font-semibold text-gray-800">Inventory Management</h2>
