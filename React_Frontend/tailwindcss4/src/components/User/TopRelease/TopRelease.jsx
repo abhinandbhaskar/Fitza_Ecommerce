@@ -3,21 +3,21 @@ import "./TopRelease.css";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
-
+import { safe } from "../../../utils/safeAccess";
+import { useSelector } from "react-redux";
 const sectionNames = ["Hot Releases", "Trending Products", "Top Picks", "Must-Have Styles"];
 
-const TopRelease = ({ topdata }) => {
-  const navigate=useNavigate();
-
-  const AddToCart=(id)=>{
-     if(!accessToken || accessToken.length === 0) {
-            toast.error("You need to login first!");
+const TopRelease = ({ topdata }) => { 
+  const navigate = useNavigate();
+  const { accessToken } = useSelector((state) => state.auth);
+  const viewProduct = (id) => {
+       if(!accessToken || accessToken.length === 0) {
+          toast.error("You need to login first!");
           return;
         }
-        console.log("Yo Yo",id);
-        navigate(`/productview/${id}`);
-    }
-
+        return navigate(`/productview/${id}`);
+ 
+  }
 
   return (
     <div className="TopSelling-section p-4">
@@ -30,31 +30,29 @@ const TopRelease = ({ topdata }) => {
             </div>
             <div className="space-y-4">
               {topdata.slice(colIndex * 3, (colIndex + 1) * 3).map((product, rowIndex) => {
-                // Using product data to dynamically show images and other details
-                const productImage = product.items?.[0]?.images?.[0] || productImg1; // Fallback to default image
-
+                const productImage = product.items?.[0]?.images?.[0];
+                
                 return (
                   <div
                     key={rowIndex}
                     className="card TopSelling-Cards bg-white shadow-md rounded-md p-3 hover:shadow-lg transition-shadow"
-                 onClick={()=>AddToCart(product.id)}
-                 >
+                    onClick={() => viewProduct(product.id)}
+                  >
                     <img
                       src={
-                            product.items?.[0]?.images?.[0]?.main_image
-                                        ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
-                                        : "/path/to/default/image.jpg" // Fallback image
-                            }
-    
+                        product.items?.[0]?.images?.[0]?.main_image
+                          ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
+                          : "/path/to/default/image.jpg"
+                      }
                       className="ProductImgs w-full h-36 object-cover rounded-md"
-                      alt={`Product ${product.id}`}
+                      alt={`Product ${safe(product, 'id')}`}
                     />
                     <div className="product-details mt-1 flex flex-col pt-2">
-                      <h5 className="text-sm font-medium text-gray-700">{product.product_name}</h5>
+                      <h5 className="text-sm font-medium text-gray-700">{safe(product, 'product_name')}</h5>
                       <h4 className="text-sm font-semibold text-gray-800 mt-1">
-                        {/* Example price, update with actual price from product */}
-                        {product.items[0].sale_price}{" "}
+                        ₹{product.items[0].sale_price}{" "}
                       </h4>
+                     
                     </div>
                   </div>
                 );

@@ -15,6 +15,7 @@ import CartPage from "../pages/User/CartPage/CartPage";
 import OfferSection from "../pages/User/OfferSection/OfferSection";
 import NotificationPage from "../pages/User/NotificationPage/NotificationPage";
 import CompareProducts from "../pages/User/CompareProducts/CompareProducts";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 
 const UserRoutes = () => {
@@ -24,7 +25,7 @@ const UserRoutes = () => {
       <Routes>
        
           <Route path="/" element={<HomePage countsN={countsN} setNcounts={setNcounts} />} />
-          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/signup" element={<ErrorBoundary><SignUpPage /></ErrorBoundary>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/authredirect" element={<HandleRedirect />} />
           <Route path="/profile" element={<ProfilePage countsN={countsN} />} />

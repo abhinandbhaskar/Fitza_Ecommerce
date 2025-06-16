@@ -5,12 +5,12 @@ import { safe } from "../../../../utils/safeAccess";
 import { toast } from "react-toastify"; // For showing error messages
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const FeedBackSection = () => {
+const FeedBackSection = ({setCurrentView}) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [rating, setRating] = useState(0);
     const [feedback, setFeedback] = useState("");
     const [feedbacks, setFeedBacks] = useState([]);
-    const [currentView, setCurrentView] = useState("feedback");
+    const [currentView1, setcurrentView1] = useState("feedback");
 
     const handleRating = (star) => {
         setRating(star);
@@ -99,27 +99,27 @@ const FeedBackSection = () => {
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
             <div className="w-full bg-white shadow-md py-4 px-6">
-                <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
+                <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700">
                     Dashboard&gt; <span className="text-indigo-600">FeedBacks</span>
                 </h1>
             </div>
             <div className="py-6 px-6">
                 <div className="flex gap-4">
                     <button
-                        onClick={() => setCurrentView("feedback")}
+                        onClick={() => setcurrentView1("feedback")}
                                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                         User Feedbacks
                     </button>
                     <button
-                        onClick={() => setCurrentView("send")}
+                        onClick={() => setcurrentView1("send")}
                                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                         Send Feedback to Admin
                     </button>
                 </div>
             </div>
-            {currentView === "feedback" && (
+            {currentView1 === "feedback" && (
                 <div className="p-6">
                     <div className="overflow-x-auto bg-white shadow-md rounded-lg">
                         <table className="min-w-full border-collapse border border-gray-200">
@@ -164,7 +164,7 @@ const FeedBackSection = () => {
                 </div>
             )}
 
-            {currentView === "send" && (
+            {currentView1 === "send" && (
                 <div className="mt-8 p-6 bg-white shadow-md rounded-lg">
                     <h2 className="text-lg font-semibold text-gray-800 mb-4">Provide Your Feedback</h2>
 

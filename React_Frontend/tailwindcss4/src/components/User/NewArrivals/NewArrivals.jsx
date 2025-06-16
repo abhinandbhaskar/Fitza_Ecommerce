@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../utils/safeAccess";
 
 const NewArrivals = ({ setTopData }) => {
     const [startIndex, setStartIndex] = useState(0);
@@ -29,8 +30,8 @@ const NewArrivals = ({ setTopData }) => {
     const fetchNewArrivals = async () => {
         try {
             const response = await axios.get("https://127.0.0.1:8000/api/new_arrivals/", {});
-            setProducts(response.data);
-            setTopData(response.data);
+            setProducts(safe(response,'data'));
+            setTopData(safe(response,'data'));
         } catch (errors) {
             console.error(errors);
         }
@@ -74,8 +75,10 @@ const NewArrivals = ({ setTopData }) => {
                     withCredentials: true,
                 }
             );
+            toast.success("Product added to your wishlist!");
         } catch (errors) {
             console.error(errors);
+            toast.error("Failed to add");
         }
     };
 
@@ -98,7 +101,7 @@ const NewArrivals = ({ setTopData }) => {
             <div className="Featured-section">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20">
                     {products.slice(startIndex, startIndex + itemsPerPage).map((product) => (
-                        <div key={product.id} className="card">
+                        <div key={safe(product,'id')} className="card">
                             <div className="Tag">
                                 <h6>New</h6>
                             </div>
@@ -108,7 +111,7 @@ const NewArrivals = ({ setTopData }) => {
                                         ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
                                         : "/path/to/default/image.jpg"
                                 }
-                                alt={product.product_name}
+                                alt={safe(product,'product_name')}
                                 className="card-img-top"
                             />
                             <div className="Cards-Options">
@@ -144,10 +147,10 @@ const NewArrivals = ({ setTopData }) => {
                                         {product?.offers?.[0]?.discount_percentage > 0 ? (
                                             <>
                                                 <span className="text-gray-400 line-through text-sm mr-2">
-                                                    ${product.items[0].sale_price}
+                                                    ₹{product.items[0].sale_price}
                                                 </span>
                                                 <span className="text-xl font-bold text-green-600">
-                                                    $
+                                                    ₹
                                                     {(
                                                         parseFloat(product.items[0].sale_price) *
                                                         (1 - parseFloat(product.offers[0].discount_percentage) / 100)
@@ -155,7 +158,7 @@ const NewArrivals = ({ setTopData }) => {
                                                 </span>
                                             </>
                                         ) : (
-                                            <span className="text-xl font-bold">${product.items[0].sale_price}</span>
+                                            <span className="text-xl font-bold">₹{product.items[0].sale_price}</span>
                                         )}
                                     </div>
 
@@ -163,12 +166,12 @@ const NewArrivals = ({ setTopData }) => {
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="flex items-center">
                                             <span className="text-yellow-500 font-medium">
-                                                {product.ratings.average_rating.toFixed(1)}
+                                                {safe(product,'ratings.average_rating').toFixed(1)}
                                             </span>
                                             <span className="text-yellow-400 ml-1">★</span>
                                         </div>
                                         <span className="text-gray-500 text-sm">
-                                            ({product.ratings.total_reviews} reviews)
+                                            ({safe(product,'ratings.total_reviews')} reviews)
                                         </span>
 
                                         {/* Only show offer badge when offer exists */}

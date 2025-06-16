@@ -1,6 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {useSelector} from "react-redux"
+import { toast } from "react-toastify"; // For showing error messages
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BankInfo = ({setCurrentView}) => {
   const {accessToken}=useSelector((state)=>state.auth);
@@ -56,12 +59,13 @@ const BankInfo = ({setCurrentView}) => {
       });
       console.log(response);
       console.log(response.data);
-      alert(response.data.message);
+     toast.success("Bank details updated successfully..");
     }
     catch(errors)
     {
       console.log(errors);
       console.log(errors.response.data);
+      toast.error("Failed to update Bank details..");
     }
 
   }
@@ -162,6 +166,7 @@ const BankInfo = ({setCurrentView}) => {
           </button>
         </div>
       </div>
+      <ToastContainer/>
     </div>
   );
 };

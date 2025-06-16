@@ -2,9 +2,12 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BankDetailsRegistrationForm = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     accountHolderName: "",
     bankName: "",
@@ -13,29 +16,106 @@ const BankDetailsRegistrationForm = () => {
     branchAddress: "",
   });
 
+  const [errors, setErrors] = useState({
+    accountHolderName: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+    branchAddress: "",
+  });
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      accountHolderName: "",
+      bankName: "",
+      accountNumber: "",
+      ifscCode: "",
+      branchAddress: "",
+    };
+
+    // Account Holder Name validation
+    if (!formData.accountHolderName.trim()) {
+      newErrors.accountHolderName = "Account holder name is required";
+      isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.accountHolderName)) {
+      newErrors.accountHolderName = "Name should contain only letters";
+      isValid = false;
+    }
+
+    // Bank Name validation
+    if (!formData.bankName.trim()) {
+      newErrors.bankName = "Bank name is required";
+      isValid = false;
+    }
+
+    // Account Number validation
+    if (!formData.accountNumber) {
+      newErrors.accountNumber = "Account number is required";
+      isValid = false;
+    } else if (!/^\d{9,18}$/.test(formData.accountNumber)) {
+      newErrors.accountNumber = "Account number should be 9-18 digits";
+      isValid = false;
+    }
+
+    // IFSC Code validation
+    if (!formData.ifscCode.trim()) {
+      newErrors.ifscCode = "IFSC code is required";
+      isValid = false;
+    } else if (!/^[A-Za-z]{4}0[A-Z0-9a-z]{6}$/.test(formData.ifscCode)) {
+      newErrors.ifscCode = "Invalid IFSC code format";
+      isValid = false;
+    }
+
+    // Branch Address validation
+    if (!formData.branchAddress.trim()) {
+      newErrors.branchAddress = "Branch address is required";
+      isValid = false;
+    } else if (formData.branchAddress.length < 10) {
+      newErrors.branchAddress = "Address is too short";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
     console.log(formData);
-    try{
-        const response=await axios.post("https://127.0.0.1:8000/api/seller/bank_seller_register/",formData);
-        console.log(response);
-        console.log(response.data);
-        alert("Successfully Completed Bank Details Registration...");
-        setTimeout(()=>{
-            navigate("/seller/loginpage");
-        },2000)
-    }
-    catch(errors){
-        console.log(errors);
-        console.log(errors.response.data);
-    }
-    finally{
-        console.log("Completed..........")
+    try {
+      const response = await axios.post(
+        "https://127.0.0.1:8000/api/seller/bank_seller_register/",
+        formData
+      );
+      console.log(response);
+      console.log(response.data);
+      toast.success("Successfully Completed Bank Details Registration...");
+      setTimeout(() => {
+        navigate("/seller/loginpage");
+      }, 2000);
+    } catch (errors) {
+      console.log(errors);
+      console.log(errors.response.data);
+      toast.error("Error Occurred. Check details ");
+    } finally {
+      console.log("Completed..........");
     }
   };
 
@@ -66,9 +146,16 @@ const BankDetailsRegistrationForm = () => {
               name="accountHolderName"
               value={formData.accountHolderName}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className={`w-full mt-1 p-2 border rounded ${
+                errors.accountHolderName ? "border-red-500" : ""
+              }`}
               required
             />
+            {errors.accountHolderName && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.accountHolderName}
+              </p>
+            )}
           </div>
 
           <div className="mt-4">
@@ -78,9 +165,14 @@ const BankDetailsRegistrationForm = () => {
               name="bankName"
               value={formData.bankName}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className={`w-full mt-1 p-2 border rounded ${
+                errors.bankName ? "border-red-500" : ""
+              }`}
               required
             />
+            {errors.bankName && (
+              <p className="text-red-500 text-sm mt-1">{errors.bankName}</p>
+            )}
           </div>
 
           <div className="mt-4">
@@ -90,9 +182,16 @@ const BankDetailsRegistrationForm = () => {
               name="accountNumber"
               value={formData.accountNumber}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className={`w-full mt-1 p-2 border rounded ${
+                errors.accountNumber ? "border-red-500" : ""
+              }`}
               required
             />
+            {errors.accountNumber && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.accountNumber}
+              </p>
+            )}
           </div>
 
           <div className="mt-4">
@@ -102,9 +201,14 @@ const BankDetailsRegistrationForm = () => {
               name="ifscCode"
               value={formData.ifscCode}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className={`w-full mt-1 p-2 border rounded ${
+                errors.ifscCode ? "border-red-500" : ""
+              }`}
               required
             />
+            {errors.ifscCode && (
+              <p className="text-red-500 text-sm mt-1">{errors.ifscCode}</p>
+            )}
           </div>
 
           <div className="mt-4">
@@ -113,10 +217,17 @@ const BankDetailsRegistrationForm = () => {
               name="branchAddress"
               value={formData.branchAddress}
               onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded"
+              className={`w-full mt-1 p-2 border rounded ${
+                errors.branchAddress ? "border-red-500" : ""
+              }`}
               rows="3"
               required
             />
+            {errors.branchAddress && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.branchAddress}
+              </p>
+            )}
           </div>
 
           <button
@@ -126,6 +237,7 @@ const BankDetailsRegistrationForm = () => {
             Submit
           </button>
         </form>
+        <ToastContainer />
       </div>
     </>
   );

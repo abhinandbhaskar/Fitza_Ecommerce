@@ -7,8 +7,6 @@ import PaymentSection from "../../../components/User/CartComponents/PaymentSecti
 const CartPage = ({countsN}) => {
     const[cartView,setCartView]=useState("cart");
     const[cartId,setCartId]=useState(null);
-
-
   return (
     <>
       <Header countsN={countsN} />

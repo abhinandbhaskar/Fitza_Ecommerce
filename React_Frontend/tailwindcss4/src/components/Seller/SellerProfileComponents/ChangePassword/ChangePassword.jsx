@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-
+import { toast } from "react-toastify"; // For showing error messages
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ChangePassword = ({ setCurrentView }) => {
     const[currentPassword,setCurrentPassword]=useState("");
@@ -30,14 +32,14 @@ const ChangePassword = ({ setCurrentView }) => {
           });
           if(response)
           {
-           alert(response.data.message);   
+            toast.success("Password updated successfully..");  
           }
       }
       catch (err) {
-          console.log("XXX", err);
+          console.log(err);
           if (err.response) {
               const backendMessage = err.response.data.message;
-      
+               toast.error("Error occured while update password...");
               if (backendMessage.non_field_errors) {
                   setError(backendMessage.non_field_errors[0]); 
               } else {
@@ -145,12 +147,8 @@ const ChangePassword = ({ setCurrentView }) => {
           </button>
         </div>
         </form>
-
-
-
       </div>
-
-
+      <ToastContainer/>
     </div>
   );
 };

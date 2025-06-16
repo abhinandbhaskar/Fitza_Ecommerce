@@ -4,6 +4,7 @@ import "./DealsOftheDay.css"
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from '../../../utils/safeAccess';
 
 import axios from 'axios';
 const DealsOftheDay = () => {
@@ -89,15 +90,15 @@ const DealsOftheDay = () => {
         <div className='h-[200px] w-[60%] flex justify-center items-center'>
           <h2 className='flex py-4 font-bold text-2xl'>Deals Ends In</h2>
           <div className='h-16 px-4 w-[120px] bg-orange-300 p-6 flex items-center justify-center rounded-md'>
-            <span className='text-orange-600 font-bold text-2xl'>{timeLeft.hours || '00'} h</span>
+            <span className='text-orange-600 font-bold text-2xl'>{safe(timeLeft,'hours') || '00'} h</span>
           </div>
           <span className='flex py-4 font-bold text-2xl'>:</span>
           <div className='h-16 px-4 w-[120px] bg-orange-300 p-6 flex items-center justify-center rounded-md'>
-            <span className='text-orange-600 font-bold text-2xl'>{timeLeft.minutes || '00'} m</span>
+            <span className='text-orange-600 font-bold text-2xl'>{safe(timeLeft,'minutes') || '00'} m</span>
           </div>
           <span className='flex py-4 font-bold text-2xl'>:</span>
           <div className='h-16 px-4 w-[120px] bg-orange-300 p-6 flex items-center justify-center rounded-md'>
-            <span className='text-orange-600 font-bold text-2xl'>{timeLeft.seconds || '00'} s</span>
+            <span className='text-orange-600 font-bold text-2xl'>{safe(timeLeft,'seconds') || '00'} s</span>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-const QandaSection = () => {
+const QandaSection = ({setCurrentView}) => {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [filter, setFilter] = useState("Unanswered");
   const [showProductModal, setShowProductModal] = useState(false);
@@ -146,7 +146,7 @@ const QandaSection = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-md py-4 px-6">
-        <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
+        <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700">
           Dashboard &gt; <span className="text-indigo-600">Questions & Answers</span>
         </h1>
       </div>

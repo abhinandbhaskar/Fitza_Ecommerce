@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../utils/safeAccess";
 
 const CategoryProducts = () => {
     const { pro_name } = useParams();
@@ -81,8 +82,8 @@ const CategoryProducts = () => {
         try {
             const response = await axios.get(`https://127.0.0.1:8000/api/fetch_cate_products/${pro_name}/`, {});
 
-            setProducts(response.data);
-            setFilteredProducts(response.data);
+            setProducts(safe(response,'data'));
+            setFilteredProducts(safe(response,'data'));
             console.log("Products data:", response.data);
 
             if (response.data.length > 0) {
@@ -131,9 +132,11 @@ const CategoryProducts = () => {
             );
             console.log(response);
             console.log("Wishlist Res", response.data);
+            toast.success(" Product added to wishlist!");
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+            toast.error("Error while add product to wishlist..");
         }
     };
 
@@ -382,8 +385,8 @@ const CategoryProducts = () => {
                                     {expandedSections.price && (
                                         <div>
                                             <div className="flex justify-between mb-2">
-                                                <span className="text-gray-600">${priceRange[0]}</span>
-                                                <span className="text-gray-600">${priceRange[1]}</span>
+                                                <span className="text-gray-600">₹{priceRange[0]}</span>
+                                                <span className="text-gray-600">₹{priceRange[1]}</span>
                                             </div>
                                             <input
                                                 type="range"

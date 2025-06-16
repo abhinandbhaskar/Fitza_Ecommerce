@@ -12,6 +12,7 @@ class SellerRegisterAPI(APIView):
     def post(self,request):
         serializer = SellerRegisterSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
+            print("Error",serializer.errors)
             return Response({"message":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response({"message": "Registration successful. OTP has been sent to your email."}, status=status.HTTP_201_CREATED)

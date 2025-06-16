@@ -15,6 +15,14 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [formErrors, setFormErrors] = useState({
+        email: "",
+        password: "",
+    });
+    const [touched, setTouched] = useState({
+        email: false,
+        password: false,
+    });
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -27,26 +35,59 @@ const LoginPage = () => {
         }, 500);
     }, []);
 
+    const validateForm = () => {
+        const errors = {};
+        let isValid = true;
+
+        if (!email.trim()) {
+            errors.email = "Email or username is required";
+            isValid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !/^[a-zA-Z0-9_]+$/.test(email)) {
+            errors.email = "Please enter a valid email or username";
+            isValid = false;
+        }
+
+        if (!password) {
+            errors.password = "Password is required";
+            isValid = false;
+        } else if (password.length < 6) {
+            errors.password = "Password must be at least 6 characters";
+            isValid = false;
+        }
+
+        setFormErrors(errors);
+        return isValid;
+    };
+
+    const handleBlur = (field) => {
+        setTouched({
+            ...touched,
+            [field]: true,
+        });
+        validateForm();
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
+        
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
 
         const loginData = {
-            username: email.trim(), // Make sure backend supports email as username
+            username: email.trim(),
             password: password.trim(),
         };
 
         try {
             const response = await axios.post("https://127.0.0.1:8000/api/login/", loginData, {
                 headers: { "Content-Type": "application/json" },
-                withCredentials: true, // Ensures cookies (refresh token) are handled
+                withCredentials: true,
             });
-            console.log("Is access", response.data.access);
-            console.log("Is access", response.data.user_id);
-            console.log("Is", isAuthenticated);
-            console.log("Data", response.data);
-            console.log("Response", response);
+            
             const imageLink = "https://127.0.0.1:8000/media/" + response.data.photo;
             dispatch(
                 loginSuccess({
@@ -63,10 +104,9 @@ const LoginPage = () => {
                 })
             );
             navigate("/");
-            // Redirect to homepage after successful login
         } catch (error) {
             if (error.response && error.response.data) {
-                setError(error.response.data.detail || "Login failed. Please try again.");
+                setError(error.response.data.detail || "Login failed. Please check your credentials and try again.");
             } else {
                 setError("An unexpected error occurred. Please try again.");
             }
@@ -88,22 +128,34 @@ const LoginPage = () => {
                 {error && <p className="text-red-500">{error}</p>}
 
                 <form onSubmit={handleSubmit} className="w-4/5 md:w-1/2 flex flex-col gap-3">
-                    <input
-                        type="text"
-                        className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none"
-                        placeholder="Username or Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none"
-                        placeholder="Enter Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                    <div>
+                        <input
+                            type="text"
+                            className={`block w-full px-4 py-2 text-gray-700 bg-white border ${formErrors.email && touched.email ? 'border-red-500' : 'border-gray-300'} rounded focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none`}
+                            placeholder="Username or Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onBlur={() => handleBlur('email')}
+                            required
+                        />
+                        {formErrors.email && touched.email && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                        )}
+                    </div>
+                    <div>
+                        <input
+                            type="password"
+                            className={`block w-full px-4 py-2 text-gray-700 bg-white border ${formErrors.password && touched.password ? 'border-red-500' : 'border-gray-300'} rounded focus:border-blue-500 focus:ring focus:ring-blue-300 focus:outline-none`}
+                            placeholder="Enter Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onBlur={() => handleBlur('password')}
+                            required
+                        />
+                        {formErrors.password && touched.password && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
+                        )}
+                    </div>
                     <button
                         type="submit"
                         className="bg-red-400 hover:bg-red-500 px-5 py-2 text-white font-bold text-xl rounded-full"

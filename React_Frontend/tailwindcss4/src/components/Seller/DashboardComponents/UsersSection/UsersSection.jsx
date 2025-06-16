@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { safe } from "../../../../utils/safeAccess";
-const UsersSection = ({ searchTerm }) => {
+const UsersSection = ({ searchTerm,setCurrentView }) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
@@ -49,7 +49,7 @@ const UsersSection = ({ searchTerm }) => {
             {/* Header */}
             <div className="w-full bg-white shadow-md py-4 px-6">
                 <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
-                    Dashboard&gt; <span className="text-indigo-600">Users</span>
+                    <span onClick={()=>setCurrentView("mainsection")}>Dashboard</span> &gt; <span className="text-indigo-600">Users</span>
                 </h1>
             </div>
 

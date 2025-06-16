@@ -1,8 +1,11 @@
 import React,{useEffect, useState} from 'react'
 import axios from "axios";
 import { format } from "date-fns";
-
+import { safe } from '../../../../utils/safeAccess';
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
     const AddReview = ({product}) => {
         const [rating, setRating] = useState(0);
         const [description,setDescription]=useState("");
@@ -17,7 +20,7 @@ import { useSelector } from "react-redux";
             "description":description
           }
           console.log("DA",fetchData);
-          
+       
           try{
             const response=await axios.post("https://127.0.0.1:8000/api/add_review_rating/",fetchData,{
               headers:{
@@ -27,11 +30,12 @@ import { useSelector } from "react-redux";
             });
             console.log(response);
             console.log(response.data);
-            alert(response.data.message);
+            toast.success("Review Added Successfully");
             fetchReview();
           }catch(errors){
             console.log(errors);
             console.log(errors.response.data);
+            toast.error("Failed to add review..");
           }
 
         }
@@ -50,7 +54,7 @@ import { useSelector } from "react-redux";
                 });
                 console.log(response);
                 console.log("Kitti",response.data[0]);
-                setReviews(response.data);
+                setReviews(safe(response,'data'));
             }catch(errors)
             {
                 console.log(errors);
@@ -70,14 +74,14 @@ import { useSelector } from "react-redux";
     reviews.map((rev, index) => (
       <div className="flex items-center space-x-4" key={index}>
         <img
-            src={"https://127.0.0.1:8000" + rev.user.userphoto}
+            src={"https://127.0.0.1:8000" + safe(rev,'user.userphoto')}
           className="w-12 h-12 rounded-full"
         />
         <div>
-          <h6 className="font-bold">{rev.user.first_name}</h6>
-          <p className="text-sm">{rev.review_content}</p>
+          <h6 className="font-bold">{safe(rev,'user.first_name')}</h6>
+          <p className="text-sm">{safe(rev,'review_content')}</p>
           <span className="text-xs text-gray-500">
-            {format(new Date(rev.updated_at), "MMMM d, yyyy 'at' h:mm a")}
+            {format(new Date(safe(rev,'updated_at')), "MMMM d, yyyy 'at' h:mm a")}
           </span>
         </div>
       </div>
@@ -127,6 +131,7 @@ import { useSelector } from "react-redux";
                         Submit Review
                     </button>
                 </div>
+                <ToastContainer/>
             </div>
         );
     };

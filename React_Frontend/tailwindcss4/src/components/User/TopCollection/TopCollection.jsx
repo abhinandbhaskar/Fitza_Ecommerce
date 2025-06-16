@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../utils/safeAccess";
 
 const TopCollection = () => {
     const { accessToken } = useSelector((state) => state.auth);
@@ -26,11 +27,11 @@ const TopCollection = () => {
             });
             console.log(response);
             console.log("Top Collections ArrivalsRRRRR", response.data.results);
-            setProducts(response.data.results);
+            setProducts(safe(response,'data.results'));
                setPagination({
-                count: response.data.count,
-                next: response.data.next,
-                previous: response.data.previous,
+                count: safe(response,'data.count'),
+                next: safe(response,'data.next'),
+                previous: safe(response,'data.previous'),
                 currentPage: page,
                 totalPages: Math.ceil(response.data.count / 12)
             });
@@ -80,9 +81,11 @@ const AddToCart = (id) => {
             );
             console.log(response);
             console.log("Wishlist Res", response.data);
+            toast.success("Product added to your wishlist!");
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+            toast.error("Failed to add");
         }
     };
 
@@ -135,7 +138,7 @@ const AddToCart = (id) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20 ">
                     {(filtersts === "all"
                         ? products
-                        : products.filter((item) => item.category.category_name === filtersts)
+                        : products.filter((item) => safe(item,'category.category_name') === filtersts)
                     ).map((product) => (
                         <div key={product.id} className="card">
                             <div className="Tag">
@@ -147,7 +150,7 @@ const AddToCart = (id) => {
                                         ? `https://127.0.0.1:8000${product.items[0].images[0].main_image}`
                                         : "/path/to/default/image.jpg" // Fallback image
                                 }
-                                alt={product.product_name}
+                                alt={safe(product,'product_name')}
                                 className="card-img-top"
                             />
                             <div className="Cards-Options">
@@ -169,7 +172,7 @@ const AddToCart = (id) => {
 
                             <div className="card-body">
                                 <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
-                                    {product.product_name}
+                                    {safe(product,'product_name')}
                                 </h2>
                                 <h4 className="text-gray-700 leading-relaxed text-lg">
                                     {product.product_description.length > 28
@@ -183,10 +186,10 @@ const AddToCart = (id) => {
                                         {product?.offers?.[0]?.discount_percentage > 0 ? (
                                             <>
                                                 <span className="text-gray-400 line-through text-sm mr-2">
-                                                    ${product.items[0].sale_price}
+                                                    ₹{safe(product,'items[0].sale_price')}
                                                 </span>
                                                 <span className="text-xl font-bold text-green-600">
-                                                    $
+                                                    ₹
                                                     {(
                                                         parseFloat(product.items[0].sale_price) *
                                                         (1 - parseFloat(product.offers[0].discount_percentage) / 100)
@@ -194,7 +197,7 @@ const AddToCart = (id) => {
                                                 </span>
                                             </>
                                         ) : (
-                                            <span className="text-xl font-bold">${product.items[0].sale_price}</span>
+                                            <span className="text-xl font-bold">₹{product.items[0].sale_price}</span>
                                         )}
                                     </div>
 
@@ -202,19 +205,19 @@ const AddToCart = (id) => {
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="flex items-center">
                                             <span className="text-yellow-500 font-medium">
-                                                {product.ratings.average_rating.toFixed(1)}
+                                                {safe(product,'ratings.average_rating').toFixed(1)}
                                             </span>
                                             <span className="text-yellow-400 ml-1">★</span>
                                         </div>
                                         <span className="text-gray-500 text-sm">
-                                            ({product.ratings.total_reviews} reviews)
+                                            ({safe(product,'ratings.total_reviews')} reviews)
                                         </span>
 
                                         {/* Only show offer badge when offer exists */}
                                         {product?.offers?.[0]?.discount_percentage > 0 && (
                                             <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit font-bold">
                                                 <i className="fa-solid fa-tag text-sm"></i>
-                                                <span>{parseFloat(product.offers[0].discount_percentage)}% OFF</span>
+                                                <span>{parseFloat(safe(product,'offers[0].discount_percentage'))}% OFF</span>
                                             </div>
                                         )}
                                     </div>

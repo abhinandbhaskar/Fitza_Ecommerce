@@ -123,7 +123,7 @@ const ProductsSection = ({setCurrentView,searchTerm}) => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="w-full bg-white shadow-md py-4 px-6 flex justify-between items-center">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800">
+        <h1 onClick={()=>setCurrentView("mainsection")} className="text-xl md:text-2xl font-bold text-gray-800">
           Dashboard &gt; <span className="text-indigo-600">Products</span>
         </h1>
         <button onClick={()=>setCurrentView("add1")}  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">

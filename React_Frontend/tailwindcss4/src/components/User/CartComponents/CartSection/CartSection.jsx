@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { updateShopOrder } from "../../../../redux/ShopOrderSlice";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../../utils/safeAccess";
 
 const CartSection = ({ setCartView, setCartId }) => {
     const { accessToken } = useSelector((state) => state.auth);
@@ -57,8 +58,8 @@ const CartSection = ({ setCartView, setCartId }) => {
                 },
             });
 
-            const cartData = response.data.cartdata || [];
-            const postcode = response.data.postcode || "";
+            const cartData = safe(response,'data.cartdata') || [];
+            const postcode = safe(response,'data.postcode') || "";
 
             setCartData(cartData);
             console.log("Cart Data:", cartData);
@@ -104,11 +105,11 @@ const CartSection = ({ setCartView, setCartId }) => {
                 { totalPrice: 0, totalDiscount: 0 }
             );
 
-            console.log("Total Price:", result.totalPrice);
-            console.log("Total Discount:", result.totalDiscount);
-            CalculatePlatformFee(result.totalPrice);
-            setTotalPrice(result.totalPrice);
-            setProductDiscount(result.totalDiscount);
+            console.log("Total Price:", safe(result,'totalPrice'));
+            console.log("Total Discount:", safe(result,'totalDiscount'));
+            CalculatePlatformFee(safe(result,'totalPrice'));
+            setTotalPrice(safe(result,'totalPrice'));
+            setProductDiscount(safe(result,'totalDiscount'));
 
             const TotalWeight = cartData.reduce((total, item) => {
                 const productItem = item?.product_item?.product?.weight || 0;
@@ -164,7 +165,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             });
             console.log(response);
             console.log("++++++++++++++++++++++++", response.data);
-            setDiscountCard(response.data);
+            setDiscountCard(safe(response,'data'));
         } catch (errors) {
             console.log(errors);
             console.log(errors.response);
@@ -203,7 +204,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             });
             console.log("Roooot KMMMMMM", response.data);
             console.log("Route data Shipfee: ", response.data.shipping_fee);
-            const fees = response.data.shipping_fee;
+            const fees = safe(response,'data.shipping_fee');
             setTravelFee(fees);
         } catch (error) {
             console.error("Error:", error);
@@ -407,8 +408,11 @@ const CartSection = ({ setCartView, setCartId }) => {
             );
 
             setCartId(response.data?.order_id);
-           
-            setCartView("address");
+        
+            toast.success("initial order processed...");
+            setTimeout(()=>{
+                setCartView("address");
+            },2000);
         } catch (errors) {
             console.error("Error during checkout:", errors);
             alert("Failed to proceed to checkout. Please try again.");
@@ -460,7 +464,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                         <div className="lg:col-span-2 space-y-6">
                             {cartdata.map((item) => (
                                 <div
-                                    key={item.id}
+                                    key={safe(item,'id')}
                                     className="bg-white shadow-md rounded-lg p-6 flex flex-col sm:flex-row items-center"
                                 >
                                     <img
@@ -592,10 +596,10 @@ const CartSection = ({ setCartView, setCartId }) => {
                                                 >
                                                     <div className="flex items-center space-x-3">
                                                         <i className="fa-solid fa-percent text-blue-600"></i>
-                                                        <span className="font-medium text-gray-700">{card.card_name}</span>
+                                                        <span className="font-medium text-gray-700">{safe(card,'card_name')}</span>
                                                     </div>
                                                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">
-                                                        {card.discount_percentage}% OFF
+                                                        {safe(card,'discount_percentage')}% OFF
                                                     </span>
                                                 </div>
                                             ))}
@@ -642,11 +646,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                                     <div className="flex justify-between">
                                         <span>Discount Card :({discountPercentage} %)</span>
 
-                                      
-                                            {/* <h1>TotalPriceeeeeeee{totalPrice+productDiscount}</h1>
-                                            <h2>ProductDiscountttt{productDiscount}</h2>
-                                            <h3>DiscountValueeeee{discountValue}</h3>
-                                            <h4>discountPercentage{discountPercentage}</h4> */}
+                        
                                         <span> {
                                             discountPercentage>0 && coupontype ? ("₹-"+(totalPrice + productDiscount)*discountPercentage/100):("₹-"+(totalPrice + productDiscount)*discountPercentage/100)
                                         } </span>

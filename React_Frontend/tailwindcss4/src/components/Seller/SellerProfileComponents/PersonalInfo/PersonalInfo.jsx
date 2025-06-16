@@ -2,6 +2,9 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify"; // For showing error messages
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PersonalInfo = ({ setCurrentView }) => {
   const { accessToken } = useSelector((state) => state.auth);
@@ -55,7 +58,7 @@ const fetchProfile = async () => {
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
-      alert("Failed to load profile. Please try again.");
+      toast.error("Failed to load profile. Please try again.");
     }
   };
 
@@ -96,10 +99,12 @@ const fetchProfile = async () => {
       });
       console.log(response);
       console.log(response.data);
-      alert(response.data.message);
+      toast.success("Profile updated successfully...");
     } catch (errors) {
       console.log(errors);
       console.log(errors.response.data);
+      toast.error("Error while update profile");
+      
     }
   }
 
@@ -298,6 +303,7 @@ const fetchProfile = async () => {
           </button>
         </div>
       </div>
+       <ToastContainer/>
     </div>
   );
 };

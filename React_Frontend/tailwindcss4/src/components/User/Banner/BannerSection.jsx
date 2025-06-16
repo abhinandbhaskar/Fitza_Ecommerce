@@ -11,6 +11,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {safe} from "../../../utils/safeAccess";
 
 const BannerSection = () => {
   const [banner, setBanner] = useState([]);
@@ -60,24 +61,24 @@ const BannerSection = () => {
               className="banner-container flex items-center justify-center bg-cover bg-center h-screen text-white"
               style={{
                 backgroundImage: `url(${
-                    "https://127.0.0.1:8000/" + value.image || "/src/assets/MainBanner/MainBanner.jpg"
+                    "https://127.0.0.1:8000/" + safe(value,'image') || "/src/assets/MainBanner/MainBanner.jpg"
                 })`,
             }}
             >
       <div className="banner-content">
         <div className="left-section">
-          <h1 className="banner-title">{value.title||"Spring Sale is Here!"}</h1>
+          <h1 className="banner-title">{safe(value,'title')||"Spring Sale is Here!"}</h1>
           <p className="banner-description">
-            {value.description||"Celebrate the season with fresh styles and vibrant colors. Limited stock available!"}
+            {safe(value,'description')||"Celebrate the season with fresh styles and vibrant colors. Limited stock available!"}
           </p>
-          <h4 className="banner-offer">{value.offer_details||"Flat 30% off on all dresses."}</h4>
+          <h4 className="banner-offer">{safe(value,'offer_details')||"Flat 30% off on all dresses."}</h4>
           <div className="banner-dates">
             <span><strong>Start Date : </strong>
-                 {format(new Date(value.start_date), "MMMM d, yyyy ") || " 2025-04-01"}
+                 {format(new Date(safe(value,'start_date')), "MMMM d, yyyy ") || " 2025-04-01"}
             
             </span>
             <span><strong>End Date : </strong> 
-                 {format(new Date(value.start_date), "MMMM d, yyyy ") || " 2025-04-01"}
+                 {format(new Date(safe(value,'start_date')), "MMMM d, yyyy ") || " 2025-04-01"}
             </span>
           </div>
           <button onClick={()=>handleShopNow()} className="shop-now-btn">

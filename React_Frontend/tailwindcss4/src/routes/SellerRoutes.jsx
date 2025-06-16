@@ -7,6 +7,7 @@ import SellerDashboardPage from '../pages/Seller/SellerDashboardPage/SellerDashb
 import SellerRegister from '../pages/Seller/SellerRegister/SellerRegister';
 import OTPVerification from "../pages/Seller/OTPVerification/OTPVerification"
 import BankDetailsRegistrationForm from "../pages/Seller/BankDetailsRegistrationForm/BankDetailsRegistrationForm";
+import ErrorBoundary from "../components/ErrorBoundary";
 const SellerRoutes = () => {
   return (
     <>
@@ -14,7 +15,7 @@ const SellerRoutes = () => {
           <Route path="/landpage" element={<SellerLandPage />} />
           <Route path="/loginpage" element={<SellerLoginPage/>} />
           <Route path="/shopdetailsregister" element={<ShopDetailsRegistrationForm/>}/>
-          <Route path="/sellerregister" element={<SellerRegister/>}/>
+          <Route path="/sellerregister" element={<ErrorBoundary><SellerRegister/></ErrorBoundary>}/>
           <Route path="/sellerdashboard" element={<SellerDashboardPage/>}/>
           <Route path="/otpverification" element={<OTPVerification/>} />
           <Route path="/bankdetailsregister" element={<BankDetailsRegistrationForm/>} />

@@ -27,15 +27,15 @@ const RightSection = ({currentView,setCurrentView,setCountN,countN,searchTerm}) 
     return (
       <div className="h-[630px] w-screen bg-white overflow-y-auto p-2">
       {currentView==="mainsection"&&<MainSection setCurrentView={setCurrentView}/>}
-      {currentView==="users"&&<UsersSection searchTerm={searchTerm}/>}
-      {currentView==="ratings" && <ReviewSection/> }
+      {currentView==="users"&&<UsersSection setCurrentView={setCurrentView} searchTerm={searchTerm}/>}
+      {currentView==="ratings" && <ReviewSection setCurrentView={setCurrentView}/> }
       {currentView==="complaints" && <ComplaintSection setCurrentView={setCurrentView} setYourComplaint={setYourComplaint}/> }
       {currentView==="followup" && <FollowUpPage setCurrentView={setCurrentView} yourcomplaint={yourcomplaint}/>}
-      {currentView==="qanda" && <QandaSection/>}
-      {currentView==="feedback" && <FeedBackSection/>}
+      {currentView==="qanda" && <QandaSection setCurrentView={setCurrentView}/>}
+      {currentView==="feedback" && <FeedBackSection setCurrentView={setCurrentView}/>}
       {currentView==="orders" && <OrdersSection/>}
-      {currentView==="returnrefund" && <ReturnRefundSection/>}
-      {currentView==="revenue" && <RevenueSection/>}
+      {currentView==="returnrefund" && <ReturnRefundSection setCurrentView={setCurrentView}/>}
+      {currentView==="revenue" && <RevenueSection setCurrentView={setCurrentView}/>}
     
 
 

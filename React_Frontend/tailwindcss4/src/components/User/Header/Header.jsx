@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../utils/safeAccess";
 
 const Header = ({countsN,setNcounts}) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
@@ -34,7 +35,7 @@ const Header = ({countsN,setNcounts}) => {
             const response = await axios.get(
                 `https://127.0.0.1:8000/api/drop_down_category/${cate_status}/`,{});
             const categoryDescriptions = response.data.map(
-                (item) => item.category_description
+                (item) => safe(item,'category_description')
             );
             setCate1(categoryDescriptions);
         } catch (error) {
@@ -166,7 +167,7 @@ const Header = ({countsN,setNcounts}) => {
                                             onClick={() => ViewProduct(product.product_name)}
                                             className="hover:text-red-400 transition cursor-pointer text-sm md:text-base"
                                         >
-                                            {product.product_name}
+                                            {safe(product,'product_name')}
                                         </li>
                                     ))}
                                 </ul>
@@ -254,8 +255,8 @@ const Header = ({countsN,setNcounts}) => {
                     {dropdownOptions[activeDropdown]?.map((option, index) => {
                         const filteredData = subcate.filter(
                             (product) =>
-                                product.category.category_description === option &&
-                                product.category.category_name === activeDropdown
+                                safe(product,'category.category_description') === option &&
+                                safe(product,'category.category_name') === activeDropdown
                         );
                         return (
                             <div key={index} className="flex flex-col">
@@ -263,7 +264,7 @@ const Header = ({countsN,setNcounts}) => {
                                 {filteredData.slice(0,8).map((value, subIndex) => (
                                     <ul key={subIndex} className="space-y-1">
                                         <li onClick={()=>ViewProduct(value.product_name)} className="hover:text-red-400 transition">
-                                            {value.product_name || "Sub-item 1"}
+                                            {safe(value,'product_name') || "Sub-item 1"}
                                         </li>
                                     </ul>
                                 ))}

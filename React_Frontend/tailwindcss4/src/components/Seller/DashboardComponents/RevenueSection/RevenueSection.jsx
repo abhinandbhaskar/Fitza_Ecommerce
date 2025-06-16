@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { safe } from "../../../../utils/safeAccess";
-const RevenueSection = () => {
+const RevenueSection = ({setCurrentView}) => {
     // Sample data - in a real app, this would come from an API
 
     const { accessToken } = useSelector((state) => state.auth);
@@ -100,7 +100,7 @@ const RevenueSection = () => {
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
             <div className="w-full bg-white shadow-md py-4 px-6">
-                <h1 className="text-lg md:text-2xl font-semibold text-gray-700">
+                <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700">
                     Dashboard &gt; <span className="text-indigo-600">Revenue</span>
                 </h1>
             </div>

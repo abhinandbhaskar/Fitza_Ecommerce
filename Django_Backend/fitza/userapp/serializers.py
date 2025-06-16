@@ -1219,3 +1219,44 @@ class FreeShipDataSerializer(serializers.ModelSerializer):
     class Meta:
         model=FreeShippingOffer
         fields='__all__'
+
+
+#Buy directly
+
+
+
+
+# from userapp.models import ShoppingCart,ShoppingCartItem
+
+# class AddToCartSerializer(serializers.Serializer):
+#     qnty = serializers.IntegerField()
+
+#     def validate(self, data):
+#         user = self.context["request"].user
+#         if not user.is_authenticated:
+#             raise serializers.ValidationError("Unauthorized user.")
+#         itemId = self.context.get("itemId")
+#         if not ProductItem.objects.filter(id=itemId).exists():
+#             raise serializers.ValidationError("Invalid product ID.")
+#         return data
+
+#     def save(self, **kwargs):
+#         user = self.context["request"].user
+#         itemId = self.context["itemId"]
+
+#         shopping_cart, created = ShoppingCart.objects.get_or_create(user=user)
+
+#         productitem = ProductItem.objects.get(id=itemId)
+
+#         cart_item, created = ShoppingCartItem.objects.get_or_create(
+#             shopping_cart=shopping_cart,
+#             product_item=productitem,
+#             defaults={"quantity": self.validated_data["qnty"]}
+#         )
+
+#         if not created:
+#             cart_item.quantity += self.validated_data["qnty"]
+#             cart_item.save()
+
+
+

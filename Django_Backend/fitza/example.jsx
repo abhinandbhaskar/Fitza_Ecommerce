@@ -1,133 +1,239 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import AdditionalInfo from "../../User/ProductView/ProductViewSections/AdditionalInfo";
+import AddReview from "../../User/ProductView/ProductViewSections/AddReview";
+import { useSelector } from "react-redux";
 import axios from "axios";
-import { useSelector} from "react-redux";
-import "./MyOrders.css";
-import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
-import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
+import QandAsection from "./ProductViewSections/QandAsection";
+import { safe } from "../../../utils/safeAccess";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 
-const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const handleFilterClick = (filter) => setActiveFilter(filter);
-  const { accessToken } = useSelector((state) => state.auth);
-  const [orderinfo,setOrderInfo]=useState([]);
-  const [details,setDetails]=useState("");
-  const [orderId,setOrderId]=useState(null);
-  const [cancellationReason, setCancellationReason] = useState("");
-  const [address,setAddress]=useState("");
+function ProductView({ product }) {
+    const [addInfoToggle, setAddInfoToggle] = useState("addInfo");
+    const { accessToken } = useSelector((state) => state.auth);
+    const [qnty, setQnty] = useState(1);
+    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [mainImage, setMainImage] = useState(null); // Now managed separately
+    const navigate = useNavigate();
 
-  // Filter orders based on active filter and search term
-  const filteredOrders = orderinfo
-    .filter((order) => {
-      // Filter by active status first
-      if (activeFilter !== "all" && order.order_status.status !== activeFilter) {
-        return false;
-      }
-      
-      // Then filter by search term if it exists
-      if (searchTerm) {
-        const lowerSearchTerm = searchTerm.toLowerCase();
-        const orderIdMatch = `#160${order.id}`.toLowerCase().includes(lowerSearchTerm);
-        const productNameMatch = order.order_lines.some(line => 
-          line.product_item.product.product_name.toLowerCase().includes(lowerSearchTerm)
-        );
-        return orderIdMatch || productNameMatch;
-      }
-      
-      return true;
+    useEffect(() => {
+        if (product?.items?.length > 0) {
+            const initialItem = product.items[0];
+            setSelectedColor(safe(initialItem, "color"));
+            setSelectedSize(safe(initialItem, "size"));
+            setSelectedItem(initialItem);
+            
+            // Set initial main image
+            if (initialItem?.images?.[0]?.main_image) {
+                setMainImage(`https://127.0.0.1:8000${initialItem.images[0].main_image}`);
+            }
+        }
+    }, [product]);
+
+    // Update selected item when color or size changes
+    useEffect(() => {
+        if (selectedColor && selectedSize) {
+            const matchingItem = product?.items?.find(
+                (item) => item.color.id === selectedColor.id && item.size.id === selectedSize.id
+            );
+            if (matchingItem) {
+                setSelectedItem(matchingItem);
+                // Update main image when item changes
+                if (matchingItem?.images?.[0]?.main_image) {
+                    setMainImage(`https://127.0.0.1:8000${matchingItem.images[0].main_image}`);
+                }
+            }
+        }
+    }, [selectedColor, selectedSize, product?.items]);
+
+    // Handle image selection
+    const handleImageSelect = (imageUrl) => {
+        setMainImage(imageUrl);
+    };
+
+    // Get unique colors from items
+    const uniqueColors = [];
+    const colorMap = new Map();
+    product?.items?.forEach((item) => {
+        if (!colorMap.has(item.color.id)) {
+            colorMap.set(item.color.id, true);
+            uniqueColors.push(item.color);
+        }
     });
 
-  // ... rest of your existing code ...
+    // Get available sizes for selected color
+    const availableSizes = [];
+    const sizeMap = new Map();
+    product?.items?.forEach((item) => {
+        if (item.color.id === selectedColor?.id && !sizeMap.has(item.size.id)) {
+            sizeMap.set(item.size.id, true);
+            availableSizes.push(item.size);
+        }
+    });
 
-  return (
-    <div className="h-full w-full p-6 flex flex-col bg-gray-50">
-      {/* Header Section */}
-      <div className="flex items-center gap-4 pb-4 border-b">
-        <i className="fa-solid fa-cart-shopping text-4xl text-blue-500"></i>
-        <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
-      </div>
+    // Handle color selection
+    const handleColorSelect = (color) => {
+        setSelectedColor(color);
+        // Find first available size for this color
+        const firstSizeForColor = product?.items?.find((item) => item.color.id === color.id)?.size;
+        if (firstSizeForColor) {
+            setSelectedSize(firstSizeForColor);
+        }
+    };
 
-      {myorderview==="myorder" && (
-        <>
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
-            {/* Search Bar */}
-            <input
-              type="text"
-              placeholder="Search by Product Name or Order ID"
-              className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+    // Handle size selection
+    const handleSizeSelect = (size) => {
+        setSelectedSize(size);
+    };
 
-            {/* Filter Buttons */}
-            <div className="flex flex-wrap gap-2">
-              {["all","processing","pending", "confirmed","delivered", "cancelled"].map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => handleFilterClick(filter)}
-                  className={`py-2 px-4 rounded-lg shadow-md font-medium ${
-                    activeFilter === filter
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
+    const AddToCartNow = async (itemId) => {
+        const inputData = {
+            qnty: parseInt(qnty),
+        };
+
+        try {
+            const response = await axios.post(`https://127.0.0.1:8000/api/add_to_cart/${itemId}/`, inputData, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            if (response.status === 201) {
+                toast.success(response.data.message);
+            }
+        } catch (err) {
+            console.error("Error:", err.response?.data || err.message);
+            toast.error("Error While Add Product to Cart..");
+        }
+    };
+
+    const BuyNow = (id) => {
+        AddToCartNow(id);
+        setTimeout(() => {
+            navigate("/cartpage");
+        }, 2000);
+    };
+
+    // Fallback image in case selectedItem or images are not available
+    const displayImage = mainImage || "/path/to/default-image.jpg";
+
+    return (
+        <div className="min-h-screen p-8 bg-gray-100">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    {/* Main Image */}
+                    <img 
+                        src={displayImage} 
+                        alt="Product" 
+                        className="w-full rounded-xl shadow-md border border-gray-200 cursor-zoom-in"
+                        onClick={() => {
+                            // You could implement a full-screen image viewer here
+                            // or use a library like react-image-lightbox
+                        }}
+                    />
+                    
+                    {/* Thumbnail Gallery */}
+                    <div className="flex space-x-4 mt-4">
+                        {selectedItem?.images?.[0]?.main_image && (
+                            <button 
+                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].main_image}`)}
+                                className="focus:outline-none"
+                            >
+                                <img
+                                    src={`https://127.0.0.1:8000${selectedItem.images[0].main_image}`}
+                                    alt="Thumbnail 1"
+                                    className={`w-24 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].main_image}` ? 'border-green-600' : 'border-gray-200'}`}
+                                />
+                            </button>
+                        )}
+                        {selectedItem?.images?.[0]?.sub_image_1 && (
+                            <button 
+                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}`)}
+                                className="focus:outline-none"
+                            >
+                                <img
+                                    src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}`}
+                                    alt="Thumbnail 2"
+                                    className={`w-24 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}` ? 'border-green-600' : 'border-gray-200'}`}
+                                />
+                            </button>
+                        )}
+                        {selectedItem?.images?.[0]?.sub_image_2 && (
+                            <button 
+                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}`)}
+                                className="focus:outline-none"
+                            >
+                                <img
+                                    src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}`}
+                                    alt="Thumbnail 3"
+                                    className={`w-24 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}` ? 'border-green-600' : 'border-gray-200'}`}
+                                />
+                            </button>
+                        )}
+                        {selectedItem?.images?.[0]?.sub_image_3 && (
+                            <button 
+                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}`)}
+                                className="focus:outline-none"
+                            >
+                                <img
+                                    src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}`}
+                                    alt="Thumbnail 4"
+                                    className={`w-24 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}` ? 'border-green-600' : 'border-gray-200'}`}
+                                />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Rest of your product details component remains the same */}
+                <div>
+                    {/* ... (keep all your existing product details code) ... */}
+                </div>
             </div>
-          </div>
 
-          {/* Orders Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full table-auto bg-white shadow-lg rounded-lg border border-gray-200">
-              <thead className="bg-blue-500 text-white">
-                <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Product</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Order Status</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Order Date</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.map((order,key) => (
-                  <tr key={key} className="border-t hover:bg-gray-100">
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                      <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
-                        #160{order.id}
-                      </a>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
-                      <img
-                        src={"https://127.0.0.1:8000/"+order.order_lines[0].product_item.product.items[0].images[0].main_image}
-                        alt="Product"
-                        className="w-10 h-10 rounded"
-                      />
-                      <span>Product Name {order.order_lines[0].product_item.product.product_name}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold">
-                      <span className="text-green-600">{order.order_status.status}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800">{order.order_date}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.final_total}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
-                      <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
-                        View Order
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+            {/* Additional Info Section */}
+            <div className="min-h-screen p-8 bg-gray-100">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex space-x-4 mb-4">
+                        <button
+                            className={`px-4 py-2 rounded-lg ${
+                                addInfoToggle === "addInfo" ? "bg-green-600 text-white" : "bg-gray-200"
+                            }`}
+                            onClick={() => setAddInfoToggle("addInfo")}
+                        >
+                            Additional Info
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg ${
+                                addInfoToggle === "AddReview" ? "bg-green-600 text-white" : "bg-gray-200"
+                            }`}
+                            onClick={() => setAddInfoToggle("AddReview")}
+                        >
+                            Add Review
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-lg ${
+                                addInfoToggle === "QandA" ? "bg-green-600 text-white" : "bg-gray-200"
+                            }`}
+                            onClick={() => setAddInfoToggle("QandA")}
+                        >
+                            Q&A
+                        </button>
+                    </div>
 
-      {/* ... rest of your existing view conditions ... */}
-    </div>
-  );
-};
+                    {addInfoToggle === "addInfo" && <AdditionalInfo product={product} />}
+                    {addInfoToggle === "AddReview" && <AddReview product={product} />}
+                    {addInfoToggle === "QandA" && <QandAsection product={product} />}
+                </div>
+            </div>
+            <ToastContainer />
+        </div>
+    );
+}
 
-export default MyOrders;
+export default ProductView;

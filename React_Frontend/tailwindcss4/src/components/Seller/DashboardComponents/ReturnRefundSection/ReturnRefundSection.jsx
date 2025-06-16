@@ -5,7 +5,7 @@ import { safe } from "../../../../utils/safeAccess";
 import { toast } from "react-toastify"; // For showing error messages
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const ReturnRefundSection = () => {
+const ReturnRefundSection = ({setCurrentView}) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [returnRefund, setreturnRefund] = useState([]);
 
@@ -100,8 +100,8 @@ const ReturnRefundSection = () => {
             {/* Header */}
             <div className="bg-white shadow-sm py-4 px-6">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-lg md:text-xl font-semibold text-gray-800">
-                        Seller Dashboard <span className="text-indigo-600">Return & Refund Requests</span>
+                    <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-xl font-semibold text-gray-800">
+                        Seller Dashboard <span className="text-indigo-600">Return & Refund</span>
                     </h1>
                 </div>
             </div>

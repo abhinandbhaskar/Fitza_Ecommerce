@@ -6,6 +6,7 @@ import ProductView from '../../../components/User/ProductView/ProductView';
 import Header from "../../../components/User/Header/Header";
 import Footer from "../../../components/User/Footer/Footer";
 import { useSelector } from 'react-redux';
+import { safe } from '../../../utils/safeAccess';
 const ProductPage = ({countsN}) => {
   const { id } = useParams();
   const[product,setProduct]=useState([]);
@@ -21,7 +22,7 @@ const ProductPage = ({countsN}) => {
       });
       console.log(response);
       console.log("Individual Top Collections",response.data);
-      setProduct(response.data);
+      setProduct(safe(response,'data'));
     
   }
     catch(errors){

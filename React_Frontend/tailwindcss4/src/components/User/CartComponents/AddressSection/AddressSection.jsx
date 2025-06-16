@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { data } from "react-router-dom";
+import { safe } from "../../../../utils/safeAccess";
 const AddressSection = ({ setCartView, cartId }) => {
     const [view, setView] = useState("ship");
 
@@ -41,15 +42,15 @@ const AddressSection = ({ setCartView, cartId }) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Yes Kitti", data);
-                setFirstName(data.user.first_name || "");
-                setLastName(data.user.last_name || "");
-                setAddress1(data.address_line1 || "");
-                setAddress2(data.address_line2 || "");
-                setCountry(data.country || "");
-                setZipcode(data.postal_code || "");
-                setCity(data.city || "");
-                setState(data.state || "");
-                setMobile(data.phone || "");
+                setFirstName(safe(data,'user.first_name') || "");
+                setLastName(safe(data,'user.last_name') || "");
+                setAddress1(safe(data,'address_line1') || "");
+                setAddress2(safe(data,'address_line2') || "");
+                setCountry(safe(data,'country') || "");
+                setZipcode(safe(data,'postal_code') || "");
+                setCity(safe(data,'city') || "");
+                setState(safe(data,'state') || "");
+                setMobile(safe(data,'phone') || "");
             }
         } catch (errors) {
             console.log("Errors", errors);
@@ -79,15 +80,15 @@ const AddressSection = ({ setCartView, cartId }) => {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Yes Yess", data);
-                setFirstName(data.user.first_name || "");
-                setLastName(data.user.last_name || "");
-                setAddress1(data.address_line1 || "");
-                setAddress2(data.address_line2 || "");
-                setCountry(data.country || "");
-                setZipcode(data.postal_code || "");
-                setCity(data.city || "");
-                setState(data.state || "");
-                setMobile(data.phone || "");
+                setFirstName(safe(data.user,'first_name') || "");
+                setLastName(safe(data,'user.last_name') || "");
+                setAddress1(safe(data,'address_line1') || "");
+                setAddress2(safe(data,'address_line2') || "");
+                setCountry(safe(data,'country') || "");
+                setZipcode(safe(data,'postal_code') || "");
+                setCity(safe(data,'city') || "");
+                setState(safe(data,'state') || "");
+                setMobile(safe(data,'phone') || "");
 
                 const hasRequiredFields = Boolean(
                     data.user?.first_name?.trim() &&
