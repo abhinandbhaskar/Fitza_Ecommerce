@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import "./ChangePassword";
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../../utils/safeAccess";
 
 const ChangePassword = () => {
     const[currentPassword,setCurrentPassword]=useState("");
@@ -33,11 +36,13 @@ const ChangePassword = () => {
             });
             if(response)
             {
-             alert(response.data.message);   
+            //  alert(response.data.message);   
+             toast.success(response.data.message);
             }
         }
         catch (err) {
-            console.log("XXX", err);
+
+            
             if (err.response) {
                 const backendMessage = err.response.data.message;
         
@@ -48,6 +53,7 @@ const ChangePassword = () => {
                 }
         
                 console.log(backendMessage.non_field_errors[0]);
+                toast.error(backendMessage.non_field_errors[0]);
             }
         }
         finally{
@@ -109,6 +115,7 @@ const ChangePassword = () => {
         <div className="h-full w-[100%] m-1">
           <button type='submit' className="bg-blue-500 px-4 py-2 rounded-lg text-white text-md hover:bg-blue-700 ml-6">Change Account Password</button>
         </div>
+        <ToastContainer /> 
     </div>
 </form>
 </div>

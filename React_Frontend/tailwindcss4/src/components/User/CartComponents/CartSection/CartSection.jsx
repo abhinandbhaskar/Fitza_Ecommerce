@@ -409,13 +409,13 @@ const CartSection = ({ setCartView, setCartId }) => {
 
             setCartId(response.data?.order_id);
         
-            toast.success("initial order processed...");
+            toast.success("Proceeding to the address page. Please confirm.");
             setTimeout(()=>{
                 setCartView("address");
             },2000);
         } catch (errors) {
             console.error("Error during checkout:", errors);
-            alert("Failed to proceed to checkout. Please try again.");
+            toast.error("Failed to proceed to checkout. Please try again.");
         }
     };
 

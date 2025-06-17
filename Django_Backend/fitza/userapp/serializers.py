@@ -1086,6 +1086,12 @@ class AppliedCouponSerializer(serializers.ModelSerializer):
     class Meta:
         model=Coupon
         fields=['discount_value','discount_type']
+from userapp.models import ReturnRefund
+class ReturnStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=ReturnRefund
+        fields=['id','status']
+
 
 class GetUserOrdersSerializer(serializers.ModelSerializer):
     order_lines = OrderLineSerializer(many=True, read_only=True)  # Include related order lines
@@ -1093,13 +1099,14 @@ class GetUserOrdersSerializer(serializers.ModelSerializer):
     shipping_address=ShippingDetailsSerializer(read_only=True)
     payment_method=PaymentMethodSerializer(read_only=True)
     applied_coupon=AppliedCouponSerializer(read_only=True)
+    returns=ReturnStatusSerializer(read_only=True,many=True)
 
     class Meta:
         model = ShopOrder
         fields = [
             'id', 'user', 'payment_method', 'shipping_address', 'order_status',
             'order_total', 'discount_amount', 'applied_coupon', 'final_total',
-            'order_date', 'free_shipping_applied', 'order_lines' ,'order_status', # Include order_lines field
+            'order_date', 'free_shipping_applied', 'order_lines' ,'order_status', 'returns'
         ]
 
 
@@ -1131,18 +1138,31 @@ class AddUserFeedBackSerializer(serializers.Serializer):
 
 
 from notifications.notifiers import ReturnRefundNotifier
+
+from notifications.notifiers import ReturnRefundNotifier
 from userapp.models import ReturnRefund
+from django.core.exceptions import ValidationError
+
 class SendReturnRefundSerializer(serializers.Serializer):
-    reason=serializers.CharField()
-    refundAmount=serializers.IntegerField()
-    refundMethod=serializers.CharField()
-    isPartialRefund=serializers.BooleanField()
-    comments=serializers.CharField()
-    supportingFiles=serializers.FileField()
-    def validate(self,data):
-        user=self.context["request"].user
+    reason = serializers.CharField()
+    refundAmount = serializers.IntegerField()
+    refundMethod = serializers.CharField()
+    isPartialRefund = serializers.BooleanField()
+    comments = serializers.CharField()
+    supportingFiles = serializers.FileField()
+
+    def validate(self, data):
+        user = self.context["request"].user
+        order_id = self.context["orderId"]
+        
+        # Check if user is authorized
         if not CustomUser.objects.filter(id=user.id).exists():
-            raise serializers.ValidationError("UnAuthorized User...")
+            raise serializers.ValidationError("Unauthorized User...")
+        
+        # Check if return/refund already exists for this order
+        if ReturnRefund.objects.filter(order_id=order_id, requested_by=user).exists():
+            raise serializers.ValidationError("A return/refund request already exists for this order.")
+        
         return data
 
     def save(self):
@@ -1157,7 +1177,7 @@ class SendReturnRefundSerializer(serializers.Serializer):
         else:
             seller = None 
 
-        ReturnRefund.objects.create(
+        return_refund = ReturnRefund.objects.create(
             order=order,
             requested_by=user,
             reason=self.validated_data["reason"],
@@ -1172,10 +1192,9 @@ class SendReturnRefundSerializer(serializers.Serializer):
         if seller:
             notifier = ReturnRefundNotifier(user=seller, sender=user)
             notifier.return_requested(order_id=order_id)
-        else:
-            pass
-
-
+        
+        return return_refund
+    
 
 from userapp.models import ReturnRefund
 class GetReturnRefundStatusSerializer(serializers.ModelSerializer):

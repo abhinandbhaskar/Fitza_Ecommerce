@@ -1,0 +1,155 @@
+.delete-account-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.delete-account-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.delete-icon {
+  margin-right: 1.5rem;
+  color: #e74c3c;
+}
+
+.delete-account-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.deactivate-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.deactivate-form {
+  padding: 2rem;
+  background: white;
+}
+
+.deactivate-form h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #e74c3c;
+}
+
+.confirmation-checkbox {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.confirmation-checkbox input {
+  margin-right: 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.confirmation-checkbox label {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.deactivate-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+}
+
+.deactivate-button:hover {
+  background-color: #c0392b;
+}
+
+.deactivate-button.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.deactivate-info {
+  padding: 2rem;
+  background: #f8f9fa;
+}
+
+.deactivate-info h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.deactivate-info ul {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.deactivate-info li {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.deactivate-info li i {
+  color: #e74c3c;
+  margin-right: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.consideration {
+  font-style: italic;
+  color: #666;
+}
+
+.consideration a {
+  color: #3498db;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+
+.consideration a:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .deactivate-card {
+    flex-direction: row;
+  }
+  
+  .deactivate-form {
+    flex: 1;
+    border-right: 1px solid #eee;
+  }
+  
+  .deactivate-info {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .delete-account-container {
+    padding: 1rem;
+  }
+  
+  .delete-account-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .deactivate-form, .deactivate-info {
+    padding: 1.5rem;
+  }
+}

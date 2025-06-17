@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./BillingAddress.css";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../../utils/safeAccess";
 const BillingAddress = () => {
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
@@ -27,16 +30,16 @@ const BillingAddress = () => {
                 if(response.ok)
                 {
                     const data=await response.json();
-                    console.log("Yes Kitti",data);
-                    setFirstName(data.user.first_name||"");
-                    setLastName(data.user.last_name||"");
-                    setAddress1(data.address_line1||"");
-                    setAddress2(data.address_line2||"");
-                    setCountry(data.country||"");
-                    setZipcode(data.postal_code||"");
-                    setCity(data.city||"");
-                    setState(data.state||"");
-                    setMobile(data.phone||"");
+
+                    setFirstName(safe(data,'user.first_name')||"");
+                    setLastName(safe(data,'user.last_name')||"");
+                    setAddress1(safe(data,'address_line1')||"");
+                    setAddress2(safe(data,'address_line2')||"");
+                    setCountry(safe(data,'country')||"");
+                    setZipcode(safe(data,'postal_code')||"");
+                    setCity(safe(data,'city')||"");
+                    setState(safe(data,'state')||"");
+                    setMobile(safe(data,'phone')||"");
                 }
             }
             catch(errors){
@@ -72,14 +75,17 @@ const BillingAddress = () => {
                     "Authorization":`Bearer ${accessToken}`
                 }
             });
-            if(response.ok){
-                alert(response.data.message);
+            if(response){
+                // alert(response.data.message);
+                toast.success(response.data.message);
+
 
             }
         }
         catch(errors)
         {
             console.log("errors",errors);
+            toast.error("Error Occured while update billing address.");
         }
         finally{
             console.log("completed...");
@@ -228,6 +234,7 @@ const BillingAddress = () => {
                     </div>
                 </div>
             </form>
+            <ToastContainer/> 
         </div>
     );
 };

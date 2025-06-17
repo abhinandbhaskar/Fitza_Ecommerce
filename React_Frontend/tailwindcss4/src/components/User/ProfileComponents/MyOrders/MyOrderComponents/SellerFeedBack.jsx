@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
-const SellerFeedBack = ({currentView}) => {
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const SellerFeedBack = ({currentView,setCurrentView,setMyOrderView}) => {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
   const [ssid,setSSid]=useState(null);
@@ -28,12 +31,14 @@ const SellerFeedBack = ({currentView}) => {
         }
       );
       console.log(response.data);
-      alert(response.data.message);
+      // alert(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error(error.response ? error.response.data : error.message);
       console.log(error);
       console.log(error.response.data);
-      alert("Error submitting feedback");
+      // alert("Error submitting feedback");
+      toast.error("Error submitting feedback")
     }
   };
   
@@ -53,9 +58,17 @@ const SellerFeedBack = ({currentView}) => {
 
       {/* Breadcrumb */}
       <div className="py-2 text-gray-600 text-sm">
-        <span>My Orders &gt; </span>
-        <span className="font-semibold text-blue-600">Order Details &gt; </span>
-        <span className="font-semibold text-blue-600">Product Details &gt; </span>
+                <button 
+        className="text-blue-500 hover:text-blue-700 hover:underline"
+        onClick={() => {
+            setCurrentView("myorders");
+            setMyOrderView("myorder");
+        }}
+    >
+        My Order &gt;
+    </button>
+
+
         <span className="font-semibold text-green-600">Seller Feedback</span>
       </div>
 
@@ -104,6 +117,7 @@ const SellerFeedBack = ({currentView}) => {
           Submit Feedback
         </button>
       </div>
+    <ToastContainer/>
     </div>
   );
 };

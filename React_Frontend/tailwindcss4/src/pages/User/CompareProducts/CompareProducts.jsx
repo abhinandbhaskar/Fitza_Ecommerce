@@ -4,6 +4,7 @@ import Footer from '../../../components/User/Footer/Footer';
 import axios from 'axios';
 import { useSelector } from "react-redux";
 import { useNavigate,useParams } from 'react-router-dom';
+import { safe } from '../../../utils/safeAccess';
 
 const CompareProducts = ({ countsN }) => {
   const { accessToken } = useSelector((state) => state.auth);
@@ -18,7 +19,7 @@ const CompareProducts = ({ countsN }) => {
           Authorization: `Bearer ${accessToken}`,
         }
       });
-      setProductData(response.data);
+      setProductData(safe(response,'data'));
       console.log("KUNU",response.data);
     } catch (error) {
       console.log("Error fetching products:", error);
@@ -164,7 +165,7 @@ const CompareProducts = ({ countsN }) => {
 
                     {/* Product Name */}
                     <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
-                      {product.product_name}
+                      {safe(product,'product_name')}
                     </h2>
 
                     {/* Brand and Category */}
@@ -183,10 +184,10 @@ const CompareProducts = ({ countsN }) => {
                                         {product?.offers?.[0]?.discount_percentage > 0 ? (
                                             <>
                                                 <span className="text-gray-400 line-through text-md mr-2">
-                                                    ${product.items[0].sale_price}
+                                                    ₹{product.items[0].sale_price}
                                                 </span>
                                                 <span className="text-2xl font-bold text-green-600">
-                                                    $
+                                                    ₹
                                                     {(
                                                         parseFloat(product.items[0].sale_price) *
                                                         (1 - parseFloat(product.offers[0].discount_percentage) / 100)
@@ -194,19 +195,9 @@ const CompareProducts = ({ countsN }) => {
                                                 </span>
                                             </>
                                         ) : (
-                                            <span className="text-2xl font-bold">${product.items[0].sale_price}</span>
+                                            <span className="text-2xl font-bold">₹{product.items[0].sale_price}</span>
                                         )}
                                     </div>
-
-
-
-                    {/* <div className="text-center mb-6">
-                      <span className="text-2xl font-bold text-green-600">
-                        {product.items?.[0]?.sale_price ? `₹ ${product.items[0].sale_price}` : 'N/A'}
-                      </span>
-                    
-                    </div> */}
-
                     {/* Specifications */}
                     <div className="space-y-4">
                       {Array.from(allSpecs).map(spec => (
@@ -223,7 +214,7 @@ const CompareProducts = ({ countsN }) => {
                   </div>
 
                   <div onClick={() => AddToCart(product.id)} className="bg-gray-50 px-8 py-6 border-t border-gray-200">
-                    <button className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-md font-medium text-lg transition duration-200">
+                    <button className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-md font-medium text-lg transition duration-200">
                       Add to Cart
                     </button>
                   </div>

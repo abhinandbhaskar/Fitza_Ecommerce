@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { data } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 import { safe } from "../../../../utils/safeAccess";
 const AddressSection = ({ setCartView, cartId }) => {
     const [view, setView] = useState("ship");
@@ -173,13 +175,17 @@ const AddressSection = ({ setCartView, cartId }) => {
                 },
             });
 
-            alert(response.data.message);
+            
 
             if (proceed === true) {
+                toast.success("Proceeding to the payment page. Please confirm.");
+               setTimeout(()=>{
                 setCartView("payment");
+               },2000)
             }
         } catch (errors) {
             console.log("errors", errors);
+            toast.error("Error Occured try again.");
         } finally {
             console.log("completed...");
         }
@@ -477,6 +483,7 @@ const AddressSection = ({ setCartView, cartId }) => {
                     <span className="text-lg font-bold text-gray-800">₹{shopOrder.orderTotal.toFixed(2)}</span>
                 </div>
             </div>
+            <ToastContainer />    
         </div>
     );
 };

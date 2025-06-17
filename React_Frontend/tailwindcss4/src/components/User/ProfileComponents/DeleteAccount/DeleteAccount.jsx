@@ -1,74 +1,93 @@
-import React, { useState } from 'react'
-import "./DeleteAccount.css"
+import React, { useState } from 'react';
+import "./DeleteAccount.css";
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+
 const DeleteAccount = () => {
-  const navigate=useNavigate();
-  const[confirmDeactivate,setConfirmDeactivate]=useState(false);
-  const[loading,setLoading]=useState(false);
-  const{accessToken}=useSelector((state)=>state.auth)
-  console.log("ZZ",accessToken);
+  const navigate = useNavigate();
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { accessToken } = useSelector((state) => state.auth);
 
-  const handleDeactivate=async()=>{
-    if(!confirmDeactivate){
+  const handleDeactivate = async () => {
+    if (!confirmDeactivate) {
       alert("Please confirm to deactivate your account.");
+      return;
     }
-    try{
+    
+    try {
       setLoading(true);
-      const response=await axios.post("https://127.0.0.1:8000/api/accountDeactivate/",{},
+      const response = await axios.post(
+        "https://127.0.0.1:8000/api/accountDeactivate/",
+        {},
         {
-      headers:{
-        Authorization:`Bearer ${accessToken}`,
-      },
-      });
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       alert("Account deactivated successfully.");
-      console.log("Yahhh",response);
       navigate('/login');
-
-    }
-    catch(errors)
-    {
-      console.log(errors)
+    } catch (errors) {
+      console.log(errors);
       alert("Something went wrong!");
-    }
-    finally{
-      console.log("completed..")
+    } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="h-full w-[100%]  p-10 flex flex-col">
-    <div className="h-[100px] w-[100%] m-2 flex flex-row justify-start items-center">
-        <div className="j">
-            <i class="fa-solid  fa-trash text-4xl p-6"></i>
+    <div className="delete-account-container">
+      <div className="delete-account-header">
+        <div className="delete-icon">
+          <i class="fa-solid fa-trash text-4xl"></i>
         </div>
-        <h1 className="text-4xl font-bold">Account Deactivation</h1>
+        <h1>Account Deactivation</h1>
+      </div>
+
+      <div className="delete-account-content">
+        <div className="deactivate-card">
+          <div className="deactivate-form">
+            <h2>Deactivate Account?</h2>
+            <div className="confirmation-checkbox">
+              <input
+                id="confirmDeactivate"
+                type="checkbox"
+                checked={confirmDeactivate}
+                onChange={(e) => setConfirmDeactivate(e.target.checked)}
+              />
+              <label htmlFor="confirmDeactivate">
+                Yes, I want to deactivate my account
+              </label>
+            </div>
+            <button
+              onClick={handleDeactivate}
+              disabled={loading}
+              className={`deactivate-button ${loading ? 'loading' : ''}`}
+            >
+              {loading ? "Deactivating..." : "Deactivate Account"}
+            </button>
+          </div>
+
+          <div className="deactivate-info">
+            <h3>What happens when you deactivate your account</h3>
+            <ul>
+              <li><i class="fa-solid fa-circle-exclamation"></i> Permanent loss of access to your profile, orders, and preferences</li>
+              <li><i class="fa-solid fa-circle-exclamation"></i> Cancellation of any ongoing subscriptions</li>
+              <li><i class="fa-solid fa-circle-exclamation"></i> Removal of your data from our platform</li>
+              <li><i class="fa-solid fa-circle-exclamation"></i> This action is irreversible</li>
+            </ul>
+            <p className="consideration">
+              Consider logging out instead if you just need a break. Contact support at 
+              <a href="mailto:support@yourwebsite.com">support@yourwebsite.com</a> 
+              if you have any questions.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div className="h-[100%] w-[100%]  m-2 flex flex-col  items-center">
+  );
+};
 
-    <div className="h-full w-[100%] font-bold text-md   m-1 flex flex-col ">
-    <div className='h-[540px] w-[100%] border-1 border-gray-200 shadow-2xl rounded-4xl flex flex-row justify-center p-4'>
-  <div className='h-[100%] w-[100%] p-4'>
-    <h1>Deactivate ? </h1>
-    <h3><input className='border-1 border-blue-500' checked={confirmDeactivate} onChange={(e)=>setConfirmDeactivate(e.target.checked)} type="checkbox" /> Yes, I Want to deactivate my account</h3>
-    <button onClick={handleDeactivate} className='bg-red-500 hover:bg-red-600 hover:text-white hover:text-md rounded-lg m-4 px-4 py-2 '> {loading ? "Account Deactivating..." : "Account Deactivate"}</button>
-
-  </div>
-  <div className='h-[100%] w-[100%] bg-gray-300 p-4'>
-    <h2 className='text-xl pb-2'>Deactivating your account</h2>
-    <p className='text-[16px] pt-2'>
-      We’re sorry to see you go! By deactivating your account, you will permanently lose access to your profile, orders, saved preferences, and wishlists. Any ongoing subscriptions or services linked to your account will be canceled, and your data will be removed from our platform. Please note that this action is irreversible and cannot be undone. If you’re unsure about this decision or simply wish to take a break, we recommend logging out instead. However, if you still wish to proceed, click the "Deactivate My Account" button. If you have any concerns or need further assistance, feel free to contact our support team at [support@yourwebsite.com].
-    </p>
-
-  </div>
-    </div>
-    </div>
-
-    </div>
-</div>
-  )
-}
-
-export default DeleteAccount
+export default DeleteAccount;

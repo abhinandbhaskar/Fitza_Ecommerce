@@ -4,6 +4,9 @@ import { useSelector } from "react-redux";
 import Header from "../../../components/User/Header/Header";
 import Footer from "../../../components/User/Footer/Footer";
 import { useNavigate } from "react-router-dom";
+import { safe } from "../../../utils/safeAccess";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const OfferSection = ({ countsN }) => {
   const { accessToken } = useSelector((state) => state.auth);
@@ -17,7 +20,7 @@ const OfferSection = ({ countsN }) => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      setProducts(response.data);
+      setProducts(safe(response,'data'));
       console.log("Offer Products:", response.data);
     } catch (errors) {
       console.error(errors);
@@ -66,9 +69,11 @@ const OfferSection = ({ countsN }) => {
             );
             console.log(response);
             console.log("Wishlist Res", response.data);
+            toast.success("product added to wishlist!");
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+            toast.error("error occured...")
         }
     };
 
@@ -89,7 +94,7 @@ const OfferSection = ({ countsN }) => {
           <div className="Featured-section">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20 ">
               {activeOfferProducts.map((product) => (
-                <div key={product.product.id} className="card">
+                <div key={safe(product,'product.id')} className="card">
                   <div className="Tag">
                     <h6>New</h6>
                   </div>
@@ -99,7 +104,7 @@ const OfferSection = ({ countsN }) => {
                         ? `https://127.0.0.1:8000${product.product.items[0].images[0].main_image}`
                         : "/path/to/default/image.jpg" // Fallback image
                     }
-                    alt={product.product.product_name}
+                    alt={safe(product,'product.product_name')}
                     className="card-img-top"
                   />
                   <div className="Cards-Options">
@@ -121,7 +126,7 @@ const OfferSection = ({ countsN }) => {
 
                   <div className="card-body">
                     <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
-                      {product.product.product_name}
+                      {safe(product,'product.product_name')}
                     </h2>
                     <h4 className="text-gray-700 leading-relaxed text-lg">
                       {product.product.product_description.length > 28
@@ -154,12 +159,12 @@ const OfferSection = ({ countsN }) => {
                       <div className="flex items-center gap-2 mb-2">
                         <div className="flex items-center">
                           <span className="text-yellow-500 font-medium">
-                            {product.product.ratings.average_rating.toFixed(1)}
+                            {safe(product,'product.ratings.average_rating').toFixed(1)}
                           </span>
                           <span className="text-yellow-400 ml-1">★</span>
                         </div>
                         <span className="text-gray-500 text-sm">
-                          ({product.product.ratings.total_reviews} reviews)
+                          ({safe(product,'product.ratings.total_reviews')} reviews)
                         </span>
 
                         {/* Only show offer badge when offer exists */}
@@ -188,6 +193,7 @@ const OfferSection = ({ countsN }) => {
           </div>
         )}
       </div>
+      <ToastContainer/>    
       <Footer />
     </>
   );

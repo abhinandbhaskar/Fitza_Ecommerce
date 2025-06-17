@@ -12,6 +12,8 @@ import { logoutUser } from "../../../redux/authActions";
 import { clearProfile } from "../../../redux/profileSlice";
 import ProductsDetailView from "../ProfileComponents/MyOrders/MyOrderComponents/ProductsDetailView";
 import SellerFeedBack from "../ProfileComponents/MyOrders/MyOrderComponents/SellerFeedBack";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 const MyProfile = ({currentView,setCurrentView}) => {
     const [myorderview, setMyOrderView] = useState("myorder");
     const { name, email, profilePicture } = useSelector((state) => state.profile.user);
@@ -41,6 +43,7 @@ const MyProfile = ({currentView,setCurrentView}) => {
             window.location.href = "/";
         } catch (error) {
             console.error("Logout failed:", error);
+            toast.error("Logout failed...");
         }
     };
 
@@ -115,15 +118,17 @@ const MyProfile = ({currentView,setCurrentView}) => {
                 )}
                 {currentView.view === "productdetail" && (
                     <ProductsDetailView 
+                        setMyOrderView={setMyOrderView}
                         currentView={currentView} 
                         setCurrentView={setCurrentView} 
                     />
                 )}
                 {currentView === "delete" && <DeleteAccount />}
                 {currentView.view1 === "sellerfeedback" && (
-                    <SellerFeedBack currentView={currentView} />
+                    <SellerFeedBack setCurrentView={setCurrentView} setMyOrderView={setMyOrderView}  currentView={currentView} />
                 )}
             </div>
+            <ToastContainer /> 
         </div>
     );
 };

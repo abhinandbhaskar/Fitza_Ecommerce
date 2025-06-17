@@ -1,513 +1,588 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 import "./MyOrders.css";
 import AddReturnRefund from "./MyOrderComponents/AddReturnRefund";
 import ReturnRefundStatus from "./MyOrderComponents/returnrefundstatus";
-import orderedImg from "../../../../assets/img/ordered.jpg"
-import shippedImg from "../../../../assets/img/shipped.jpg"
-import outfordeliveryImg from "../../../../assets/img/outfordelivery.jpg"
-import deliveredImg from "../../../../assets/img/delivered.jpg"
+import orderedImg from "../../../../assets/img/ordered.jpg";
+import shippedImg from "../../../../assets/img/shipped.jpg";
+import outfordeliveryImg from "../../../../assets/img/outfordelivery.jpg";
+import deliveredImg from "../../../../assets/img/delivered.jpg";
+import { safe } from "../../../../utils/safeAccess";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
-"C:\Users\abhin\OneDrive\Desktop\Fitza_Ecommerce\React_Frontend\tailwindcss4\src\assets\img\ordered.jpg.jpg"
-
-const MyOrders = ({setCurrentView,myorderview,setMyOrderView}) => {
+const MyOrders = ({ setCurrentView, myorderview, setMyOrderView }) => {
   const [activeFilter, setActiveFilter] = useState("all");
   const handleFilterClick = (filter) => setActiveFilter(filter);
   const { accessToken } = useSelector((state) => state.auth);
-  const [orderinfo,setOrderInfo]=useState([]);
-  const [details,setDetails]=useState("");
-  const [orderId,setOrderId]=useState(null);
+  const [orderinfo, setOrderInfo] = useState([]);
+  const [details, setDetails] = useState("");
+  const [orderId, setOrderId] = useState(null);
   const [cancellationReason, setCancellationReason] = useState("");
-  const [address,setAddress]=useState("");
+  const [address, setAddress] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [shipstatusImg,setShipStatusImg] = useState("");
+  const [shipstatusImg, setShipStatusImg] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [returnbtn,setReturnbtn]=useState(false);
 
-
-  const filteredOrders = orderinfo
-  .filter((order) => {
+  const filteredOrders = orderinfo.filter((order) => {
     if (activeFilter !== "all" && order.order_status.status !== activeFilter) {
       return false;
     }
-    
+
     if (searchTerm) {
       const lowerSearchTerm = searchTerm.toLowerCase();
-      
       const orderIdMatch = `#160${order.id}`.toLowerCase().includes(lowerSearchTerm);
-      
-      const productNameMatch = order.order_lines.some(line => {
-        const productName = line?.product_item?.product?.product_name?.toLowerCase() || '';
+      const productNameMatch = order.order_lines.some((line) => {
+        const productName = line?.product_item?.product?.product_name?.toLowerCase() || "";
         return productName.includes(lowerSearchTerm);
       });
-      
       return orderIdMatch || productNameMatch;
     }
-    
+
     return true;
   });
 
-
-
-
-   const handleOrderCancellation = async() => {
+  const handleOrderCancellation = async () => {
     if (!cancellationReason) {
       alert("Please provide a cancellation reason.");
       return;
     }
-   
-    console.log("Order cancelled with reason:", cancellationReason);
-    console.log("OrderId",orderId);
 
-    const canceldata={
-      "cancellationReason":cancellationReason,
-
-    }
-    
-
-    try{
-      const response = await axios.post(`https://127.0.0.1:8000/api/user_cancel_order/${orderId}/`,canceldata,{
-        headers:{
-          Authorization:`Bearer ${accessToken}`,
-          "Content-Type":"application/json",
-        }
-      });
-      console.log("Ressss",response);
-      console.log("Ressss",response.data);
-    }catch(errors)
-    {
-      console.log(errors);
-      console.log(errors.response.data);
-    }
-
-  };
-
-
-    const safeGet = (obj, path, defaultValue = "Not Available") => {
-    return path.split('.').reduce((acc, part) => acc && acc[part], obj) || defaultValue;
-  };
-
-
-  const fetchBill = async (orderId) => {
-  try {
-    const response = await axios.get(`https://127.0.0.1:8000/api/get_bill/${orderId}/`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      responseType: 'blob', 
-    });
-    
-    if (response.status === 200) {
-
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Invoice-${orderId}.pdf`;  
-      link.click(); 
-    }
-  } catch (error) {
-    console.error("Error fetching bill:", error);
-  }
-};
-
-
-
-
-  const handleDownloadInvoice=(oid)=>{
-    console.log("))))",oid);
-    fetchBill(oid);
-  }
- 
-
-  const fetchOrders = async () => {
+    const canceldata = {
+      cancellationReason: cancellationReason,
+    };
 
     try {
-        const response = await fetch("https://127.0.0.1:8000/api/get_orders/", {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        if (response.ok) {
-            const data = await response.json();
-            setOrderInfo(data);
-            console.log("Glloeeeoeoeo",data);
-           
+      const response = await axios.post(
+        `https://127.0.0.1:8000/api/user_cancel_order/${orderId}/`,
+        canceldata,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // alert("Order cancellation request submitted successfully!");
+      toast.success("Order cancellation request submitted successfully!");
+      fetchOrders(); // Refresh orders after cancellation
+    } catch (errors) {
+      console.error(errors);
+      // alert("Failed to cancel order. Please try again.");
+      toast.error("Failed to cancel order. Please try again.");
+    }
+  };
 
+  const safeGet = (obj, path, defaultValue = "Not Available") => {
+    return path.split(".").reduce((acc, part) => acc && acc[part], obj) || defaultValue;
+  };
 
-        } 
+  const fetchBill = async (orderId) => {
+    try {
+      const response = await axios.get(`https://127.0.0.1:8000/api/get_bill/${orderId}/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        responseType: "blob",
+      });
+
+      if (response.status === 200) {
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `Invoice-${orderId}.pdf`;
+        link.click();
+      }
+    } catch (error) {
+      console.error("Error fetching bill:", error);
+      alert("Failed to download invoice. Please try again.");
+    }
+  };
+
+  const handleDownloadInvoice = (oid) => {
+    fetchBill(oid);
+  };
+
+  const fetchOrders = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("https://127.0.0.1:8000/api/get_orders/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setOrderInfo(data);
+        console.log("ORDERSIN",data);
+        
+      } else {
+        setError("Failed to fetch orders. Please try again.");
+      }
     } catch (err) {
-        console.log("error",err);
-        console.log("error",err.response.data);
-    } 
-};
+      console.error("Error fetching orders:", err);
+      setError("An error occurred while fetching your orders.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchOrders();
-  },[])
+  }, []);
 
-
-  const handleViewDetails=(order)=>{
+  const handleViewDetails = (order) => {
     setMyOrderView("details");
-    console.log("Chumma",order);
-    setOrderId(order.id);
-    console.log("OPOPsssss",order.id);
+    setOrderId(safe(order, "id"));
     setDetails(order);
-    setAddress(order.shipping_address.shipping_address)
-    ShippingProgress(order.shipping_address.status);
-  }
+    setAddress(safe(order, "shipping_address.shipping_address"));
+    ShippingProgress(safe(order, "shipping_address.status"));
+    console.log("PP",safe(order, "returns").length)
+    if(safe(order, "returns").length>0)
+    {
+      setReturnbtn(true);
+    }
+  };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not Available";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
-const formatDate = (dateString) => {
-  if (!dateString) return "Not Available";
-  
-  const date = new Date(dateString);
-  
-  // Format as "June 5, 2025" (or your preferred format)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
+  const calculateEstimatedDate = (orderDateString, daysToAdd = 5) => {
+    if (!orderDateString) return "Not Available";
+    const orderDate = new Date(orderDateString);
+    orderDate.setDate(orderDate.getDate() + daysToAdd);
+    return formatDate(orderDate);
+  };
 
-const calculateEstimatedDate = (orderDateString, daysToAdd = 5) => {
-  if (!orderDateString) return "Not Available";
-  
-  const orderDate = new Date(orderDateString);
-  orderDate.setDate(orderDate.getDate() + daysToAdd);
-  
-  return formatDate(orderDate);
-};
+  const ShippingProgress = (status) => {
+    if (status === "pending") {
+      setShipStatusImg(orderedImg);
+    } else if (status === "shipped") {
+      setShipStatusImg(shippedImg);
+    } else if (status === "out-for-delivery") {
+      setShipStatusImg(outfordeliveryImg);
+    } else if (status === "delivered") {
+      setShipStatusImg(deliveredImg);
+    }
+  };
 
-
-const ShippingProgress=(status)=>{
-  
-  console.log("STATAUS",status);
-  if(status==="pending")
-  {
-  setShipStatusImg(orderedImg);
-  }else if(status==="shipped")
-  {
-    setShipStatusImg(shippedImg)
-  }else if(status==="out-for-delivery")
-  {
-    setShipStatusImg(outfordeliveryImg)
-  }
-  else if(status==="delivered")
-  {
-    setShipStatusImg(deliveredImg)
-  }
-
-}
+  const statusColors = {
+    pending: "bg-yellow-100 text-yellow-800",
+    processing: "bg-blue-100 text-blue-800",
+    confirmed: "bg-green-100 text-green-800",
+    delivered: "bg-green-100 text-green-800",
+    cancelled: "bg-red-100 text-red-800",
+  };
 
   return (
-    <div className="h-full w-full p-6 flex flex-col bg-gray-50">
+    <div className="min-h-screen w-full p-4 md:p-6 flex flex-col bg-gray-50">
       {/* Header Section */}
-      <div className="flex items-center gap-4 pb-4 border-b">
-        <i className="fa-solid fa-cart-shopping text-4xl text-blue-500"></i>
-        <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
+      <div className="flex items-center gap-4 pb-4 border-b border-gray-200">
+        <i className="fa-solid fa-cart-shopping text-3xl md:text-4xl text-blue-500"></i>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">My Orders</h1>
       </div>
 
+      {myorderview === "myorder" && (
+        <>
+          <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
+            <input
+              type="text"
+              placeholder="Search by Product Name or Order ID"
+              className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-
-{
-  myorderview==="myorder" && (
-    <>
-     
-      <div className="flex flex-col md:flex-row justify-between items-center mt-6 mb-4 gap-4">
-           
-          <input
-            type="text"
-            placeholder="Search by Product Name or Order ID"
-            className="w-full md:w-1/3 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={searchTerm}
-            onChange={(e) => {
-              console.log("Search term:", e.target.value); 
-              setSearchTerm(e.target.value);
-            }}
-          />
-
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2">
-          {["all","processing","pending", "confirmed","delivered", "cancelled"].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => handleFilterClick(filter)}
-              className={`py-2 px-4 rounded-lg shadow-md font-medium ${
-                activeFilter === filter
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Orders Table */}
-      <div className="overflow-x-auto">
-        
-        <table className="min-w-full table-auto bg-white shadow-lg rounded-lg border border-gray-200">
-          <thead className="bg-blue-500 text-white">
-            <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold">Order ID</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold">Product</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold">Order Status</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold">Order Date</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold">Total</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-                {filteredOrders.map((order,key) => (
-                  <tr key={key} className="border-t hover:bg-gray-100">
-                    <td className="px-6 py-4 text-sm text-gray-800">
-                      <a href={`/order/${order.id}`} className="text-blue-500 hover:underline">
-                        #160{order.id}
-                      </a>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-2">
-                      <img
-                        src={"https://127.0.0.1:8000/"+order.order_lines[0].product_item.product.items[0].images[0].main_image}
-                        alt="Product"
-                        className="w-10 h-10 rounded"
-                      />
-                      <span>{order.order_lines[0].product_item.product.product_name}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold">
-                      <span className="text-green-600">{order.order_status.status}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-800">{order.order_date}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800">Rs. {order.final_total}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 flex gap-2">
-                      <button onClick={()=>handleViewDetails(order)} className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md">
-                        View Order
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-          </tbody>
-        </table>
-      </div>
-
-</>
-
-  )
-}
-
-{
-  myorderview==="details" && details && (
-    
-    <>
-
-    {/* Breadcrumb */}
-    <div className="py-2 text-gray-600 text-sm">
-<span>My Orders &gt; </span>
-<span className="font-semibold text-blue-600">Order Details</span>
-</div>
-{/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-4 my-4">
-            <h2 className="text-xl font-semibold text-gray-800">Order Details</h2>
-            <div className="mt-2 text-gray-600">
-              <p><span className="font-semibold">Order ID:</span> {details.id}</p>
-            <p><span className="font-semibold">Order Date:</span> {formatDate(safeGet(details, 'order_date'))}</p>
-              <p><span className="font-semibold">Order Status:</span> {safeGet(details, 'order_status.status')}</p>
-              <p><span className="font-semibold">Payment Status:</span> {safeGet(details, 'payment_method.status')}</p>
-              <p><span className="font-semibold">Total Amount Paid:</span> {safeGet(details, 'final_total')}</p>
+            {/* Filter Buttons */}
+            <div className="flex flex-wrap gap-2">
+              {["all", "processing", "pending", "confirmed", "delivered", "cancelled"].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => handleFilterClick(filter)}
+                  className={`py-2 px-4 rounded-lg shadow-md font-medium capitalize transition-colors ${
+                    activeFilter === filter
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
           </div>
 
-{/* Product Details */}
-<div className="bg-white rounded-lg shadow-md p-4 my-4 ">
-<h2 className="text-xl font-semibold text-gray-800">Products Details</h2>
+          {/* Orders Table */}
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : error ? (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              {error}
+              <button
+                onClick={fetchOrders}
+                className="absolute top-0 right-0 px-2 py-1 text-red-700 hover:text-red-900"
+              >
+                <i className="fas fa-sync-alt"></i>
+              </button>
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <i className="fas fa-box-open text-5xl text-gray-400 mb-4"></i>
+              <h3 className="text-xl font-semibold text-gray-700">No orders found</h3>
+              <p className="text-gray-500 mt-2">
+                {activeFilter === "all"
+                  ? "You haven't placed any orders yet."
+                  : `You don't have any ${activeFilter} orders.`}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-800 text-white">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Order ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Image
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Product Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Order Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Order Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredOrders.map((order, key) => (
+                    <tr key={key} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                        #ORD-{safe(order, "id")}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <img
+                            className="h-10 w-10 rounded object-cover"
+                            src={
+                              "https://127.0.0.1:8000/" +
+                              order.order_lines[0].product_item.product.items[0].images[0].main_image
+                            }
+                            alt="Product"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {order.order_lines[0].product_item.product.product_name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            statusColors[safe(order, "order_status.status")] || "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {safe(order, "order_status.status")}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {safe(order, "order_date")
+                          ? new Date(safe(order, "order_date")).toLocaleString()
+                          : "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        Rs. {safe(order, "final_total")}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={() => handleViewDetails(order)}
+                          className="py-1 px-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-md shadow-sm transition-colors"
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
 
-{
-  details.order_lines.map((product,key)=>(
-<div
-  className="flex items-center justify-between p-2 mt-2 border rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white md:flex-row flex-col gap-4 px-4"
-  onClick={() => {setCurrentView({ view: "productdetail", data: product });}}
->
-  {/* Product Image */}
-  <img
-    src={"https://127.0.0.1:8000/" + product.product_item.product.items[0].images[0].main_image || "Not Available.."}
-    alt="Product"
-    className="w-16 h-16 object-cover rounded-lg"
-  />
+      {myorderview === "details" && details && (
+        <>
+          {/* Breadcrumb */}
+          <div className="py-2 text-gray-600 text-sm">
+            <button
+              onClick={()=>setMyOrderView("myorder")}
+              className="text-blue-500 hover:text-blue-700 hover:underline"
+            >
+              My Orders <span> &gt; </span>
+            </button>
+            
+            <span className="font-semibold text-blue-600">Order Details</span>
+          </div>
 
-  {/* Product Info */}
-  <div className="flex-1 text-sm md:text-base">
-    <h3 className="font-semibold truncate">{product.product_item.product.product_name || "Not Available.."}</h3>
-    <p className="text-gray-600 truncate">{product.product_item.product.product_description || "Not Available.."}</p>
-  
-    <p>
-      <span className="font-semibold">Quantity:</span> {product.quantity || "Not Available.."}
-    </p>
-    <p>
-      <span className="font-semibold">Price:</span> ${product.price || "Not Available.."}
-    </p>
-  </div>
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Order Summary Card */}
+              <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">Order Summary</h2>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      statusColors[safe(details, "order_status.status")] || "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {safeGet(details, "order_status.status")}
+                  </span>
+                </div>
 
-  {/* Action Icon */}
-  <div className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl transition-colors">
-   <span className="px-8 font-bold text-2xl"> &gt; </span>
-  </div>
-</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-600">Order Number</p>
+                    <p className="font-medium">#ORD-{safe(details, "id")}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Order Date</p>
+                    <p className="font-medium">{formatDate(safeGet(details, "order_date"))}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Payment Method</p>
+                    <p className="font-medium">{safeGet(details, "payment_method.payment_method")}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Total Amount</p>
+                    <p className="font-bold text-green-600">Rs. {safeGet(details, "final_total")}</p>
+                  </div>
+                </div>
+              </div>
 
-  ))
-}
+              {/* Products Card */}
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Products</h2>
+                  <div className="space-y-4">
+                    {details.order_lines.map((product, key) => (
+                      <div
+                        key={key}
+                        className="flex items-center p-3 border border-gray-100 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => {
+                          setCurrentView({ view: "productdetail", data: product });
+                        }}
+                      >
+                        <img
+                          src={
+                            "https://127.0.0.1:8000/" +
+                              product.product_item.product.items[0].images[0].main_image || "Not Available.."
+                          }
+                          alt="Product"
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                        <div className="ml-4 flex-1">
+                          <h3 className="font-semibold text-gray-800">
+                            {safe(product, "product_item.product.product_name") || "Not Available.."}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Quantity: {safe(product, "quantity")} × Rs.{safe(product, "price")}
+                          </p>
+                          <p className="text-sm font-medium text-gray-800">
+                            Total: Rs.{safe(product, "price") * safe(product, "quantity")}
+                          </p>
+                        </div>
+                        <div className="text-gray-400 hover:text-gray-600">
+                          <i className="fas fa-chevron-right"></i>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
+              {/* Shipping Status Card */}
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Shipping Status</h2>
+                  <div className="flex justify-center">
+                    <img
+                      src={shipstatusImg}
+                      className="h-auto w-full max-w-2xl"
+                      alt="Shipping status"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-</div>
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Shipping Address Card */}
+              <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Shipping Address</h2>
+                <div className="space-y-2">
+                  <p className="font-medium">
+                    {safe(address, "user.first_name")} {safe(address, "user.last_name")}
+                  </p>
+                  <p className="text-gray-600">
+                    {safe(address, "address_line1")}, {safe(address, "address_line2")}
+                  </p>
+                  <p className="text-gray-600">
+                    {safe(address, "city")}, {safe(address, "state")} - {safe(address, "postal_code")}
+                  </p>
+                  <p className="text-gray-600">{safe(address, "country")}</p>
+                  <p className="text-gray-600">Phone: {safe(address, "phone") || "Not Available"}</p>
+                </div>
 
-{/* Order Tracking */}
-<div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Order Tracking</h2>
-<table className="w-full mt-4 text-left border-collapse">
-  <thead className="bg-gray-100">
-    <tr>
-      <th className="p-2 border">Order ID</th>
-      <th className="p-2 border">Order Date</th>
-      <th className="p-2 border">Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td className="p-2 border">127273382</td>
-      <td className="p-2 border">12/03/2024</td>
-      <td className="p-2 border text-yellow-600 font-semibold">Pending</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <p className="font-medium">Delivery Updates</p>
+                  <p className="text-gray-600 capitalize">
+                    {safe(details, "shipping_address.status") || "Not Available"}
+                  </p>
+                  <p className="mt-2 font-medium">Estimated Delivery</p>
+                  <p className="text-gray-600">
+                    {safe(address, "estimated_delivery_date")
+                      ? formatDate(safe(address, "estimated_delivery_date"))
+                      : calculateEstimatedDate(safe(details, "order_date"))}
+                  </p>
+                </div>
+              </div>
 
+              {/* Payment Details Card */}
+              <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Payment Details</h2>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span>Rs. {safeGet(details, "order_total")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Discount</span>
+                    <span className="text-red-500">- Rs. {safeGet(details, "discount_amount")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span>
+                      {safe(details, "shipping_address.shipping_cost") == 0
+                        ? "Free"
+                        : `Rs. ${safe(details, "shipping_address.shipping_cost")}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Platform Fee</span>
+                    <span>Rs. {safe(details, "payment_method.platform_fee")}</span>
+                  </div>
+                  {safe(details, "applied_coupon.discount_type") && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Coupon Discount</span>
+                      <span className="text-green-500">
+                        {safe(details, "applied_coupon.discount_type") === "fixed"
+                          ? `- Rs. ${safe(details, "applied_coupon.discount_value")}`
+                          : `${safe(details, "applied_coupon.discount_value")}%`}
+                      </span>
+                    </div>
+                  )}
+                  <div className="border-t border-gray-200 pt-3 mt-2">
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>Total Paid</span>
+                      <span className="text-green-600">
+                        Rs. {safeGet(details, "payment_method.amount")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
+                <div className="mt-6">
+                  <button
+                    onClick={() => handleDownloadInvoice(details.id)}
+                    className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
+                  >
+                    <i className="fas fa-file-invoice"></i>
+                    Download Invoice
+                  </button>
+                </div>
+              </div>
 
+              {/* Actions Card */}
+              <div className="bg-white rounded-xl shadow-md overflow-hidden p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Order Actions</h2>
 
-<div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Shipping Status </h2>
-{/* <img src={orderedImg} className="h-[200px] w-[300px]" alt="" /> */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-medium text-gray-700 mb-2">Return & Refund</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setMyOrderView("returnrefund")}
+                        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                      >
+                        Initiate Return
+                      </button>
+                      {
+                        returnbtn===true && (
+                           <button
+                        onClick={() => setMyOrderView("returnrefundstatus")}
+                        className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+                      >
+                        Return Status
+                      </button>
+                        )
+                      }
+                     
+                    </div>
+                  </div>
 
-<div className="flex justify-center">
-  <img src={shipstatusImg} className="h-[400px] w-[800px]" alt="" />
-</div>
+                  <div>
+                    <h3 className="font-medium text-gray-700 mb-2">Cancel Order</h3>
+                    <textarea
+                      placeholder="Reason for cancellation..."
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      rows="3"
+                      value={cancellationReason}
+                      onChange={(e) => setCancellationReason(e.target.value)}
+                    ></textarea>
+                    <button
+                      onClick={handleOrderCancellation}
+                      className="mt-2 w-full py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow-sm transition-colors"
+                      disabled={!cancellationReason}
+                    >
+                      Cancel Order
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
+      {myorderview === "returnrefund" && <AddReturnRefund setCurrentView={setCurrentView} setMyOrderView={setMyOrderView} orderId={orderId} />}
 
-
-</div>
-
-
-
-
-{/* Shipping Address */}
-<div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Shipping & Delivery Information</h2>
-<h3 className="text-md font-bold text-gray-700">{address.user.first_name+address.user.last_name}</h3>
-<p className="mt-2 text-gray-600">{address.address_line1},{address.address_line2},pin {address.postal_code},{address.city},{address.state},{address.country}</p>
-
-<p>
-    <span className="font-semibold">Estimated Delivery Date:</span>{" "}
-    {address.estimated_delivery_date 
-      ? formatDate(address.estimated_delivery_date) 
-      : calculateEstimatedDate(details.order_date)}
-  </p>
-
-<p>Delivery Updates : {details.shipping_address.status}</p>
-</div>
-
-{/* Return and Refund */}
-<div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Return & Refund</h2>
-<button onClick={()=>setMyOrderView("returnrefund")} className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-  Initiate Return
-</button>
-<button onClick={()=>setMyOrderView("returnrefundstatus")} className="mt-2 ml-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-red-700">
-  Return Refund Status
-</button>
-</div>
-
-{/* Price Details */}
-<div className="bg-white rounded-lg shadow-md p-4 my-4">
-<h2 className="text-xl font-semibold text-gray-800">Payment Details</h2>
-<div className="mt-2 text-gray-600">
-  <p>
-    <span className="font-semibold">Payment Method Used:</span> {details.payment_method.payment_method}
-  </p>
-
-  <p>        
-    <span className="font-semibold">Transaction ID :</span> {safeGet(details,'payment_method.transaction_id')}
-  </p>
-  <p className="font-semibold mt-2">
-    <span className="text-gray-800">SubTotal:</span> {safeGet(details,'order_total')}
-  </p>
-    <p className="font-semibold mt-2">
-    <span className="text-gray-800">Discount:</span> - {safeGet(details,'discount_amount')}
-  </p>
-    <p className="font-semibold mt-2">
-    <span className="text-gray-800"> Shipping Fee:</span> {details.shipping_address.shipping_cost==0?"Free":details.shipping_address.shipping_cost}
-  </p>
-    <p className="font-semibold mt-2">
-    <span className="text-gray-800">Platform fee:</span> {details.payment_method.platform_fee}
-  </p>
-  <p className="font-semibold mt-2">
-<span className="text-gray-800">Coupon:</span> {details.applied_coupon.discount_type === "fixed" ? `-${details.applied_coupon.discount_value}` : `${details.applied_coupon.discount_value}%`}
-  </p>
-    <p className="font-semibold mt-2">
-    <span className="text-gray-800">Total:</span> <span  className="text-green-600 font-bold text-md">{safeGet(details,'payment_method.amount')}</span>
-  </p>
-</div>
-</div>
-
-<div className="bg-white rounded-lg shadow-md p-4 my-4">
-  <h2 className="text-xl font-semibold text-gray-800">Order Cancellation</h2>
-  <textarea 
-    placeholder="Enter your cancellation reason here..." 
-    className="mt-2 w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
-    rows="3"
-    onChange={(e) => setCancellationReason(e.target.value)} // Assume `setCancellationReason` is the state handler
-  ></textarea>
-  <button 
-    onClick={() => handleOrderCancellation()} // Replace with your cancellation logic
-    className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-  >
-    Cancel Order
-  </button>
-</div>
-
-
-{/* Download Invoice */}
-<div className="text-right mt-4">
- <button
-    onClick={() => handleDownloadInvoice(details.id)} // Pass the order ID
-    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-  >
-    Download Invoice
-  </button>
-</div>
-
-
-</>
-
-  )
-}
-
-{
-  myorderview==="returnrefund" && (
-    <AddReturnRefund orderId={orderId}/>
-  )
-}
-
-
-{
-  myorderview==="returnrefundstatus" && (
-    <ReturnRefundStatus orderId={orderId}/>
-  )
-}
-
-
-
+      {myorderview === "returnrefundstatus" && <ReturnRefundStatus setCurrentView={setCurrentView} setMyOrderView={setMyOrderView} orderId={orderId} />}
+        <ToastContainer /> 
     </div>
   );
 };

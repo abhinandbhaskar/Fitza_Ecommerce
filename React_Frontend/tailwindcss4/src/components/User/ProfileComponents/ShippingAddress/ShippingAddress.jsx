@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./ShippingAddress.css";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../../utils/safeAccess";
 const ShippingAddress = () => {
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
@@ -26,16 +29,16 @@ const ShippingAddress = () => {
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Yes Kitti", data);
-                    setFirstName(data.user.first_name || "");
-                    setLastName(data.user.last_name || "");
-                    setAddress1(data.address_line1 || "");
-                    setAddress2(data.address_line2 || "");
-                    setCountry(data.country || "");
-                    setZipcode(data.postal_code || "");
-                    setCity(data.city || "");
-                    setState(data.state || "");
-                    setMobile(data.phone || "");
+                   
+                    setFirstName(safe(data,'user.first_name') || "");
+                    setLastName(safe(data,'user.last_name') || "");
+                    setAddress1(safe(data,'address_line1') || "");
+                    setAddress2(safe(data,'address_line2') || "");
+                    setCountry(safe(data,'country') || "");
+                    setZipcode(safe(data,'postal_code') || "");
+                    setCity(safe(data,'city') || "");
+                    setState(safe(data,'state') || "");
+                    setMobile(safe(data,'phone') || "");
                 }
             } catch (errors) {
                 console.log("Errors", errors);
@@ -67,10 +70,12 @@ const ShippingAddress = () => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            if (response.ok) {
-                alert(response.data.message);
+            if (response) {
+                
+                toast.success(response.data.message);
             }
         } catch (errors) {
+            toast.error("error occured...");
             console.log("errors", errors);
         } finally {
             console.log("completed...");
@@ -221,6 +226,7 @@ const ShippingAddress = () => {
                     </div>
                 </div>
             </form>
+            <ToastContainer/> 
         </div>
     );
 };

@@ -804,7 +804,7 @@ class GetUserOrders(APIView):
 
     def get(self, request):
         user = request.user
-        obj = ShopOrder.objects.filter(user=user, bill__isnull=False)  # Filter orders for the logged-in user
+        obj = ShopOrder.objects.filter(user=user, bill__isnull=False).order_by('-id')  # Filter orders for the logged-in user
         serializer = GetUserOrdersSerializer(obj, many=True)
         return Response(serializer.data)
 
@@ -1077,17 +1077,37 @@ class SendReturnRefund(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({"message":"Refund Return Added Successfully..."},status=status.HTTP_200_OK)
-        return Response({"errors":"Error Occured.."},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"errors":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
     
 from userapp.models import ReturnRefund
 from userapp.serializers import GetReturnRefundStatusSerializer
+from rest_framework import status
+from django.core.exceptions import ObjectDoesNotExist
+
 class GetReturnRefundStatus(APIView):
-    permission_classes=[IsAuthenticated]
-    def get(self,request,orderId):
-        order=ShopOrder.objects.get(id=orderId)
-        obj=ReturnRefund.objects.get(order=order)
-        serializer=GetReturnRefundStatusSerializer(obj)
-        return Response(serializer.data)
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, orderId):
+        try:
+            order = ShopOrder.objects.get(id=orderId, user=request.user)
+            obj = ReturnRefund.objects.get(order=order)
+            serializer = GetReturnRefundStatusSerializer(obj)
+            return Response(serializer.data)
+        except ShopOrder.DoesNotExist:
+            return Response(
+                {"error": "Order not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ReturnRefund.DoesNotExist:
+            return Response(
+                {"error": "Return/Refund request not found for this order"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 from userapp.serializers import CustomerCancelOrderSerializer

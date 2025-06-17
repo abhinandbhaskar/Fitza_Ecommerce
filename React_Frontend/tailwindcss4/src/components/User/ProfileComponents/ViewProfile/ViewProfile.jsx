@@ -3,8 +3,10 @@ import "./ViewProfile.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector,useDispatch} from "react-redux";
-// import { updateProfile } from "../../../redux/profileSlice";
 import { updateProfile } from "../../../../redux/profileSlice";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+import { safe } from "../../../../utils/safeAccess";
 
 const ViewProfile = () => {
     const [profileData, setProfileData] = useState("");
@@ -31,10 +33,10 @@ const ViewProfile = () => {
                 if (response.ok) {
                     const data = await response.json();
                     setProfileData(data);
-                    setFullname(data.first_name || "");
-                    setEmail(data.email || "");
-                    setPhone(data.phone_number || "");
-                    const imageLink = "https://127.0.0.1:8000" + data.userphoto;
+                    setFullname(safe(data,'first_name') || "");
+                    setEmail(safe(data,'email') || "");
+                    setPhone(safe(data,'phone_number') || "");
+                    const imageLink = "https://127.0.0.1:8000" + safe(data,'userphoto');
                     setPhoto(imageLink || "");
 
 
@@ -86,7 +88,8 @@ const ViewProfile = () => {
                 }
             );
             if (response.status === 200) {
-                alert(response.data.message);
+                // alert(response.data.message);
+                toast.success(response.data.message);
 
                 dispatch(
                     updateProfile({
@@ -103,7 +106,8 @@ const ViewProfile = () => {
             }
         } catch (errors) {
             console.error("Error updating profile", errors);
-            setError("Error updating profile. Please try again.");
+            
+            toast.error("Failed to update profile. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -166,43 +170,61 @@ const ViewProfile = () => {
                             onChange={(e) => setPhone(e.target.value)}
                         />
                     </div>
+<div className="h-full w-[100%] font-bold text-md m-1 flex flex-col">
+    <label className="flex justify-start text-sm text-blue-600" htmlFor="fileInput">
+        Update Profile Picture:
+    </label>
 
-                    <div className="h-full w-[100%] font-bold text-md m-1 flex flex-col">
-                        <label className="flex justify-start text-sm text-blue-600" htmlFor="fileInput">
-                            Update Profile Picture:
-                        </label>
-
-                        <div className="relative inline-block">
-                            <input
-                                type="file"
-                                id="fileInput"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                        setPhoto(file); // Set the selected file for submission
-                                    }
-                                }}
-                            />
-                            <label
-                                htmlFor="fileInput"
-                                className="bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-center w-[120px] m-2 p-1 rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer"
-                            >
-                                <img
-                                    className="h-[40px] w-[40px] rounded-full border-2 border-white"
-                                    src={
-                                        photo instanceof File
-                                            ? URL.createObjectURL(photo) // Preview the selected file temporarily
-                                            : photo // Show existing profile photo URL
-                                    }
-                                    alt="Profile Picture"
-                                />
-                                <div className="ml-3 flex items-center justify-center bg-white text-amber-700 rounded-full h-[40px] w-[40px] shadow-md hover:bg-amber-300 transition-colors duration-300">
-                                    <i className="fa-solid fa-camera"></i>
-                                </div>
-                            </label>
-                        </div>
+    <div className="relative inline-block group">
+        <input
+            type="file"
+            id="fileInput"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    setPhoto(file);
+                }
+            }}
+            accept="image/*"
+        />
+        <label
+            htmlFor="fileInput"
+            className="bg-gradient-to-r from-red-400 to-red-500 flex items-center justify-center w-[120px] m-2 p-1 rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300 cursor-pointer relative"
+        >
+            <img
+                className="h-[40px] w-[40px] rounded-full border-2 border-white"
+                src={
+                    photo instanceof File
+                        ? URL.createObjectURL(photo)
+                        : photo || "https://via.placeholder.com/40" // fallback if no photo
+                }
+                alt="Profile Picture"
+            />
+            <div className="ml-3 flex items-center justify-center bg-white text-amber-700 rounded-full h-[40px] w-[40px] shadow-md hover:bg-amber-300 transition-colors duration-300">
+                <i className="fa-solid fa-camera"></i>
+            </div>
+            
+            {/* Hover Preview */}
+            <div className="absolute -top-40 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                <div className="bg-white w-34 h-34 p-2 rounded-lg shadow-xl border border-gray-200">
+                    <img
+                        className="h-32 w-32 rounded-full object-cover border-2 border-gray-300"
+                        src={
+                            photo instanceof File
+                                ? URL.createObjectURL(photo)
+                                : photo || "https://via.placeholder.com/128"
+                        }
+                        alt="Profile Preview"
+                    />
+                    <div className="text-xs text-center mt-1 text-gray-600">
+                        Hover Preview
                     </div>
+                </div>
+            </div>
+        </label>
+    </div>
+</div>
 
                     <div className="h-full w-[100%] m-1">
                         <button
@@ -216,6 +238,7 @@ const ViewProfile = () => {
                     </div>
                 </div>
             </form>
+            <ToastContainer /> 
         </div>
     );
 };

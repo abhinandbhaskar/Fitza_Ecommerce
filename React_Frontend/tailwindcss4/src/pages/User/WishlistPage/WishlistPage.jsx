@@ -5,6 +5,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { safe } from "../../../utils/safeAccess";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
+
 const WishlistPage = ({countsN}) => {
 
     const {accessToken}=useSelector((state)=>state.auth);
@@ -55,6 +58,7 @@ const WishlistPage = ({countsN}) => {
             });
             console.log(response);
             console.log(response.data);
+            toast.success("product removed...");
             fetchWishlist();
 
         }
@@ -62,6 +66,7 @@ const WishlistPage = ({countsN}) => {
         {
             console.log(errors);
             console.log(errors.response.data);
+            toast.error("failed to remove product...");
         }
     }
 
@@ -111,10 +116,10 @@ const WishlistPage = ({countsN}) => {
                                         {value?.offers?.[0]?.discount_percentage > 0 ? (
                                             <>
                                                 <span className="text-gray-400 line-through text-sm mr-2">
-                                                    ${value.items[0].sale_price}
+                                                    ₹{value.items[0].sale_price}
                                                 </span>
                                                 <span className="text-xl font-bold text-green-600">
-                                                    $
+                                                    ₹
                                                     {(
                                                         parseFloat(value.items[0].sale_price) *
                                                         (1 - parseFloat(value.offers[0].discount_percentage) / 100)
@@ -122,7 +127,7 @@ const WishlistPage = ({countsN}) => {
                                                 </span>
                                             </>
                                         ) : (
-                                            <span className="text-xl font-bold">${value.items[0].sale_price}</span>
+                                            <span className="text-xl font-bold">₹{value.items[0].sale_price}</span>
                                         )}
                                     </div>
 
@@ -164,7 +169,7 @@ const WishlistPage = ({countsN}) => {
                     </div>
                 </div>
 
-
+        <ToastContainer />    
             </div>
             <Footer />
         </>

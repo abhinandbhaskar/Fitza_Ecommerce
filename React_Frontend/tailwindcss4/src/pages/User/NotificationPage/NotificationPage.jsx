@@ -3,6 +3,9 @@ import Header from '../../../components/User/Header/Header';
 import Footer from '../../../components/User/Footer/Footer';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { safe } from '../../../utils/safeAccess';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const NotificationPage = ({countsN,setNcounts}) => {
   const [notifications, setNotifications] = useState([]);
@@ -18,7 +21,7 @@ const NotificationPage = ({countsN,setNcounts}) => {
           }
         });
         console.log("BlooBlooo",response.data);
-        setNotifications(response.data);
+        setNotifications(safe(response,'data'));
         setUnreadCount(response.data.filter(n => !n.is_read).length);
         setNcounts(response.data.filter(n => !n.is_read).length);
 
@@ -55,11 +58,13 @@ const NotificationPage = ({countsN,setNcounts}) => {
             );
             console.log(response);
             console.log(response.data);
+            toast.success('mark as read');
             fetchNotifications();
           
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+            toast.error("error");
         }
   };
 
@@ -145,8 +150,8 @@ const NotificationPage = ({countsN,setNcounts}) => {
               {filteredNotifications.length > 0 ? (
                 filteredNotifications.map(notification => (
                   <div 
-                    key={notification.id} 
-                    className={`px-4 py-4 hover:bg-gray-50 ${!notification.isRead ? 'bg-blue-50' : ''}`}
+                    key={safe(notification,'id')} 
+                    className={`px-4 py-4 hover:bg-gray-50 ${!safe(notification,'isRead') ? 'bg-blue-50' : ''}`}
                   >
                     <div className="flex items-start">
                       <div className="flex-shrink-0 pt-1">
@@ -154,23 +159,23 @@ const NotificationPage = ({countsN,setNcounts}) => {
                       </div>
                       <div className="ml-3 flex-1">
                         <div className="flex items-center justify-between">
-                          <p className={`text-sm font-medium ${!notification.isRead ? 'text-gray-900' : 'text-gray-600'}`}>
-                            {notification.title}
+                          <p className={`text-sm font-medium ${!safe(notification,'isRead') ? 'text-gray-900' : 'text-gray-600'}`}>
+                            {safe(notification,'title')}
                           </p>
                           <div className="ml-2 flex-shrink-0 flex">
                             {getPriorityBadge(notification.priority)}
                           </div>
                         </div>
                         <p className="text-sm text-gray-500 mt-1">
-                          {notification.message}
+                          {safe(notification,'message')}
                         </p>
                         <div className="mt-2 flex items-center justify-between">
                           <p className="text-xs text-gray-400">
                             <i className="fa-regular fa-clock mr-1" /> 
-                            {new Date(notification.created_at).toLocaleString()}
+                            {new Date(safe(notification,'created_at')).toLocaleString()}
                           </p>
                           <div className="flex space-x-2">
-                            {!notification.is_read && (
+                            {!safe(notification,'is_read') && (
                               <button
                                 onClick={() => markAsRead(notification.id)}
                                 className="text-xs text-purple-600 hover:text-purple-800"
@@ -206,6 +211,7 @@ const NotificationPage = ({countsN,setNcounts}) => {
             </div>
           </div>
         </div>
+          <ToastContainer />    
       </div>
       <Footer />
     </>
