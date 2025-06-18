@@ -276,9 +276,9 @@ from userapp.serializers import SellProductsSerializer
 from userapp.serializers import ProductSerializer
 
 class ViewNewArrivals(APIView):
-    # permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj = Product.objects.filter(items__status="approved").distinct() 
+        statuses_to_exclude = ["pending","rejected"]
+        obj = Product.objects.exclude(items__status__in=statuses_to_exclude).distinct()
         serializer=ProductSerializer(obj,many=True)
         return Response(serializer.data)
 
@@ -318,7 +318,11 @@ class ViewTopCollections(APIView):
     pagination_class = StandardResultsSetPagination
     
     def get(self, request):
-        obj = Product.objects.filter(items__status="approved").distinct()
+
+        statuses_to_exclude = ["pending","rejected"]
+        obj = Product.objects.exclude(items__status__in=statuses_to_exclude).distinct()
+
+        # obj = Product.objects.filter(items__status="approved").distinct()
         
         # Set up pagination
         paginator = self.pagination_class()

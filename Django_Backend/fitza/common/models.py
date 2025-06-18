@@ -153,12 +153,12 @@ class SubCategory(models.Model):
     def __str__(self):
         return f"{self.subcategory_name} (under {self.category.category_name})"
 
-
+from django.utils.timezone import now
 
 class Product(models.Model):
     category=models.ForeignKey(ProductCategory,on_delete=models.CASCADE,related_name='products')
-    #subcategory = models.ForeignKey(SubCategory,on_delete=models.CASCADE,related_name='products',null=True,blank=True)
-    # added_date = models.DateTimeField(auto_now_add=True)
+    subcategory = models.ForeignKey(SubCategory,on_delete=models.CASCADE,related_name='products',null=True,blank=True)
+    added_date = models.DateTimeField(default=now)
     brand=models.ForeignKey(Brand,on_delete=models.SET_NULL,null=True,blank=True,related_name='products')
     shop=models.ForeignKey(Seller,on_delete=models.CASCADE,related_name='products')
     product_name=models.CharField(max_length=255)
@@ -196,6 +196,57 @@ class ProductItem(models.Model):
             details += f"{self.color.color_name} - "
         details += f"{self.size.size_name}"
         return details
+    
+
+
+class Interaction(models.Model):
+    INTERACTION_CHOICES = [
+        ('view', 'Viewed'),          # User viewed the product
+        ('search', 'Searched'),      # User searched for the product
+        ('favorite', 'Favorited'),   # User added to favorites/wishlist
+        ('cart', 'Added to Cart'),   # User added to cart
+        ('purchase', 'Purchased'),   # User purchased the product
+    ]
+
+    interaction_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(
+        'CustomUser', 
+        on_delete=models.CASCADE, 
+        related_name='interactions'
+    )
+    product = models.ForeignKey(
+        'Product', 
+        on_delete=models.CASCADE, 
+        related_name='interactions'
+    )
+    action = models.CharField(max_length=20, choices=INTERACTION_CHOICES)
+    weight = models.FloatField(default=1.0)  # Default weight
+    timestamp = models.DateTimeField(auto_now_add=True)
+    session_key = models.CharField(max_length=40, blank=True, null=True)
+    duration = models.FloatField(null=True, blank=True)  # In seconds for views
+    context = models.JSONField(blank=True, null=True)  # Additional metadata
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'timestamp']),
+            models.Index(fields=['product', 'action']),
+            models.Index(fields=['session_key']),
+        ]
+        ordering = ['-timestamp']
+
+    def save(self, *args, **kwargs):
+        action_weights = {
+            'view': 1.0,
+            'search': 1.5,
+            'favorite': 2.5,
+            'cart': 3.0,
+            'purchase': 5.0
+        }
+        self.weight = action_weights.get(self.action, 1.0)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user.username} {self.get_action_display()} {self.product.product_name}"
 
 
 

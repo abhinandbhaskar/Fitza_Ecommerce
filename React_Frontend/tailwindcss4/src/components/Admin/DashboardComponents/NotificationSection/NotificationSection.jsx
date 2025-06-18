@@ -87,6 +87,7 @@ const NotificationSection = ({setCountN}) => {
             );
             console.log(response);
             console.log(response.data);
+            alert('mark as read')
             fetchNotifications();
         } catch (errors) {
             console.log(errors);

@@ -151,10 +151,11 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
                     <div className="flex items-center justify-between p-2 border-t border-gray-200">
                         <div className="flex items-center">
                             <img
-                                src={profilePicture && profilePicture.length > 0 ? `https://127.0.0.1:8000/media/${profilePicture}` : profile}
+                                src={profilePicture && profilePicture.length > 0 ? `https://127.0.0.1:8000/${profilePicture}` : profile}
                                 className="h-10 w-10 border-2 border-gray-700 rounded-full"
                                 alt="Profile"
                             />
+                            
                             <div className="ml-3">
                                 <h1 className="font-bold text-sm">{name}</h1>
                                 <p className="text-gray-600 text-xs">{email}</p>
@@ -231,7 +232,9 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
 
                         <div className="flex items-center space-x-3">
                             <img
-                                src={profilePicture && profilePicture.length > 0 ? `https://127.0.0.1:8000/media/${profilePicture}` : profile}
+                                src={
+                            profilePicture && profilePicture.length > 0 && `https://127.0.0.1:8000/media/${profilePicture}`
+                        }
                                 className="h-10 w-10 border-2 border-gray-700 rounded-full"
                                 alt="Profile"
                             />

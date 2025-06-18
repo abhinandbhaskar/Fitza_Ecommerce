@@ -102,9 +102,15 @@ const NewArrivals = ({ setTopData }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 Feature-Cards gap-20">
                     {products.slice(startIndex, startIndex + itemsPerPage).map((product) => (
                         <div key={safe(product,'id')} className="card">
-                            <div className="Tag">
-                                <h6>New</h6>
+                             {new Date() >= new Date(product.added_date) && 
+                                new Date() <= new Date(new Date(product.added_date).getTime() + 172800000) && (
+                                <div className="Tag">
+                                <div className="product-card">
+                             <h6 className="new-badge">New</h6>
+                            
                             </div>
+                            </div>
+                                )}
                             <img
                                 src={
                                     product.items?.[0]?.images?.[0]?.main_image
@@ -132,7 +138,7 @@ const NewArrivals = ({ setTopData }) => {
                             </div>
                             <div className="card-body">
                                 <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
-                                    {product.product_name}
+                                   {product.product_name.length > 20 ? `${product.product_name.substring(0, 20)}..`:product.product_name}
                                 </h2>
                                 <h4 className="text-gray-700 leading-relaxed text-lg">
                                     {product.product_description.length > 28

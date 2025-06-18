@@ -127,251 +127,252 @@ function ProductView({ product }) {
 
     return (
         <div className="min-h-screen p-8 bg-gray-100">
+
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-              
-                              <div>
-                    {/* Main Image */}
-                    <img 
-                        src={displayImage} 
-                        alt="Product" 
-                        className="w-full rounded-xl shadow-md border border-gray-200 cursor-zoom-in"
-                        onClick={() => {
-                            // You could implement a full-screen image viewer here
-                            // or use a library like react-image-lightbox
-                        }}
-                    />
-                    
-                    {/* Thumbnail Gallery */}
-                    <div className="flex space-x-4 mt-4">
-                        {selectedItem?.images?.[0]?.main_image && (
-                            <button 
-                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].main_image}`)}
-                                className="focus:outline-none"
-                            >
-                                <img
-                                    src={`https://127.0.0.1:8000${selectedItem.images[0].main_image}`}
-                                    alt="Thumbnail 1"
-                                    className={`w-34 h-34 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].main_image}` ? 'border-green-600' : 'border-gray-200'}`}
-                                />
-                            </button>
-                        )}
-                        {selectedItem?.images?.[0]?.sub_image_1 && (
-                            <button 
-                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}`)}
-                                className="focus:outline-none"
-                            >
-                                <img
-                                    src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}`}
-                                    alt="Thumbnail 2"
-                                    className={`w-34 h-34 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}` ? 'border-green-600' : 'border-gray-200'}`}
-                                />
-                            </button>
-                        )}
-                        {selectedItem?.images?.[0]?.sub_image_2 && (
-                            <button 
-                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}`)}
-                                className="focus:outline-none"
-                            >
-                                <img
-                                    src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}`}
-                                    alt="Thumbnail 3"
-                                    className={`w-34 h-34 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}` ? 'border-green-600' : 'border-gray-200'}`}
-                                />
-                            </button>
-                        )}
-                        {selectedItem?.images?.[0]?.sub_image_3 && (
-                            <button 
-                                onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}`)}
-                                className="focus:outline-none"
-                            >
-                                <img
-                                    src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}`}
-                                    alt="Thumbnail 4"
-                                    className={`w-34 h-34 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}` ? 'border-green-600' : 'border-gray-200'}`}
-                                />
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                <div>
-                    <h2 className="text-3xl font-bold">{safe(product, "product_name") || ""}</h2>
-                    <h5 className="text-lg mt-2">
-                        Brand: <span className="text-green-600 font-bold">{safe(product, "brand.brand_name") || ""}</span>
-                    </h5>
-                    <hr className="my-4" />
-                    <div className="space-y-2">
-                        {/* Price display section */}
-                        <div className="flex items-baseline gap-3 flex-wrap">
-                            {/* Show original sale price with strikethrough when discounted */}
-                            {product?.offers?.[0]?.discount_percentage > 0 && (
-                                <strike className="text-gray-500 text-lg">₹{selectedItem?.sale_price || "N/A"}</strike>
-                            )}
-
-                            {/* Show current price (discounted if offer exists) */}
-                            <span className="text-green-600 text-2xl font-semibold">
-                                ₹
-                                {product?.offers?.[0]?.discount_percentage > 0
-                                    ? (
-                                          parseFloat(selectedItem?.sale_price) -
-                                          (parseFloat(selectedItem?.sale_price) *
-                                              parseFloat(product.offers[0].discount_percentage)) /
-                                              100
-                                      ).toFixed(2)
-                                    : selectedItem?.sale_price || "N/A"}
-                            </span>
-
-                            {/* Offer badge */}
-                            {product?.offers?.[0]?.discount_percentage > 0 && (
-                                <span className="text-red-500 text-lg">
-                                    {Math.round(parseFloat(product.offers[0].discount_percentage))}% OFF
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Optional offer tag */}
-                        {product?.offers?.[0]?.discount_percentage > 0 && (
-                            <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit">
-                                <i className="fa-solid fa-tag text-sm"></i>
-                                <span>Special Offer</span>
-                            </div>
-                        )}
-
-                        {/* Color display */}
-                        {selectedItem?.color && (
-                            <div className="text-gray-700">
-                                <span>Color: </span>
-                                <span className="font-medium">{safe(selectedItem, "color.color_name")}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Color Selection */}
-                    <div className="mt-4">
-                        <h4 className="font-semibold">Color:</h4>
-                        <div className="flex space-x-2 mt-2">
-                            {uniqueColors.map((color) => (
-                                <button
-                                    key={color.id}
-                                    onClick={() => handleColorSelect(color)}
-                                    className={`px-4 py-2 border rounded-lg ${
-                                        selectedColor?.id === color.id ? "border-green-600 border-2" : ""
-                                    }`}
-                                >
-                                    {safe(color, "color_name")}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <p className="mt-4 text-gray-700">{safe(product, "product_description") || ""}</p>
-                    <ul className="mt-4 space-y-2">
-                        <li>1 Year {safe(product, "brand.brand_name") || ""} Brand Warranty</li>
-                        <li>7 Day Return Policy</li>
-                        <li>Cash on Delivery available</li>
-                    </ul>
-
-                    {/* Size Selection */}
-                    <div className="mt-6">
-                        <h4 className="font-semibold">Size:</h4>
-                        <div className="flex space-x-4 mt-2">
-                            {availableSizes.map((sizeItem) => (
-                                <button
-                                    key={safe(sizeItem, "id")}
-                                    onClick={() => handleSizeSelect(sizeItem)}
-                                    className={`px-4 py-2 border rounded-lg ${
-                                        selectedSize?.id === sizeItem.id ? "bg-green-600 text-white" : ""
-                                    }`}
-                                >
-                                    {safe(sizeItem, "size_name")}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="mt-6 flex flex-col sm:flex-row gap-4">
-    <div className="flex items-center">
-        <input
-            type="number"
-            min="1"
-            max={selectedItem?.quantity_in_stock || 10}
-            value={qnty}
-            onChange={(e) => {
-                const value = parseInt(e.target.value, 10);
-                const max = selectedItem?.quantity_in_stock || 10;
-                setQnty(isNaN(value) ? 1 : Math.max(1, Math.min(max, value)));
+    <div className="p-4">
+        {/* Main Image - Reduced size */}
+        <img 
+            src={displayImage} 
+            alt="Product" 
+            className="w-full h-[520px] object-contain rounded-xl shadow-md border border-gray-200 cursor-zoom-in"
+            onClick={() => {
+                // You could implement a full-screen image viewer here
+                // or use a library like react-image-lightbox
             }}
-            className="border border-gray-300 rounded-lg p-2 w-24 text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            aria-label="Quantity"
         />
-    </div>
-    
-    <div className="flex flex-col sm:flex-row gap-4">
-        <button
-            onClick={() => AddToCartNow(selectedItem?.id)}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 font-medium"
-        >
-            Add to Cart
-        </button>
         
-        <button 
-            onClick={() => BuyNow(selectedItem?.id)} 
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium"
-        >
-            Buy Now
-        </button>
+        {/* Thumbnail Gallery - Reduced size */}
+        <div className="flex space-x-4 mt-4">
+            {selectedItem?.images?.[0]?.main_image && (
+                <button 
+                    onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].main_image}`)}
+                    className="focus:outline-none"
+                >
+                    <img
+                        src={`https://127.0.0.1:8000${selectedItem.images[0].main_image}`}
+                        alt="Thumbnail 1"
+                        className={`w-20 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].main_image}` ? 'border-green-600' : 'border-gray-200'}`}
+                    />
+                </button>
+            )}
+            {selectedItem?.images?.[0]?.sub_image_1 && (
+                <button 
+                    onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}`)}
+                    className="focus:outline-none"
+                >
+                    <img
+                        src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}`}
+                        alt="Thumbnail 2"
+                        className={`w-20 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_1}` ? 'border-green-600' : 'border-gray-200'}`}
+                    />
+                </button>
+            )}
+            {selectedItem?.images?.[0]?.sub_image_2 && (
+                <button 
+                    onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}`)}
+                    className="focus:outline-none"
+                >
+                    <img
+                        src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}`}
+                        alt="Thumbnail 3"
+                        className={`w-20 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_2}` ? 'border-green-600' : 'border-gray-200'}`}
+                    />
+                </button>
+            )}
+            {selectedItem?.images?.[0]?.sub_image_3 && (
+                <button 
+                    onClick={() => handleImageSelect(`https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}`)}
+                    className="focus:outline-none"
+                >
+                    <img
+                        src={`https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}`}
+                        alt="Thumbnail 4"
+                        className={`w-20 h-24 rounded-lg shadow-md border-2 ${mainImage === `https://127.0.0.1:8000${selectedItem.images[0].sub_image_3}` ? 'border-green-600' : 'border-gray-200'}`}
+                    />
+                </button>
+            )}
+        </div>
+    </div>
+
+    <div className="p-4">
+        <h2 className="text-2xl font-bold">{safe(product, "product_name") || ""}</h2>
+        <h5 className="text-md mt-2">
+            Brand: <span className="text-green-600 font-bold">{safe(product, "brand.brand_name") || ""}</span>
+        </h5>
+        <hr className="my-3" />
+        <div className="space-y-2">
+            {/* Price display section */}
+            <div className="flex items-baseline gap-3 flex-wrap">
+                {/* Show original sale price with strikethrough when discounted */}
+                {product?.offers?.[0]?.discount_percentage > 0 && (
+                    <strike className="text-gray-500 text-md">₹{selectedItem?.sale_price || "N/A"}</strike>
+                )}
+
+                {/* Show current price (discounted if offer exists) */}
+                <span className="text-green-600 text-xl font-semibold">
+                    ₹
+                    {product?.offers?.[0]?.discount_percentage > 0
+                        ? (
+                              parseFloat(selectedItem?.sale_price) -
+                              (parseFloat(selectedItem?.sale_price) *
+                                  parseFloat(product.offers[0].discount_percentage)) /
+                                  100
+                          ).toFixed(2)
+                        : selectedItem?.sale_price || "N/A"}
+                </span>
+
+                {/* Offer badge */}
+                {product?.offers?.[0]?.discount_percentage > 0 && (
+                    <span className="text-red-500 text-md">
+                        {Math.round(parseFloat(product.offers[0].discount_percentage))}% OFF
+                    </span>
+                )}
+            </div>
+
+            {/* Optional offer tag */}
+            {product?.offers?.[0]?.discount_percentage > 0 && (
+                <div className="bg-green-200 text-green-900 px-2 py-1 rounded-md text-sm flex items-center gap-1 w-fit">
+                    <i className="fa-solid fa-tag text-sm"></i>
+                    <span>Special Offer</span>
+                </div>
+            )}
+
+            {/* Color display */}
+            {selectedItem?.color && (
+                <div className="text-gray-700">
+                    <span>Color: </span>
+                    <span className="font-medium">{safe(selectedItem, "color.color_name")}</span>
+                </div>
+            )}
+        </div>
+
+        {/* Color Selection */}
+        <div className="mt-3">
+            <h4 className="font-semibold">Color:</h4>
+            <div className="flex space-x-2 mt-1">
+                {uniqueColors.map((color) => (
+                    <button
+                        key={color.id}
+                        onClick={() => handleColorSelect(color)}
+                        className={`px-3 py-1 border rounded-lg text-sm ${
+                            selectedColor?.id === color.id ? "border-green-600 border-2" : ""
+                        }`}
+                    >
+                        {safe(color, "color_name")}
+                    </button>
+                ))}
+            </div>
+        </div>
+
+        <p className="mt-3 text-gray-700 text-sm">{safe(product, "product_description") || ""}</p>
+        <ul className="mt-3 space-y-1 text-sm">
+            <li>1 Year {safe(product, "brand.brand_name") || ""} Brand Warranty</li>
+            <li>7 Day Return Policy</li>
+            <li>Cash on Delivery available</li>
+        </ul>
+
+        {/* Size Selection */}
+        <div className="mt-4">
+            <h4 className="font-semibold text-md">Size:</h4>
+            <div className="flex space-x-2 mt-1">
+                {availableSizes.map((sizeItem) => (
+                    <button
+                        key={safe(sizeItem, "id")}
+                        onClick={() => handleSizeSelect(sizeItem)}
+                        className={`px-3 py-1 border rounded-lg text-sm ${
+                            selectedSize?.id === sizeItem.id ? "bg-green-600 text-white" : ""
+                        }`}
+                    >
+                        {safe(sizeItem, "size_name")}
+                    </button>
+                ))}
+            </div>
+        </div>
+
+        <div className="mt-4 flex flex-col sm:flex-row gap-3">
+            <div className="flex items-center">
+                <input
+                    type="number"
+                    min="1"
+                    max={selectedItem?.quantity_in_stock || 10}
+                    value={qnty}
+                    onChange={(e) => {
+                        const value = parseInt(e.target.value, 10);
+                        const max = selectedItem?.quantity_in_stock || 10;
+                        setQnty(isNaN(value) ? 1 : Math.max(1, Math.min(max, value)));
+                    }}
+                    className="border border-gray-300 rounded-lg p-1 w-20 text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    aria-label="Quantity"
+                />
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                    onClick={() => AddToCartNow(selectedItem?.id)}
+                    className="bg-green-600 text-white px-4 py-1 rounded-lg hover:bg-green-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 font-medium text-sm"
+                >
+                    Add to Cart
+                </button>
+                
+                <button 
+                    onClick={() => BuyNow(selectedItem?.id)} 
+                    className="bg-blue-600 text-white px-4 py-1 rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium text-sm"
+                >
+                    Buy Now
+                </button>
+            </div>
+        </div>
+
+        <div className="mt-6 border-t pt-4">
+            <h4 className="text-md font-semibold">Product Details</h4>
+            <table className="mt-2 w-full border-collapse border border-gray-300 text-left text-sm">
+                <tbody>
+                    <tr>
+                        <th className="border border-gray-300 px-2 py-1">Brand</th>
+                        <td className="border border-gray-300 px-2 py-1">
+                            {safe(product, "brand.brand_name") || ""}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th className="border border-gray-300 px-2 py-1">Material</th>
+                        <td className="border border-gray-300 px-2 py-1">{safe(product, "about") || ""}</td>
+                    </tr>
+                    <tr>
+                        <th className="border border-gray-300 px-2 py-1">Color</th>
+                        <td className="border border-gray-300 px-2 py-1">
+                            {safe(selectedColor, "color_name") || ""}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th className="border border-gray-300 px-2 py-1">Size</th>
+                        <td className="border border-gray-300 px-2 py-1">
+                            {safe(selectedSize, "size_name") || "N/A"}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th className="border border-gray-300 px-2 py-1">Availability</th>
+                        <td className="border border-gray-300 px-2 py-1">
+                            {safe(selectedItem, "quantity_in_stock") || 0} items In Stock
+                        </td>
+                    </tr>
+                    <tr>
+                        <th className="border border-gray-300 px-2 py-1">Weight</th>
+                        <td className="border border-gray-300 px-2 py-1">
+                            {safe(product, "weight") || "0.00"}g
+                        </td>
+                    </tr>
+                    <tr>
+                        <th className="border border-gray-300 px-2 py-1">Care Instructions</th>
+                        <td className="border border-gray-300 px-2 py-1">
+                            {safe(product, "care_instructions") || ""}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-                    <div className="mt-8 border-t pt-6">
-                        <h4 className="text-lg font-semibold">Product Details</h4>
-                        <table className="mt-4 w-full border-collapse border border-gray-300 text-left">
-                            <tbody>
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Brand</th>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {safe(product, "brand.brand_name") || ""}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Material</th>
-                                    <td className="border border-gray-300 px-4 py-2">{safe(product, "about") || ""}</td>
-                                </tr>
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Color</th>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {safe(selectedColor, "color_name") || ""}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Size</th>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {safe(selectedSize, "size_name") || "N/A"}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Availability</th>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {safe(selectedItem, "quantity_in_stock") || 0} items In Stock
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Weight</th>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {safe(product, "weight") || "0.00"}g
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th className="border border-gray-300 px-4 py-2">Care Instructions</th>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {safe(product, "care_instructions") || ""}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
 
             {/* Additional Info Section */}
             <div className="min-h-screen p-8 bg-gray-100">

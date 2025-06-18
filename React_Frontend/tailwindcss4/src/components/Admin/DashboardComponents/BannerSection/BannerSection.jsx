@@ -39,9 +39,11 @@ const BannerSection = () => {
             });
             console.log(response);
             console.log(response.data);
+            alert("Banner Added Successfully...");
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);
+            alert("error while add banner try again...");
         }
 
         console.log("Banner Data Submitted:", formData);

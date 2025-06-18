@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { safe } from "../../../../utils/safeAccess";
-const RevenueSection = ({setCurrentView}) => {
+const RevenueSection = ({ setCurrentView }) => {
     // Sample data - in a real app, this would come from an API
 
     const { accessToken } = useSelector((state) => state.auth);
@@ -13,20 +13,17 @@ const RevenueSection = ({setCurrentView}) => {
     const [selectedDate, setSelectedDate] = useState("");
     const [formattedDate, setFormattedDate] = useState("");
 
-
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [totalItems, setTotalItems] = useState(0)
+    const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(10);
-
-
 
     const fetchRevenue = async (page = 1) => {
         try {
             const response = await axios.get("https://127.0.0.1:8000/api/seller/view_seller_revenue/", {
                 params: {
-                    page:page,
-                    page_size:pageSize
+                    page: page,
+                    page_size: pageSize,
                 },
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -36,11 +33,11 @@ const RevenueSection = ({setCurrentView}) => {
             console.log("REs", response.data);
             setRecentOrders(response.data["transactions"]);
 
-            const { count,next,previous } = response.data["pagination"];
+            const { count, next, previous } = response.data["pagination"];
 
             // setRecentOrders(results);
             setTotalItems(count);
-            setTotalPages(Math.ceil(count/pageSize));
+            setTotalPages(Math.ceil(count / pageSize));
 
             setSellerRevenue(response.data["details"].total_revenue);
             setSellerEarnings(response.data["details"].seller_earnings);
@@ -52,8 +49,7 @@ const RevenueSection = ({setCurrentView}) => {
 
     useEffect(() => {
         fetchRevenue(currentPage);
-    }, [currentPage,pageSize]);
-
+    }, [currentPage, pageSize]);
 
     //     // Pagination handlers
     const handlePageChange = (newPage) => {
@@ -62,20 +58,16 @@ const RevenueSection = ({setCurrentView}) => {
         }
     };
 
-
-    const handlePageSizeChange =(e)=>{
+    const handlePageSizeChange = (e) => {
         const newSize = parseInt(e.target.value);
         setPageSize(newSize);
         setCurrentPage(1);
-    }
-
-
+    };
 
     const metrics = [
         { title: "Total Revenue", value: sellerRevenue - refundAmount },
         { title: "Seller Earnings", value: sellerEarnings - refundAmount },
         { title: "Refunds Issued", value: refundAmount },
-        { title: "Pending Payments", value: "not give 2,154.00" },
     ];
 
     const handleDateChange = (event) => {
@@ -100,19 +92,22 @@ const RevenueSection = ({setCurrentView}) => {
         <div className="min-h-screen bg-gray-100">
             {/* Header */}
             <div className="w-full bg-white shadow-md py-4 px-6">
-                <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700">
+                <h1
+                    onClick={() => setCurrentView("mainsection")}
+                    className="text-lg md:text-2xl font-semibold text-gray-700"
+                >
                     Dashboard &gt; <span className="text-indigo-600">Revenue</span>
                 </h1>
             </div>
 
             <div className="p-6">
                 {/* Key Metrics Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {metrics.map((metric, index) => (
                         <div key={index} className="bg-white rounded-lg shadow p-6">
-                            <h3 className="text-gray-500 text-sm font-medium">{safe(metric,'title')}</h3>
+                            <h3 className="text-gray-500 text-sm font-medium">{safe(metric, "title")}</h3>
                             <div className="mt-2 flex items-baseline justify-between">
-                                <p className="text-2xl font-semibold text-gray-900">₹{safe(metric,'value')}</p>
+                                <p className="text-2xl font-semibold text-gray-900">₹{safe(metric, "value")}</p>
                             </div>
                         </div>
                     ))}
@@ -134,8 +129,8 @@ const RevenueSection = ({setCurrentView}) => {
                             >
                                 Filter
                             </button>
-                             <button
-                                onClick={()=>setFormattedDate("")}
+                            <button
+                                onClick={() => setFormattedDate("")}
                                 className="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm hover:bg-indigo-700"
                             >
                                 Clear Filter
@@ -192,7 +187,8 @@ const RevenueSection = ({setCurrentView}) => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {recentOrders.filter((item) => {
+                                {recentOrders
+                                    .filter((item) => {
                                         if (formattedDate.length > 0) {
                                             return (
                                                 formattedDate ===
@@ -208,40 +204,40 @@ const RevenueSection = ({setCurrentView}) => {
                                     .map((order, index) => (
                                         <tr key={index} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {safe(order,'invoice_number')}
+                                                {safe(order, "invoice_number")}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {safe(order,'order.id')}
+                                                {safe(order, "order.id")}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {new Date(safe(order,'order.order_date')).toLocaleDateString("en-GB", {
+                                                {new Date(safe(order, "order.order_date")).toLocaleDateString("en-GB", {
                                                     day: "2-digit",
                                                     month: "short",
                                                     year: "numeric",
                                                 })}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {safe(order,'order.user.first_name') + safe(order,'order.user.last_name')}
+                                                {safe(order, "order.user.first_name") + safe(order, "order.user.last_name")}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                Rs.{safe(order,'total_amount')}
+                                                Rs.{safe(order, "total_amount")}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
                                                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                     ${
-                                                        safe(order,'payment_status') === "paid"
+                                                        safe(order, "payment_status") === "paid"
                                                             ? "bg-green-100 text-green-800"
-                                                            : safe(order,'payment_status') === "pending"
+                                                            : safe(order, "payment_status") === "pending"
                                                             ? "bg-yellow-100 text-yellow-800"
                                                             : "bg-red-100 text-red-800"
                                                     }`}
                                                 >
-                                                    {safe(order,'payment_status')}
+                                                    {safe(order, "payment_status")}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {safe(order,'returns.[0].status') || "No Returns"}
+                                                {safe(order, "returns.[0].status") || "No Returns"}
                                             </td>
                                         </tr>
                                     ))}
@@ -251,82 +247,77 @@ const RevenueSection = ({setCurrentView}) => {
 
                     {/* Pagination */}
 
-                      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-        <div className="flex-1 flex items-center justify-between">
-            <div>
-                <p className="text-sm text-gray-700">
-                    Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to{' '}
-                    <span className="font-medium">
-                        {Math.min(currentPage * pageSize, totalItems)}
-                    </span>{' '}
-                    of <span className="font-medium">{totalItems}</span> results
-                </p>
-            </div>
-            <div className="flex items-center space-x-2">
-                <select 
-                    value={pageSize}
-                    onChange={handlePageSizeChange}
-                    className="bg-gray-100 border border-gray-300 text-gray-700 py-1 px-3 rounded-md text-sm"
-                >
-                    <option value="5">5 per page</option>
-                    <option value="10">10 per page</option>
-                    <option value="20">20 per page</option>
-                    <option value="50">50 per page</option>
-                </select>
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                            currentPage === 1 ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-50'
-                        }`}
-                    >
-                        <span className="sr-only">Previous</span>
-                        &lt;
-                    </button>
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                            pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                            pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                            pageNum = totalPages - 4 + i;
-                        } else {
-                            pageNum = currentPage - 2 + i;
-                        }
-                        
-                        return (
-                            <button
-                                key={pageNum}
-                                onClick={() => handlePageChange(pageNum)}
-                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                    currentPage === pageNum
-                                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                }`}
-                            >
-                                {pageNum}
-                            </button>
-                        );
-                    })}
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                            currentPage === totalPages ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-50'
-                        }`}
-                    >
-                        <span className="sr-only">Next</span>
-                        &gt;
-                    </button>
-                </nav>
-            </div>
-        </div>
-    </div>
+                    <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div className="flex-1 flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-gray-700">
+                                    Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to{" "}
+                                    <span className="font-medium">{Math.min(currentPage * pageSize, totalItems)}</span> of{" "}
+                                    <span className="font-medium">{totalItems}</span> results
+                                </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <select
+                                    value={pageSize}
+                                    onChange={handlePageSizeChange}
+                                    className="bg-gray-100 border border-gray-300 text-gray-700 py-1 px-3 rounded-md text-sm"
+                                >
+                                    <option value="5">5 per page</option>
+                                    <option value="10">10 per page</option>
+                                    <option value="20">20 per page</option>
+                                    <option value="50">50 per page</option>
+                                </select>
+                                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                    <button
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
+                                            currentPage === 1 ? "text-gray-300" : "text-gray-500 hover:bg-gray-50"
+                                        }`}
+                                    >
+                                        <span className="sr-only">Previous</span>
+                                        &lt;
+                                    </button>
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                        let pageNum;
+                                        if (totalPages <= 5) {
+                                            pageNum = i + 1;
+                                        } else if (currentPage <= 3) {
+                                            pageNum = i + 1;
+                                        } else if (currentPage >= totalPages - 2) {
+                                            pageNum = totalPages - 4 + i;
+                                        } else {
+                                            pageNum = currentPage - 2 + i;
+                                        }
 
-
-           
+                                        return (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() => handlePageChange(pageNum)}
+                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                                    currentPage === pageNum
+                                                        ? "z-10 bg-indigo-50 border-indigo-500 text-indigo-600"
+                                                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                                                }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        );
+                                    })}
+                                    <button
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
+                                            currentPage === totalPages ? "text-gray-300" : "text-gray-500 hover:bg-gray-50"
+                                        }`}
+                                    >
+                                        <span className="sr-only">Next</span>
+                                        &gt;
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -334,21 +325,6 @@ const RevenueSection = ({setCurrentView}) => {
 };
 
 export default RevenueSection;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React, { useEffect, useState } from "react";
 // import axios from "axios";
@@ -362,7 +338,7 @@ export default RevenueSection;
 //     const [refundAmount, setRefundAmount] = useState(0);
 //     const [selectedDate, setSelectedDate] = useState("");
 //     const [formattedDate, setFormattedDate] = useState("");
-    
+
 //     // Pagination state
 //     const [currentPage, setCurrentPage] = useState(1);
 //     const [totalPages, setTotalPages] = useState(1);
@@ -380,13 +356,13 @@ export default RevenueSection;
 //                     Authorization: `Bearer ${accessToken}`,
 //                 },
 //             });
-            
+
 //             const { results, count, next, previous } = response.data;
-            
+
 //             setRecentOrders(results);
 //             setTotalItems(count);
 //             setTotalPages(Math.ceil(count / pageSize));
-            
+
 //             // Calculate metrics
 //             const total_revenue = results.reduce(
 //                 (revenue, currentvalue) => revenue + parseFloat(currentvalue.total_amount),
@@ -415,7 +391,7 @@ export default RevenueSection;
 //                 return refund;
 //             }, 0);
 //             setRefundAmount(refund_amount);
-            
+
 //         } catch (errors) {
 //             console.log(errors);
 //         }
@@ -453,7 +429,7 @@ export default RevenueSection;
 //                 </p>
 //             </div>
 //             <div className="flex items-center space-x-2">
-//                 <select 
+//                 <select
 //                     value={pageSize}
 //                     onChange={handlePageSizeChange}
 //                     className="bg-gray-100 border border-gray-300 text-gray-700 py-1 px-3 rounded-md text-sm"
@@ -485,7 +461,7 @@ export default RevenueSection;
 //                         } else {
 //                             pageNum = currentPage - 2 + i;
 //                         }
-                        
+
 //                         return (
 //                             <button
 //                                 key={pageNum}

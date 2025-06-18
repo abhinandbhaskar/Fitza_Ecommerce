@@ -226,7 +226,7 @@ WSGI_APPLICATION = 'fitza.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'newfitzadb',
+        'NAME': 'fitzaecommercedb',
         'USER': 'postgres',
         'PASSWORD': 'Kanhangad_123',
         'HOST': 'localhost',

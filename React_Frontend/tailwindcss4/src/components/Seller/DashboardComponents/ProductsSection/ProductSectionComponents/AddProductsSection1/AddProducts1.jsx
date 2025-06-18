@@ -38,6 +38,7 @@ const AddProducts1 = ({ setCurrentView }) => {
         }
       });
       setCategoryname(response.data);
+      console.log("Categ",response.data);
     } catch (errors) {
       console.log(errors);
     }
@@ -198,10 +199,11 @@ const AddProducts1 = ({ setCurrentView }) => {
             >
               <option value="">Select a category</option>
               {catename.map((cate) => (
-                <option key={cate.id} value={cate.id}>
-                  {cate.category_name} 
-                  <span className="text-red-500 text-sm pl-10"> {cate.category_description}</span>
-                </option>
+               <option key={cate.id} value={cate.id}>
+                🔹 {cate.category.category_name} → {cate.subcategory_name}  ⮞ {cate.subcategory_description}
+              </option>
+
+
               ))}
             </select>
             {errors.category && (
@@ -287,7 +289,7 @@ const AddProducts1 = ({ setCurrentView }) => {
               className={`w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500 ${
                 errors.product ? "border-red-500" : ""
               }`}
-              placeholder="Enter product weight"
+              placeholder="Enter product weight in gram"
               value={formData.weight}
               onChange={handleChange}
             />

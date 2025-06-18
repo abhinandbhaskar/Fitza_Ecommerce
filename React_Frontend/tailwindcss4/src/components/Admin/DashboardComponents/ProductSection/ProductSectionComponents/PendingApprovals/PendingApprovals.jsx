@@ -50,7 +50,10 @@ const PendingApprovals = () => {
       });
       console.log(response);
       console.log(response.data);
-      alert(response.data.message);
+      // alert(response.data.message);
+      alert("Product Approved Successfully...");
+       setView(true);
+
       fetchApprovals();
     }catch(errors)
     {
@@ -76,8 +79,11 @@ const PendingApprovals = () => {
       });
       console.log(response);
       console.log(response.data);
-      alert(response.data.message);
-      fetchApprovals();
+      // alert(response.data.message);
+      
+      alert("Product Approved Successfully...");
+       setView(true);
+       fetchApprovals();
     }catch(errors)
     {
       alert(errors.response.data.errors);
@@ -199,7 +205,7 @@ const PendingApprovals = () => {
             `https://127.0.0.1:8000${products.images[0].main_image}`
           }
           alt="Main Product"
-          className="w-48 h-48 object-cover border border-gray-200 rounded-lg mt-4"
+          className="w-48 h-68 object-cover border border-gray-200 rounded-lg mt-4"
         />
       </div>
 

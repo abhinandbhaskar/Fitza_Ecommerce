@@ -141,9 +141,19 @@ const AddToCart = (id) => {
                         : products.filter((item) => safe(item,'category.category_name') === filtersts)
                     ).map((product) => (
                         <div key={product.id} className="card">
-                            <div className="Tag">
-                                <h6>New</h6>
+                            
+                             {new Date() >= new Date(product.added_date) && 
+                                new Date() <= new Date(new Date(product.added_date).getTime() + 172800000) && (
+                                <div className="Tag">
+                                <div className="product-card">
+                             <h6 className="new-badge">New</h6>
+                            
                             </div>
+                            </div>
+
+                                )}
+
+
                             <img
                                 src={
                                     product.items?.[0]?.images?.[0]?.main_image
@@ -172,7 +182,11 @@ const AddToCart = (id) => {
 
                             <div className="card-body">
                                 <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
-                                    {safe(product,'product_name')}
+                                    {/* {safe(product,'product_name')} */}
+
+                                    {product.product_name.length > 20 ? `${product.product_name.substring(0, 20)}..`:product.product_name}
+
+
                                 </h2>
                                 <h4 className="text-gray-700 leading-relaxed text-lg">
                                     {product.product_description.length > 28

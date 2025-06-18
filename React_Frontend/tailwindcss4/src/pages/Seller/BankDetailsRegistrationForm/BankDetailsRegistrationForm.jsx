@@ -145,6 +145,7 @@ const BankDetailsRegistrationForm = () => {
               type="text"
               name="accountHolderName"
               value={formData.accountHolderName}
+              placeholder="Enter Bank Holder Name"
               onChange={handleChange}
               className={`w-full mt-1 p-2 border rounded ${
                 errors.accountHolderName ? "border-red-500" : ""
@@ -165,6 +166,7 @@ const BankDetailsRegistrationForm = () => {
               name="bankName"
               value={formData.bankName}
               onChange={handleChange}
+              placeholder="Enter Your Bank Name"
               className={`w-full mt-1 p-2 border rounded ${
                 errors.bankName ? "border-red-500" : ""
               }`}
@@ -181,6 +183,7 @@ const BankDetailsRegistrationForm = () => {
               type="text"
               name="accountNumber"
               value={formData.accountNumber}
+              placeholder="Enter the Account Number"
               onChange={handleChange}
               className={`w-full mt-1 p-2 border rounded ${
                 errors.accountNumber ? "border-red-500" : ""
@@ -201,6 +204,7 @@ const BankDetailsRegistrationForm = () => {
               name="ifscCode"
               value={formData.ifscCode}
               onChange={handleChange}
+              placeholder="Enter the IFSC code"
               className={`w-full mt-1 p-2 border rounded ${
                 errors.ifscCode ? "border-red-500" : ""
               }`}
@@ -217,6 +221,7 @@ const BankDetailsRegistrationForm = () => {
               name="branchAddress"
               value={formData.branchAddress}
               onChange={handleChange}
+              placeholder="Enter the Branch Address"
               className={`w-full mt-1 p-2 border rounded ${
                 errors.branchAddress ? "border-red-500" : ""
               }`}

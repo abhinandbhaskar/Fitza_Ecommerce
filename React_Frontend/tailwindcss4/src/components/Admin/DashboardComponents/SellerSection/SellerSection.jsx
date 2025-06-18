@@ -54,8 +54,8 @@ const SellerSection = ({searchTerm}) => {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
-                setApprovals(data.data);
+                console.log("Seller Appovals::",data);
+                setApprovals(data);
             }
         } catch (errors) {
             console.log(errors);

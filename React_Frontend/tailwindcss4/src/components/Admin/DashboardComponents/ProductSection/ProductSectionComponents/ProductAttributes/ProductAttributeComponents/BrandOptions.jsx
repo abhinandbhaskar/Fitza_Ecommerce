@@ -30,12 +30,16 @@ const BrandOptions = () => {
       console.log(response);
       console.log(response.data);
       alert(response.data.message);
+      setBrand("");
+      setDescription("");
+
       fetchBrand();
     }
     catch(errors)
     {
       console.log(errors);
-      console.log(errors.response.data);
+      alert('This brand already exists.');
+
     }
   }
 
@@ -126,8 +130,9 @@ const BrandOptions = () => {
     }
     catch(errors)
     {
-      console.log(errors);
+     
       console.log(errors.response.data);
+      // alert(errors.response.data.errors.non_field_errors);
     }
   }
 

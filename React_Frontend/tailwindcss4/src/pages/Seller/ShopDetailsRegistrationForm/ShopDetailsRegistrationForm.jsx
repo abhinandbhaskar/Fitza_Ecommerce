@@ -184,6 +184,7 @@ const ShopDetailsRegistrationForm = () => {
             <input
               type="text"
               name="shopName"
+              placeholder="Enter the shopname"
               value={formData.shopName}
               onChange={handleChange}
               className={`w-full mt-1 p-2 border rounded ${
@@ -202,6 +203,7 @@ const ShopDetailsRegistrationForm = () => {
               name="shopAddress"
               value={formData.shopAddress}
               onChange={handleChange}
+              placeholder="enter shopaddress"
               className={`w-full mt-1 p-2 border rounded ${
                 errors.shopAddress ? "border-red-500" : ""
               }`}
@@ -219,6 +221,7 @@ const ShopDetailsRegistrationForm = () => {
               type="text"
               name="contactNumber"
               value={formData.contactNumber}
+              placeholder="enter the contact number"
               onChange={handleChange}
               className={`w-full mt-1 p-2 border rounded ${
                 errors.contactNumber ? "border-red-500" : ""
@@ -236,6 +239,7 @@ const ShopDetailsRegistrationForm = () => {
               type="email"
               name="shopEmail"
               value={formData.shopEmail}
+              placeholder="enter shop email Id"
               onChange={handleChange}
               className={`w-full mt-1 p-2 border rounded ${
                 errors.shopEmail ? "border-red-500" : ""
@@ -254,6 +258,7 @@ const ShopDetailsRegistrationForm = () => {
                 type="text"
                 name="taxId"
                 value={formData.taxId}
+                placeholder="Enter the taxid"
                 onChange={handleChange}
                 className={`w-full mt-1 p-2 border rounded ${
                   errors.taxId ? "border-red-500" : ""
@@ -271,6 +276,7 @@ const ShopDetailsRegistrationForm = () => {
                 type="text"
                 name="businessRegistrationNumber"
                 value={formData.businessRegistrationNumber}
+                placeholder="enter the business registration number"
                 onChange={handleChange}
                 className={`w-full mt-1 p-2 border rounded ${
                   errors.businessRegistrationNumber ? "border-red-500" : ""
@@ -291,6 +297,7 @@ const ShopDetailsRegistrationForm = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
+             
               className={`w-full mt-1 p-2 border rounded ${
                 errors.description ? "border-red-500" : ""
               }`}

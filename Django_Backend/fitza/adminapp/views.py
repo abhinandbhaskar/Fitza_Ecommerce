@@ -128,23 +128,103 @@ class RemoveSeller(APIView):
         except Exception as e:
             return Response({"error":f" Failed to remove seller {str(e)}"},status=status.HTTP_400_BAD_REQUEST)
 
-from notifications.notifiers import SellerApprovalNotifier
-class ApproveSeller(APIView):
-    permission_classes=[IsAuthenticated]
-    def post(self,request,seller_id):
-        currentuser=request.user
-        if not request.user.is_staff:
-            return Response({"errors":"You are not authorized to perform this action."},status=status.HTTP_403_FORBIDDEN)
-        seller=Seller.objects.get(id=seller_id)
-        user=CustomUser.objects.get(id=seller.user_id)
-        user.is_active=True
-        user.save()
-        seller.account_verified=True
-        seller.save()
-        notifier=SellerApprovalNotifier(user=seller.user,sender=currentuser)
-        notifier.notify_seller_approval(seller_id=seller.id)
+# from notifications.notifiers import SellerApprovalNotifier
+# class ApproveSeller(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def post(self,request,seller_id):
+#         currentuser=request.user
+#         if not request.user.is_staff:
+#             return Response({"errors":"You are not authorized to perform this action."},status=status.HTTP_403_FORBIDDEN)
+#         seller=Seller.objects.get(id=seller_id)
+#         user=CustomUser.objects.get(id=seller.user_id)
+#         user.is_active=True
+#         user.save()
+#         seller.account_verified=True
+#         seller.save()
+#         notifier=SellerApprovalNotifier(user=seller.user,sender=currentuser)
+#         notifier.notify_seller_approval(seller_id=seller.id)
 
-        return Response({"message":"Approved Successfully..."},status=status.HTTP_200_OK)
+#         return Response({"message":"Approved Successfully..."},status=status.HTTP_200_OK)
+
+
+
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+from notifications.notifiers import SellerApprovalNotifier
+
+class ApproveSeller(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, seller_id):
+        currentuser = request.user
+        if not request.user.is_staff:
+            return Response(
+                {"errors": "You are not authorized to perform this action."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        try:
+            seller = Seller.objects.get(id=seller_id)
+            user = CustomUser.objects.get(id=seller.user_id)
+            
+            # Update user and seller status
+            user.is_active = True
+            user.save()
+            seller.account_verified = True
+            seller.save()
+            
+            # Send email notification
+            subject = "Congratulations! Your Seller Account Has Been Approved"
+            message = (
+                f"Dear {user.first_name or 'Seller'},\n\n"
+                "Congratulations! Your seller account has been approved on our FITZA e-commerce "
+                "dress selling platform. You can now start listing and selling your products.\n\n"
+                "Thank you for joining us!\n\n"
+                "Best regards,\n"
+                "The FITZA Team"
+            )
+            
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            
+            # Send through your existing notifier system
+            notifier = SellerApprovalNotifier(user=seller.user, sender=currentuser)
+            notifier.notify_seller_approval(seller_id=seller.id)
+            
+            return Response(
+                {"message": "Seller approved successfully and notification sent."},
+                status=status.HTTP_200_OK
+            )
+            
+        except Seller.DoesNotExist:
+            return Response(
+                {"errors": "Seller not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"errors": "User account not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"errors": f"An error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
+
+
+
+
 
 
 from rest_framework.views import APIView

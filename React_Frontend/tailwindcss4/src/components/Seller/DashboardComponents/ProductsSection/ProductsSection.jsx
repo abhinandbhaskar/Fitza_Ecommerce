@@ -197,7 +197,7 @@ const ProductsSection = ({setCurrentView,searchTerm}) => {
             filteredProducts.map((value,key)=>(
               <tr className="hover:bg-gray-100 transition duration-200">
               <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">{key+1}</td>
-              <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">#ORD-{safe(value,'id')}</td>
+              <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">{safe(value,'id')}</td>
               <td className="px-6 py-4 text-sm text-gray-700 border-b border-gray-300">
                 <img src={ safe(value,'images') && value.images.length > 0 && `https://127.0.0.1:8000${value.images[0].main_image}`}
                     alt="category"

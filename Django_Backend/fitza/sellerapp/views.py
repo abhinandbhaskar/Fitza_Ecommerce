@@ -235,13 +235,13 @@ class BankUpdate(APIView):
         return Response({"message":"Error While Update Bank details"},status=status.HTTP_400_BAD_REQUEST)
     
 
-from common.models import ProductCategory,Brand,Color,SizeOption
+from common.models import ProductCategory,Brand,Color,SizeOption,SubCategory
 from sellerapp.serializers import GetCategorySerializer,GetBrandsSerializer,GetColorSerializer,GetSizeSerializer
 
 class GetCategory(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request):
-        obj=ProductCategory.objects.all()
+        obj=SubCategory.objects.all()
         serializer=GetCategorySerializer(obj,many=True)
         return Response(serializer.data)
 

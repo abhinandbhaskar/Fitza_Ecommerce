@@ -377,11 +377,22 @@ class BankUpdateSerializer(serializers.Serializer):
         bank_details.save()
 
 
-from common.models import ProductCategory,Brand,Color,SizeOption
-class GetCategorySerializer(serializers.ModelSerializer):
+
+
+from common.models import Brand,Color,SizeOption,SubCategory,ProductCategory
+
+class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model=ProductCategory
-        fields=['category_name','id','category_description']
+        model = ProductCategory
+        fields = ['id', 'category_name']  # Include 'id' if needed for selection
+
+class GetCategorySerializer(serializers.ModelSerializer):
+    category = ProductCategorySerializer(read_only=True)  # Nested category info
+
+    class Meta:
+        model = SubCategory
+        fields = ['id', 'subcategory_name', 'subcategory_description', 'category']
+
 
 
 class GetBrandsSerializer(serializers.ModelSerializer):
@@ -427,7 +438,7 @@ class AddProductsSerializer(serializers.Serializer):
         if not CustomUser.objects.filter(id=user.id).exists():
             raise serializers.ValidationError("Unauthorized user")
         
-        if not ProductCategory.objects.filter(id=data["cateid"]).exists():
+        if not SubCategory.objects.filter(id=data["cateid"]).exists():
             raise serializers.ValidationError("Invalid category ID")
         
         if not Brand.objects.filter(id=data["brandid"]).exists():
@@ -458,26 +469,29 @@ class AddProductsSerializer(serializers.Serializer):
             seller = Seller.objects.get(user=user)
         except Seller.DoesNotExist:
             raise serializers.ValidationError("Seller not found.")
-        
+
+
         try:
-            category = ProductCategory.objects.get(id=self.validated_data["cateid"])
+            subcategory = SubCategory.objects.get(id=self.validated_data["cateid"])
+            category = subcategory.category 
             brand = Brand.objects.get(id=self.validated_data["brandid"])
-        except ProductCategory.DoesNotExist:
-            raise serializers.ValidationError("Category not found.")
+        except SubCategory.DoesNotExist:
+            raise serializers.ValidationError("Subcategory not found.")
         except Brand.DoesNotExist:
             raise serializers.ValidationError("Brand not found.")
 
         product = Product.objects.create(
+            subcategory=subcategory,
             category=category,
             brand=brand,
             shop=seller,
             product_name=self.validated_data["product"],
             product_description=self.validated_data["description"],
-            model_height=self.validated_data["modelheight"],
-            model_wearing=self.validated_data["modelwearing"],
-            care_instructions=self.validated_data["instruction"],
-            about=self.validated_data["about"],
-            weight=self.validated_data["weight"]
+            model_height=self.validated_data.get("modelheight"),
+            model_wearing=self.validated_data.get("modelwearing"),
+            care_instructions=self.validated_data.get("instruction"),
+            about=self.validated_data.get("about"),
+            weight=self.validated_data.get("weight", 0.00)
         )
 
         attributes = self.validated_data["parsed_attributes"]
