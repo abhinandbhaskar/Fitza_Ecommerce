@@ -4,9 +4,9 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView
 from .views import CustomTokenObtainPairView,ProfileView,profileupdate,AddBillingAddess,GetBillingAddress
 from userapp.views import AddShippingAddess,GetShippingAddress,AccountDeactivate,ViewNewArrivals,ViewTopCollections,ViewSellProduct,MarksUserRead
 from userapp.views import AddReviewRating,ViewRating,AddToWishlist,GetWishlist,RemoveWishlist,fetchDropDownData,DropDownCategory,FetchCategoryProduct
-from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductQuantity,ApplyCouponCode,GetDealsOfDay,GetDiscountCard,FreeshipOffers,CompareProducts
+from userapp.views import GetBanners,AddToCart,GetCartData,RemoveCartProduct,CartProductQuantity,ApplyCouponCode,GetDealsOfDay,GetDiscountCard,FreeshipOffers,CompareProducts,AddProductInteration
 
-from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack
+from userapp.views import CreateRazorpayOrder, OrderPayment, RazorpayCallback,OfferProducts,AddInitialOrder,SavePaymentDetails,AskQuestion,GetQandAUser,GetUserOrders,AddShopFeedBack,AddCartProductInteration
 from userapp.views import BillGenerator,GetBillAPIView,SendReturnRefund,GetReturnRefundStatus,CustomerCancelOrder,ViewUserAllNotifications,UserUnreadNotifications,test_pincode_distance
 
 urlpatterns = [
@@ -67,6 +67,8 @@ urlpatterns = [
     path('route/', test_pincode_distance , name='get_route'),
     path('get_discount_card/',GetDiscountCard.as_view(),name='get_discount_card'),
     path('freeshipping_offer/',FreeshipOffers.as_view(),name='freeshipping_offer'),
+    path('add_product_interation/<int:id>/<str:type>/',AddProductInteration.as_view(),name="add_product_interation"),
+    path('addcart_product_interation/<int:itemId>/<str:type>/',AddCartProductInteration.as_view(),name="addcart_product_interation"),
 
 ]
 

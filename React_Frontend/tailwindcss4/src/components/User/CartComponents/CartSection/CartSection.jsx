@@ -132,6 +132,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             setWeightFee(shippingFee);
         } catch (errors) {
             console.error("Error fetching cart data:", errors);
+            toast.error("Billing and shipping addresses are required in your profile before adding items to the cart.");
             setCartData([]);
         } finally {
             setLoading(false);
@@ -181,10 +182,10 @@ const CartSection = ({ setCartView, setCartId }) => {
             });
             console.log("Freeeeeeeeeeeeeeeeeeeeeeee", response.data[0]);
             console.log("eeeeeeeeeeeeeeeeeeeeeeee", response.data[0].min_order_amount);
-            setCheckFeeship(response?.data[0]?.min_order_amount);
+            setCheckFeeship(response?.data[0]?.min_order_amount||{});
         } catch (errors) {
             console.error(errors.response || errors);
-            alert("Failed to fetch free shipping offers. Please try again.");
+            // alert("Failed to fetch free shipping offers. Please try again.");
         }
     };
 

@@ -41,11 +41,33 @@ const NewArrivals = ({ setTopData }) => {
         fetchNewArrivals();
     }, []);
 
+
+    const AddProductInteration = async (id,type) => {
+    try {
+        // const type = "view";
+        const response = await axios.post(
+            `https://127.0.0.1:8000/api/add_product_interation/${id}/${type}/`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }
+        );
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.log("Error Occurred", error);
+    }
+}
+
+
     const AddToCart = (id) => {
          if(!accessToken || accessToken.length === 0) {
                 toast.error("You need to login first!");
                 return;
             }
+            const type="view";
+            AddProductInteration(id,type);
         navigate(`/productview/${id}`);
     };
 
@@ -60,6 +82,8 @@ const NewArrivals = ({ setTopData }) => {
     }
 
     const AddToWishlist = async (id) => {
+        const type="favorite";
+        AddProductInteration(id,type);
          if(!accessToken || accessToken.length === 0) {
                 toast.error("You need to login first!");
                 return;

@@ -149,7 +149,7 @@ const ShippingAddress = () => {
                     <div className="flex flex-row items-center justify-between w-full">
                         <div className="h-full w-[100%] font-bold text-md  m-1 flex flex-col ">
                             <label className="flex justify-start" htmlFor="">
-                                Address Type :
+                                Country :
                             </label>
                             <input
                                 type="text"
@@ -161,7 +161,7 @@ const ShippingAddress = () => {
                         </div>
                         <div className="h-full w-[100%] font-bold text-md  m-1 flex flex-col ">
                             <label className="flex justify-start" htmlFor="">
-                                Zip Code :
+                                Pincode :
                             </label>
                             <input
                                 type="text"

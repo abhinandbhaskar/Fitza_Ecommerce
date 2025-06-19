@@ -431,20 +431,37 @@ class DropDownCategory(APIView):
 # from userapp.serializers import CategoryProductSerializer
 
 from userapp.serializers import ProductViewSerializer
+from common.models import Interaction
+
+
+from django.db.models import Q
 
 class FetchCategoryProduct(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes=[IsAuthenticated]
     def get(self, request, pro_name):
-        # Use icontains for partial matching and case insensitivity
-        obj = Product.objects.filter(
+        user=request.user
+        # Search for approved product items with matching product name
+        products = Product.objects.filter(
             items__status="approved",
             product_name__icontains=pro_name
         ).distinct()
         
-        serializer = ProductSerializer(obj, many=True)
+        # Log interaction if user is authenticated
+        print("Why.....................")
+        if request.user.is_authenticated:
+            print("Not Working.............................")
+            for product in products:
+                Interaction.objects.create(
+                    user=request.user,
+                    product=product,
+                    action='search',
+                    session_key=request.session.session_key,
+                    context={"search_query": pro_name}
+                )
+
+        serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
     
-
 
 # class FetchCategoryProduct(APIView):================================
 #     permission_classes=[IsAuthenticated]
@@ -748,21 +765,38 @@ from userapp.serializers import PaymentSerializer
 
 class SavePaymentDetails(APIView):
     permission_classes = [IsAuthenticated]
+    
     def post(self, request, cartId):
         print("Received Data:", request.data)
         print("CARTIDAAAAAAAAD", cartId)
         serializer = PaymentSerializer(data=request.data, context={"request": request, "cartId": cartId})
         
         if serializer.is_valid():
-            payment = serializer.save()  # Save and get the payment object
+            payment = serializer.save()  
+            order = payment.order
+            order_lines = order.order_lines.all()
+            
+            for order_line in order_lines:
+                product = order_line.product_item.product
+                Interaction.objects.create(
+                    user=request.user,
+                    product=product,
+                    action='purchase',
+                    session_key=request.session.session_key,
+                    context={
+                        "order_id": order.id,
+                        "payment_id": payment.id,
+                        "quantity": order_line.quantity,
+                        "price": str(order_line.price)
+                    }
+                )
+
             return Response({
                 "message": "Payment and shipping details saved successfully.",
-                "payment_id": payment.id  # Include the payment ID in the response
+                "payment_id": payment.id  
             }, status=status.HTTP_201_CREATED)
         
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 from userapp.serializers import AskQuestionSerializer
@@ -1278,3 +1312,76 @@ class CompareProducts(APIView):
         obj=Product.objects.filter(product_name=product_obj.product_name)
         serializer=ProductDetaileViewSerializer(obj,many=True)
         return Response(serializer.data)
+
+
+from common.models import Interaction
+
+class AddProductInteration(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id, type):
+        valid_types = dict(Interaction.INTERACTION_CHOICES).keys()
+        
+        if type not in valid_types:
+            return Response({"error": "Invalid interaction type."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            product = Product.objects.get(id=id)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            interaction = Interaction.objects.create(
+                user=request.user,
+                product=product,
+                action=type,
+                session_key=request.session.session_key,  # Optional if session is enabled
+                duration=request.data.get("duration"),    # Optional: for views
+                context=request.data.get("context", {})   # Optional: any additional data
+            )
+            return Response({
+                "message": f"Interaction '{type}' recorded.",
+                "interaction_id": interaction.interaction_id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+class AddCartProductInteration(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, itemId, type):
+        valid_types = dict(Interaction.INTERACTION_CHOICES).keys()
+
+        if type not in valid_types:
+            return Response({"error": "Invalid interaction type."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            product_item = ProductItem.objects.get(id=itemId)
+        except ProductItem.DoesNotExist:
+            return Response({"error": "Product item not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        product = product_item.product
+
+        try:
+            interaction = Interaction.objects.create(
+                user=request.user,
+                product=product,
+                action=type,
+                session_key=request.session.session_key,
+                duration=request.data.get("duration"),
+                context=request.data.get("context", {
+                    "product_item_id": product_item.id,
+                    "color": product_item.color.color_name if product_item.color else None,
+                    "size": product_item.size.size_name
+                })
+            )
+            return Response({
+                "message": f"Interaction '{type}' recorded.",
+                "interaction_id": interaction.interaction_id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

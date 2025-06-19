@@ -34,6 +34,25 @@ const CategoryProducts = () => {
 
     const navigate = useNavigate();
 
+
+    const AddProductInteration = async (id,type) => {
+    try {
+        // const type = "view";
+        const response = await axios.post(
+            `https://127.0.0.1:8000/api/add_product_interation/${id}/${type}/`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }
+        );
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.log("Error Occurred", error);
+    }
+}
+
     // Extract filter options from products data
     const extractFilterOptions = () => {
         const sizes = new Set();
@@ -79,8 +98,19 @@ const CategoryProducts = () => {
         setLoading(true);
         setError(null);
 
+         if(!accessToken || accessToken.length === 0) {
+                toast.error("You need to login first!");
+                return;
+        }
+
+
+
         try {
-            const response = await axios.get(`https://127.0.0.1:8000/api/fetch_cate_products/${pro_name}/`, {});
+            const response = await axios.get(`https://127.0.0.1:8000/api/fetch_cate_products/${pro_name}/`, {
+               headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            });
 
             setProducts(safe(response,'data'));
             setFilteredProducts(safe(response,'data'));
@@ -111,14 +141,18 @@ const CategoryProducts = () => {
             toast.error("You need to login first!");
             return;
         }
+        const type="view";
+        AddProductInteration(id,type);
         navigate(`/productview/${id}`);
     };
 
     const AddToWishlist = async (id) => {
-            if(!accessToken || accessToken.length === 0) {
-                toast.error("You need to login first!");
-                return;
-            }
+        const type="favorite";
+        AddProductInteration(id,type);
+        if(!accessToken || accessToken.length === 0) {
+            toast.error("You need to login first!");
+            return;
+        }
         try {
             const response = await axios.post(
                 `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
@@ -790,21 +824,7 @@ const CategoryProducts = () => {
                                 <div className="text-sm text-gray-500">
                                     Showing {filteredProducts.length} of {products.length} products
                                 </div>
-                                {/* <div className="flex items-center">
-                                    <label htmlFor="sort" className="mr-2 text-sm text-gray-600">
-                                        Sort by:
-                                    </label>
-                                    <select
-                                        id="sort"
-                                        value={sortOption}
-                                        onChange={handleSortChange}
-                                        className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    >
-                                        <option value="featured">Featured</option>
-                                        <option value="price-low-high">Price: Low to High</option>
-                                        <option value="price-high-low">Price: High to Low</option>
-                                    </select>
-                                </div> */}
+                               
                             </div>
 
                             {/* Products */}
@@ -858,10 +878,10 @@ const CategoryProducts = () => {
                                                     {product?.offers?.[0]?.discount_percentage > 0 ? (
                                                         <>
                                                             <span className="text-sm text-gray-400 line-through mr-2">
-                                                                ${product.items[0].sale_price}
+                                                                ₹{product.items[0].sale_price}
                                                             </span>
                                                             <span className="text-lg font-bold text-green-600">
-                                                                $
+                                                                ₹
                                                                 {(
                                                                     parseFloat(product.items[0].sale_price) *
                                                                     (1 -
@@ -872,7 +892,7 @@ const CategoryProducts = () => {
                                                         </>
                                                     ) : (
                                                         <span className="text-lg font-bold text-gray-800">
-                                                            ${product.items[0].sale_price}
+                                                            ₹{product.items[0].sale_price}
                                                         </span>
                                                     )}
                                                 </div>

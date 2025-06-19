@@ -20,6 +20,26 @@ function ProductView({ product }) {
     const [mainImage, setMainImage] = useState(null);
     const navigate = useNavigate();
 
+
+    const AddCartProductInteration = async (itemId,type) => {
+    try {
+        // const type = "view";
+        const response = await axios.post(
+            `https://127.0.0.1:8000/api/addcart_product_interation/${itemId}/${type}/`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }
+        );
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.log("Error Occurred", error);
+    }
+}
+
+
     useEffect(() => {
         if (product?.items?.length > 0) {
             const initialItem = product.items[0];
@@ -89,6 +109,8 @@ function ProductView({ product }) {
     };
 
     const AddToCartNow = async (itemId) => {
+        const type="cart";
+        AddCartProductInteration(itemId,type);
         const inputData = {
             qnty: parseInt(qnty),
         };
