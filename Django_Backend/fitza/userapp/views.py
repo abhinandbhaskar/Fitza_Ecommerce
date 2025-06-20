@@ -436,31 +436,71 @@ from common.models import Interaction
 
 from django.db.models import Q
 
+
+
+
+
 class FetchCategoryProduct(APIView):
-    permission_classes=[IsAuthenticated]
+    # Remove permission_classes if you want to allow unauthenticated access
+    # Or keep it if you only want authenticated users to search
+    permission_classes = [IsAuthenticated]  # Remove this line if you want public access
+    
     def get(self, request, pro_name):
-        user=request.user
-        # Search for approved product items with matching product name
-        products = Product.objects.filter(
-            items__status="approved",
-            product_name__icontains=pro_name
-        ).distinct()
-        
-        # Log interaction if user is authenticated
-        print("Why.....................")
-        if request.user.is_authenticated:
-            print("Not Working.............................")
-            for product in products:
+        try:
+            # Get or create session key if it doesn't exist
+            if not request.session.session_key:
+                request.session.create()
+            
+            # Search for approved product items with matching product name
+            products = Product.objects.filter(
+                items__status="approved",
+                product_name__icontains=pro_name
+            ).distinct()
+            
+            # Create a single interaction record for the search
+            if request.user.is_authenticated:
                 Interaction.objects.create(
                     user=request.user,
-                    product=product,
+                    product=products.first(),  # Log first product or None
                     action='search',
                     session_key=request.session.session_key,
                     context={"search_query": pro_name}
                 )
+            
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data)
+            
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
+# class FetchCategoryProduct(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def get(self, request, pro_name):
+#         user=request.user
+#         # Search for approved product items with matching product name
+#         products = Product.objects.filter(
+#             items__status="approved",
+#             product_name__icontains=pro_name
+#         ).distinct()
+        
+#         # Log interaction if user is authenticated
+#         print("Why.....................")
+#         if request.user.is_authenticated:
+#             print("Not Working.............................")
+#             for product in products:
+#                 Interaction.objects.create(
+#                     user=request.user,
+#                     product=product,
+#                     action='search',
+#                     session_key=request.session.session_key,
+#                     context={"search_query": pro_name}
+#                 )
+
+#         serializer = ProductSerializer(products, many=True)
+#         return Response(serializer.data)
     
 
 # class FetchCategoryProduct(APIView):================================
@@ -485,10 +525,12 @@ from userapp.serializers import AddToCartSerializer,GetCartDataSerializer
 class AddToCart(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request,itemId):
+        user=request.user
         serializer=AddToCartSerializer(data=request.data,context={"request":request,"itemId":itemId})
+        cart_count=ShoppingCartItem.objects.filter(shopping_cart__user=user).count()
         if serializer.is_valid():
             serializer.save()
-            return Response({"message":"Product added to cart."},status=status.HTTP_201_CREATED)
+            return Response({"message":"Product added to cart.","cart_count":cart_count},status=status.HTTP_201_CREATED)
         return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
 
 from userapp.models import ShoppingCartItem
@@ -1186,7 +1228,8 @@ class UserUnreadNotifications(APIView):
     def get(self,request):
         user=request.user
         obj=Notification.objects.filter(user=user,group='all_users',is_read=False)
-        serializer={"notifications":len(obj)}
+        cart_count=ShoppingCartItem.objects.filter(shopping_cart__user=user).count()
+        serializer={"notifications":len(obj),"cart_count":cart_count}
         return Response(serializer)
 
 
@@ -1385,3 +1428,85 @@ class AddCartProductInteration(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from userapp.ai_recommendations import AIRecommender
+# from common.models import Product
+# from userapp.serializers import ProductSerializer
+
+# @api_view(['GET'])
+# def ai_recommendations(request):
+#     if not request.user.is_authenticated:
+#         return Response({"products": []})
+    
+#     product_ids = AIRecommender.predict(request.user.id)
+#     products = Product.objects.filter(id__in=product_ids).order_by('?')[:5]  # Randomize if same score
+    
+#     # Maintain order from prediction
+#     product_order = {pid: i for i, pid in enumerate(product_ids)}
+#     products = sorted(products, key=lambda x: product_order.get(x.id, 0))
+    
+#     return Response({
+#         "products": ProductSerializer(products, many=True).data,
+#         "message": "AI-generated recommendations"
+#     })
+
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from userapp.ai_recommendations import AIRecommender
+from common.models import Product
+from userapp.serializers import ProductSerializer
+import logging
+
+logger = logging.getLogger(__name__)
+
+@api_view(['GET'])
+def ai_recommendations(request):
+    if not request.user.is_authenticated:
+        return Response(
+            {"products": [], "message": "Please login to get personalized recommendations"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    try:
+        # Get more recommendations than needed for fallback
+        product_ids = AIRecommender.predict(request.user.id, num_recs=10)
+        
+        if not product_ids:
+            # Fallback to popular products if no AI recommendations
+            # products = Product.objects.filter(is_active=True).order_by('-popularity_score')[:5]
+            products = Product.objects.all().order_by('-id')[:5]
+            return Response({
+                "products": ProductSerializer(products, many=True).data,
+                "message": "Popular products (AI recommendations not available)",
+                "source": "fallback"
+            })
+        
+        # Get products maintaining order from prediction
+        products = Product.objects.filter(id__in=product_ids, is_active=True)
+        product_map = {p.id: p for p in products}
+        
+        # Reconstruct original order with only available products
+        ordered_products = [product_map[pid] for pid in product_ids if pid in product_map][:5]
+        
+        return Response({
+            "products": ProductSerializer(ordered_products, many=True).data,
+            "message": "AI-generated recommendations",
+            "source": "ai"
+        })
+        
+    except Exception as e:
+        logger.error(f"Recommendation error for user {request.user.id}: {str(e)}", exc_info=True)
+        # Fallback to recently added products in case of error
+        products = Product.objects.filter(is_active=True).order_by('-created_at')[:5]
+        return Response({
+            "products": ProductSerializer(products, many=True).data,
+            "message": "New arrivals (recommendation system temporarily unavailable)",
+            "source": "error_fallback"
+        })

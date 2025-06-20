@@ -8,11 +8,14 @@ import NewArrivals from '../../../components/User/NewArrivals/NewArrivals'
 import TopRelease from '../../../components/User/TopRelease/TopRelease'
 import Footer from '../../../components/User/Footer/Footer'
 import api from '../../../utils/api'
-const HomePage = ({countsN,setNcounts}) => {
+import ErrorBoundary from '../../../components/ErrorBoundary'
+const HomePage = ({countsN,setNcounts,setCartCount,cartCount}) => {
    const[topdata,setTopData]=useState([])
   return (
     <div>
-      <Header countsN={countsN} setNcounts={setNcounts}></Header>
+      <ErrorBoundary>
+      <Header countsN={countsN} setNcounts={setNcounts} setCartCount={setCartCount} cartCount={cartCount}></Header>
+      </ErrorBoundary>
       <BannerSection/>
       <DealsOftheDay/>
       <TopCollection/>

@@ -6,7 +6,7 @@ import Footer from '../../../components/User/Footer/Footer'
 import { useLocation } from "react-router-dom";
 import { useEffect } from 'react'
 
-const ProfilePage = ({countsN}) => {
+const ProfilePage = ({countsN,cartCount}) => {
   const [currentView, setCurrentView] = useState("profile");
   const location = useLocation();
 
@@ -18,7 +18,7 @@ const ProfilePage = ({countsN}) => {
 
   return (
     <div>
-        <Header countsN={countsN}/>
+        <Header countsN={countsN} cartCount={cartCount}/>
         <MyProfile currentView={currentView} setCurrentView={setCurrentView}/>
         <Footer/>
     </div>

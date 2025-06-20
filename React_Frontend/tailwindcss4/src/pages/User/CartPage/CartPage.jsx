@@ -4,12 +4,12 @@ import Footer from "../../../components/User/Footer/Footer";
 import CartSection from "../../../components/User/CartComponents/CartSection/CartSection";
 import AddressSection from "../../../components/User/CartComponents/AddressSection/AddressSection";
 import PaymentSection from "../../../components/User/CartComponents/PaymentSection/PaymentSection";
-const CartPage = ({countsN}) => {
+const CartPage = ({countsN,cartCount,setCartCount}) => {
     const[cartView,setCartView]=useState("cart");
     const[cartId,setCartId]=useState(null);
   return (
     <>
-      <Header countsN={countsN} />
+      <Header countsN={countsN} cartCount={cartCount} />
       <div className="min-h-screen bg-gray-50">
         {/* Progress Bar */}
         <div className="flex items-center justify-center py-4 bg-white shadow-md">
@@ -35,7 +35,7 @@ const CartPage = ({countsN}) => {
           </div>
         </div>
         {cartView==="cart" && (
-            <CartSection setCartView={setCartView} setCartId={setCartId}/>
+            <CartSection setCartView={setCartView} setCartId={setCartId} setCartCount={setCartCount}/>
         )}
 
         {

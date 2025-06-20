@@ -8,7 +8,7 @@ import { safe } from "../../../utils/safeAccess";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 
-const OfferSection = ({ countsN }) => {
+const OfferSection = ({ countsN,cartCount }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
@@ -101,7 +101,7 @@ const OfferSection = ({ countsN }) => {
 
   return (
     <>
-      <Header countsN={countsN} />
+      <Header countsN={countsN} cartCount={cartCount} />
       <div className="collection-container h-auto w-screen">
         <div className="collection-header h-auto w-full text-center my-12">
           <div>

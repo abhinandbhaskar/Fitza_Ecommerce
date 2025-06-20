@@ -8,7 +8,7 @@ import { safe } from "../../../utils/safeAccess";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 
-const WishlistPage = ({countsN}) => {
+const WishlistPage = ({countsN,cartCount}) => {
 
     const {accessToken}=useSelector((state)=>state.auth);
     const[fav,setFav]=useState([]);
@@ -78,7 +78,7 @@ const WishlistPage = ({countsN}) => {
 
     return (
         <>
-            <Header countsN={countsN} />
+            <Header countsN={countsN} cartCount={cartCount} />
             <div className="collection-container h-auto min-h-[400px] width-screen">
                 <div className="py-10 text-center">
                     <h3 className="text-2xl font-semibold text-gray-800">My Wishlist</h3>

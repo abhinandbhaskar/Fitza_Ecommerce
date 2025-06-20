@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { useNavigate,useParams } from 'react-router-dom';
 import { safe } from '../../../utils/safeAccess';
 
-const CompareProducts = ({ countsN }) => {
+const CompareProducts = ({ countsN,cartCount }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [productData, setProductData] = useState([]);
   const navigate=useNavigate();

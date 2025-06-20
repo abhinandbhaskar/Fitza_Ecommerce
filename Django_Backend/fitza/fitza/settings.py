@@ -341,3 +341,13 @@ CORS_ALLOW_HEADERS = [
     "origin",
     "x-csrftoken",
 ]
+
+
+#AI
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'ai-recommender-cache',
+    }
+}

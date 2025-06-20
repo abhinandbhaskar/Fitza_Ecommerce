@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 import { safe } from "../../../utils/safeAccess";
 
-const Header = ({countsN,setNcounts}) => {
+const Header = ({countsN,setNcounts,setCartCount,cartCount}) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const { isAuthenticated, accessToken } = useSelector((state) => state.auth);
     const [cate1, setCate1] = useState([]);
@@ -49,6 +49,7 @@ const Header = ({countsN,setNcounts}) => {
                 "https://127.0.0.1:8000/api/fetch_drop_data/",{});
             setSubCate(response.data);
             setProducts(response.data);
+            console.log("Dooooo",response)
         } catch (error) {
             console.error("Sub-category Fetch Error:", error);
         }
@@ -81,12 +82,12 @@ const Header = ({countsN,setNcounts}) => {
                         },
                     });
                     console.log("KAKAKAKAK", response);
-                    setNcounts(response.data.notifications);
+                    setNcounts(safe(response,'data.notifications'));
+                    setCartCount(safe(response,'data.cart_count'));
                     // setCountN(response.data.notifications)
                    
                 } catch (errors) {
                     console.log("errors:", errors);
-                    console.log("errors:", errors.response.data);
                 }
 
     }
@@ -206,8 +207,14 @@ const Header = ({countsN,setNcounts}) => {
                     </Link>
                     
                     {/* Cart */}
-                    <Link to="/cartpage">
+                    <Link to="/cartpage" className="relative">
                         <i className="fa-solid fa-bag-shopping text-red-400 text-xl md:text-3xl"></i>
+                         {!accessToken || accessToken.length === 0 ?
+                            <span></span>:
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {cartCount}
+                            </span>
+                            }
                     </Link>
                     
                     {/* Seller Join Button - Mobile */}

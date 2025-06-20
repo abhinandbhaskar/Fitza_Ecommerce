@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 import { safe } from "../../../utils/safeAccess";
 
-const CategoryProducts = () => {
+const CategoryProducts = ({countsN,cartCount}) => {
     const { pro_name } = useParams();
     const { accessToken } = useSelector((state) => state.auth);
     const [products, setProducts] = useState([]);
@@ -280,7 +280,7 @@ const CategoryProducts = () => {
 
     return (
         <>
-            <Header />
+            <Header countsN={countsN} cartCount={cartCount} />
             <div className="min-h-screen bg-gray-50">
                 <div className="container mx-auto px-4 py-8">
                     {/* Page header */}

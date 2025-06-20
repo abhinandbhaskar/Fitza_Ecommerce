@@ -7,7 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 import { safe } from "../../../../utils/safeAccess";
 
-const CartSection = ({ setCartView, setCartId }) => {
+const CartSection = ({ setCartView, setCartId,setCartCount }) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [cartdata, setCartData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -59,6 +59,8 @@ const CartSection = ({ setCartView, setCartId }) => {
             });
 
             const cartData = safe(response,'data.cartdata') || [];
+            const cart_count=response.data.cartdata.length
+            setCartCount(cart_count);
             const postcode = safe(response,'data.postcode') || "";
 
             setCartData(cartData);
@@ -240,10 +242,7 @@ const CartSection = ({ setCartView, setCartId }) => {
   // Apply discount card (if any) - should be on product value only
   let discountCardValue = 0;
   if (discountPercentage > 0) {
-    console.log("SUBBBBBBBBTOTALLLLLLLLLLLLLL",subtotal);
-    console.log("totalPriceSUBBBBBBBBTOTALLLLLLLLLLLLLL",totalPrice);
-    console.log("productDiscountSUBBBBBBBBTOTALLLLLLLLLLLLLL",productDiscount);
-    console.log("DISCOUNTPPPPPPPPPPPPPPPPPPpppp",discountPercentage);
+   
     let TotalAmount=totalPrice+productDiscount;
     console.log("TOTKKKKKKKKKKKKKKKKKKKKKKKKKKKK",TotalAmount);
     discountCardValue = TotalAmount * (discountPercentage / 100);
@@ -485,7 +484,9 @@ const CartSection = ({ setCartView, setCartId }) => {
                                             Description :{" "}
                                             <span className="font-bold">
                                                 {" "}
-                                                {item?.product_item?.product?.product_description || "Unknown Product"}
+                                                {/* {product.product_name.length > 20 ? `${product.product_name.substring(0, 20)}..`:product.product_name} */}
+
+                                                {item?.product_item?.product?.product_description > 70 ? `${item?.product_item?.product?.product_description.substring(0, 70)}...`: `${item?.product_item?.product?.product_description.substring(0, 70)}...`}
                                             </span>
                                         </p>
 

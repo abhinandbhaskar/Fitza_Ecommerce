@@ -10,7 +10,7 @@ import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
-function ProductView({ product }) {
+function ProductView({ product,cartCount }) {
     const [addInfoToggle, setAddInfoToggle] = useState("addInfo");
     const { accessToken } = useSelector((state) => state.auth);
     const [qnty, setQnty] = useState(1);
@@ -122,9 +122,10 @@ function ProductView({ product }) {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-
             if (response.status === 201) {
-                // alert(response.data.message);
+                
+                console.log("GGO",response.data);
+                // console.log("cart_count",response.data.cart_count);
                 toast.success(response.data.message);
             }
         } catch (err) {
@@ -140,10 +141,6 @@ function ProductView({ product }) {
         },2000);
     }
 
-    // Fallback image in case selectedItem or images are not available
-    // const mainImage = selectedItem?.images?.[0]?.main_image
-    //     ? `https://127.0.0.1:8000${selectedItem.images[0].main_image}`
-    //     : "/path/to/default-image.jpg"; // Add a default image path
 
     const displayImage = mainImage || "/path/to/default-image.jpg";
 

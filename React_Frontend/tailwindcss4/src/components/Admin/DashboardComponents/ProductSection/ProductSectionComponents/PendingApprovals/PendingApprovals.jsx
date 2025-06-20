@@ -59,6 +59,7 @@ const PendingApprovals = () => {
     {
       console.log(errors);
       console.log(errors.response);
+      alert("Product Code Already exists...");
     }
   }
 
@@ -81,7 +82,7 @@ const PendingApprovals = () => {
       console.log(response.data);
       // alert(response.data.message);
       
-      alert("Product Approved Successfully...");
+      alert("Product Rejected Successfully...");
        setView(true);
        fetchApprovals();
     }catch(errors)
