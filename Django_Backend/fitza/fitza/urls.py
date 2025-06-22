@@ -37,7 +37,7 @@ urlpatterns = [
     path('password-reset/done/',auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'),name='password_reset_confirm'),
     path('reset/done/',auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'),name='password_reset_complete'),
-    path('social/', include('social_django.urls', namespace='social')),  # Required for social auth
+    path('social/', include('social_django.urls', namespace='social')),   # Required for social auth
     path('clear-session/', views.clear_session, name='clear_session'),
     path('accounts/login/', views.custom_login_view, name='login'), 
     path('set-cookie-after-login/', views.oauth_redirect_handler, name='set_cookie_after_login'),

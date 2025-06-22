@@ -148,7 +148,7 @@ const AddProducts3 = ({ setCurrentView }) => {
               {img && (
                 <div className="mt-4">
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Preview:</h3>
-                  <div className="w-64 h-64 border-2 border-gray-300 rounded-lg overflow-hidden">
+                  <div className="w-64 h-84 border-2 border-gray-300 rounded-lg overflow-hidden">
                     <img
                       className="w-full h-full object-cover"
                       src={URL.createObjectURL(img)}
@@ -190,7 +190,7 @@ const AddProducts3 = ({ setCurrentView }) => {
               
               {img1 && (
                 <div className="mt-2 w-full">
-                  <div className="w-48 h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
+                  <div className="w-48 h-68 border-2 border-gray-300 rounded-lg overflow-hidden">
                     <img
                       className="w-full h-full object-cover"
                       src={URL.createObjectURL(img1)}
@@ -221,7 +221,7 @@ const AddProducts3 = ({ setCurrentView }) => {
               
               {img2 && (
                 <div className="mt-2 w-full">
-                  <div className="w-48 h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
+                  <div className="w-48 h-68 border-2 border-gray-300 rounded-lg overflow-hidden">
                     <img
                       className="w-full h-full object-cover"
                       src={URL.createObjectURL(img2)}
@@ -252,7 +252,7 @@ const AddProducts3 = ({ setCurrentView }) => {
               
               {img3 && (
                 <div className="mt-2 w-full">
-                  <div className="w-48 h-48 border-2 border-gray-300 rounded-lg overflow-hidden">
+                  <div className="w-48 h-68 border-2 border-gray-300 rounded-lg overflow-hidden">
                     <img
                       className="w-full h-full object-cover"
                       src={URL.createObjectURL(img3)}

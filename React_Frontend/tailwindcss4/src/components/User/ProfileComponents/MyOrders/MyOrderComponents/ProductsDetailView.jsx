@@ -6,7 +6,7 @@ const ProductsDetailView = ({ currentView, setCurrentView, setMyOrderView }) => 
     useEffect(() => {
         if (currentView.view === "productdetail") {
             const productData = currentView.data;
-            console.log("Vadodara", productData); // Access the product object
+            console.log("Vadodara", productData);
             setProduct(productData);
         }
     }, [currentView]);
@@ -15,13 +15,11 @@ const ProductsDetailView = ({ currentView, setCurrentView, setMyOrderView }) => 
         <div className="h-full w-full p-6 flex flex-col bg-gray-50">
 
 
-            {/* Header */}
             <div className="flex items-center gap-4 pb-4 border-b">
                 <i className="fa-solid fa-cart-shopping text-4xl text-blue-500"></i>
                 <h1 className="text-3xl font-bold text-gray-800">Product Details</h1>
             </div>
 
-            {/* Breadcrumb */}
             <div className="py-2 text-gray-600 text-sm">
                   <button 
         className="text-blue-500 hover:text-blue-700 hover:underline"
@@ -33,23 +31,13 @@ const ProductsDetailView = ({ currentView, setCurrentView, setMyOrderView }) => 
         My Order &gt;
     </button>
 
-               {/* <button 
-    className="text-blue-500 hover:text-blue-700 hover:underline"
-    onClick={() => {
-        // setCurrentView("myorders");
-        setMyOrderView("details");
-    }}
->
-    Order Details &gt;
-</button> */}
+           
                 <span className="font-semibold text-blue-600">Product Details</span>
             </div>
 
-            {/* Product Details Section */}
             {product ? (
                 <div className="bg-white rounded-lg shadow p-4 mt-4">
                     <div className="flex flex-col md:flex-row gap-4">
-                        {/* Product Image */}
                         <img
                             src={`https://127.0.0.1:8000/${product.product_item.product.items[0].images[0].main_image}`}
                             alt={product.product_item.product.product_name}

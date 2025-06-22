@@ -66,7 +66,6 @@ const FreeshippingSection = () => {
 
         setEditOfferId(null);
       } else {
-        // Add new offer
         const newOffer = {
           id: freeShippingOffers.length + 1,
           minOrderAmount: parseFloat(minOrderAmount).toFixed(2),
@@ -175,7 +174,6 @@ const FreeshippingSection = () => {
             is_active: response.data.is_active,
           };
       
-          // Update the card in the discountCards array
           setFreeShippingOffers((prev) =>
             prev.map((card) => (card.id === id ? updatedCard : card))
           );
@@ -224,7 +222,6 @@ const FreeshippingSection = () => {
         }
       );
       console.log(response.data);
-      // Assuming response.data is an array
       setFreeShippingOffers(
         response.data.map((offer) => ({
           id: offer.id,

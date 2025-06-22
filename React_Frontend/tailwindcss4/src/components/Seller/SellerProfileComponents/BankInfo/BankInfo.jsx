@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {useSelector} from "react-redux"
-import { toast } from "react-toastify"; // For showing error messages
+import { toast } from "react-toastify"; 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

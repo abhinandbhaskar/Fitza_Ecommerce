@@ -16,7 +16,7 @@ const SignUpPage = () => {
         email: "",
         phone: "",
         password1: "",
-        password2: ""
+        password2: "",
     });
     const [errors, setErrors] = useState({
         fullname: "",
@@ -24,23 +24,22 @@ const SignUpPage = () => {
         phone: "",
         password1: "",
         password2: "",
-        general: ""
+        general: "",
     });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [name]: value.trim()
+            [name]: value.trim(),
         }));
-        
-        // Clear error when user starts typing
+
         if (errors[name]) {
-            setErrors(prev => ({
+            setErrors((prev) => ({
                 ...prev,
-                [name]: ""
+                [name]: "",
             }));
         }
     };
@@ -53,7 +52,7 @@ const SignUpPage = () => {
             phone: "",
             password1: "",
             password2: "",
-            general: ""
+            general: "",
         };
 
         // Fullname validation
@@ -118,7 +117,7 @@ const SignUpPage = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         setLoading(true);
-        
+
         if (!validateForm()) {
             setLoading(false);
             return;
@@ -133,33 +132,33 @@ const SignUpPage = () => {
                     email: "",
                     phone: "",
                     password1: "",
-                    password2: ""
+                    password2: "",
                 });
                 toast.success("Please check your email to verify your account and complete registration.");
                 setTimeout(() => {
                     navigate("/login");
                 }, 3000);
             }
-        }catch (error) {
-                    let errorMsg = "Registration failed. Please check your details and try again.";
-        
-                    if (error.response?.data) {
-                        // Handle Django's non_field_errors
-                        if (error.response.data.non_field_errors) {
-                            errorMsg = error.response.data.non_field_errors[0];
-                        }
-                        // Handle other error formats
-                        else if (error.response.data.message) {
-                            errorMsg =
-                                typeof error.response.data.message === "string"
-                                    ? error.response.data.message.non_field_errors[0]
-                                    : JSON.stringify(error.response.data.message.non_field_errors[0]);
-                        }
-                    } else if (error.message) {
-                        errorMsg = error.message.non_field_errors[0];
-                    }
-                    toast.error(errorMsg);
-                }finally {
+        } catch (error) {
+            let errorMsg = "Registration failed. Please check your details and try again.";
+
+            if (error.response?.data) {
+                // Handle Django's non_field_errors
+                if (error.response.data.non_field_errors) {
+                    errorMsg = error.response.data.non_field_errors[0];
+                }
+                // Handle other error formats
+                else if (error.response.data.message) {
+                    errorMsg =
+                        typeof error.response.data.message === "string"
+                            ? error.response.data.message.non_field_errors[0]
+                            : JSON.stringify(error.response.data.message.non_field_errors[0]);
+                }
+            } else if (error.message) {
+                errorMsg = error.message.non_field_errors[0];
+            }
+            toast.error(errorMsg);
+        } finally {
             setLoading(false);
         }
     };
@@ -182,13 +181,13 @@ const SignUpPage = () => {
                     <span>&lt;</span>Back
                 </button>
             </Link>
-           
+
             <div className="h-screen w-full md:w-[600px] flex items-center justify-center flex-col gap-2 md:gap-5 rounded-4xl shadow-2xl">
                 <form className="w-4/5 md:w-1/2 flex flex-col gap-3" onSubmit={handleRegister}>
                     <div className="text-center">
                         <h1 className="text-4xl font-bold">SignUp</h1>
                     </div>
-                    
+
                     <div>
                         <input
                             type="text"
@@ -201,7 +200,7 @@ const SignUpPage = () => {
                         />
                         {errors.fullname && <p className="text-red-500 text-sm mt-1">{errors.fullname}</p>}
                     </div>
-                    
+
                     <div>
                         <input
                             type="text"
@@ -214,7 +213,7 @@ const SignUpPage = () => {
                         />
                         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
-                    
+
                     <div>
                         <input
                             type="text"
@@ -227,7 +226,7 @@ const SignUpPage = () => {
                         />
                         {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                     </div>
-                    
+
                     <div>
                         <input
                             type="password"
@@ -240,7 +239,7 @@ const SignUpPage = () => {
                         />
                         {errors.password1 && <p className="text-red-500 text-sm mt-1">{errors.password1}</p>}
                     </div>
-                    
+
                     <div>
                         <input
                             type="password"
@@ -253,7 +252,7 @@ const SignUpPage = () => {
                         />
                         {errors.password2 && <p className="text-red-500 text-sm mt-1">{errors.password2}</p>}
                     </div>
-                    
+
                     <button
                         type="submit"
                         disabled={loading}
@@ -265,21 +264,31 @@ const SignUpPage = () => {
                     </button>
 
                     {errors.general && <p className="text-red-500 text-center">{errors.general}</p>}
-                    
+
                     <div className="text-center">
                         <p>or continue with</p>
                     </div>
-                    
+
+                    {/* <div className="text-center flex items-center justify-center">
+                        <a
+                            href="https://localhost:8000/social/complete/google-oauth2/"
+                            className="flex items-center justify-center w-[200px] px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <i className="fa-brands fa-google p-2"></i>
+                            Continue with Google
+                        </a>
+                    </div> */}
+
                     <div className="text-center flex items-center justify-center">
                         <a
-                            href="https://localhost:8000/social/login/google-oauth2/"
+                            href='https://localhost:8000/social/complete/google-oauth2/'
                             className="flex items-center justify-center w-[200px] px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             <i className="fa-brands fa-google p-2"></i>
                             Continue with Google
                         </a>
                     </div>
-                    
+
                     <div className="text-center">
                         <h4>
                             Already have an account?{" "}
@@ -290,7 +299,7 @@ const SignUpPage = () => {
                     </div>
                 </form>
             </div>
-            
+
             <div className="welcome-container h-screen w-1/3 flex justify-center flex-col items-center">
                 <div className="flex w-[70%] flex-row py-2 items-center">
                     <img src={fitza} className="h-24 w-24" alt="" />
@@ -312,7 +321,7 @@ const SignUpPage = () => {
                     />
                 )}
             </div>
-            <ToastContainer/>
+            <ToastContainer />
         </div>
     );
 };

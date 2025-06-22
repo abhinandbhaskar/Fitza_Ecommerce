@@ -3,11 +3,11 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { updateShopOrder } from "../../../../redux/ShopOrderSlice";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'; 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { safe } from "../../../../utils/safeAccess";
 
-const CartSection = ({ setCartView, setCartId }) => {
+const CartSection = ({ setCartView, setCartId, setCartCount, setSection }) => {
     const { accessToken } = useSelector((state) => state.auth);
     const [cartdata, setCartData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ const CartSection = ({ setCartView, setCartId }) => {
     const [coupontype, setCouponType] = useState("");
     const [expiredate, setExpireDate] = useState("");
     const [productDiscount, setProductDiscount] = useState(0);
-    const [couponId,setCouponId]=useState(null);
+    const [couponId, setCouponId] = useState(null);
 
     const [startPincode, setStartPincode] = useState("");
     const [endPincode, setEndPincode] = useState("");
@@ -44,10 +44,10 @@ const CartSection = ({ setCartView, setCartId }) => {
     };
 
     const fetchData = async () => {
-          if(!accessToken || accessToken.length === 0) {
-              toast.error("You need to login first!");
-              return;
-            }
+        if (!accessToken || accessToken.length === 0) {
+            toast.error("You need to login first!");
+            return;
+        }
 
         try {
             setLoading(true);
@@ -58,8 +58,10 @@ const CartSection = ({ setCartView, setCartId }) => {
                 },
             });
 
-            const cartData = safe(response,'data.cartdata') || [];
-            const postcode = safe(response,'data.postcode') || "";
+            const cartData = safe(response, "data.cartdata") || [];
+            const cart_count = response.data.cartdata.length;
+            setCartCount(cart_count);
+            const postcode = safe(response, "data.postcode") || "";
 
             setCartData(cartData);
             console.log("Cart Data:", cartData);
@@ -86,13 +88,9 @@ const CartSection = ({ setCartView, setCartId }) => {
 
                         if (now >= startDate && now <= endDate) {
                             const discountPercentage = parseFloat(offer.discount_percentage) || 0;
-                            console.log("originalPriceSOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",originalPrice);
-                            console.log("discountPercentageDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",discountPercentage);
-
+                           
                             itemPrice = originalPrice * (1 - discountPercentage / 100);
                             discountAmount = originalPrice - itemPrice; // Calculate discount per item
-                            console.log("DisamountOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",discountAmount);
-
                         }
                     }
 
@@ -105,11 +103,11 @@ const CartSection = ({ setCartView, setCartId }) => {
                 { totalPrice: 0, totalDiscount: 0 }
             );
 
-            console.log("Total Price:", safe(result,'totalPrice'));
-            console.log("Total Discount:", safe(result,'totalDiscount'));
-            CalculatePlatformFee(safe(result,'totalPrice'));
-            setTotalPrice(safe(result,'totalPrice'));
-            setProductDiscount(safe(result,'totalDiscount'));
+            console.log("Total Price:", safe(result, "totalPrice"));
+            console.log("Total Discount:", safe(result, "totalDiscount"));
+            CalculatePlatformFee(safe(result, "totalPrice"));
+            setTotalPrice(safe(result, "totalPrice"));
+            setProductDiscount(safe(result, "totalDiscount"));
 
             const TotalWeight = cartData.reduce((total, item) => {
                 const productItem = item?.product_item?.product?.weight || 0;
@@ -118,13 +116,11 @@ const CartSection = ({ setCartView, setCartId }) => {
 
             console.log("TotalWeight in grams:", TotalWeight);
 
-            // Calculate shipping fee
             let shippingFee = 0;
             if (TotalWeight > 200) {
-                // Calculate how many 200g units are above the free threshold
                 const excessWeight = TotalWeight - 200;
-                const units = Math.ceil(excessWeight / 200); // Round up to nearest whole number
-                shippingFee = units * 5; // ₹5 per 200g unit
+                const units = Math.ceil(excessWeight / 200); 
+                shippingFee = units * 5; 
             }
 
             console.log("Shipping Feefffffffffffffff:", shippingFee);
@@ -132,6 +128,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             setWeightFee(shippingFee);
         } catch (errors) {
             console.error("Error fetching cart data:", errors);
+            toast.error("Billing and shipping addresses are required in your profile before adding items to the cart.");
             setCartData([]);
         } finally {
             setLoading(false);
@@ -165,7 +162,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             });
             console.log(response);
             console.log("++++++++++++++++++++++++", response.data);
-            setDiscountCard(safe(response,'data'));
+            setDiscountCard(safe(response, "data"));
         } catch (errors) {
             console.log(errors);
             console.log(errors.response);
@@ -179,16 +176,15 @@ const CartSection = ({ setCartView, setCartId }) => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
-            console.log("Freeeeeeeeeeeeeeeeeeeeeeee", response.data[0]);
-            console.log("eeeeeeeeeeeeeeeeeeeeeeee", response.data[0].min_order_amount);
-            setCheckFeeship(response?.data[0]?.min_order_amount);
+       
+            setCheckFeeship(response?.data[0]?.min_order_amount || {});
         } catch (errors) {
             console.error(errors.response || errors);
-            alert("Failed to fetch free shipping offers. Please try again.");
         }
     };
 
     useEffect(() => {
+        setSection("cart");
         fetchData();
         fetchDiscoundCard();
         fetchFetchFreeShip();
@@ -204,7 +200,7 @@ const CartSection = ({ setCartView, setCartId }) => {
             });
             console.log("Roooot KMMMMMM", response.data);
             console.log("Route data Shipfee: ", response.data.shipping_fee);
-            const fees = safe(response,'data.shipping_fee');
+            const fees = safe(response, "data.shipping_fee");
             setTravelFee(fees);
         } catch (error) {
             console.error("Error:", error);
@@ -214,80 +210,69 @@ const CartSection = ({ setCartView, setCartId }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             if (startPincode && endPincode) {
-                fetchRoute(); // Move the fetchRoute function outside the useEffect if needed
+                fetchRoute();
             }
-        }, 100); // Adjust debounce delay as necessary
+        }, 100);
 
-        return () => clearTimeout(timer); // Cleanup previous timer on dependency change
+        return () => clearTimeout(timer); 
     }, [startPincode, endPincode]);
 
-
     useEffect(() => {
-  // Calculate base subtotal after product discounts
-//   let subtotal = totalPrice - productDiscount;
-  let subtotal = totalPrice;
+       
+        let subtotal = totalPrice;
 
-  // Apply coupon discount first (if any)
-  if (coupontype && discountValue) {
-    if (coupontype === "fixed") {
-      subtotal = Math.max(0, subtotal - discountValue); // Ensure subtotal doesn't go negative
-    } else if (coupontype === "percentage") {
-      subtotal *= (1 - discountValue / 100);
-    }
-  }
+      
+        if (coupontype && discountValue) {
+            if (coupontype === "fixed") {
+                subtotal = Math.max(0, subtotal - discountValue); 
+            } else if (coupontype === "percentage") {
+                subtotal *= 1 - discountValue / 100;
+            }
+        }
 
-  // Apply discount card (if any) - should be on product value only
-  let discountCardValue = 0;
-  if (discountPercentage > 0) {
-    console.log("SUBBBBBBBBTOTALLLLLLLLLLLLLL",subtotal);
-    console.log("totalPriceSUBBBBBBBBTOTALLLLLLLLLLLLLL",totalPrice);
-    console.log("productDiscountSUBBBBBBBBTOTALLLLLLLLLLLLLL",productDiscount);
-    console.log("DISCOUNTPPPPPPPPPPPPPPPPPPpppp",discountPercentage);
-    let TotalAmount=totalPrice+productDiscount;
-    console.log("TOTKKKKKKKKKKKKKKKKKKKKKKKKKKKK",TotalAmount);
-    discountCardValue = TotalAmount * (discountPercentage / 100);
-    subtotal -= discountCardValue;
-  }
+        let discountCardValue = 0;
+        if (discountPercentage > 0) {
+            let TotalAmount = totalPrice + productDiscount;
+            discountCardValue = TotalAmount * (discountPercentage / 100);
+            subtotal -= discountCardValue;
+        }
 
-  // Calculate platform fee (2% of discounted subtotal)
-  const calculatedPlatformFee = subtotal * 0.02;
-  setPlatformfee(calculatedPlatformFee);
+        const calculatedPlatformFee = subtotal * 0.02;
+        setPlatformfee(calculatedPlatformFee);
 
-  // Calculate shipping fee
-  let finalShippingFee = 0;
-  if (checkFreeShip > subtotal) { // Only apply shipping if order doesn't qualify for free shipping
-    finalShippingFee = weightfee + travelfee;
-  }
+        let finalShippingFee = 0;
+        if (checkFreeShip > subtotal) {
+            finalShippingFee = weightfee + travelfee;
+        }
 
-  // Calculate final total
-  const finalTotal = subtotal + calculatedPlatformFee + finalShippingFee;
+        // Calculate final total
+        const finalTotal = subtotal + calculatedPlatformFee + finalShippingFee;
 
-  // Update all states
-  setShippingfee(finalShippingFee);
-  setOrderTotal(finalTotal);
+        setShippingfee(finalShippingFee);
+        setOrderTotal(finalTotal);
 
-  console.log("Calculation Breakdown:", {
-    originalPrice: totalPrice,
-    productDiscount,
-    afterProductDiscount: totalPrice - productDiscount,
-    afterCoupon: subtotal + discountCardValue, // Show value before card discount
-    discountCardValue,
-    afterDiscountCard: subtotal,
-    platformFee: calculatedPlatformFee,
-    shippingFee: finalShippingFee,
-    finalTotal
-  });
-}, [
-  totalPrice,
-  productDiscount,
-  weightfee,
-  travelfee,
-  couponMinOrder,
-  discountValue,
-  coupontype,
-  discountPercentage,
-  checkFreeShip
-]);
+        console.log("Calculation Breakdown:", {
+            originalPrice: totalPrice,
+            productDiscount,
+            afterProductDiscount: totalPrice - productDiscount,
+            afterCoupon: subtotal + discountCardValue, // Show value before card discount
+            discountCardValue,
+            afterDiscountCard: subtotal,
+            platformFee: calculatedPlatformFee,
+            shippingFee: finalShippingFee,
+            finalTotal,
+        });
+    }, [
+        totalPrice,
+        productDiscount,
+        weightfee,
+        travelfee,
+        couponMinOrder,
+        discountValue,
+        coupontype,
+        discountPercentage,
+        checkFreeShip,
+    ]);
 
     const handleQuantity = async (e, id) => {
         const quantity = parseInt(e.target.value);
@@ -308,6 +293,22 @@ const CartSection = ({ setCartView, setCartId }) => {
             alert("Failed to update quantity. Please try again.");
         } finally {
             console.log("Completed....");
+        }
+    };
+
+    const increaseQuantity = (productId) => {
+        const item = cartdata.find((item) => item.product_item?.id === productId);
+        if (item) {
+            const newQuantity = (item.quantity || 1) + 1;
+            handleQuantity({ target: { value: newQuantity } }, productId);
+        }
+    };
+
+    const decreaseQuantity = (productId) => {
+        const item = cartdata.find((item) => item.product_item?.id === productId);
+        if (item) {
+            const newQuantity = Math.max(1, (item.quantity || 1) - 1);
+            handleQuantity({ target: { value: newQuantity } }, productId);
         }
     };
 
@@ -343,9 +344,7 @@ const CartSection = ({ setCartView, setCartId }) => {
                 return;
             }
 
-            console.log("ppppppppppppppppppppppppppppppppppppppppppppp", response.data?.coupon?.end_date);
 
-            // // Only set coupon values if all conditions are met
             const discount = response.data?.coupon?.discount_value;
             setDiscountValue(discount);
             setCouponMinOrder(response.data?.coupon?.minimum_order_amount || 0);
@@ -367,9 +366,9 @@ const CartSection = ({ setCartView, setCartId }) => {
         }
 
         if (!totalPrice || !orderTotal || !accessToken) {
-        alert("Missing essential order information. Please try again.");
-        return;
-    }
+            alert("Missing essential order information. Please try again.");
+            return;
+        }
 
         dispatch(
             updateShopOrder({
@@ -382,56 +381,58 @@ const CartSection = ({ setCartView, setCartId }) => {
                 orderTotal: orderTotal,
             })
         );
-        
-          
 
-       const conditionalDiscount = discountPercentage > 0 && coupontype ? (totalPrice + productDiscount) * discountPercentage / 100 : (totalPrice + productDiscount) * discountPercentage / 100;
+        const conditionalDiscount =
+            discountPercentage > 0 && coupontype
+                ? ((totalPrice + productDiscount) * discountPercentage) / 100
+                : ((totalPrice + productDiscount) * discountPercentage) / 100;
 
-       let Total = productDiscount > 0 ? (totalPrice+productDiscount).toFixed(2) : totalPrice.toFixed(2);
-        const initialOrderData={
+        let Total = productDiscount > 0 ? (totalPrice + productDiscount).toFixed(2) : totalPrice.toFixed(2);
+        const initialOrderData = {
             order_total: Total,
             final_total: orderTotal.toFixed(2),
-            discount_amount:  (productDiscount + conditionalDiscount).toFixed(2),
+            discount_amount: (productDiscount + conditionalDiscount).toFixed(2),
             coupon: couponId,
-            free_shipping_applied: shippingfee === 0 ? true : false, 
-        }
-        console.log("JACK",initialOrderData);
+            free_shipping_applied: shippingfee === 0 ? true : false,
+        };
+        console.log("JACK", initialOrderData);
 
         try {
-            const response = await axios.post(
-                "https://127.0.0.1:8000/api/initial_order/",initialOrderData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+            const response = await axios.post("https://127.0.0.1:8000/api/initial_order/", initialOrderData, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
 
             setCartId(response.data?.order_id);
-        
+
             toast.success("Proceeding to the address page. Please confirm.");
-            setTimeout(()=>{
+            setTimeout(() => {
                 setCartView("address");
-            },2000);
+            }, 2000);
         } catch (errors) {
             console.error("Error during checkout:", errors);
             toast.error("Failed to proceed to checkout. Please try again.");
         }
     };
 
-
-
     if (loading) {
         return (
-            <div className="container mx-auto px-[200px] py-10 text-center">
-                <p>Loading your cart...</p>
+            <div className="container mx-auto px-4 py-10 text-center">
+                <p className="mb-5 text-gray-700 font-medium text-lg animate-pulse">Loading your cart...</p>
+                <div role="status" aria-label="Loading" className="flex justify-center">
+                    <div className="relative w-12 h-12">
+                        <div className="absolute inset-0 border-[3.5px] border-gray-200 rounded-full"></div>
+                        <div className="absolute inset-0 border-[3.5px] border-transparent border-t-red-500 rounded-full animate-[spin_0.8s_ease-in-out_infinite]"></div>
+                    </div>
+                </div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="container mx-auto px-[200px] py-10 text-center text-red-500">
+            <div className="container mx-auto px-4 py-10 text-center text-red-500">
                 <p>{error}</p>
                 <button onClick={fetchData} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                     Retry
@@ -448,24 +449,24 @@ const CartSection = ({ setCartView, setCartId }) => {
 
     return (
         <div>
-            <div className="container mx-auto px-[200px] py-10">
-                <h3 className="text-3xl font-bold text-gray-800 mb-4">My Cart</h3>
-                <p className="text-gray-600 mb-8">
+            <div className="container mx-auto px-4 sm:px-6 py-6 md:py-10">
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3 md:mb-4">My Cart</h3>
+                <p className="text-gray-600 mb-6 md:mb-8">
                     You have {cartdata.length} item{cartdata.length !== 1 ? "s" : ""} in your cart.
                 </p>
 
                 {cartdata.length === 0 ? (
-                    <div className="text-center py-12">
-                        <p className="text-xl text-gray-600">Your cart is empty</p>
+                    <div className="text-gray-600 mb-6 md:mb-8">
+                        <p className="text-gray-600 mb-6 md:mb-8">Your cart is empty</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
                         {/* Product Details Section */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="lg:col-span-2 space-y-4 md:space-y-6">
                             {cartdata.map((item) => (
                                 <div
-                                    key={safe(item,'id')}
-                                    className="bg-white shadow-md rounded-lg p-6 flex flex-col sm:flex-row items-center"
+                                    key={safe(item, "id")}
+                                    className="bg-white shadow-sm md:shadow-md rounded-lg p-4 md:p-6 flex flex-col sm:flex-row items-center"
                                 >
                                     <img
                                         src={
@@ -474,29 +475,25 @@ const CartSection = ({ setCartView, setCartId }) => {
                                                 : "/default-product-image.jpg"
                                         }
                                         alt={item?.product_item?.product?.product_name || "Product"}
-                                        className="w-24 h-24 rounded-md object-cover border"
+                                        className="w-20 h-20 md:w-24 md:h-24 rounded-md object-cover border"
                                     />
-                                    <div className="flex-1 ml-6">
-                                        <h2 className="text-lg font-semibold text-gray-800">
+                                    <div className="flex-1 ml-0 sm:ml-4 md:ml-6 mt-3 sm:mt-0">
+                                        <h2 className="text-base md:text-lg font-semibold text-gray-800 line-clamp-2">
                                             {item?.product_item?.product?.product_name || "Unknown Product"}
                                         </h2>
-                                        <p className="text-gray-600">
-                                            Description :{" "}
-                                            <span className="font-bold">
-                                                {" "}
-                                                {item?.product_item?.product?.product_description || "Unknown Product"}
-                                            </span>
+                                        <p className="text-sm md:text-base text-gray-600 line-clamp-2">
+                                            {item?.product_item?.product?.product_description?.substring(0, 70) + "..."}
                                         </p>
 
                                         {item?.product_item?.product?.offers?.[0] &&
                                         new Date(item.product_item.product.offers[0].end_date) > new Date() &&
                                         new Date(item.product_item.product.offers[0].start_date) <= new Date() ? (
-                                            <div className="flex items-center">
+                                            <div className="flex items-center mt-1">
                                                 <span className="text-gray-400 line-through text-sm mr-2">
-                                                    ${item?.product_item?.sale_price || 0}
+                                                    ₹{item?.product_item?.sale_price || 0}
                                                 </span>
-                                                <span className="text-xl font-sm text-green-600">
-                                                    $
+                                                <span className="text-base md:text-lg font-sm text-green-600">
+                                                    ₹
                                                     {(
                                                         parseFloat(item?.product_item?.sale_price || 0) *
                                                         (1 -
@@ -509,34 +506,59 @@ const CartSection = ({ setCartView, setCartId }) => {
                                                 </span>
                                             </div>
                                         ) : (
-                                            <p className="text-gray-600">
+                                            <p className="text-gray-600 text-sm md:text-base mt-1">
                                                 Price:{" "}
                                                 <span className="font-bold"> ₹{item?.product_item?.sale_price || 0}</span>
                                             </p>
                                         )}
 
-                                        <p className="text-gray-600">
-                                            Size: {item?.product_item?.size?.size_name || "Not specified"}
-                                        </p>
-                                        <p className="text-gray-600">Quantity: {item?.quantity || 1}</p>
+                                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                                            <p className="text-sm text-gray-600">
+                                                Size: {item?.product_item?.size?.size_name || "Not specified"}
+                                            </p>
+                                            <p className="text-sm text-gray-600">Qty: {item?.quantity || 1}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col items-center sm:items-end">
+                                    <div className="flex flex-col items-center sm:items-end mt-3 sm:mt-0 w-full sm:w-auto">
                                         <button
                                             onClick={() => RemoveProduct(item.product_item?.id)}
-                                            className="text-red-600 font-semibold text-sm hover:bg-red-600 rounded-md mb-2 p-1 border-1 border-red-600 hover:text-white"
+                                            className="text-red-600 font-semibold text-xs md:text-sm hover:bg-red-600 rounded mb-2 p-1 border border-red-600 hover:text-white w-full sm:w-auto text-center"
                                         >
                                             <i className="fa-solid fa-circle-xmark p-1"></i>
                                             Remove
                                         </button>
-                                        <div className="flex items-center space-x-4">
-                                            Quantity:
+                                        <div className="flex items-center justify-between w-full sm:w-auto space-x-2">
+                                            <button
+                                                onClick={() => {
+                                                    const newQuantity = Math.max(1, (item?.quantity || 1) - 1);
+                                                    handleQuantity(
+                                                        { target: { value: newQuantity } },
+                                                        item.product_item?.id
+                                                    );
+                                                }}
+                                                className="bg-gray-200 rounded-md w-8 h-8 md:h-10 flex items-center justify-center"
+                                            >
+                                                -
+                                            </button>
                                             <input
                                                 onChange={(e) => handleQuantity(e, item.product_item?.id)}
                                                 type="number"
                                                 min="1"
-                                                className="border border-gray-300 rounded-md w-16 px-2 py-1 h-10 text-xl"
+                                                className="border border-gray-300 rounded-md w-14 md:w-16 px-2 py-1 h-8 md:h-10 text-sm md:text-base text-center"
                                                 value={item?.quantity || 1}
                                             />
+                                            <button
+                                                onClick={() => {
+                                                    const newQuantity = (item?.quantity || 1) + 1;
+                                                    handleQuantity(
+                                                        { target: { value: newQuantity } },
+                                                        item.product_item?.id
+                                                    );
+                                                }}
+                                                className="bg-gray-200 rounded-md w-8 h-8 md:h-10 flex items-center justify-center"
+                                            >
+                                                +
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -544,144 +566,153 @@ const CartSection = ({ setCartView, setCartId }) => {
                         </div>
 
                         {/* Price Summary Section */}
-                        <div className="bg-white shadow-lg rounded-lg p-6 md:p-8 space-y-6">
-                            {/* Apply Coupons Section */}
-                            <div>
-                                <h6 className="text-md font-semibold text-gray-800 flex items-center space-x-2">
-                                    <i className="fa-solid fa-tag text-red-500"></i>
-                                    <span>Apply Coupons:</span>
-                                </h6>
-                                {couponView ? (
-                                    <div className="mt-4 flex items-center space-x-2">
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Coupon Code"
-                                            className="flex-grow border border-gray-300 rounded-md px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-red-500"
-                                            value={couponValue}
-                                            onChange={(e) => setCouponValue(e.target.value)}
-                                        />
-                                        <button
-                                            onClick={ApplyCoupons}
-                                            className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        onClick={() => setCouponView(true)}
-                                        className="mt-2 px-3 py-1 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-md transition"
-                                    >
-                                        Apply
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* discount card */}
-
-                            {discountCard?.length > 0 && carddisplay ? (
-                                <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer">
-                                    <h6 className="text-md font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                                        <i className="fa-solid fa-credit-card text-blue-500 text-lg"></i>
-                                        <span>Available Discount Cards</span>
+                        <div className="lg:col-span-1">
+                            <div className="bg-white shadow-lg rounded-lg p-4 md:p-6 space-y-4 sticky top-4">
+                                {/* Apply Coupons Section */}
+                                <div>
+                                    <h6 className="text-sm md:text-base font-semibold text-gray-800 flex items-center space-x-2">
+                                        <i className="fa-solid fa-tag text-red-500"></i>
+                                        <span>Apply Coupons:</span>
                                     </h6>
-                                    <div className="space-y-3">
-                                        {discountCard
-                                            .filter((item) => item.is_active === true)
-                                            .map((card, key) => (
-                                                <div
-                                                    key={key}
-                                                    className="flex items-center justify-between p-3 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
-                                                    onClick={() => handleDiscountPercentage(card.discount_percentage)}
-                                                >
-                                                    <div className="flex items-center space-x-3">
-                                                        <i className="fa-solid fa-percent text-blue-600"></i>
-                                                        <span className="font-medium text-gray-700">{safe(card,'card_name')}</span>
+                                    {couponView ? (
+                                        <div className="mt-3 flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Enter Coupon Code"
+                                                className="flex-grow border border-gray-300 rounded-md px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-500 w-full"
+                                                value={couponValue}
+                                                onChange={(e) => setCouponValue(e.target.value)}
+                                            />
+                                            <button
+                                                onClick={ApplyCoupons}
+                                                className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition w-full sm:w-auto"
+                                            >
+                                                Submit
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={() => setCouponView(true)}
+                                            className="mt-2 px-3 py-1 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-md transition text-sm"
+                                        >
+                                            Apply Coupon
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* discount card */}
+
+                                {discountCard?.length > 0 && carddisplay ? (
+                                    <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 border border-gray-100 hover:border-blue-200 transition-colors cursor-pointer">
+                                        <h6 className="text-sm md:text-base font-semibold text-gray-800 mb-2 flex items-center space-x-2">
+                                            <i className="fa-solid fa-credit-card text-blue-500"></i>
+                                            <span>Available Discount Cards</span>
+                                        </h6>
+                                        <div className="space-y-2">
+                                            {discountCard
+                                                .filter((item) => item.is_active === true)
+                                                .map((card, key) => (
+                                                    <div
+                                                        key={key}
+                                                        className="flex items-center justify-between p-2 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                                                        onClick={() => handleDiscountPercentage(card.discount_percentage)}
+                                                    >
+                                                        <div className="flex items-center space-x-2">
+                                                            <i className="fa-solid fa-percent text-blue-600 text-sm"></i>
+                                                            <span className="font-medium text-gray-700 text-sm">
+                                                                {safe(card, "card_name")}
+                                                            </span>
+                                                        </div>
+                                                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">
+                                                            {safe(card, "discount_percentage")}% OFF
+                                                        </span>
                                                     </div>
-                                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-bold">
-                                                        {safe(card,'discount_percentage')}% OFF
-                                                    </span>
-                                                </div>
-                                            ))}
+                                                ))}
+                                        </div>
                                     </div>
-                                </div>
-                            ) : null}
+                                ) : null}
 
-                            {/* Price Breakdown Section */}
-                            <div className="border-t pt-4 space-y-2 text-gray-600">
-                           <div className="flex justify-between">
-                            <span>Total MRP:</span>
-                            <span>
-                                {productDiscount > 0 ? "₹ " + (totalPrice + productDiscount).toFixed(2) : "₹ " + totalPrice.toFixed(2)}
-                                {/* {productDiscount > 0 ? "₹ " + (totalPrice).toFixed(2) : "₹ " + totalPrice.toFixed(2)} */}
-                            </span>
-                            </div>
-                                <div className="flex justify-between">
-                                    <span>Product Discount:</span>
-                                    {/* productDiscount */}
-                                    <span>- ₹ {productDiscount} </span>
-                                    {/* <span>- ₹ {discountValue} </span> */}
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Shipping Fee:</span>
-                                    {shippingfee === 0 ? <span>Free</span> : <span> ₹ {shippingfee.toFixed(2)}</span>}
-                                </div>
-
-                                <div className="flex justify-between">
-                                    {coupontype === "fixed" && (
-                                        <>
-                                            <span>Coupon Applied </span>
-                                            <span> ₹ -{discountValue} </span>
-                                        </>
-                                    )}
-                                    {coupontype === "percentage" && (
-                                        <>
-                                            <span>Coupon Applied </span>
-                                            <span> {discountValue} %</span>
-                                        </>
-                                    )}
-                                </div>
-
-                                {discountPercentage > 0 && (
+                                {/* Price Breakdown Section */}
+                                <div className="border-t pt-3 space-y-2 text-gray-600 text-sm md:text-base">
                                     <div className="flex justify-between">
-                                        <span>Discount Card :({discountPercentage} %)</span>
+                                        <span>Total MRP:</span>
+                                        <span>
+                                            {productDiscount > 0
+                                                ? "₹ " + (totalPrice + productDiscount).toFixed(2)
+                                                : "₹ " + totalPrice.toFixed(2)}
+                                            {/* {productDiscount > 0 ? "₹ " + (totalPrice).toFixed(2) : "₹ " + totalPrice.toFixed(2)} */}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Product Discount:</span>
+                                        {/* productDiscount */}
+                                        <span>- ₹ {productDiscount} </span>
+                                        {/* <span>- ₹ {discountValue} </span> */}
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Shipping Fee:</span>
+                                        {shippingfee === 0 ? <span>Free</span> : <span> ₹ {shippingfee.toFixed(2)}</span>}
+                                    </div>
 
-                        
-                                        <span> {
-                                            discountPercentage>0 && coupontype ? ("₹-"+(totalPrice + productDiscount)*discountPercentage/100):("₹-"+(totalPrice + productDiscount)*discountPercentage/100)
-                                        } </span>
+                                    <div className="flex justify-between">
+                                        {coupontype === "fixed" && (
+                                            <>
+                                                <span>Coupon Applied </span>
+                                                <span> ₹ -{discountValue} </span>
+                                            </>
+                                        )}
+                                        {coupontype === "percentage" && (
+                                            <>
+                                                <span>Coupon Applied </span>
+                                                <span> {discountValue} %</span>
+                                            </>
+                                        )}
+                                    </div>
 
-                                        {/* <span> {
+                                    {discountPercentage > 0 && (
+                                        <div className="flex justify-between">
+                                            <span>Discount Card :({discountPercentage} %)</span>
+
+                                            <span>
+                                                {" "}
+                                                {discountPercentage > 0 && coupontype
+                                                    ? "₹-" + ((totalPrice + productDiscount) * discountPercentage) / 100
+                                                    : "₹-" +
+                                                      ((totalPrice + productDiscount) * discountPercentage) / 100}{" "}
+                                            </span>
+
+                                            {/* <span> {
                                             discountPercentage>0 && coupontype ? ("₹-"+(totalPrice + productDiscount-discountValue)*discountPercentage/100):("₹-"+(totalPrice + productDiscount)*discountPercentage/100)
                                         } </span> */}
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between">
+                                        <span>Platform Fee (2%) : </span>
+                                        <span> ₹ {platformfee.toFixed(2)}</span>
                                     </div>
-                                )}
-
-                                <div className="flex justify-between">
-                                    <span>Platform Fee (2%) : </span>
-                                    <span> ₹ {platformfee.toFixed(2)}</span>
                                 </div>
-                            </div>
 
-                            {/* Order Total */}
-                            <div className="flex justify-between text-gray-800 text-lg font-bold border-t pt-4">
-                                <span>Order Total:</span>
-                                <span> ₹ {orderTotal.toFixed(2)}</span>
-                            </div>
+                                {/* Order Total */}
+                                <div className="flex justify-between text-gray-800 text-base md:text-lg font-bold border-t pt-3">
+                                    <span>Order Total:</span>
+                                    <span> ₹ {orderTotal.toFixed(2)}</span>
+                                </div>
 
-                            {/* Checkout Button */}
-                            <button
-                                onClick={HandleCheckOut}
-                                className="w-full bg-blue-600 text-white py-2 rounded-md shadow-md hover:bg-blue-700 transition"
-                                disabled={cartdata.length === 0}
-                            >
-                                Proceed to Checkout
-                            </button>
+                                {/* Checkout Button */}
+                                <button
+                                    onClick={HandleCheckOut}
+                                    className="w-full bg-blue-600 text-white py-2 rounded-md shadow-md hover:bg-blue-700 transition"
+                                    disabled={cartdata.length === 0}
+                                >
+                                    Proceed to Checkout
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
-            <ToastContainer />    
+            <ToastContainer />
         </div>
     );
 };

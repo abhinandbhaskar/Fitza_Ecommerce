@@ -8,7 +8,7 @@ import { safe } from "../../../utils/safeAccess";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 
-const OfferSection = ({ countsN }) => {
+const OfferSection = ({ countsN,cartCount }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
@@ -27,8 +27,28 @@ const OfferSection = ({ countsN }) => {
     }
   };
 
+  const AddProductInteration = async (id,type) => {
+    try {
+        // const type = "view";
+        const response = await axios.post(
+            `https://127.0.0.1:8000/api/add_product_interation/${id}/${type}/`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }
+        );
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.log("Error Occurred", error);
+    }
+}
+
       const AddToCart = (id) => {
         console.log("Yo Yo", id);
+        const type="view";
+        AddProductInteration(id,type);
         navigate(`/productview/${id}`);
     };
 
@@ -56,6 +76,8 @@ const OfferSection = ({ countsN }) => {
 
 
     const AddToWishlist = async (id) => {
+      const type="favorite";
+      AddProductInteration(id,type);
         try {
             const response = await axios.post(
                 `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
@@ -79,7 +101,7 @@ const OfferSection = ({ countsN }) => {
 
   return (
     <>
-      <Header countsN={countsN} />
+      <Header countsN={countsN} cartCount={cartCount} />
       <div className="collection-container h-auto w-screen">
         <div className="collection-header h-auto w-full text-center my-12">
           <div>

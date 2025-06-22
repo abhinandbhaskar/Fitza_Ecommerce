@@ -107,6 +107,8 @@ def clear_session(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
+
+
 from social_core.exceptions import AuthAlreadyAssociated
 from django.urls import reverse
 from social_django.views import do_complete
@@ -122,6 +124,9 @@ def custom_login_view(request):
 
 
 # SOCIAL aUTH USING THIS LINK https://www.horilla.com/blogs/how-to-implement-social-login-in-django/
+
+
+
 
 
 #User Logout function
@@ -415,7 +420,7 @@ from userapp.serializers import ProductDataSerializer
 
 class fetchDropDownData(APIView):
     def get(self,request):
-        obj=Product.objects.all()
+        obj=Product.objects.all().distinct()
         serializer=ProductDataSerializer(obj,many=True)
         return Response(serializer.data)
 
@@ -431,20 +436,102 @@ class DropDownCategory(APIView):
 # from userapp.serializers import CategoryProductSerializer
 
 from userapp.serializers import ProductViewSerializer
+from common.models import Interaction
+
+
+from django.db.models import Q
+
 
 class FetchCategoryProduct(APIView):
-    # permission_classes = [IsAuthenticated]
-    def get(self, request, pro_name):
-        # Use icontains for partial matching and case insensitivity
-        obj = Product.objects.filter(
-            items__status="approved",
-            product_name__icontains=pro_name
-        ).distinct()
-        
-        serializer = ProductSerializer(obj, many=True)
-        return Response(serializer.data)
-    
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, pro_name):
+        try:
+            # Ensure session exists
+            if not request.session.session_key:
+                request.session.create()
+
+            # Get products
+            products = Product.objects.filter(
+                items__status="approved",
+                product_name__icontains=pro_name
+            ).distinct()
+
+            # Create interaction record (only one per search)
+            if request.user.is_authenticated and products.exists():
+                try:
+                    Interaction.objects.create(
+                        user=request.user,
+                        product=products.first(),  # Associate with first product
+                        action='search',
+                        session_key=request.session.session_key,
+                        context={"search_query": pro_name}
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to create interaction: {str(e)}")
+                    # Continue even if interaction fails
+
+            serializer = ProductSerializer(products, many=True)
+            return Response(serializer.data)
+
+        except Exception as e:
+            logger.error(f"Error in FetchCategoryProduct: {str(e)}")
+            return Response(
+                {"error": "Failed to process request"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
+# from common.models import Interaction
+# class FetchCategoryProduct(APIView):
+#     permission_classes = [IsAuthenticated]  
+    
+#     def get(self, request, pro_name):
+#         try:
+#             if not request.session.session_key:
+#                 request.session.create()
+            
+#             products = Product.objects.filter(
+#                 items__status="approved",
+#                 product_name__icontains=pro_name
+#             ).distinct()
+            
+#             serializer = ProductSerializer(products, many=True)
+#             return Response(serializer.data)
+            
+#         except Exception as e:
+#             return Response(
+#                 {"error": str(e)},
+#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#             )
+
+# class FetchCategoryProduct(APIView):
+#     permission_classes=[IsAuthenticated]
+#     def get(self, request, pro_name):
+#         user=request.user
+#         # Search for approved product items with matching product name
+#         products = Product.objects.filter(
+#             items__status="approved",
+#             product_name__icontains=pro_name
+#         ).distinct()
+        
+#         # Log interaction if user is authenticated
+#         print("Why.....................")
+#         if request.user.is_authenticated:
+#             print("Not Working.............................")
+#             for product in products:
+#                 Interaction.objects.create(
+#                     user=request.user,
+#                     product=product,
+#                     action='search',
+#                     session_key=request.session.session_key,
+#                     context={"search_query": pro_name}
+#                 )
+
+#         serializer = ProductSerializer(products, many=True)
+#         return Response(serializer.data)
+    
 
 # class FetchCategoryProduct(APIView):================================
 #     permission_classes=[IsAuthenticated]
@@ -468,10 +555,12 @@ from userapp.serializers import AddToCartSerializer,GetCartDataSerializer
 class AddToCart(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request,itemId):
+        user=request.user
         serializer=AddToCartSerializer(data=request.data,context={"request":request,"itemId":itemId})
+        cart_count=ShoppingCartItem.objects.filter(shopping_cart__user=user).count()
         if serializer.is_valid():
             serializer.save()
-            return Response({"message":"Product added to cart."},status=status.HTTP_201_CREATED)
+            return Response({"message":"Product added to cart.","cart_count":cart_count},status=status.HTTP_201_CREATED)
         return Response({"Error":str(serializer.errors)},status=status.HTTP_400_BAD_REQUEST)
 
 from userapp.models import ShoppingCartItem
@@ -699,8 +788,8 @@ class OrderPayment(APIView):
 
         return Response({
             # "callback_url": "https://127.0.0.1:8000/razorpay/callback/",
-            "callback_url": "http://127.0.0.1:8000/razorpay/callback/",
-            # "callback_url": callback,
+            # "callback_url": "http://127.0.0.1:8000/razorpay/callback/",
+            "callback_url": callback,
             "razorpay_key": settings.RAZORPAY_KEY_ID,
             "order_id": razorpay_order["id"],
         }, status=status.HTTP_201_CREATED)
@@ -748,21 +837,38 @@ from userapp.serializers import PaymentSerializer
 
 class SavePaymentDetails(APIView):
     permission_classes = [IsAuthenticated]
+    
     def post(self, request, cartId):
         print("Received Data:", request.data)
         print("CARTIDAAAAAAAAD", cartId)
         serializer = PaymentSerializer(data=request.data, context={"request": request, "cartId": cartId})
         
         if serializer.is_valid():
-            payment = serializer.save()  # Save and get the payment object
+            payment = serializer.save()  
+            order = payment.order
+            order_lines = order.order_lines.all()
+            
+            for order_line in order_lines:
+                product = order_line.product_item.product
+                Interaction.objects.create(
+                    user=request.user,
+                    product=product,
+                    action='purchase',
+                    session_key=request.session.session_key,
+                    context={
+                        "order_id": order.id,
+                        "payment_id": payment.id,
+                        "quantity": order_line.quantity,
+                        "price": str(order_line.price)
+                    }
+                )
+
             return Response({
                 "message": "Payment and shipping details saved successfully.",
-                "payment_id": payment.id  # Include the payment ID in the response
+                "payment_id": payment.id  
             }, status=status.HTTP_201_CREATED)
         
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 from userapp.serializers import AskQuestionSerializer
@@ -835,25 +941,41 @@ from django.db import IntegrityError
 class BillGenerator(APIView):
     def post(self, request):
         payment_id = request.data.get("payment_id")
+        print("Id Kitteeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",payment_id)
         if not payment_id:
+            print("noooooooooooooooooooooooooooo")
             return Response({"error": "Payment ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
         
         try:
             payment_instance = Payment.objects.get(id=payment_id)
-            
-            # if payment_instance.status != 'completed':
-            #     return Response({"error": "Bill can only be generated for completed payments."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            shop_order = payment_instance.order
-            
-            # Check if bill already exists (using reverse OneToOne relation)
+            shop_order = payment_instance.order     
+            billing_address = shop_order.user.addresses.filter(address_type='billing').first()
+            if not billing_address:
+                return Response({"error": "User has no billing address."}, status=400)   
+            if not payment_instance.transaction_id:
+                return Response({"error": "Payment has no transaction ID."}, status=400)    
+            print("shop_order.final_total",shop_order.final_total)
+            print("shop_order.tax_amount",shop_order.tax_amount)
+            print("shop_order.discount_amount",shop_order.discount_amount)
+            print("payment_instance.transaction_id",payment_instance.transaction_id)
+            print("payment_instance",payment_instance)
+            print("shop_order.user",shop_order.user)
             if Bill.objects.filter(order=shop_order).exists():
                 return Response({"error": "Bill already exists for this order."}, status=status.HTTP_400_BAD_REQUEST)
-        
-            # Get billing address (if exists)
             billing_address = shop_order.user.addresses.filter(address_type='billing').first()
             
             # Create the bill
+            print("shop_order.final_total",shop_order.final_total)
+            print("shop_order.tax_amount",shop_order.tax_amount)
+            print("shop_order.discount_amount",shop_order.discount_amount)
+            print("billing_address",billing_address)
+            print("payment_instance.transaction_id",payment_instance.transaction_id)
+            print("payment_instance",payment_instance)
+            print("shop_order.user",shop_order.user)
+
+
+
             bill = Bill.objects.create(
                 order=shop_order,
                 total_amount=shop_order.final_total,
@@ -962,10 +1084,10 @@ class GetBillAPIView(APIView):
             # --- Shipping Details ---
             if shipping and shipping.shipping_address:
                 pdf.setFont("Helvetica-Bold", 12)
-                pdf.drawString(50, height - 260, "Ship To:")
+                pdf.drawString(50, height - 245, "Ship To:")
                 pdf.setFont("Helvetica", 10)
-                pdf.drawString(50, height - 275, f"{shipping.shipping_address.user.first_name+shipping.shipping_address.user.last_name}")
-                pdf.drawString(50, height - 290, f"{shipping.shipping_address.address_line1}")
+                pdf.drawString(50, height - 260, f"{shipping.shipping_address.user.first_name+shipping.shipping_address.user.last_name}")
+                pdf.drawString(50, height - 275, f"{shipping.shipping_address.address_line1}")
                 pdf.drawString(50, height - 290, f"{shipping.shipping_address.address_line2}")
                 pdf.drawString(50, height - 305, f"{shipping.shipping_address.city}, {shipping.shipping_address.state} {shipping.shipping_address.postal_code}")
                 pdf.drawString(50, height - 320, f"Tracking: {shipping.tracking_id or 'Not available'}")
@@ -1025,13 +1147,16 @@ class GetBillAPIView(APIView):
 
             pdf.drawString(350, y_position - 110, "Discount:")
             pdf.drawString(450, y_position - 110, f"Rs. - {order.discount_amount:.2f}")
-            if order.applied_coupon.discount_type=="fixed":
-                pdf.drawString(350, y_position - 125, "Coupon:")
-                pdf.drawString(450, y_position - 125, f"Rs. -{order.applied_coupon.discount_value}")
-            if order.applied_coupon.discount_type=="percentage":
-                pdf.drawString(350, y_position - 125, "Coupon:")
-                pdf.drawString(450, y_position - 125, f" {order.applied_coupon.discount_value}%")
-            
+
+            if order.applied_coupon:  # Check if coupon exists first
+                if order.applied_coupon.discount_type == "fixed":
+                    pdf.drawString(350, y_position - 125, "Coupon:")
+                    pdf.drawString(450, y_position - 125, f"Rs. -{order.applied_coupon.discount_value}")
+                elif order.applied_coupon.discount_type == "percentage":
+                    pdf.drawString(350, y_position - 125, "Coupon:")
+                    pdf.drawString(450, y_position - 125, f" {order.applied_coupon.discount_value}%")
+
+                        
             # Grand Total
             pdf.line(350, y_position - 150, width - 50, y_position - 150)
             pdf.setFont("Helvetica-Bold", 12)
@@ -1152,7 +1277,8 @@ class UserUnreadNotifications(APIView):
     def get(self,request):
         user=request.user
         obj=Notification.objects.filter(user=user,group='all_users',is_read=False)
-        serializer={"notifications":len(obj)}
+        cart_count=ShoppingCartItem.objects.filter(shopping_cart__user=user).count()
+        serializer={"notifications":len(obj),"cart_count":cart_count}
         return Response(serializer)
 
 
@@ -1278,3 +1404,158 @@ class CompareProducts(APIView):
         obj=Product.objects.filter(product_name=product_obj.product_name)
         serializer=ProductDetaileViewSerializer(obj,many=True)
         return Response(serializer.data)
+
+
+from common.models import Interaction
+
+class AddProductInteration(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id, type):
+        valid_types = dict(Interaction.INTERACTION_CHOICES).keys()
+        
+        if type not in valid_types:
+            return Response({"error": "Invalid interaction type."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            product = Product.objects.get(id=id)
+        except Product.DoesNotExist:
+            return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            interaction = Interaction.objects.create(
+                user=request.user,
+                product=product,
+                action=type,
+                session_key=request.session.session_key,  # Optional if session is enabled
+                duration=request.data.get("duration"),    # Optional: for views
+                context=request.data.get("context", {})   # Optional: any additional data
+            )
+            return Response({
+                "message": f"Interaction '{type}' recorded.",
+                "interaction_id": interaction.interaction_id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+class AddCartProductInteration(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, itemId, type):
+        valid_types = dict(Interaction.INTERACTION_CHOICES).keys()
+
+        if type not in valid_types:
+            return Response({"error": "Invalid interaction type."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            product_item = ProductItem.objects.get(id=itemId)
+        except ProductItem.DoesNotExist:
+            return Response({"error": "Product item not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        product = product_item.product
+
+        try:
+            interaction = Interaction.objects.create(
+                user=request.user,
+                product=product,
+                action=type,
+                session_key=request.session.session_key,
+                duration=request.data.get("duration"),
+                context=request.data.get("context", {
+                    "product_item_id": product_item.id,
+                    "color": product_item.color.color_name if product_item.color else None,
+                    "size": product_item.size.size_name
+                })
+            )
+            return Response({
+                "message": f"Interaction '{type}' recorded.",
+                "interaction_id": interaction.interaction_id
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from userapp.ai_recommendations import AIRecommender
+# from common.models import Product
+# from userapp.serializers import ProductSerializer
+
+# @api_view(['GET'])
+# def ai_recommendations(request):
+#     if not request.user.is_authenticated:
+#         return Response({"products": []})
+    
+#     product_ids = AIRecommender.predict(request.user.id)
+#     products = Product.objects.filter(id__in=product_ids).order_by('?')[:5]  # Randomize if same score
+    
+#     # Maintain order from prediction
+#     product_order = {pid: i for i, pid in enumerate(product_ids)}
+#     products = sorted(products, key=lambda x: product_order.get(x.id, 0))
+    
+#     return Response({
+#         "products": ProductSerializer(products, many=True).data,
+#         "message": "AI-generated recommendations"
+#     })
+
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from userapp.ai_recommendations import AIRecommender
+from common.models import Product
+from userapp.serializers import ProductSerializer
+import logging
+
+logger = logging.getLogger(__name__)
+
+@api_view(['GET'])
+def ai_recommendations(request):
+    if not request.user.is_authenticated:
+        return Response(
+            {"products": [], "message": "Please login to get personalized recommendations"},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
+    try:
+        # Get more recommendations than needed for fallback
+        product_ids = AIRecommender.predict(request.user.id, num_recs=10)
+        
+        if not product_ids:
+            # Fallback to popular products if no AI recommendations
+            # products = Product.objects.filter(is_active=True).order_by('-popularity_score')[:5]
+            products = Product.objects.all().order_by('-id')[:5]
+            return Response({
+                "products": ProductSerializer(products, many=True).data,
+                "message": "Popular products (AI recommendations not available)",
+                "source": "fallback"
+            })
+        
+        # Get products maintaining order from prediction
+        products = Product.objects.filter(id__in=product_ids, is_active=True)
+        product_map = {p.id: p for p in products}
+        
+        # Reconstruct original order with only available products
+        ordered_products = [product_map[pid] for pid in product_ids if pid in product_map][:5]
+        
+        return Response({
+            "products": ProductSerializer(ordered_products, many=True).data,
+            "message": "AI-generated recommendations",
+            "source": "ai"
+        })
+        
+    except Exception as e:
+        logger.error(f"Recommendation error for user {request.user.id}: {str(e)}", exc_info=True)
+        # Fallback to recently added products in case of error
+        products = Product.objects.all().order_by('-added_date')[:5]
+        return Response({
+            "products": ProductSerializer(products, many=True).data,
+            "message": "New arrivals (recommendation system temporarily unavailable)",
+            "source": "error_fallback"
+        })

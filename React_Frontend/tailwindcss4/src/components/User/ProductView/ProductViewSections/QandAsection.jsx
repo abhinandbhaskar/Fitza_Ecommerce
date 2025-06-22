@@ -8,7 +8,7 @@ import { safe } from '../../../../utils/safeAccess';
 
 const QandAsection = ({ product }) => {
     const { accessToken } = useSelector((state) => state.auth);
-    const [questions, setQuestions] = useState([]); // Initialize as an empty array
+    const [questions, setQuestions] = useState([]);
     const [newQuestion, setNewQuestion] = useState("");
 
 
@@ -29,7 +29,7 @@ const QandAsection = ({ product }) => {
             console.log(response);
             console.log(response.data);
              toast.success("Your question has been posted successfully!");
-            fetchQandA(); // Refresh questions after posting a new one
+            fetchQandA(); 
         } catch (errors) {
             console.log(errors);
             console.log(errors.response.data);

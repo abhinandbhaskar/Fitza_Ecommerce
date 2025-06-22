@@ -171,7 +171,6 @@ const AllProducts = ({searchTerm,setnewCurrentView,viewall,setallView}) => {
  </>
         ):(
 <div className="w-full max-w-4xl bg-white shadow-md rounded-lg mt-6 p-6 space-y-6">
-        {/* Main Image */}
       <div className="flex flex-col items-center">
         <h2 className="text-lg font-semibold text-gray-700">Main Image</h2>
         {/* <p>{products.images?.main_image||""}</p> */}

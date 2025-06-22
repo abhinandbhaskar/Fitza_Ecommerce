@@ -109,7 +109,6 @@ const ComplaintSection = ({setCurrentView}) => {
     const filterComplaints = (searchTerm = "", status = solvedstatus, complaintsList = complaints) => {
         let filteredList = [...complaintsList];
         
-        // Filter by search term
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
             filteredList = filteredList.filter(
@@ -120,7 +119,6 @@ const ComplaintSection = ({setCurrentView}) => {
             );
         }
 
-        // Filter by status
         if (status === "Resolved") {
             filteredList = filteredList.filter((complaint) => complaint.resolved);
         } else if (status === "Unresolved") {
@@ -144,7 +142,6 @@ const ComplaintSection = ({setCurrentView}) => {
             </div>
 
             <div className="flex flex-col lg:flex-row p-4 gap-4">
-                {/* Left Panel - Complaint List */}
                 <div className="w-full lg:w-1/3 bg-white rounded-lg shadow-md p-4">
                     <div className="mb-4 flex flex-col sm:flex-row gap-2">
                         <input
@@ -207,7 +204,6 @@ const ComplaintSection = ({setCurrentView}) => {
                     </div>
                 </div>
 
-                {/* Right Panel - Complaint Detail */}
 
                 {complaints.length > 0 && (
                     <div className="w-full lg:w-2/3 bg-white rounded-lg shadow-md p-4 flex flex-col">
@@ -269,7 +265,6 @@ const ComplaintSection = ({setCurrentView}) => {
                                         }`}
                                     >
                                         <p className="font-medium text-sm">{msg.sender.user_type==="admin"?"admin": `(${msg.sender.user_type}) `+ msg.sender.first_name}</p>
-                                        {/* <h1 className="bg-red-400">{msg.sender.user_type}</h1> */}
                                         <p className="my-1">{msg.message}</p>
                                         <p className="text-xs text-gray-500 text-right">
                                             {new Date(msg.timestamp).toLocaleTimeString([], {

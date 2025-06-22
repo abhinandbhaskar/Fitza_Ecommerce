@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { useNavigate,useParams } from 'react-router-dom';
 import { safe } from '../../../utils/safeAccess';
 
-const CompareProducts = ({ countsN }) => {
+const CompareProducts = ({ countsN,cartCount }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [productData, setProductData] = useState([]);
   const navigate=useNavigate();
@@ -46,17 +46,14 @@ const CompareProducts = ({ countsN }) => {
     productData[currentIndex + 1]
   ];
 
-  // Get all unique specification keys from both products
   const allSpecs = new Set();
   currentProducts.forEach(product => {
     if (product) {
-      // Add top-level specs
       const topLevelSpecs = [
         'product_description', 'weight', 'model_height', 'model_wearing'
       ];
       topLevelSpecs.forEach(spec => allSpecs.add(spec));
       
-      // Add nested specs
       if (product.ratings) {
         allSpecs.add('average_rating');
         allSpecs.add('total_reviews');
@@ -75,7 +72,6 @@ const CompareProducts = ({ countsN }) => {
         navigate(`/productview/${id}`);
     };
 
-  // Helper function to get display value for a spec
   const getSpecValue = (product, spec) => {
     if (!product) return 'N/A';
     
@@ -100,7 +96,7 @@ const CompareProducts = ({ countsN }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header countsN={ countsN }/>
+      <Header countsN={ countsN } cartCount={cartCount}/>
       <div className="flex-grow container mx-auto px-4 py-8 mb-[100px]">
         <div className="text-center mb-12 mt-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Compare Products</h1>
@@ -136,7 +132,6 @@ const CompareProducts = ({ countsN }) => {
               {product && (
                 <>
                   <div className="p-8">
-                    {/* Main Image */}
                     <div className="mb-8 h-[400px] flex items-center justify-center">
                       <img 
                         src={'https://127.0.0.1:8000'+product.items?.[0]?.images?.[0]?.main_image || ''} 
@@ -145,7 +140,6 @@ const CompareProducts = ({ countsN }) => {
                       />
                     </div>
 
-                    {/* Thumbnail Images */}
                     {product.items?.[0]?.images?.[0] && (
                       <div className="flex justify-center space-x-6 mb-8">
                         {[
@@ -163,12 +157,10 @@ const CompareProducts = ({ countsN }) => {
                       </div>
                     )}
 
-                    {/* Product Name */}
                     <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
                       {safe(product,'product_name')}
                     </h2>
 
-                    {/* Brand and Category */}
                     <div className="text-center mb-4">
                       <p className="text-gray-600">
                         Brand: {product.brand?.brand_name || 'N/A'}
@@ -178,7 +170,6 @@ const CompareProducts = ({ countsN }) => {
                       </p>
                     </div>
 
-                    {/* Price */}
 
                                         <div  className="text-center mb-6">
                                         {product?.offers?.[0]?.discount_percentage > 0 ? (
@@ -198,7 +189,6 @@ const CompareProducts = ({ countsN }) => {
                                             <span className="text-2xl font-bold">₹{product.items[0].sale_price}</span>
                                         )}
                                     </div>
-                    {/* Specifications */}
                     <div className="space-y-4">
                       {Array.from(allSpecs).map(spec => (
                         <div key={spec} className="flex justify-between border-b border-gray-100 pb-3">

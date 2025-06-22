@@ -8,7 +8,7 @@
   background-repeat: no-repeat;
   padding: 1rem;
   color: white;
-  position: relative; /* Relative positioning for better control */
+  position: relative;
 }
 
 .banner-content {
@@ -16,13 +16,8 @@
   text-align: left;
   padding: 2rem;
   border-radius: 1rem;
-  margin-left: -200px; /* Offset position */
-}
-
-@media (max-width: 768px) {
-  .banner-content {
-    margin-left: 0; /* Reset margin for smaller screens */
-  }
+  margin-left: -200px;
+  background-color: transparent;
 }
 
 .left-section {
@@ -35,27 +30,31 @@
   font-size: 3.8rem;
   font-weight: bold;
   margin: 0;
- /* Adjust color for emphasis */
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .banner-description {
   font-size: 1.6rem;
   margin: 0;
   line-height: 1.5;
-  color: rgb(218, 17, 17); 
+  color: white; /* Soft red */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .banner-offer {
   font-size: 2.1rem;
   font-weight: 600;
-  color: #f84232; /* Softer red for a modern look */
+  color: #d93838;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .banner-dates {
   display: flex;
   flex-direction: column;
   font-size: 1.1rem;
-  color: rgb(12, 12, 12); /* Match the theme */
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .shop-now-btn {
@@ -69,43 +68,61 @@
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   width: fit-content;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .shop-now-btn:hover {
   background-color: #ff779b;
   color: #fff;
-  border: 2px solid #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Mobile Styles */
 @media (max-width: 768px) {
   .banner-container {
     padding: 1rem;
     height: auto;
-    flex-direction: column; /* Stack content on smaller screens */
+    min-height: 80vh;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
   }
 
   .banner-content {
     max-width: 100%;
+    margin: 0;
     padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.7); /* Slightly darker background for contrast */
-    margin-left: 0; /* Reset margin for smaller screens */
+    background-color: transparent;
+  }
+
+  .left-section {
+    align-items: center;
   }
 
   .banner-title {
     font-size: 2.5rem;
+    text-align: center;
   }
 
   .banner-description {
     font-size: 1.2rem;
+    text-align: center;
   }
 
   .banner-offer {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .banner-dates {
+    align-items: center;
+    font-size: 1rem;
   }
 
   .shop-now-btn {
     font-size: 1rem;
     padding: 0.5rem 1.5rem;
-    width: auto; /* Adapt button size for smaller screens */
+    margin: 0 auto;
   }
 }

@@ -24,7 +24,7 @@ const OrdersSection = () => {
 
             console.log("EEE", response.data);
             setOrders(response.data.orders);
-            setFilteredOrders(response.data.orders); // Initialize filtered orders with all orders
+            setFilteredOrders(response.data.orders);
             setStatusCount(response.data.counts);
         } catch (errors) {
             console.log(errors);
@@ -52,7 +52,6 @@ const OrdersSection = () => {
 
     const handleFilter = () => {
         console.log("RES", orderstatus);
-        // No need for separate filter function since we're handling it in the render
     };
 
     useEffect(() => {
@@ -68,7 +67,6 @@ const OrdersSection = () => {
                 </h1>
             </div>
 
-{/* Overview Cards - Professional with Colored Labels */}
 <div className="p-6 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
     {[
         { title: "New Orders", count: statuscount.processing, color: "border-blue-500 text-blue-600" },

@@ -10,11 +10,34 @@ const sectionNames = ["Hot Releases", "Trending Products", "Top Picks", "Must-Ha
 const TopRelease = ({ topdata }) => { 
   const navigate = useNavigate();
   const { accessToken } = useSelector((state) => state.auth);
+
+  
+const AddProductInteration = async (id,type) => {
+    try {
+        // const type = "view";
+        const response = await axios.post(
+            `https://127.0.0.1:8000/api/add_product_interation/${id}/${type}/`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }
+        );
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.log("Error Occurred", error);
+    }
+}
+
+
   const viewProduct = (id) => {
        if(!accessToken || accessToken.length === 0) {
           toast.error("You need to login first!");
           return;
         }
+        const type="view";
+        AddProductInteration(id,type);
         return navigate(`/productview/${id}`);
  
   }

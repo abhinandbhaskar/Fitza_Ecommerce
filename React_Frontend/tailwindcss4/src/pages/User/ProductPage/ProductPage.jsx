@@ -7,7 +7,7 @@ import Header from "../../../components/User/Header/Header";
 import Footer from "../../../components/User/Footer/Footer";
 import { useSelector } from 'react-redux';
 import { safe } from '../../../utils/safeAccess';
-const ProductPage = ({countsN}) => {
+const ProductPage = ({countsN,cartCount}) => {
   const { id } = useParams();
   const[product,setProduct]=useState([]);
   const {accessToken}=useSelector((state)=>state.auth);
@@ -38,8 +38,8 @@ useEffect(()=>{
 
   return (
     <>
-    <Header countsN={countsN}/>
-    <ProductView product={product}/>
+    <Header countsN={countsN} cartCount={cartCount}/>
+    <ProductView product={product} cartCount={cartCount}/>
     <Footer/>
     </>
   )

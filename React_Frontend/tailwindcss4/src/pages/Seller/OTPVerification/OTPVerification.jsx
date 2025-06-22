@@ -4,17 +4,16 @@ import { useNavigate } from "react-router-dom";
 
 const OTPVerification = () => {
   const [otp, setOtp] = useState("");
-  const [countdown, setCountdown] = useState(60); // 60 seconds countdown
+  const [countdown, setCountdown] = useState(60); 
   const [isOtpExpired, setIsOtpExpired] = useState(false);
   const navigate=useNavigate();
 
   useEffect(() => {
-    // Countdown timer logic
     if (countdown > 0) {
       const timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
-      return () => clearInterval(timer); // Cleanup interval on unmount
+      return () => clearInterval(timer); 
     } else {
       setIsOtpExpired(true);
     }
@@ -48,15 +47,15 @@ const OTPVerification = () => {
 
   const handleResendOtp = async () => {
     try {
-      // Use the correct endpoint for resending OTP
+    
       const response = await axios.post("https://127.0.0.1:8000/api/seller/resend_otp/");
       console.log("Response:", response);
       console.log("Response Data:", response.data);
   
-      // Reset state only after successful OTP resend
-      setCountdown(60); // Reset countdown
+     
+      setCountdown(60); 
       setIsOtpExpired(false);
-      setOtp(""); // Clear OTP input
+      setOtp(""); 
 
       navigate("/seller/otpverification");
   
@@ -79,7 +78,7 @@ const OTPVerification = () => {
           OTP Verification
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* OTP Input */}
+      
           <div>
             <label htmlFor="otp" className="block text-sm font-medium text-gray-600">
               Enter OTP:
@@ -96,7 +95,6 @@ const OTPVerification = () => {
             />
           </div>
 
-          {/* Countdown Timer or Resend OTP */}
           {!isOtpExpired ? (
             <p className="text-sm text-gray-500">
               Didn't receive the OTP? Wait{" "}
@@ -109,7 +107,7 @@ const OTPVerification = () => {
             <p className="text-sm text-red-500">OTP has expired. Resend OTP to try again.</p>
           )}
 
-          {/* Submit Button */}
+         
           <button
             type="submit"
             disabled={isOtpExpired}

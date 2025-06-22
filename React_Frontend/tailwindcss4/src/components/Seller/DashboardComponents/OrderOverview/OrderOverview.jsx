@@ -8,9 +8,6 @@ const OrderOverview = ({setCurrentView}) => {
   const [pendingOrders,setpendingOrders]=useState([]);
   const [returnedOrders,setreturnedOrders]=useState([]);
 
-  // Sample data - replace with your actual data
-
-
       const fetchOrders = async () => {
         try {
             const response = await axios.get(`https://127.0.0.1:8000/api/seller/seller_dashboard_orders/`, {

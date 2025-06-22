@@ -91,7 +91,6 @@ const AdminReturnRefund = ({ refundobj }) => {
                         <h3 className="text-sm font-medium text-gray-500">Supporting Documents</h3>
                         <div className="mt-1 space-y-1">
                             {returnRefund.supporting_files.split(",").map((filePath, index) => {
-                                // Extract filename from path
                                 returnRefund.supporting_files.split(",").map((filePath) => filePath.trim());
                                 const fileName = filePath.split("/").pop();
                                 return (
@@ -143,7 +142,6 @@ const AdminReturnRefund = ({ refundobj }) => {
                 </select>
             </div>
 
-            {/* Approved Refund Amount */}
             <div className="flex flex-col">
                 <label htmlFor="approvedRefundAmount" className="text-gray-700">
                     Approved Refund Amount

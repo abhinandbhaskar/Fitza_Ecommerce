@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateProducts, addProductAttribute } from "../../../../../../redux/ProductsSlice";
-import { toast } from "react-toastify"; // For showing error messages
+import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

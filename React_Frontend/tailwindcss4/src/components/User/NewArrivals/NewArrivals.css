@@ -191,13 +191,15 @@
     flex-direction: column;
     justify-content: left;
     align-items: first baseline;
-    height: 104px;
+    height: 30px;
     gap: 0; 
     line-height:0;
+    padding: 8px;
 }
 
 .card-body p{
   font-size: 12px;
+  margin-left: 4px;
 }
 
 .card-body h4{
@@ -212,7 +214,7 @@
     height: 54px;
     width: 54px;
     /* background-color: rgb(155, 235, 169); */
-    background-color: rgb(244, 92, 92);
+    background-color: rgb(244, 163, 163);
     position: absolute;
     right: 20px;
     bottom: 20px;
@@ -221,10 +223,18 @@
     align-items: center;
     border-radius: 50%;
 }  
-
+.Addcart-icon:hover{
+  background-color: rgb(239, 105, 105);
+  border-width: 1px;
+  border-color: rgb(39, 35, 35);
+}
 .Addcart-icon i{
     font-size: 18px;
 }
+.Addcart-icon i:hover{
+  color: white;
+}
+
 .link-style{
   all:unset ;
 }
@@ -238,7 +248,7 @@
     width: 80%;
     padding-bottom: 20px;
     padding: 4px;
-    padding-left: 10px;
+    padding-left: 8px;
 }
 
   .Feature-Cards .card{
@@ -248,12 +258,12 @@
     border-radius: 16px;
     border: 2px solid rgba(188, 182, 182, 0.932);
     margin-bottom: 12px;
-    padding: 5px;
+    padding: 10px;
 }
 .Feature-Cards .card img{
-    height: 260px;
-    width: 256px;
-    border-radius: 16px;
+    height: 236px;
+    width: 236px;
+    border-radius: 14px;
 }
 
 
@@ -272,8 +282,8 @@
 }
 
 .Feature-Cards .card .Cards-Options {
-    height: 260px;
-    width: 256px;
+    height: 250px;
+    width: 246px; 
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -281,7 +291,7 @@
     position: absolute;
     top: 0; /* Adjust based on your design */
     left: 0; /* Adjust based on your design */
-    margin: 10px;
+    margin: 8px;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -421,27 +431,29 @@
 }
 
 .card-body p{
-  font-size: 12px;
-  margin-left: 8px;
+  font-size: 8px;
+  margin-left: 4px;
 }
 
 .card-body h4{
-    font-size: 16px;
-    margin-left: 8px;
+    font-size: 10px;
+    margin-left: 4px;
   }
 
 .label-icon{
     display: flex;
     flex-direction: row;
 }
+
+
 .Addcart-icon{
-    height: 46px;
-    width: 46px;
+    height: 50px;
+    width: 50px;
     /* background-color: rgb(155, 235, 169); */
     background-color: rgb(244, 92, 92);
     position: absolute;
-    right: 20px;
-    bottom: 20px;
+    right: 18px;
+    bottom: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -449,53 +461,11 @@
 }  
 
 .Addcart-icon i{
-    font-size: 16px;
+    font-size: 18px;
 }
 .link-style{
   all:unset ;
 }
 
 
-}
-
-.deals-nav{
-    position: relative;
-    padding-top: 3%;
-    height: 10vh;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-.deals-nav h1{
- margin-left: 10%;
-}
-.deals-nav .dealsnav-btn{
-    margin-right: 10%;
-    display: flex;
-}
-.deals-nav .dealsnav-btn button{
-    margin: 10px;
-    height: 36px;
-    width: 36px;
-    color: rgb(99, 199, 99);
-    border-radius: 50%;
-    font-weight: 900;
-    font-size: 20px;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    border: 2px solid rgb(180, 176, 176);
-}
-.deals-nav h1{
-    font-family: "Poppins", serif;
-    font-weight: 500;
-    font-style: normal;
-    font-size: 28px;
-}
-
-.deals-nav h1 span{
-    color: rgb(245, 77, 77);
 }

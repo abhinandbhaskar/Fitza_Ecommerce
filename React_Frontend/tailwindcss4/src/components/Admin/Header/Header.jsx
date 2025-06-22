@@ -72,24 +72,15 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
         <header className="w-full bg-white shadow-md fixed top-0 z-50">
             {/* Mobile Header (shown only on small screens) */}
             <div className="md:hidden  flex items-center justify-between p-2 ">
-
-
-
                 <div className="flex items-center">
-                    <button 
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="text-white p-2"
-                    >
+                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white p-2">
                         <i className={`fa-solid ${isMobileMenuOpen ? "fa-xmark" : "fa-bars"}`}></i>
                     </button>
                     <img src={fitza} className="h-10 w-10 ml-2" alt="Fitza Logo" />
                 </div>
                 <div className="flex items-center space-x-4">
                     <div className="relative">
-                        <button 
-                            onClick={() => setCurrentView("notification")}
-                            className="text-white p-2"
-                        >
+                        <button onClick={() => setCurrentView("notification")} className="text-white p-2">
                             <i className="fa-solid fa-bell"></i>
                             {countN > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -100,7 +91,11 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
                     </div>
                     <div className="flex items-center">
                         <img
-                            src={profilePicture && profilePicture.length > 0 ? `https://127.0.0.1:8000/media/${profilePicture}` : profile}
+                            src={
+                                profilePicture && profilePicture.length > 0
+                                    ? `https://127.0.0.1:8000/media/${profilePicture}`
+                                    : profile
+                            }
                             className="h-8 w-8 border-2 border-white rounded-full"
                             alt="Profile"
                         />
@@ -112,10 +107,7 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
             {isMobileMenuOpen && (
                 <div className="md:hidden bg-gray-100 p-4">
                     <div className="mb-4">
-                        <select 
-                            onChange={(e) => PageEvent(e.target.value)}
-                            className="w-full p-2 border rounded-lg"
-                        >
+                        <select onChange={(e) => PageEvent(e.target.value)} className="w-full p-2 border rounded-lg">
                             <option value="user">User</option>
                             <option value="seller">Seller</option>
                             <option value="product">Product</option>
@@ -151,20 +143,21 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
                     <div className="flex items-center justify-between p-2 border-t border-gray-200">
                         <div className="flex items-center">
                             <img
-                                src={profilePicture && profilePicture.length > 0 ? `https://127.0.0.1:8000/${profilePicture}` : profile}
+                                src={
+                                    profilePicture && profilePicture.length > 0
+                                        ? `https://127.0.0.1:8000/${profilePicture}`
+                                        : profile
+                                }
                                 className="h-10 w-10 border-2 border-gray-700 rounded-full"
                                 alt="Profile"
                             />
-                            
+
                             <div className="ml-3">
                                 <h1 className="font-bold text-sm">{name}</h1>
                                 <p className="text-gray-600 text-xs">{email}</p>
                             </div>
                         </div>
-                        <button
-                            onClick={handleLogout}
-                            className="text-red-500 hover:text-red-700 p-2"
-                        >
+                        <button onClick={handleLogout} className="text-red-500 hover:text-red-700 p-2">
                             <i className="fa-solid fa-right-from-bracket"></i>
                         </button>
                     </div>
@@ -180,7 +173,7 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
 
                 <div className="w-2/4 flex items-center justify-center p-2 bg-white">
                     <div className="flex items-center border border-gray-300 rounded-2xl shadow-sm bg-white px-3 py-2 w-full max-w-md">
-                        <select 
+                        <select
                             onChange={(e) => PageEvent(e.target.value)}
                             className="text-sm text-gray-700 bg-white outline-none border-none mr-2"
                         >
@@ -233,8 +226,10 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
                         <div className="flex items-center space-x-3">
                             <img
                                 src={
-                            profilePicture && profilePicture.length > 0 && `https://127.0.0.1:8000/media/${profilePicture}`
-                        }
+                                    profilePicture &&
+                                    profilePicture.length > 0 &&
+                                    `https://127.0.0.1:8000/media/${profilePicture}`
+                                }
                                 className="h-10 w-10 border-2 border-gray-700 rounded-full"
                                 alt="Profile"
                             />
@@ -244,17 +239,17 @@ const Header = ({ setCurrentView, countN, setCountN, setSearchTerm, searchTerm }
                             </div>
                         </div>
 
- <div className="flex flex-col items-center justify-center ">
-                    <div
-                        onClick={handleLogout}
-                        className="h-10 w-10 rounded-full border-2 hover:bg-black hover:border-2 hover:border-black hover:text-white border-gray-700 flex items-center justify-center"
-                    >
-                        <i className={`fa-solid fa-right-from-bracket`}></i>
-                    </div>
-                    <label htmlFor="" className="text-sm">
-                        logout
-                    </label>
-                </div>
+                        <div className="flex flex-col items-center justify-center ">
+                            <div
+                                onClick={handleLogout}
+                                className="h-10 w-10 rounded-full border-2 hover:bg-black hover:border-2 hover:border-black hover:text-white border-gray-700 flex items-center justify-center"
+                            >
+                                <i className={`fa-solid fa-right-from-bracket`}></i>
+                            </div>
+                            <label htmlFor="" className="text-sm">
+                                logout
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>

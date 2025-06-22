@@ -11,7 +11,7 @@ const UsersSection = ({ searchTerm, setCurrentView }) => {
     const [userCount, setUserCount] = useState(0);
 
     const fetchUsers = async () => {
-        setLoading(true); // Ensure loading state is properly managed
+        setLoading(true);
         try {
             const response = await axios.get("https://127.0.0.1:8000/api/admin/view_users/", {
                 headers: {
@@ -57,7 +57,7 @@ const UsersSection = ({ searchTerm, setCurrentView }) => {
             );
             if (response.status === 200) {
                 console.log("User removed successfully");
-                fetchUsers(); // Refresh the user list
+                fetchUsers();
             } else {
                 console.log("Error occurred while removing the user");
             }

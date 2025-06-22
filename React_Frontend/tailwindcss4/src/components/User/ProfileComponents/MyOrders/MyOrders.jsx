@@ -81,6 +81,7 @@ const MyOrders = ({ setCurrentView, myorderview, setMyOrderView }) => {
   };
 
   const fetchBill = async (orderId) => {
+    console.log("ORDERRRRRRRRRIDDDDDDDDDDDDDDDDDDDDDDD",orderId);
     try {
       const response = await axios.get(`https://127.0.0.1:8000/api/get_bill/${orderId}/`, {
         headers: {

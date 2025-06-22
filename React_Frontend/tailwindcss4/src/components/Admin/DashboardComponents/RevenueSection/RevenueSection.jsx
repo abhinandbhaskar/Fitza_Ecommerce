@@ -57,7 +57,6 @@ const RevenueSection = ({ setCurrentView }) => {
         platformCommission: adminearnings,
     };
 
-    // Revenue over time data
     const revenueOverTime = [
         { month: "Jan", revenue: 95000 },
         { month: "Feb", revenue: 110000 },
@@ -70,9 +69,7 @@ const RevenueSection = ({ setCurrentView }) => {
         { month: "Sep", revenue: 240000 },
     ];
 
-    // Top sellers data
 
-    // Category distribution data
 
     return (
         <div className="min-h-screen bg-gray-100">

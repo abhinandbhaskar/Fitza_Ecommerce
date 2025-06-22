@@ -1,96 +1,170 @@
-.deals-section{
-    height: auto;
+.deals-section {
     width: 100%;
+    padding: 20px 0;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    
-}
-.deals-section .deals-nav{
-    position: relative;
-    padding-top: 3%;
-    height: 10vh;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-.deals-section .deals-nav h1{
- margin-left: 10%;
-}
-.deals-nav .dealsnav-btn{
-    margin-right: 10%;
-    display: flex;
-}
-.deals-nav .dealsnav-btn button{
-    margin: 10px;
-    height: 36px;
-    width: 36px;
-    color: rgb(99, 199, 99);
-    border-radius: 50%;
-    font-weight: 900;
-    font-size: 20px;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    border: 2px solid rgb(180, 176, 176);
-}
-.deals-section .deals-nav h1{
-    font-family: "Poppins", serif;
-    font-weight: 500;
-    font-style: normal;
-    font-size: 28px;
 }
 
-.deals-section .deals-nav h1 span{
+.deals-nav {
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.deals-nav h1 {
+    font-family: "Poppins", serif;
+    font-weight: 500;
+    font-size: 24px;
+    margin: 0;
+    padding: 0 10px;
+}
+
+.deals-nav h1 span {
     color: rgb(245, 77, 77);
 }
 
-
-.popular-cards{
-    height: auto;
-    width: 80%;
-    padding-bottom: 20px;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.popular-cards .cards{
-    height: auto;
+.timer-container {
     width: 100%;
-    margin-right: 18px;
-    margin-left: 18px;
-    padding: 6px;
-}
-.card{
-    height: 230px;
-    width: 180px;
-    background-color: white;
-    border-radius: 16px;
-    border: 2px solid rgba(188, 182, 182, 0.932);
-}
-.card img{
-    height: 190px;
-    width: 190px;
-    padding: 10px;
-    border-radius: 18px;
-}
-.card-body{
+    padding: 20px 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
-.card-body h5{
+
+.timer-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.timer-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.timer-box {
+    height: 50px;
+    width: 80px;
+    background-color: #ffb347;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.timer-value {
+    color: #ff5e00;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.timer-separator {
+    font-weight: bold;
+    font-size: 20px;
+    margin: 0 5px;
+}
+
+.popular-cards {
+    width: 95%;
+    max-width: 1200px;
+    padding: 10px 0;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 0 10px;
+}
+
+.product-card {
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.product-image {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    padding: 10px;
+    filter: brightness(0.9);
+}
+
+.product-info {
+    padding: 10px;
+    text-align: center;
+}
+
+.product-title {
     font-family: "Poppins", serif;
     font-weight: 500;
-    font-style: normal;
-    font-size: 16px;
+    font-size: 14px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.dim-image{
-    filter: brightness(0.9);
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .deals-nav h1 {
+        font-size: 28px;
+    }
+    
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .timer-box {
+        height: 60px;
+        width: 100px;
+    }
+    
+    .timer-value, .timer-separator {
+        font-size: 24px;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .product-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .timer-box {
+        height: 70px;
+        width: 120px;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .product-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    .deals-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 50px;
+    }
+    
+    .deals-nav h1 {
+        margin-left: 0;
+    }
 }

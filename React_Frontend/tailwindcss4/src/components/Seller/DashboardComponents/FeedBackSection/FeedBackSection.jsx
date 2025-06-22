@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { safe } from "../../../../utils/safeAccess";
-import { toast } from "react-toastify"; // For showing error messages
+import { toast } from "react-toastify"; 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const FeedBackSection = ({setCurrentView}) => {
@@ -168,7 +168,7 @@ const FeedBackSection = ({setCurrentView}) => {
                 <div className="mt-8 p-6 bg-white shadow-md rounded-lg">
                     <h2 className="text-lg font-semibold text-gray-800 mb-4">Provide Your Feedback</h2>
 
-                    {/* Feedback Textarea */}
+                   
                     <textarea
                         placeholder="Write your feedback here..."
                         className="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"

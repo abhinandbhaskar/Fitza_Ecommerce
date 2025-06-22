@@ -83,14 +83,10 @@ EMAIL_MAIL_CALLBACK = email_verified_callback
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-# EMAIL_HOST_USER =  config('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
 EMAIL_HOST_USER =  os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-print("EMAIL_HOST_USER:", EMAIL_HOST_USER)
-print("EMAIL_HOST_PASSWORD:", EMAIL_HOST_PASSWORD)
-# EMAIL_HOST_USER = 'abhinandbhaskar43@gmail.com'
-# EMAIL_HOST_PASSWORD = 'pwqn etpg gfmz gnfs'
+
 EMAIL_USE_TLS = True
 
 
@@ -122,6 +118,7 @@ REST_FRAMEWORK = {
 
 }
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # Place CORS middleware before SessionMiddleware
@@ -131,7 +128,23 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
+
+
+
+
+# MIDDLEWARE = [
+#     'django.middleware.security.SecurityMiddleware',
+#     'corsheaders.middleware.CorsMiddleware',  # Place CORS middleware before SessionMiddleware
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'social_django.middleware.SocialAuthExceptionMiddleware',
+# ]
 
 
 # MIDDLEWARE = [
@@ -170,10 +183,6 @@ import os
 # Razorpay API Configuration
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_SECRET_KEY = os.getenv("RAZORPAY_SECRET_KEY")
-
-# print("RAZORPAY_KEY_ID:", RAZORPAY_KEY_ID)
-# print("RAZORPAY_SECRET_KEY:", RAZORPAY_SECRET_KEY)
-
 
  # Allow cross-site cookies
 
@@ -297,7 +306,12 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://localhost:8000/social/complete/google-oauth2/'
+
+
+# SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://localhost:8000/social/complete/google-oauth2/'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://localhost:8000/social/complete/google-oauth2/'
+
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 
@@ -341,3 +355,13 @@ CORS_ALLOW_HEADERS = [
     "origin",
     "x-csrftoken",
 ]
+
+
+#AI
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'ai-recommender-cache',
+    }
+}

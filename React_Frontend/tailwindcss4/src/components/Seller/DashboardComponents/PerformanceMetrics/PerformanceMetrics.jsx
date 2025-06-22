@@ -5,7 +5,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 const PerformanceMetrics = () => {
-  // Sample data - replace with your actual data
+
   const salesData = {
     daily: [1200, 1900, 1700, 2100, 2500, 2200, 2800],
     weekly: [12500, 13900, 14700, 16200, 18500, 17200, 19800],

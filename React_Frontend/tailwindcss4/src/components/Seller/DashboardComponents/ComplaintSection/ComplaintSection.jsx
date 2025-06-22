@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify"; // For showing error messages
+import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { safe } from "../../../../utils/safeAccess";
@@ -18,7 +18,6 @@ const ComplaintSection = ({ setCurrentView, setYourComplaint }) => {
     };
 
     const handleComplaint = async () => {
-        
         try {
             const response = await axios.post("https://127.0.0.1:8000/api/seller/add_seller_complaint/", sellerdata, {
                 headers: {
@@ -65,13 +64,15 @@ const ComplaintSection = ({ setCurrentView, setYourComplaint }) => {
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
             <div className="w-full bg-white shadow-md py-4 px-6">
-                <h1 onClick={()=>setCurrentView("mainsection")} className="text-lg md:text-2xl font-semibold text-gray-700">
+                <h1
+                    onClick={() => setCurrentView("mainsection")}
+                    className="text-lg md:text-2xl font-semibold text-gray-700"
+                >
                     Dashboard &gt; <span className="text-indigo-600">Complaints</span>
                 </h1>
             </div>
 
             <div className="container mx-auto mt-6 px-4">
-                {/* Raise Complaint Section */}
                 <div className="bg-white shadow-md rounded-lg p-6 mb-8">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4">Raise a Complaint</h2>
                     <div className="space-y-4">
@@ -123,16 +124,17 @@ const ComplaintSection = ({ setCurrentView, setYourComplaint }) => {
                                 {complaints.map((c, key) => (
                                     <tr className="hover:bg-gray-50">
                                         <td className="px-4 py-2 border border-gray-300">{key + 1}</td>
-                                        <td className="px-4 py-2 border border-gray-300">{safe(c,'title')}</td>
-                                        <td className="px-4 py-2 border border-gray-300">{safe(c,'description')}</td>
+                                        <td className="px-4 py-2 border border-gray-300">{safe(c, "title")}</td>
+                                        <td className="px-4 py-2 border border-gray-300">{safe(c, "description")}</td>
                                         <td className="px-4 py-2 border border-gray-300">
-                                            
-                                              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                                                {safe(c,'response') ? "replayed" : "pending"}
+                                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                                {safe(c, "response") ? "replayed" : "pending"}
                                             </span>
                                         </td>
                                         <td className="px-4 py-2 border border-gray-300">
-                                            {safe(c, "updated_at") ? new Date(safe(c, "updated_at")).toLocaleString(): "N/A"}
+                                            {safe(c, "updated_at")
+                                                ? new Date(safe(c, "updated_at")).toLocaleString()
+                                                : "N/A"}
                                         </td>
                                         <td className="px-4 py-2 border border-gray-300 text-center">
                                             <button

@@ -47,7 +47,6 @@ const BannerSection = () => {
         }
 
         console.log("Banner Data Submitted:", formData);
-        // Handle API submission here
     };
 
     const ViewBanners = async () => {
@@ -156,7 +155,6 @@ const BannerSection = () => {
 
         console.log("Banner Data Submitted:", formData);
         console.log("Banner Data Submitted:", id);
-        // Handle API submission here
     };
 
        const ClickActivate=async(id)=>{
@@ -468,7 +466,7 @@ const BannerSection = () => {
                                     onChange={(e) => {
                                         const file = e.target.files[0];
                                         if (file) {
-                                            setImage(file); // Set the selected file for submission
+                                            setImage(file); 
                                         }
                                     }}
                                 />

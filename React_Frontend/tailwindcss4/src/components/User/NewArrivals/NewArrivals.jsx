@@ -41,11 +41,33 @@ const NewArrivals = ({ setTopData }) => {
         fetchNewArrivals();
     }, []);
 
+
+    const AddProductInteration = async (id,type) => {
+    try {
+        // const type = "view";
+        const response = await axios.post(
+            `https://127.0.0.1:8000/api/add_product_interation/${id}/${type}/`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }
+        );
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.log("Error Occurred", error);
+    }
+}
+
+
     const AddToCart = (id) => {
          if(!accessToken || accessToken.length === 0) {
                 toast.error("You need to login first!");
                 return;
             }
+            const type="view";
+            AddProductInteration(id,type);
         navigate(`/productview/${id}`);
     };
 
@@ -60,6 +82,8 @@ const NewArrivals = ({ setTopData }) => {
     }
 
     const AddToWishlist = async (id) => {
+        const type="favorite";
+        AddProductInteration(id,type);
          if(!accessToken || accessToken.length === 0) {
                 toast.error("You need to login first!");
                 return;
@@ -105,10 +129,10 @@ const NewArrivals = ({ setTopData }) => {
                              {new Date() >= new Date(product.added_date) && 
                                 new Date() <= new Date(new Date(product.added_date).getTime() + 172800000) && (
                                 <div className="Tag">
-                                <div className="product-card">
+                               
                              <h6 className="new-badge">New</h6>
                             
-                            </div>
+                            
                             </div>
                                 )}
                             <img
@@ -140,11 +164,11 @@ const NewArrivals = ({ setTopData }) => {
                                 <h2 className="card-title text-bold text-2xl font-semibold text-gray-800">
                                    {product.product_name.length > 20 ? `${product.product_name.substring(0, 20)}..`:product.product_name}
                                 </h2>
-                                <h4 className="text-gray-700 leading-relaxed text-lg">
+                                <h5 className="text-gray-700 leading-relaxed text:md md:text-lg">
                                     {product.product_description.length > 28
                                         ? `${product.product_description.substring(0, 28)}...`
                                         : product.product_description}
-                                </h4>
+                                </h5>
 
 
                                 <div>

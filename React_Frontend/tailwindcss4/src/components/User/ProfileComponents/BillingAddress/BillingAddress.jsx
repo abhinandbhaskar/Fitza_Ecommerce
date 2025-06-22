@@ -172,7 +172,7 @@ const BillingAddress = () => {
                         </div>
                         <div className="h-full w-[100%] font-bold text-md  m-1 flex flex-col ">
                             <label className="flex justify-start" htmlFor="">
-                                Zip Code :
+                                Pincode :
                             </label>
                             <input
                                 type="text"

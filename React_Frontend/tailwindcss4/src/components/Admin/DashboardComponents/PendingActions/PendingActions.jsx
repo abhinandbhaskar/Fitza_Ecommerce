@@ -27,7 +27,6 @@ const PendingActions = ({ setCurrentView }) => {
             setComplaints(response.data.complaints);
             setRefunds(response.data.returnrefund);
             
-            // Transform the top sellers data to match the chart format
             if (response.data.topsellers && response.data.topsellers.length > 0) {
                 const transformedData = response.data.topsellers.map(seller => ({
                     name: seller.shop_name,
@@ -47,7 +46,6 @@ const PendingActions = ({ setCurrentView }) => {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Top Sellers Chart */}
             <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">
                     <i className="fas fa-trophy mr-2 text-yellow-500"></i>
@@ -128,10 +126,7 @@ const PendingActions = ({ setCurrentView }) => {
                 )}
             </div>
 
-            {/* Pending Actions Panel */}
-            {/* ... rest of your existing Pending Actions Panel code remains the same ... */}
-
-                        {/* Pending Actions Panel */}
+        
             <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
                 <div className="flex justify-between items-center bg-gray-100 px-4 py-3 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-800">Pending Actions</h2>
@@ -141,7 +136,6 @@ const PendingActions = ({ setCurrentView }) => {
                 </div>
 
                 <div className="divide-y divide-gray-200">
-                    {/* Pending Approvals */}
                     <div className="p-4 hover:bg-gray-50 flex items-start">
                         <div className="bg-yellow-100 p-2 rounded-full mr-3">
                             <i className="fas fa-clock text-yellow-500"></i>
@@ -155,7 +149,6 @@ const PendingActions = ({ setCurrentView }) => {
                         <button className="text-sm text-blue-500">View</button>
                     </div>
 
-                    {/* Product Approvals */}
                     <div className="p-4 hover:bg-gray-50 flex items-start">
                         <div className="bg-green-100 p-2 rounded-full mr-3">
                             <i className="fas fa-box text-green-500"></i>
@@ -169,7 +162,6 @@ const PendingActions = ({ setCurrentView }) => {
                         <button className="text-sm text-blue-500">View</button>
                     </div>
 
-                    {/* Review Approvals */}
                     <div className="p-4 hover:bg-gray-50 flex items-start">
                         <div className="bg-orange-100 p-2 rounded-full mr-3">
                             <i className="fas fa-star text-orange-500"></i>
@@ -183,7 +175,6 @@ const PendingActions = ({ setCurrentView }) => {
                         <button className="text-sm text-blue-500">View</button>
                     </div>
 
-                    {/* Flagged Issues */}
                     <div className="p-4 hover:bg-gray-50 flex items-start">
                         <div className="bg-red-100 p-2 rounded-full mr-3">
                             <i className="fas fa-flag text-red-500"></i>
@@ -197,7 +188,6 @@ const PendingActions = ({ setCurrentView }) => {
                         <button className="text-sm text-blue-500">View</button>
                     </div>
 
-                    {/* Refund Alerts */}
                     <div className="p-4 hover:bg-gray-50 flex items-start">
                         <div className="bg-purple-100 p-2 rounded-full mr-3">
                             <i className="fas fa-exchange-alt text-purple-500"></i>

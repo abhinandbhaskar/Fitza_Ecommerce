@@ -20,7 +20,6 @@ const DiscountCardSection = () => {
   const handleAddOrUpdateDiscount = async (editCardId) => {
     if (cardName && discountPercentage) {
       if (editCardId) {
-        // Update existing card
         setDiscountCards((prev) =>
           prev.map((card) =>
             card.id === editCardId ? { ...card, cardName, discountPercentage } : card
@@ -34,9 +33,6 @@ const DiscountCardSection = () => {
           endDate: formatDate(new Date(new Date().setFullYear(new Date().getFullYear() + 1))),
         };
 
-        console.log("IDDDDDDDDDDDDD",editCardId);
-        console.log("DDDDataaaaaaaaa",updatedCard);
-
               
       try{
         const response=await axios.post(`https://127.0.0.1:8000/api/admin/edit_discount_card/${editCardId}/`,updatedCard,{
@@ -45,8 +41,7 @@ const DiscountCardSection = () => {
               Authorization:`Bearer ${accessToken}`,
             }
         });
-        console.log(response);
-        console.log(response.data);
+       
         alert(response.data.message);
         fetchDiscoundCard()
        
@@ -62,7 +57,6 @@ const DiscountCardSection = () => {
 
         setEditCardId(null);
       } else {
-        // Add new card
         const newDiscountCard = {
           id: discountCards.length + 1,
           cardName,
@@ -125,7 +119,6 @@ const DiscountCardSection = () => {
         is_active: response.data.is_active,
       };
   
-      // Update the card in the discountCards array
       setDiscountCards((prev) =>
         prev.map((card) => (card.id === id ? updatedCard : card))
       );
@@ -160,7 +153,7 @@ const DiscountCardSection = () => {
 
   };
   const handleToggleActive = async (id, isActive) => {
-    const newStatus = isActive ? "false" : "true"; // Toggle the status
+    const newStatus = isActive ? "false" : "true"; 
     try {
         const response = await axios.post(
             `https://127.0.0.1:8000/api/admin/active_deactive/${id}/${newStatus}/`,

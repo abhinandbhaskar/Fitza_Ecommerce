@@ -20,30 +20,31 @@ import ErrorBoundary from "../components/ErrorBoundary";
 
 const UserRoutes = () => {
   const [countsN,setNcounts]=useState(0);
+  const [cartCount,setCartCount]=useState(0);
   return (
     <>
       <Routes>
        
-          <Route path="/" element={<HomePage countsN={countsN} setNcounts={setNcounts} />} />
+          <Route path="/" element={<HomePage countsN={countsN} setNcounts={setNcounts} setCartCount={setCartCount} cartCount={cartCount} />} />
           <Route path="/signup" element={<ErrorBoundary><SignUpPage /></ErrorBoundary>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/authredirect" element={<HandleRedirect />} />
-          <Route path="/profile" element={<ProfilePage countsN={countsN} />} />
+          <Route path="/profile" element={<ProfilePage countsN={countsN} cartCount={cartCount} />} />
           <Route path="/viewprofile" element={<ViewProfile/>} />
           <Route path="/changepassword" element={<ChangePassword />} />
           <Route path="/billingaddress" element={<BillingAddress />} />
-          <Route path="/productview/:id" element={<ProductPage countsN={countsN} />} />
+          <Route path="/productview/:id" element={<ProductPage countsN={countsN} cartCount={cartCount} />} />
           
         
-          <Route path="/wishlistview" element={ <WishlistPage countsN={countsN}/>}/>
+          <Route path="/wishlistview" element={ <WishlistPage countsN={countsN} cartCount={cartCount}/>}/>
         
 
          
-          <Route path="/categoryproduct/:pro_name" element={<CategoryProducts/>} />
-          <Route path="/cartpage" element={<CartPage countsN={countsN}/>} />
-          <Route path="/offerproduct" element={<OfferSection countsN={countsN} />} />
-          <Route path="/compareproducts/:id" element={<CompareProducts countsN={countsN}/>} />
-          <Route path="/notifications" element={<NotificationPage countsN={countsN} setNcounts={setNcounts}/>} />
+          <Route path="/categoryproduct/:pro_name" element={<CategoryProducts  countsN={countsN} cartCount={cartCount} />} />
+          <Route path="/cartpage" element={<CartPage countsN={countsN} cartCount={cartCount} setCartCount={setCartCount}/>} />
+          <Route path="/offerproduct" element={<OfferSection countsN={countsN} cartCount={cartCount} />} />
+          <Route path="/compareproducts/:id" element={<CompareProducts countsN={countsN} cartCount={cartCount}/>} />
+          <Route path="/notifications" element={<NotificationPage countsN={countsN} setNcounts={setNcounts} cartCount={cartCount}/>} />
          
       </Routes>  
     </>

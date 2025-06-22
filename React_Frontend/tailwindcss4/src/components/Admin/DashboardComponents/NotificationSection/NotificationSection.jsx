@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { safe } from "../../../../utils/safeAccess";
 const NotificationSection = ({setCountN}) => {
-    // Sample notification data
     const { accessToken } = useSelector((state) => state.auth);
     const [notifications, setNotifications] = useState([]);
     const [counts, setCounts] = useState([]);
@@ -33,7 +32,6 @@ const NotificationSection = ({setCountN}) => {
     const [activeTab, setActiveTab] = useState("all");
     const [expandedNotification, setExpandedNotification] = useState(null);
 
-    // Tabs configuration
     const tabs = [
         { id: "all", name: "All Notifications", count: notifications.length },
         { id: "high", name: "Critical", count: notifications.filter((n) => n.priority === "high").length },
@@ -59,7 +57,6 @@ const NotificationSection = ({setCountN}) => {
         },
     ];
 
-    // Filter notifications based on active tab
     const filteredNotifications = notifications.filter((notification) => {
         if (activeTab === "all") return true;
         if (activeTab === "high") return notification.priority === "high";
@@ -70,7 +67,6 @@ const NotificationSection = ({setCountN}) => {
         return true;
     });
 
-    // Mark as read
     const markAsRead = async (id) => {
         setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: true } : n)));
         console.log("ID", id);
@@ -95,12 +91,10 @@ const NotificationSection = ({setCountN}) => {
         }
     };
 
-    // Resolve notification
     const resolveNotification = (id, action) => {
         setNotifications(notifications.map((n) => (n.id === id ? { ...n, status: action, read: true } : n)));
     };
 
-    // Priority badge color
     const getPriorityColor = (priority) => {
         switch (priority) {
             case "high":
@@ -112,7 +106,6 @@ const NotificationSection = ({setCountN}) => {
         }
     };
 
-    // Type icon
     const getTypeIcon = (type) => {
         switch (type) {
             case "seller_approval":
@@ -131,7 +124,6 @@ const NotificationSection = ({setCountN}) => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header */}
             <div className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
@@ -144,9 +136,7 @@ const NotificationSection = ({setCountN}) => {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
                         <h3 className="text-sm font-medium text-gray-500">Critical Alerts</h3>
@@ -166,7 +156,6 @@ const NotificationSection = ({setCountN}) => {
                     </div>
                 </div>
 
-                {/* Tabs */}
                 <div className="border-b border-gray-200 mb-6">
                     <nav className="-mb-px flex space-x-8 overflow-x-auto">
                         {tabs.map((tab) => (
@@ -196,7 +185,6 @@ const NotificationSection = ({setCountN}) => {
                     </nav>
                 </div>
 
-                {/* Notifications List */}
                 <div className="bg-white shadow overflow-hidden sm:rounded-lg">
                     {filteredNotifications.length === 0 ? (
                         <div className="text-center py-12">

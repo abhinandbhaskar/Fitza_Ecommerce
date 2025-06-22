@@ -4,7 +4,6 @@ const LandPageFooter = () => {
   return (
     <footer className="bg-gray-800 text-gray-300 py-8">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
-        {/* Column 1: About */}
         <div>
           <h3 className="text-xl font-semibold text-white mb-4">About Fitza</h3>
           <p className="text-sm">
@@ -13,7 +12,6 @@ const LandPageFooter = () => {
           </p>
         </div>
 
-        {/* Column 2: Quick Links */}
         <div>
           <h3 className="text-xl font-semibold text-white mb-4">Quick Links</h3>
           <ul className="space-y-2">
@@ -40,7 +38,6 @@ const LandPageFooter = () => {
           </ul>
         </div>
 
-        {/* Column 3: Contact */}
         <div>
           <h3 className="text-xl font-semibold text-white mb-4">Contact Us</h3>
           <p className="text-sm mb-2">Email: support@fitza.com</p>

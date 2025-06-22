@@ -95,4 +95,3 @@ def save_social_auth_details(strategy, details, response, user=None, *args, **kw
             social_auth.extra_data = response
             social_auth.modified = now()
             social_auth.save()
-

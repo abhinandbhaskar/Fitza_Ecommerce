@@ -134,30 +134,12 @@ const Header = ({ setCurrentView, countN, setCountN,setSearchTerm,searchTerm }) 
                         >
                             <i className="fa-solid fa-bell"></i>
                         </div>
-                        {/* Notification counter badge */}
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                             {countN}
                         </div>
                     </div>
                 </div>
 
-                {/* <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
-                    <div
-                        key=""
-                        className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center"
-                    >
-                        <i className="fa-solid fa-gear"></i>
-                    </div>
-                </div>
-
-                <div className="w-full md:w-3/5 flex flex-wrap items-center justify-center md:justify-start gap-4 px-4 py-2">
-                    <div
-                        key=""
-                        className="h-10 w-10 rounded-full border-2 hover:bg-gray-500 border-gray-700 flex items-center justify-center"
-                    >
-                        <i className="fa-solid fa-circle-info"></i>
-                    </div>
-                </div> */}
             </div>
 
             <div className="w-full md:w-1/4 flex items-center gap-2 bg-white border-t md:border-t-0 md:border-l border-gray-600 p-4">

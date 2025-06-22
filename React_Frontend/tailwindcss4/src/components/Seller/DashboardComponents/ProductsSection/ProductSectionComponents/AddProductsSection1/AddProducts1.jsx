@@ -10,7 +10,7 @@ const AddProducts1 = ({ setCurrentView }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   
-  // State for form data
+
   const [formData, setFormData] = useState({
     product: "",
     description: "",
@@ -23,10 +23,10 @@ const AddProducts1 = ({ setCurrentView }) => {
     weight:""
   });
   
-  // State for errors
+
   const [errors, setErrors] = useState({});
   
-  // Dropdown options
+
   const [catename, setCategoryname] = useState([]);
   const [brandname, setBrandname] = useState([]);
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { safe } from "../../../../utils/safeAccess";
-import { toast } from "react-toastify"; // For showing error messages
+import { toast } from "react-toastify"; 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const ReturnRefundSection = ({setCurrentView}) => {
@@ -14,9 +14,8 @@ const ReturnRefundSection = ({setCurrentView}) => {
     const [selectedReturn, setSelectedReturn] = useState(null);
     const [notes, setNotes] = useState("");
     const [escalationReason, setEscalationReason] = useState("");
-    const [activeTab, setActiveTab] = useState("all"); // 'all', 'pending', 'completed'
+    const [activeTab, setActiveTab] = useState("all"); 
 
-    // Filter returns based on status
     const filteredReturns = returns.filter((returnItem) => {
         if (activeTab === "all") return true;
         return returnItem.status === activeTab;

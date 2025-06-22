@@ -3,7 +3,7 @@ import LandPageFooter from "../../../components/Seller/LandPageFooter/LandPageFo
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify"; // For showing error messages
+import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

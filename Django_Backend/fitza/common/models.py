@@ -433,3 +433,4 @@ class PaymentGatewayConfig(models.Model):
     def __str__(self):
         return f"{self.gateway_name} Configuration"
 
+

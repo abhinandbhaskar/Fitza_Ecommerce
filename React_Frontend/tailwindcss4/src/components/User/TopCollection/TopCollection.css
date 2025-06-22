@@ -194,11 +194,12 @@
     height: 30px;
     gap: 0; 
     line-height:0;
-    padding: 10px;
+    padding: 8px;
 }
 
 .card-body p{
   font-size: 12px;
+  margin-left: 4px;
 }
 
 .card-body h4{
@@ -247,7 +248,7 @@
     width: 80%;
     padding-bottom: 20px;
     padding: 4px;
-    padding-left: 10px;
+    padding-left: 8px;
 }
 
   .Feature-Cards .card{
@@ -257,12 +258,12 @@
     border-radius: 16px;
     border: 2px solid rgba(188, 182, 182, 0.932);
     margin-bottom: 12px;
-    padding: 5px;
+    padding: 10px;
 }
 .Feature-Cards .card img{
-    height: 260px;
-    width: 256px;
-    border-radius: 16px;
+    height: 236px;
+    width: 236px;
+    border-radius: 14px;
 }
 
 
@@ -281,8 +282,8 @@
 }
 
 .Feature-Cards .card .Cards-Options {
-    height: 260px;
-    width: 256px;
+    height: 250px;
+    width: 246px; 
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -290,7 +291,7 @@
     position: absolute;
     top: 0; /* Adjust based on your design */
     left: 0; /* Adjust based on your design */
-    margin: 10px;
+    margin: 8px;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -430,13 +431,13 @@
 }
 
 .card-body p{
-  font-size: 12px;
-  margin-left: 8px;
+  font-size: 8px;
+  margin-left: 4px;
 }
 
 .card-body h4{
-    font-size: 16px;
-    margin-left: 8px;
+    font-size: 10px;
+    margin-left: 4px;
   }
 
 .label-icon{
@@ -446,13 +447,13 @@
 
 
 .Addcart-icon{
-    height: 46px;
-    width: 46px;
+    height: 50px;
+    width: 50px;
     /* background-color: rgb(155, 235, 169); */
     background-color: rgb(244, 92, 92);
     position: absolute;
-    right: 20px;
-    bottom: 20px;
+    right: 18px;
+    bottom: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -460,7 +461,7 @@
 }  
 
 .Addcart-icon i{
-    font-size: 16px;
+    font-size: 18px;
 }
 .link-style{
   all:unset ;

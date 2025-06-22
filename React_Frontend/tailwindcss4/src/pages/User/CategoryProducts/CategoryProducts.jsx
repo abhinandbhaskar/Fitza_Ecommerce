@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 import { safe } from "../../../utils/safeAccess";
 
-const CategoryProducts = () => {
+const CategoryProducts = ({countsN,cartCount}) => {
     const { pro_name } = useParams();
     const { accessToken } = useSelector((state) => state.auth);
     const [products, setProducts] = useState([]);
@@ -34,7 +34,25 @@ const CategoryProducts = () => {
 
     const navigate = useNavigate();
 
-    // Extract filter options from products data
+
+    const AddProductInteration = async (id,type) => {
+    try {
+        // const type = "view";
+        const response = await axios.post(
+            `https://127.0.0.1:8000/api/add_product_interation/${id}/${type}/`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            }
+        );
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.log("Error Occurred", error);
+    }
+}
+
     const extractFilterOptions = () => {
         const sizes = new Set();
         const colors = new Set();
@@ -42,24 +60,20 @@ const CategoryProducts = () => {
         const brands = new Set();
 
         products.forEach((product) => {
-            // Extract sizes
             product.items?.forEach((item) => {
                 if (item.size?.size_name) {
                     sizes.add(item.size.size_name);
                 }
 
-                // Extract colors
                 if (item.color?.color_name) {
                     colors.add(item.color.color_name);
                 }
             });
 
-            // Extract categories
             if (product.category?.category_name) {
                 categories.add(product.category.category_name);
             }
 
-            // Extract brands
             if (product.brand?.brand_name) {
                 brands.add(product.brand.brand_name);
             }
@@ -79,8 +93,19 @@ const CategoryProducts = () => {
         setLoading(true);
         setError(null);
 
+         if(!accessToken || accessToken.length === 0) {
+                toast.error("You need to login first!");
+                return;
+        }
+
+
+
         try {
-            const response = await axios.get(`https://127.0.0.1:8000/api/fetch_cate_products/${pro_name}/`, {});
+            const response = await axios.get(`https://127.0.0.1:8000/api/fetch_cate_products/${pro_name}/`, {
+               headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            });
 
             setProducts(safe(response,'data'));
             setFilteredProducts(safe(response,'data'));
@@ -92,7 +117,7 @@ const CategoryProducts = () => {
                     return itemPrice > max ? itemPrice : max;
                 }, 0);
                 sethighestPrice(maxPrice);
-                setPriceRange([0, maxPrice]); // Reset price range to full range
+                setPriceRange([0, maxPrice]); 
             }
 
             if (response.data.length === 0) {
@@ -111,14 +136,18 @@ const CategoryProducts = () => {
             toast.error("You need to login first!");
             return;
         }
+        const type="view";
+        AddProductInteration(id,type);
         navigate(`/productview/${id}`);
     };
 
     const AddToWishlist = async (id) => {
-            if(!accessToken || accessToken.length === 0) {
-                toast.error("You need to login first!");
-                return;
-            }
+        const type="favorite";
+        AddProductInteration(id,type);
+        if(!accessToken || accessToken.length === 0) {
+            toast.error("You need to login first!");
+            return;
+        }
         try {
             const response = await axios.post(
                 `https://127.0.0.1:8000/api/add_wishlist/${id}/`,
@@ -188,7 +217,7 @@ const CategoryProducts = () => {
                 break;
             case "featured":
             default:
-                // Default sorting (perhaps by ID or keep original order)
+               
                 sorted = [...products];
                 break;
         }
@@ -196,13 +225,13 @@ const CategoryProducts = () => {
         setFilteredProducts(sorted);
     };
 
-    // Apply filters whenever filter criteria change
+ 
     useEffect(() => {
         if (products.length === 0) return;
 
         let result = [...products];
 
-        // Filter by price range
+      
 
         result = result.filter((product) => {
             const itemPrice = parseFloat(product.items[0]?.sale_price || 0);
@@ -210,29 +239,29 @@ const CategoryProducts = () => {
             return itemPrice >= priceRange[0] && itemPrice <= priceRange[1];
         });
 
-        // Filter by size
+     
         if (selectedSizes.length > 0) {
             result = result.filter((product) => product.items.some((item) => selectedSizes.includes(item.size?.size_name)));
         }
 
-        // Filter by color
+      
         if (selectedColors.length > 0) {
             result = result.filter((product) =>
                 product.items.some((item) => selectedColors.includes(item.color?.color_name))
             );
         }
 
-        // Filter by brand
+     
         if (selectedBrands.length > 0) {
             result = result.filter((product) => selectedBrands.includes(product.brand?.brand_name));
         }
 
-        // Filter by category
+      
         if (selectedCategory) {
             result = result.filter((product) => product.category?.category_name === selectedCategory);
         }
 
-        // Apply sorting
+    
         sortProducts(sortOption);
 
         setFilteredProducts(result);
@@ -242,11 +271,11 @@ const CategoryProducts = () => {
         fetchProducts();
     }, [pro_name]);
 
-    // ... (keep the loading and error states the same)
+  
 
     return (
         <>
-            <Header />
+            <Header countsN={countsN} cartCount={cartCount} />
             <div className="min-h-screen bg-gray-50">
                 <div className="container mx-auto px-4 py-8">
                     {/* Page header */}
@@ -268,7 +297,6 @@ const CategoryProducts = () => {
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-8">
-                        {/* Filter sidebar - desktop */}
                         <div
                             className={`hidden md:block w-full md:w-80 flex-shrink-0 ${
                                 mobileFiltersOpen ? "block" : "hidden"
@@ -282,7 +310,6 @@ const CategoryProducts = () => {
                                     </button>
                                 </div>
 
-                                {/* Brand filter */}
                                 {brands.length > 0 && (
                                     <div className="mb-6">
                                         <div
@@ -317,7 +344,6 @@ const CategoryProducts = () => {
                                     </div>
                                 )}
 
-                                {/* Category filter */}
                                 {categories.length > 0 && (
                                     <div className="mb-6">
                                         <div
@@ -434,7 +460,6 @@ const CategoryProducts = () => {
                                     </div>
                                 )}
 
-                                {/* Color filter */}
                                 {colors.length > 0 && (
                                     <div className="mb-6">
                                         <div
@@ -452,7 +477,6 @@ const CategoryProducts = () => {
                                         {expandedSections.color && (
                                             <div className="grid grid-cols-4 gap-3">
                                                 {colors.map((color) => {
-                                                    // Find a product with this color to get the color code
                                                     const colorProduct = products.find((p) =>
                                                         p.items.some((i) => i.color?.color_name === color)
                                                     );
@@ -460,21 +484,16 @@ const CategoryProducts = () => {
                                                         (i) => i.color?.color_name === color
                                                     );
 
-                                                    // Default to gray if no color code found
                                                     let colorStyle = {};
                                                     if (colorItem?.color?.color_code) {
-                                                        // If color_code is a hex value
                                                         if (colorItem.color.color_code.startsWith("#")) {
                                                             colorStyle = { backgroundColor: colorItem.color.color_code };
                                                         }
-                                                        // If color_code is a Tailwind class name (e.g., "bg-red-500")
                                                         else if (colorItem.color.color_code.startsWith("bg-")) {
-                                                            // Use the Tailwind class directly
-                                                            colorStyle = {}; // We'll use className for Tailwind classes
+                                                            colorStyle = {};
                                                         }
                                                     }
 
-                                                    // Common color mappings (extend this as needed)
                                                     const colorClassMap = {
                                                         Red: "bg-red-500",
                                                         Blue: "bg-blue-500",
@@ -486,14 +505,11 @@ const CategoryProducts = () => {
                                                         Purple: "bg-purple-500",
                                                         Orange: "bg-orange-400",
                                                         Gray: "bg-gray-400",
-                                                        // Add more mappings as needed
                                                     };
 
-                                                    // Determine the class or style to use
                                                     const colorName = color.toLowerCase();
                                                     let colorClass = colorClassMap[color] || "bg-gray-200";
 
-                                                    // If we have a Tailwind class from the API, use that instead
                                                     if (colorItem?.color?.color_code?.startsWith("bg-")) {
                                                         colorClass = colorItem.color.color_code;
                                                     }
@@ -523,7 +539,6 @@ const CategoryProducts = () => {
                             </div>
                         </div>
 
-                        {/* Mobile filter overlay */}
                         {mobileFiltersOpen && (
                             <div className="fixed inset-0 z-50 overflow-y-auto md:hidden">
                                 <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -545,7 +560,6 @@ const CategoryProducts = () => {
                                                 </button>
                                             </div>
                                             <div className="overflow-y-auto max-h-96">
-                                                {/* Brand filter */}
                                                 {brands.length > 0 && (
                                                     <div className="mb-6">
                                                         <div
@@ -585,7 +599,6 @@ const CategoryProducts = () => {
                                                     </div>
                                                 )}
 
-                                                {/* Category filter */}
                                                 {categories.length > 0 && (
                                                     <div className="mb-6">
                                                         <div
@@ -675,7 +688,6 @@ const CategoryProducts = () => {
                                                     )}
                                                 </div>
 
-                                                {/* Size filter */}
                                                 {sizes.length > 0 && (
                                                     <div className="mb-6">
                                                         <div
@@ -711,7 +723,6 @@ const CategoryProducts = () => {
                                                     </div>
                                                 )}
 
-                                                {/* Color filter */}
                                                 {colors.length > 0 && (
                                                     <div className="mb-6">
                                                         <div
@@ -783,31 +794,14 @@ const CategoryProducts = () => {
                             </div>
                         )}
 
-                        {/* Product grid */}
                         <div className="flex-1">
-                            {/* Sorting options */}
                             <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center">
                                 <div className="text-sm text-gray-500">
                                     Showing {filteredProducts.length} of {products.length} products
                                 </div>
-                                {/* <div className="flex items-center">
-                                    <label htmlFor="sort" className="mr-2 text-sm text-gray-600">
-                                        Sort by:
-                                    </label>
-                                    <select
-                                        id="sort"
-                                        value={sortOption}
-                                        onChange={handleSortChange}
-                                        className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    >
-                                        <option value="featured">Featured</option>
-                                        <option value="price-low-high">Price: Low to High</option>
-                                        <option value="price-high-low">Price: High to Low</option>
-                                    </select>
-                                </div> */}
+                               
                             </div>
 
-                            {/* Products */}
                             {filteredProducts.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-1 ">
                                     {filteredProducts.map((product) => (
@@ -858,10 +852,10 @@ const CategoryProducts = () => {
                                                     {product?.offers?.[0]?.discount_percentage > 0 ? (
                                                         <>
                                                             <span className="text-sm text-gray-400 line-through mr-2">
-                                                                ${product.items[0].sale_price}
+                                                                ₹{product.items[0].sale_price}
                                                             </span>
                                                             <span className="text-lg font-bold text-green-600">
-                                                                $
+                                                                ₹
                                                                 {(
                                                                     parseFloat(product.items[0].sale_price) *
                                                                     (1 -
@@ -872,7 +866,7 @@ const CategoryProducts = () => {
                                                         </>
                                                     ) : (
                                                         <span className="text-lg font-bold text-gray-800">
-                                                            ${product.items[0].sale_price}
+                                                            ₹{product.items[0].sale_price}
                                                         </span>
                                                     )}
                                                 </div>

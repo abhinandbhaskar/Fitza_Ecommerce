@@ -66,7 +66,7 @@ const SellerInfoSection = ({ value }) => {
       alt="Seller Banner"
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent flex items-end p-8">
-      <p className="text-white font-medium text-lg">Seller Dashboard Preview</p>
+      <p className="text-white font-medium text-lg"></p>
     </div>
   </div>
 </div>
